@@ -16,6 +16,13 @@
 // the subspace eigenvectors through a linear transformation (see
 // Saad, p.175).
 //
+#ifdef ARPACK
+// The eigensystem calculation is handled by ARPACK.
+#else
+// The default eigensystem calculation is via the "Barkley" algorithm
+// described in [5].
+#endif
+//
 // USAGE
 // -----
 // dog [options] session
@@ -27,8 +34,9 @@
 //   -k <num> ... set dimension of subspace (maximum number of pairs) to num
 //   -m <num> ... set maximum number of iterations         (m >= k)
 //   -n <num> ... compute num eigenvalue/eigenvector pairs (n <= k)
-//   -t <num> ... set eigenvalue tolerance to num [Default = 1e-6].
+//   -t <num> ... set eigenvalue tolerance to num [Default = 1e-6]
 //   -p       ... recompute the pressure eigenvector
+//   -d       ... disable testing for failure owing to growing residuals
 //
 // AUTHOR:
 // ------
@@ -108,7 +116,7 @@ static Mesh*            mesh;
 static BCmgr*           bman;
 
 static void  getargs    (int, char**, problem_t&, int_t&, int_t&, int_t&,
-			 int_t&, real_t&, bool&, char*&);
+			 int_t&, real_t&, bool&, bool&, char*&);
 static int_t preprocess (const char*, bool&);
 
 static void  EV_init    (real_t*);
@@ -140,11 +148,13 @@ int main (int    argc,
   char      buf[StrMax];
   ofstream  runinfo;
   problem_t task = PRIMAL;
-  bool      restart = false, pEV = false;
+  bool      restart = false, pEV = false, dtest = false;
+
+  // -- dtest = true ==> disable residual growth test in DB algorithm.
 
   Femlib::initialize (&argc, &argv);
 
-  getargs (argc, argv, task, kdim, nits, nvec, verbose, evtol, pEV, session);
+  getargs (argc,argv, task,kdim,nits,nvec,verbose,evtol,pEV,dtest, session);
 
   // -- Check, echo parameter values.
 
@@ -276,7 +286,7 @@ int main (int    argc,
   }
 
 
-#else                           // -- Eigensolution by DB algorithm.
+#else                           // -- Eigensolution by DB algorithm [5].
 
   // -- Allocate and zero eigenproblem storage.
 
@@ -354,6 +364,7 @@ int main (int    argc,
     EV_small (Tseq, ntot, alpha, kdim, zvec, wr, wi, resnorm, verbose,runinfo);
 
     converged = EV_test (i, kdim, zvec, wr, wi, resnorm, evtol, nvec, runinfo);
+    if (dtest) converged = max (converged, 0); // -- Only exit on evtol.
   }
 
   EV_post (task, Tseq, Kseq, ntot, min(--i,kdim), nvec, zvec, wr, wi,
@@ -579,9 +590,8 @@ static int_t EV_test (const int_t  itrn   ,
 // ---------------------------------------------------------------------------
 {
   int_t          i, idone = 0;
-  vector<real_t> work (kdim);
+  vector<real_t> resid (kdim);
   real_t         re_ev, im_ev, abs_ev, ang_ev, re_Aev, im_Aev;
-  real_t*        resid = &work[0];
   const real_t   period = Femlib::value ("D_T * N_STEP");
   static real_t  min_max1, min_max2;
  
@@ -595,7 +605,7 @@ static int_t EV_test (const int_t  itrn   ,
       fabs (zvec[kdim - 1 + i*kdim]) / Blas::nrm2 (kdim, zvec + i*kdim, 1);
     if (wi[i] < 0.0) resid[i - 1] = resid[i] = hypot (resid[i - 1], resid[i]);
   }
-  EV_sort (zvec, wr, wi, resid, kdim);
+  EV_sort (zvec, wr, wi, &resid[0], kdim);
 
   // -- Stopping test.
 
@@ -608,11 +618,7 @@ static int_t EV_test (const int_t  itrn   ,
 
   // -- Print diagnostic information.
 
-#if 1
   runinfo << "-- Iteration = " << itrn << ", H(k+1, k) = " << resnorm << endl;
-#else
-  runinfo << resnorm << endl;
-#endif
 
   runinfo.precision(4);
   runinfo.setf(ios::scientific, ios::floatfield);
@@ -718,8 +724,10 @@ static void EV_post (const problem_t task,
   if (icon == 0) {
 
     runinfo << prog
-	 << ": not converged, writing final Krylov vector."
-	 << endl;
+	    << ": not converged in "
+	    << Femlib::ivalue ("KRYLOV_NITS")
+	    << " iterations, writing final Krylov vector."
+	    << endl;
 
     // -- At present, this output is dealt with automatically in integrate().
     //    But we do it again here; we may want to modify Domain::dump().
@@ -734,8 +742,10 @@ static void EV_post (const problem_t task,
   } else if (icon < 0) {
     
     runinfo << prog
-	 << ": minimum residual reached, writing initial Krylov vector."
-	 << endl;
+	    << ": minimum residual reached (icon ="
+	    << icon
+	    << "), writing initial Krylov vector."
+	    << endl;
     
     src = Kseq[0];
     for (i = 0; i < ND; i++)
@@ -749,10 +759,10 @@ static void EV_post (const problem_t task,
   } else if (icon == nvec) {
 
     runinfo << prog
-	 << ": converged, writing "
-	 << icon
-	 << " eigenvectors."
-	 << endl;
+	    << ": converged, writing "
+	    << icon
+	    << " eigenvectors."
+	    << endl;
     
     EV_big (task, Tseq, Kseq, ntot, kdim, icon, zvec, wr, wi, runinfo);
     for (j = 0; j < icon; j++) {
@@ -877,6 +887,7 @@ static void getargs (int        argc   ,
 		     int_t&     verbose,
 		     real_t&    evtol  ,
 		     bool&      pEV    ,
+		     bool&      dtest  ,
 		     char*&     session)
 // ---------------------------------------------------------------------------
 // Parse command-line arguments.
@@ -891,7 +902,8 @@ static void getargs (int        argc   ,
     "-m <num> ... set maximum number of iterations         (m >= k)\n"
     "-n <num> ... compute num eigenvalue/eigenvector pairs (n <= k)\n"
     "-t <num> ... set eigenvalue tolerance to num [Default 1e-6]\n"
-    "-p       ... compute pressure from converged velocity eigenvector\n";
+    "-p       ... compute pressure from converged velocity eigenvector\n"
+    "-d       ... disable failure on residual growth\n";
 
   while (--argc && **++argv == '-')
     switch (*++argv[0]) {
@@ -915,6 +927,9 @@ static void getargs (int        argc   ,
     case 'p':
       pEV = true;
       break;
+    case 'd':
+      dtest = true;
+      break;
     case 'k':
       if (*++argv[0]) kdim  = atoi (  *argv);
       else { --argc;  kdim  = atoi (*++argv); }
@@ -937,7 +952,7 @@ static void getargs (int        argc   ,
       break;
     }
 
-  if (pEV && (task == GROWTH) || (task == SHRINK))
+  if (pEV && ((task == GROWTH) || (task == SHRINK)))
     message (prog, "can't request pressure eigenvector in SVD problem", ERROR);
 
   if   (argc != 1) message (prog, "no session file",   ERROR);

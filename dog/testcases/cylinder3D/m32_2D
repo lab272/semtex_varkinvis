@@ -15,7 +15,7 @@
 </FIELDS>
 
 <TOKENS>
-	PERIOD    = 4.96192
+      	PERIOD    = 4.96192
 	N_STEP	  = 1024
 	D_T       = PERIOD/N_STEP
 

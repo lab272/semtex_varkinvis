@@ -6,18 +6,12 @@
         N_BASE   = 2
         N_TIME   = 2
 
+	Re_D     = 7500
+	KINVIS   = 1/Re_D
+
         N_P      = 11
         N_STEP   = 200
         D_T      = 0.005
-
-omega = 0.24989
-period = TWOPI/omega
-tevolv = 0.5 * period
-N_STEP = 2500
-D_T    = tevolv/N_STEP
-
-        Re_D     = 7500
-        KINVIS   = 1/Re_D
 
         IO_HIS   = 20
         IO_FLD   = 1000

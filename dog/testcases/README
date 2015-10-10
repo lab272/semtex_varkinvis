@@ -102,8 +102,9 @@ dog: converged, writing 1 eigenvectors.
 stenosis3D
 ----------
 
-Steady axisymmetric flow in a cylindrical stenosis has an
-unstable 3D mode, k = 1, which becomes unstable at Re=722 (Sherwin & Blackburn, JFM 533).
+Steady axisymmetric flow in a cylindrical stenosis has an unstable 3D
+mode, k = 1, which becomes unstable at Re=722 (Sherwin & Blackburn,
+JFM 533).
 
 For Re=500 these are the results of running
 
@@ -121,7 +122,10 @@ EV  Magnitude   Angle       Growth      Frequency   Residual
  7  4.1284e-01  0.0000e+00 -1.7694e+00  0.0000e+00  8.3031e-02
 dog: converged, writing 1 eigenvectors.
 
-The domain size and resolution used in this example are both smaller and lower than that in the article cited above.  The growth rate is however very close to the value for Re=500 and k=1 seen in (inset to) figure 5 there.
+The domain size and resolution used in this example are both smaller
+and lower than that in the article cited above.  The growth rate is
+however very close to the value for Re=500 and k=1 seen in (inset to)
+figure 5 there.
 
 PERIODIC FLOWS
 ==============
@@ -135,18 +139,28 @@ unstable to a 3C/3D synchronous "mode A" instability.
 Barkley & Henderson (1996), Three-dimensional Floquet stability
 analysis of the wake of a circular cylinder, JFM 322: 215-241.
 
-These are the results (after 16 cycles) of running
+For BETA=1.7, these are the results of running
 
 dog -k 12 -n 1 -m 40 -t 1e-6 m32
 
--- Iteration = 16, H(k+1, k) = 0.61409
+-- Iteration = 27, H(k+1, k) = 0.626064
 EV  Magnitude   Angle       Growth      Frequency   Residual
- 0  1.2674e+00  0.0000e+00  4.7754e-02  0.0000e+00  1.6512e-03
- 1  3.4486e-01  0.0000e+00 -2.1456e-01  0.0000e+00  6.8124e-02
- 2  4.1256e-01  1.2434e+00 -1.7843e-01  2.5059e-01  1.0291e-01
- 3  4.1256e-01 -1.2434e+00 -1.7843e-01 -2.5059e-01  1.0291e-01
+ 0  1.2675e+00  0.0000e+00  4.7781e-02  0.0000e+00  9.5656e-07
+ 1  7.1953e-01  1.8237e+00 -6.6337e-02  3.6754e-01  1.5397e-01
+ 2  7.1953e-01 -1.8237e+00 -6.6337e-02 -3.6754e-01  1.5397e-01
+ 3  6.1780e-01  7.4672e-01 -9.7057e-02  1.5049e-01  2.4741e-01
+ 4  6.1780e-01 -7.4672e-01 -9.7057e-02 -1.5049e-01  2.4741e-01
+ 5  6.9896e-01  2.9103e+00 -7.2183e-02  5.8652e-01  2.4804e-01
+ 6  6.9896e-01 -2.9103e+00 -7.2183e-02 -5.8652e-01  2.4804e-01
+ 7  6.6738e-01  2.3735e+00 -8.1500e-02  4.7834e-01  3.0505e-01
+ 8  6.6738e-01 -2.3735e+00 -8.1500e-02 -4.7834e-01  3.0505e-01
+ 9  5.1471e-01  0.0000e+00 -1.3385e-01  0.0000e+00  4.2605e-01
+10  3.1872e-01  1.0060e+00 -2.3045e-01  2.0275e-01  4.8428e-01
+11  3.1872e-01 -1.0060e+00 -2.3045e-01 -2.0275e-01  4.8428e-01
+dog: converged, writing 1 eigenvectors.
 
-The residual actually fails to get much lower for this analysis.
+Compare the peak value in Barkley and Henderson, figure 5 (value close
+to 1.3): we are probably a little under-resolved.
 
 cavityTW
 --------
