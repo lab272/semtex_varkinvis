@@ -17,7 +17,11 @@
 // Saad, p.175).
 //
 #ifdef ARPACK
-// The eigensystem calculation is handled by ARPACK.
+// The eigensystem calculation is handled by ARPACK.  Despite what the
+// documentation says, the MXITER flag (iparam[2] here) is only an
+// output value.  Convergence seems solely determined by tolerance
+// value (which BTW has a different meaning than for the "Barkley"
+// algorithm: TOL here is usually lower than for the Barkley algorithm.)
 #else
 // The default eigensystem calculation is via the "Barkley" algorithm
 // described in [5].
@@ -156,19 +160,19 @@ int main (int    argc,
 
   getargs (argc,argv, task,kdim,nits,nvec,verbose,evtol,pEV,dtest, session);
 
-  // -- Check, echo parameter values.
-
-  if (kdim < 1)    message (prog, "param error: KDIM must be > 1",     ERROR);
-  if (nvec < 1)    message (prog, "param error: NVEC must be > 1",     ERROR);
-  if (nits < kdim) message (prog, "param error: NITS must be >= KDIM", ERROR);
-  if (kdim < nvec) message (prog, "param error: NVEC must be <= KDIM", ERROR);
-
   // -- Install lookup copies for reporting purposes.
 
   Femlib::ivalue ("KRYLOV_KDIM", kdim);
   Femlib::ivalue ("KRYLOV_NVEC", nvec);
   Femlib::ivalue ("KRYLOV_NITS", nits);
   Femlib::value  ("KRYLOV_KTOL", evtol);
+
+#if defined (ARPACK)		// -- Eigensolution by ARPACK.
+
+  // -- Check parameter values.
+
+  if (nvec < 1)      message(prog,"param error: NVEC must be >= 1",     ERROR);
+  if (kdim < nvec+2) message(prog,"param error: KDIM must be >= NVEC+2",ERROR);
 
   strcat (strcpy (buf, session), ".evl");
   runinfo.open (buf, ios::out);
@@ -177,14 +181,21 @@ int main (int    argc,
   
   const int_t ntot = preprocess (session, restart);
 
-#if defined (ARPACK)		// -- Eigensolution by ARPACK.
+  // -- ARPACK-specific allocations.
 
-  const int_t done = 99, lworkl = 3*kdim*kdim + 6*kdim;
+#if 0         
+  bool        symmetric = ((task == GROWTH)||(task == SHRINK)) ? true : false;
+#else         // -- For now, leave DNAUPD as default:
+  bool        symmetric = false;
+#endif
+  const int   lworkl = (symmetric) ? kdim*kdim + 8*kdim : 3*kdim*kdim + 6*kdim;
+  const int_t done = 99;
   int_t       ido, info, iparam[11], ipntr[14], select[kdim];
+
 
   iparam [0] = 1;		// -- Shifting will be handled by ARPACK.
   iparam [1] = 0; 		// -- Not used.
-  iparam [2] = nits;		// -- Input: maximum, output: number done.
+  iparam [2] = nits;		// -- Output: number done.
   iparam [3] = 1;		// -- Blocksize, ARPACK say = 1.
   iparam [4] = 0;		// -- Output, number of converged values.
   iparam [5] = 0;		// -- Not used.
@@ -205,40 +216,65 @@ int main (int    argc,
   real_t*        v      = workl + lworkl;
   real_t*        resid  = v + ntot*kdim;
   real_t*        dr     = resid + ntot;
-  real_t*        di     = dr + nvec + 1;
+  real_t*        di     = dr + nvec + 1; // -- Not used by symmetric case.
   real_t*        workev = di + nvec + 1;
   real_t*        z      = workev + 3*kdim;
 
-  // -- Either read in a restart, or set random IC. 
+  // -- Either read in a restart, or set random IC.
+  //    (The initial condition is set externally: info = 1.)
 
   EV_init (resid);
-
+  
   // -- Set up for reverse communication.
 
-  F77NAME(dnaupd) (ido=0, "I", ntot, "LM", nvec, evtol, resid, kdim, 
-		   v, ntot, iparam, ipntr, workd, workl, lworkl, info=1);
+  if (symmetric)
+    F77NAME(dsaupd) (ido=0, "I", ntot, "LM", nvec, evtol, resid, kdim, 
+		     v, ntot, iparam, ipntr, workd, workl, lworkl, info=1);
+  else 
+    F77NAME(dnaupd) (ido=0, "I", ntot, "LM", nvec, evtol, resid, kdim, 
+		     v, ntot, iparam, ipntr, workd, workl, lworkl, info=1);
+
+  if (info != 0) message (prog, "ARPACK dnaupd initialisation error", ERROR);
 
   // -- IRAM iteration.
 
   i = 0;
-  while (ido != done) {
+  while (ido != done and info == 0) {
+
     EV_update (task, workd+ipntr[0]-1, workd+ipntr[1]-1);
 
-    F77NAME(dnaupd) (ido, "I", ntot, "LM", nvec, evtol, resid, kdim,
-		     v, ntot, iparam, ipntr, workd, workl, lworkl, info);
-
-    runinfo << "ARPACK iteration: " << ++i << endl;
+    if (symmetric) {
+      F77NAME(dsaupd) (ido, "I", ntot, "LM", nvec, evtol, resid, kdim,
+		       v, ntot, iparam, ipntr, workd, workl, lworkl, info);
+      runinfo << "ARPACK DSAUPD iteration: " << ++i << endl;
+    } else {
+      F77NAME(dnaupd) (ido, "I", ntot, "LM", nvec, evtol, resid, kdim,
+		       v, ntot, iparam, ipntr, workd, workl, lworkl, info);
+      runinfo << "ARPACK DNAUPD iteration: " << ++i << endl;
+    }
   }
 
-  if (info < 0) message (prog, "ARPACK error", ERROR);
+  if (info < 0) message (prog, "DN/SAUPD iteration error",           ERROR);
+  if (info > 0) message (prog, "DN/SAUPD exceeded maximum restarts", ERROR);
 
-  runinfo << "Converged in " << iparam[8] << " iterations" << endl;
+  runinfo << "--" << endl;
+  runinfo << "Converged " 
+	  << iparam[4] << " Ritz eigenvalue(s) within "
+          << evtol     << " in " 
+	  << iparam[8] << " operations, "
+	  << iparam[2] << " restart(s)." << endl;
 
   // -- Post-process to obtain eigenvalues and Ritz eigenvectors.
 
-  F77NAME(dneupd) (1, "A", select, dr, di, z, ntot, 0, 0, workev,
-		   "I", ntot, "LM", nvec, evtol, resid, kdim,
-		   v, ntot, iparam, ipntr, workd, workl, lworkl, info);
+  if (symmetric)
+    F77NAME(dseupd) (1, "A", select, dr, z, ntot, 0,
+		     "I", ntot, "LM", nvec, evtol, resid, kdim,
+		     v, ntot, iparam, ipntr, workd, workl, lworkl, info);
+
+  else
+    F77NAME(dneupd) (1, "A", select, dr, di, z, ntot, 0, 0, workev,
+		     "I", ntot, "LM", nvec, evtol, resid, kdim,
+		     v, ntot, iparam, ipntr, workd, workl, lworkl, info);
 
   // -- Print up eigenvalues.
 
@@ -251,8 +287,13 @@ int main (int    argc,
   runinfo << "EV  Magnitude   Angle       Growth      Frequency" << endl;
 
   for (j = 0; j < nvec; j++) {
-    re_ev  = dr[j];
-    im_ev  = di[j];
+    if (symmetric) {
+      re_ev  = dr[j];
+      im_ev  = 0.0;
+    } else {
+      re_ev  = dr[j];
+      im_ev  = di[j];
+    }
     abs_ev = hypot (re_ev, im_ev);
     ang_ev = atan2 (im_ev, re_ev);
     re_Aev = log (abs_ev) / period;
@@ -279,6 +320,8 @@ int main (int    argc,
       switch (task) {
       case PRIMAL:  integrate (linAdvect , domain, bman, analyst); break;
       case ADJOINT: integrate (linAdvectT, domain, bman, analyst); break;
+      case SHRINK:
+      case GROWTH: break;
       }
     sprintf   (msg, ".eig.%1d", j);
     strcat    (strcpy (nom, domain -> name), msg);
@@ -287,6 +330,21 @@ int main (int    argc,
 
 
 #else                           // -- Eigensolution by DB algorithm [5].
+
+  // -- Check parameter values.
+
+  if (kdim < 1)    message (prog, "param error: KDIM must be > 1",     ERROR);
+  if (nvec < 1)    message (prog, "param error: NVEC must be > 1",     ERROR);
+  if (nits < kdim) message (prog, "param error: NITS must be >= KDIM", ERROR);
+  if (kdim < nvec) message (prog, "param error: NVEC must be <= KDIM", ERROR);
+
+  strcat (strcpy (buf, session), ".evl");
+  runinfo.open (buf, ios::out);
+
+  // -- Set up to run with semtex.
+  
+  const int_t ntot = preprocess (session, restart);
+
 
   // -- Allocate and zero eigenproblem storage.
 
@@ -774,6 +832,8 @@ static void EV_post (const problem_t task,
 	switch (task) {
 	case PRIMAL: integrate  (linAdvect , domain, bman, analyst); break;
 	case ADJOINT: integrate (linAdvectT, domain, bman, analyst); break;
+	case SHRINK:
+	case GROWTH: break;
 	}
       sprintf   (msg, ".eig.%1d", j);
       strcat    (strcpy (nom, domain -> name), msg);

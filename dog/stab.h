@@ -10,10 +10,8 @@
 #include <sem.h>
 #include <data2df.h>
 
-typedef enum { PRIMAL, ADJOINT, GROWTH, SHRINK, EVD, SVD } problem_t;
+typedef enum { PRIMAL, ADJOINT, GROWTH, SHRINK } problem_t;
 
-// -- EVD => eigenvalue decomposition.
-// -- SVD => singular value decomposition.
 
 class StabAnalyser : public Analyser
 // ===========================================================================
@@ -38,13 +36,16 @@ void linAdvectT (Domain*, BCmgr*, AuxField**, AuxField**);
 
 extern "C" {
 #if defined (ARPACK)
+
+// -- Nonsymmetric eigensystem.
+
   void F77NAME(dnaupd) 		// -- ARPACK reverse-communications interface.
     (int_t&         ido   ,
      const char*    bmat  ,
      const int_t&   n     ,
      const char*    which ,
      const int_t&   nev   ,
-     const real_t&  tol   ,
+     real_t&        tol   ,
      real_t*        resid ,
      const int_t&   ncv   ,
      real_t*        v     ,
@@ -70,7 +71,50 @@ extern "C" {
      const int_t&   n     ,
      const char*    which ,
      const int_t&   nev   ,
-     const real_t&  tol   ,
+     real_t&        tol   ,
+     real_t*        resid ,
+     const int_t&   ncv   ,
+     real_t*        v     ,
+     const int_t&   ldv   ,
+     int_t*         iparam,
+     int_t*         ipntr ,
+     real_t*        workd ,
+     real_t*        workl ,
+     const int_t&   lworkl,
+     int_t&         info  );
+
+// -- Symmetric eigensystem.
+
+  void F77NAME(dsaupd) 		// -- ARPACK reverse-communications interface.
+    (int_t&         ido   ,
+     const char*    bmat  ,
+     const int_t&   n     ,
+     const char*    which ,
+     const int_t&   nev   ,
+     real_t&        tol   ,
+     real_t*        resid ,
+     const int_t&   ncv   ,
+     real_t*        v     ,
+     const int_t&   ldv   ,
+     int_t*         iparam,
+     int_t*         ipntr ,
+     real_t*        workd ,
+     real_t*        workl ,
+     const int_t&   lworkl,
+     int_t&         info  );
+  void F77NAME(dseupd)		// -- Postprocessing.
+    (const int_t&   rvec  ,
+     const char*    howmny,
+     const int*     select,
+     real_t*        dr    ,
+     real_t*        z     ,
+     const int_t&   ldz   ,
+     const real_t&  sigma ,
+     const char*    bmat  ,	// -- Remainder unchanged after dsaupd.
+     const int_t&   n     ,
+     const char*    which ,
+     const int_t&   nev   ,
+     real_t&        tol   ,
      real_t*        resid ,
      const int_t&   ncv   ,
      real_t*        v     ,
