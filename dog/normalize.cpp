@@ -32,10 +32,6 @@
 // multiplicative factor (supplied on command line).
 //
 // Take only the first dump in the field file. 
-// 
-// Note that this code is an update of "normalise.C", which uses the
-// discrete 2-norm of the velocity vector, rather then the L_2 norm.
-// 
 ///////////////////////////////////////////////////////////////////////////////
 
 static char RCS[] = "$Id$";
