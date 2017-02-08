@@ -81,7 +81,8 @@ greater than 1 signal that the base flow is periodic in time, and the
 base flow field file should have the same number of dumps in it (this
 is checked at run-time); these are read into memory and used as the
 basis of Fourier reconstruction of the velocity field at any point in
-time.
+time.  Note that the base flow file is assumed to contain a pressure
+field, but this is ignored/skipped over when input by dog.
 
 The "perturbation field" can be regarded as a Fourier mode, and dealt
 with always in Fourier-transformed space. It is possible for the
