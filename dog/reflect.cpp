@@ -4,7 +4,7 @@
 // explicitly supressed by setting revpar == true (command line).
 //
 // If negation is called for, the velocity component that would cross
-// the reflectoin boundary is not negated, but the other thwo are.
+// the reflectoin boundary is not negated, but the other two are.
 //
 // Built from semtex/utility/data2df_template.cpp.  See also
 // dog/symmetrise.cpp and flipmap.cpp

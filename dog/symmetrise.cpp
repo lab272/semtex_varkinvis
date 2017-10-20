@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // symmetrise.C: Read in a data file header and its data (no geometric
 // information) and enforce reflection symmetry using node lists
-// created by flipmap.  See also drive.C
+// created by flipmap.  See also drive.cpp.
 //
 // Copyright (c) 2008 <--> $Date$, Hugh Blackburn
 //
@@ -20,7 +20,7 @@
 //    u(-x,y) = -u(x,y),  v(-x,y) =  v(x,y),   w(-x,y) = w(x,y)
 // If generator == 'y' then we have a refection in the x axis, i.e.
 //    u(x,-y) =  u(x,y),  v(x,-y) = -v(x,-y),  w(-x,y) = w(x,y)
-// If generator == 'd' then we have refflections in both x and y axes, i.e.
+// If generator == 'd' then we have reflections in both x and y axes, i.e.
 //    u(-x,-y) =  -u(x,y),  v(-x,-y) = -v(x,y),  w(-x,-y) = w(x,y)
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +60,7 @@ int main (int    argc,
 
   for (i = 0; i < h.nFields(); i++) {
 
-    // - Create u[i].
+    // -- Create u[i].
 
     u[i] = new Data2DF (h.nr, h.nz, h.nel, h.flds[i]);
 
@@ -71,59 +71,24 @@ int main (int    argc,
 
     // -- Make symmetric/antisymmetric parts of selected velocity components.
 
+    (*tmp = *u[i]) . reflect2D (positive, negative); 
+
     if (generator == 'y') {
-      if (u[i] -> getName() == 'u') {
-	*tmp = *u[i];
-	u[i] -> reflect2D (positive, negative);
-	*u[i] += *tmp;
-	*u[i] *= 0.5;
-      } else if (u[i] -> getName() == 'v') {
-	*tmp = *u[i];
-	u[i] -> reflect2D (positive, negative);
-	*u[i] -= *tmp;
-	*u[i] *= 0.5;
-      }	else if (u[i] -> getName() == 'w') {
-	*tmp = *u[i];
-	u[i] -> reflect2D (positive, negative);
-	*u[i] += *tmp;
-	*u[i] *= 0.5;
-      }
+      if      (u[i] -> getName() == 'u') *u[i] += *tmp;
+      else if (u[i] -> getName() == 'v') *u[i] -= *tmp;
+      else if (u[i] -> getName() == 'w') *u[i] += *tmp;
     } else if (generator == 'x') {
-      if (u[i] -> getName() == 'v') {
-	*tmp = *u[i];
-	u[i] -> reflect2D (positive, negative);
-	*u[i] += *tmp;
-	*u[i] *= 0.5;
-      } else if (u[i] -> getName() == 'u') {
-	*tmp = *u[i];
-	u[i] -> reflect2D (positive, negative);
-	*u[i] -= *tmp;
-	*u[i] *= 0.5;
-      } else if (u[i] -> getName() == 'w') {
-	*tmp = *u[i];
-	u[i] -> reflect2D (positive, negative);
-	*u[i] += *tmp;
-	*u[i] *= 0.5;
-      }
+      if      (u[i] -> getName() == 'u') *u[i] -= *tmp;
+      else if (u[i] -> getName() == 'v') *u[i] += *tmp;
+      else if (u[i] -> getName() == 'w') *u[i] += *tmp;
     } else if (generator == 'd') {
-      if (u[i] -> getName() == 'v') {
-	*tmp = *u[i];
-	u[i] -> reflect2D (positive, negative);
-	*u[i] -= *tmp;
-	*u[i] *= 0.5;
-      } else if (u[i] -> getName() == 'u') {
-	*tmp = *u[i];
-	u[i] -> reflect2D (positive, negative);
-	*u[i] -= *tmp;
-	*u[i] *= 0.5;
-      } else if (u[i] -> getName() == 'w') {
-	*tmp = *u[i];
-	u[i] -> reflect2D (positive, negative);
-	*u[i] += *tmp;
-	*u[i] *= 0.5;
-      }
+      if      (u[i] -> getName() == 'u') *u[i] -= *tmp;
+      else if (u[i] -> getName() == 'v') *u[i] -= *tmp;
+      else if (u[i] -> getName() == 'w') *u[i] += *tmp;
     }
 
+    *u[i] *= 0.5;
+    
     // -- Output u[i];
 
     cout << *u[i];
