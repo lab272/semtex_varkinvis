@@ -185,7 +185,7 @@ int main (int    argc,
 
 #if 0         
   bool        symmetric = ((task == GROWTH)||(task == SHRINK)) ? true : false;
-#else         // -- For now, leave DNAUPD as default:
+#else         // -- For now, leave DNAUPD as default for everything:
   bool        symmetric = false;
 #endif
   const int   lworkl = (symmetric) ? kdim*kdim + 8*kdim : 3*kdim*kdim + 6*kdim;
@@ -208,8 +208,7 @@ int main (int    argc,
   // -- Allocate and zero storage.
 
   vector<real_t> work(3*ntot + lworkl + ntot*kdim + ntot +
-		      2*(nvec+1) + 3*kdim + ntot*(nvec+1));
-  work.clear();
+		      2*(nvec+1) + 3*kdim + ntot*(nvec+1), 0.0);
 
   real_t*        workd  = &work[0];
   real_t*        workl  = workd + 3*ntot;
@@ -221,7 +220,7 @@ int main (int    argc,
   real_t*        z      = workev + 3*kdim;
 
   // -- Either read in a restart, or set random IC.
-  //    (The initial condition is set externally: info = 1.)
+  //    (The initial condition is set externally to dnaupd: info = 1.)
 
   EV_init (resid);
   
@@ -272,7 +271,7 @@ int main (int    argc,
 		     v, ntot, iparam, ipntr, workd, workl, lworkl, info);
 
   else
-    F77NAME(dneupd) (1, "A", select, dr, di, z, ntot, 0, 0, workev,
+    F77NAME(dneupd) (1, "A", select, dr, di, z, ntot, 0.0, 0.0, workev,
 		     "I", ntot, "LM", nvec, evtol, resid, kdim,
 		     v, ntot, iparam, ipntr, workd, workl, lworkl, info);
 
