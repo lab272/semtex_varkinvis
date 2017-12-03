@@ -22,6 +22,9 @@
 //    u(x,-y) =  u(x,y),  v(x,-y) = -v(x,-y),  w(-x,y) = w(x,y)
 // If generator == 'd' then we have reflections in both x and y axes, i.e.
 //    u(-x,-y) =  -u(x,y),  v(-x,-y) = -v(x,y),  w(-x,-y) = w(x,y)
+//
+// NB: It seems that the symmetries above could only be correct for a
+// 2D flow field (or the real part of a mode).
 ///////////////////////////////////////////////////////////////////////////////
 
 static char RCS[] = "$Id$";
