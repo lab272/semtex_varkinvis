@@ -263,13 +263,16 @@ int readHB_info(const char* filename,
        fprintf(stderr,"Error: Cannot open file: %s\n",filename);
        return 0;
     }
-
+    
     readHB_header(in_file, Title, Key, mat_type, &Nrow, &Ncol, &Nnzero, Nrhs,
                   Ptrfmt, Indfmt, Valfmt, Rhsfmt, 
                   &Ptrcrd, &Indcrd, &Valcrd, &Rhscrd, Rhstype);
+
     fclose(in_file);
+    
     *Type = mat_type;
-    *(Type[3]) = '\0';
+    *(*Type+3) = (char) NULL;  	/* This patch found in Boost by HMB, 2018. */
+    
     *M    = Nrow;
     *N    = Ncol;
     *nz   = Nnzero;
@@ -289,7 +292,6 @@ int readHB_info(const char* filename,
 */
  
     return 1;
-
 }
 
 

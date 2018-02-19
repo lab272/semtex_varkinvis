@@ -52,7 +52,7 @@ The current method is able to compute about the first 3 or 4
 eigenvalues of LOP163, using double precision arithmetic.
 
 Example:
-arnoldi -k 10 -m 800 -n 5 LOP163
+arnoldi-DB -k 10 -m 800 -n 5 LOP163.mat
 
 produces:
 ...

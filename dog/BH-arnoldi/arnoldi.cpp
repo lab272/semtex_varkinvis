@@ -155,8 +155,6 @@ int main (int    argc,
 
   getargs (argc, argv, kdim, nits, nvec, verbose, evtol, HBfile);
 
-
-
   // -- Check parameter values.
 
   if (kdim < 1)    message (prog, "param error: KDIM must be > 1",     ERROR);
@@ -167,8 +165,6 @@ int main (int    argc,
   // -- Open Harwell--Boeing file, extract data.
 
   readHB_info (HBfile, &HBnr, &HBnc, &HBnz, &HBtype, &HBnrhs);
-
-
 
   if (verbose) {
     cerr << "Matrix in file " << HBfile << "is " << HBnr << " x " << HBnc
