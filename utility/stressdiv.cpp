@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 // stressdiv.cpp: from a field file containing Reynolds stresses,
-// compute their divergence to give mean-flow forcing terms.
+// compute their NEGATIVE divergence to give mean-flow forcing terms.
 //
 // Copyright (c) 2010 <--> $Date$, Hugh Blackburn
 //

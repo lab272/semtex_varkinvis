@@ -79,10 +79,11 @@ static void getargs (int       argc ,
   while (--argc  && **++argv == '-')
     switch (*++argv[0]) {
     case 'h':
+      cerr << "-- Preset internal variables:"  << endl;
+      yy_show ();
+      cerr << endl;
       cerr << "-- Calculator operators, functions and procedures:" << endl;
       yy_help ();
-      cerr << endl << "-- Preset internal variables:"  << endl;
-      yy_show ();
       exit (EXIT_SUCCESS);
       break;
     default:

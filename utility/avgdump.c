@@ -27,7 +27,8 @@
  *
  * The amounts to first-order recursive filtering with a time constant
  * -ln(1 - eps).  In this case the step number in the old file is not
- * used although it gets updated and stored.
+ * used although it gets updated and stored.  For this mode, the
+ * command-line initialization flag "-i" is not needed (is ignored).
  *
  * USAGE
  * -----

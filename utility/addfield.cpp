@@ -15,7 +15,7 @@
 //   options:
 //   -h        ... print this message
 //   -q        ... add kinetic energy per unit mass 0.5(u.u) (default)
-//   -d        ... add divergence div(u)
+//   -d        ... add divergence abs(div(u))
 //   -v        ... add vorticity w=curl(u)
 //   -e        ... add enstrophy 0.5(w.w)
 //   -H        ... add helicity 0.5(u.w) (3D only)
@@ -26,6 +26,7 @@
 //   -J        ... add vortex core measure of Jeong & Hussain. (3D only)
 //   -a        ... add all fields derived from velocity (above)
 //   -f <func> ... add a computed function <func> of x, y, z, t, etc.
+//   -n        ... turn off mass smoothing at element boundaries.
 //
 // Reserved field names used/assumed:
 // ---------------------------------
@@ -49,7 +50,7 @@
 // Computed variables:
 // ------------------
 //
-// d -- divergence
+// d -- divergence (actually, its absolute value)
 // e -- enstrophy 0.5*(r^2 + s^2 + t^2) = 0.5 (omega . omega)
 // f -- a computed function of spatial variables
 // g -- strain rate magnitude sqrt(2SijSij)
@@ -129,7 +130,7 @@ enum {
 };
 
 static char  prog[] = "addfield";
-static void  getargs  (int, char**, char*&, char*&, char*&, bool[]);
+static void  getargs  (int, char**, char*&, char*&, char*&, bool&, bool[]);
 static bool  getDump  (Domain*, ifstream&);
 static void  putDump  (Domain*, vector<AuxField*>&, int_t, ostream&);
 
@@ -146,6 +147,7 @@ int main (int    argc,
   int_t                      np, nz, nel, allocSize, NCOM, NDIM;
   int_t                      iAdd = 0;
   bool                       add[FLAG_MAX], need[FLAG_MAX], gradient;
+  bool                       smooth = true;
   ifstream                   file;
   FEML*                      F;
   Mesh*                      M;
@@ -153,7 +155,7 @@ int main (int    argc,
   Domain*                    D;
   vector<Element*>           elmt;
   AuxField                   *Ens, *Hel, *Div, *Disc, *Strain;
-  AuxField                   *Func, *Vtx, *DivL, *Nrg, *work;
+  AuxField                   *Func, *Vtx, *DivL, *Nrg, *InvQ, *InvR, *work;
   vector<AuxField*>          velocity, vorticity, lamb, addField(FLDS_MAX);
   vector<vector<AuxField*> > Vij;     // -- Usually computed, for internal use.
   vector<vector<real_t*> >   VijData; // -- For pointwise access in Vij.
@@ -169,7 +171,7 @@ int main (int    argc,
 
   // -- Read command line.
 
-  getargs (argc, argv, session, dump, func, add);
+  getargs (argc, argv, session, dump, func, smooth, add);
 
   file.open (dump);
   if (!file) message (prog, "can't open input field file", ERROR);
@@ -267,6 +269,10 @@ int main (int    argc,
 
   if (need[DISCRIMINANT]) {
     DisData = new real_t [allocSize];
+    *(InvQ = new AuxField (DisData, nz, elmt)) = 0.0;
+    DisData = new real_t [allocSize];
+    *(InvR = new AuxField (DisData, nz, elmt)) = 0.0;
+    DisData = new real_t [allocSize];
     *(Disc = new AuxField (DisData, nz, elmt, 'D')) = 0.0;
     addField[iAdd++] = Disc;
   }
@@ -352,10 +358,10 @@ int main (int    argc,
 	work = new AuxField (new real_t[allocSize],  nz, elmt);
 	if (NDIM == 3) for (j = 0; j < NCOM; j++) Vij[2][j] -> divY();
 	(*work = *velocity[1]) . divY(); *Vij[2][2] += *work;
-	if (NCOM == 3) { (*work = *velocity[2]) . divY(); *Vij[1][2] += *work; }
+	if (NCOM == 3) { (*work = *velocity[2]) . divY(); *Vij[2][1] -= *work; }
       }
 
-#if 1
+#if 0
       // -- Loop over every point in the mesh and compute everything
       //    from Vij.  Quite likely this could be made more efficient
       //    but for now simplicity is the aim.
@@ -368,6 +374,7 @@ int main (int    argc,
 	}
 
 	// -- These operations produce a simple scalar result from Vij.
+	//    Some of these need checking for cylindrical.
 
 	if (need[DIVERGENCE])   DivData[i] = tensor3::trace      (tensor);
 	if (need[ENSTROPHY])    EnsData[i] = tensor3::enstrophy  (tensor);
@@ -458,17 +465,24 @@ int main (int    argc,
 	// -- Take the 1/3 power of discriminant, thus making it
 	//    dimensionally consistent with the lambda2 criterion (see
 	//    ref [4]), after first clipping to positive values.
-	Disc -> clipUp ();
+	
+	Disc -> clipUp (EPSDP);
 	Disc -> pow (1./3.);
 #endif
       }
 
-      if (need[DIVERGENCE])
-	for (i = 0; i < nComponent; i++) *Div += *Vij[i][i];
+      // -- Note that we do the following summation over 3 (not NCOM)
+      //    since in cylindrical coords if NCOM>=1 there is a v/y
+      //    term in Vij[2][2].
+      
+      if (need[DIVERGENCE]) {
+	for (i = 0; i < 3; i++) *Div += *Vij[i][i];
+	Div -> abs();
+      }
 
     
       if (need[VORTICITY]) {
-	if (nComponent == 2) {
+	if (NCOM == 2) {
 	  *vorticity[0]  = *Vij[1][0];
 	  *vorticity[0] -= *Vij[0][1];
 	} else {
@@ -482,7 +496,7 @@ int main (int    argc,
       }
 
       if (need[DIVLAMB]) {
-	if (nComponent == 2) {
+	if (NCOM == 2) {
 	  *lamb[0] = 0.0;
 	  lamb[0] -> timesMinus (*D -> u[1], *vorticity[0]);
 	  lamb[1] -> times      (*D -> u[0], *vorticity[0]);
@@ -514,20 +528,33 @@ int main (int    argc,
       if (need[HELICITY])
 	Hel -> innerProduct (vorticity, velocity)  *= 0.5;
 
+#if 0
       if (need[STRAINTENSOR]) {
-	for (i = 0; i < nComponent; i++)
-	  for (j = i; j < nComponent; j++) {
+	for (i = 0; i < NCOM; i++)
+	  for (j = i; j < NCOM; j++) {
 	    *Sij[i][j]  = *Vij[i][j];
 	    *Sij[i][j] += *Vij[j][i];
 	    *Sij[i][j] *= 0.5;
 	  }
       }
-
+#endif
+      
       if (need[STRAINRATE]) {
 	*Strain = 0.0;
-	for (i = 0; i < nComponent; i++)
-	  for (j = 0; j < nComponent; j++)
+#if 1   // -- Calculate strain rate just from Vij.
+	for (i = 0; i < NCOM; i++) {
+	  Strain -> timesPlus (*Vij[i][i], *Vij[i][i]);
+	  for (j = i; j < NCOM; j++) {
+	    *work  = *Vij[i][j];
+	    *work += *Vij[j][i];
+	    Strain -> timesPlus (*work, *work);
+	  }
+	}
+#else  // -- Calculate strain rate from rate of strain tensor;
+	for (i = 0; i < NCOM; i++)
+	  for (j = 0; j < NCOM; j++)
 	    Strain -> timesPlus (*Sij[i][j], *Sij[j][i]);
+#endif	
 	(*Strain *= 2.0) . sqroot();
       }
 
@@ -536,13 +563,13 @@ int main (int    argc,
 	  for (k = 0, p = 0; p < 3; p++)
 	    for (q = 0; q < 3; q++, k++)
 	      tensor [k] = VijData[p][q][i];
-	  VtxData[i] = lambda2 (tensor);
+	  VtxData[i] = tensor3::lambda2 (tensor);
 	}
     }
 #endif
     // -- Finally, add mass-projection smoothing on everything.
 
-    for (i = 0; i < iAdd; i++) D -> u[0] -> smooth (addField[i]);
+    if (smooth) for (i = 0; i < iAdd; i++) D -> u[0] -> smooth (addField[i]);
 
     putDump (D, addField, iAdd, cout);
   }
@@ -558,6 +585,7 @@ static void getargs (int    argc   ,
 		     char*& session,
 		     char*& dump   ,
 		     char*& func   ,
+		     bool&  smooth ,
 		     bool*  flag   )
 // ---------------------------------------------------------------------------
 // Deal with command-line arguments.
@@ -568,7 +596,7 @@ static void getargs (int    argc   ,
     "options:\n"
     "  -h        ... print this message \n"
     "  -q        ... add kinetic energy per unit mass 0.5(u.u) (default)\n"
-    "  -d        ... add divergence div(u)\n"
+    "  -d        ... add divergence abs(div(u))\n"
     "  -v        ... add vorticity w=curl(u)\n"
     "  -e        ... add enstrophy 0.5(w.w)\n"
     "  -H        ... add helicity 0.5(u.w) (3D only)\n"
@@ -578,7 +606,8 @@ static void getargs (int    argc   ,
     "                NB: divergence is assumed to be zero. (3D only)\n"
     "  -J        ... add vortex core measure of Jeong & Hussain (3D only)\n"
     "  -a        ... add all fields derived from velocity (above)\n"
-    "  -f <func> ... add a computed function <func> of x, y, z, t, etc.\n";
+    "  -f <func> ... add a computed function <func> of x, y, z, t, etc.\n"
+    "  -n        ... turn off mass-matrix smoothing of computed variables\n";
               
   int_t i, sum = 0;
   char  buf[StrMax];
@@ -606,6 +635,7 @@ static void getargs (int    argc   ,
     case 'f':
       if (*++argv[0]) func = *argv; else { --argc; func = *++argv; }
       flag[FUNCTION] = true; break;
+    case 'n': smooth = false; break;
     default: sprintf (buf, usage, prog); cout<<buf; exit(EXIT_FAILURE); break;
     }
 
@@ -650,15 +680,15 @@ static void putDump  (Domain*            D       ,
     "%-25s "    "Format\n"
   };
 
-  int_t  i, nComponent;
+  int_t  i, NCOM;
   char   routine[] = "putDump";
   char   s1[StrMax], s2[StrMax];
   time_t tp (::time (0));
 
   if (D -> nField() == 1)	// -- Scalar original field.
-    nComponent = 1;
+    NCOM = 1;
   else				// -- Original field was vector.
-    nComponent = (D -> nField() == 3) ? 2 : 3;
+    NCOM = (D -> nField() == 3) ? 2 : 3;
 
   sprintf (s1, hdr_fmt[0], D -> name);
   strm << s1;
@@ -686,10 +716,10 @@ static void putDump  (Domain*            D       ,
   sprintf (s1, hdr_fmt[7], Femlib::value ("BETA"));
   strm << s1;
 
-  for (i = 0; i <= nComponent; i++) s2[i] = D -> u[i] -> name();
+  for (i = 0; i <= NCOM; i++) s2[i] = D -> u[i] -> name();
   for (i = 0; i <  nOut; i++)
-    s2[nComponent + i + 1] = addField[i] -> name();
-  s2[nComponent + nOut + 1] = '\0';
+    s2[NCOM + i + 1] = addField[i] -> name();
+  s2[NCOM + nOut + 1] = '\0';
 
   sprintf (s1, hdr_fmt[8], s2);
   strm << s1;
@@ -699,7 +729,7 @@ static void putDump  (Domain*            D       ,
   sprintf (s1, hdr_fmt[9], s2);
   strm << s1;
 
-  for (i = 0; i <= nComponent; i++) strm << *D -> u[i];
+  for (i = 0; i <= NCOM; i++) strm << *D -> u[i];
   for (i = 0; i < nOut; i++) strm << *addField[i];
 
   if (!strm) message (routine, "failed writing field file", ERROR);
