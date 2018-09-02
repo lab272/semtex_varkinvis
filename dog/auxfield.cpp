@@ -383,6 +383,21 @@ real_t AuxField::integral () const
 }
 
 
+real_t AuxField::area () const
+// ---------------------------------------------------------------------------
+// Return area of AuxField's geometry.
+// ---------------------------------------------------------------------------
+{
+  const int_t nel = Geometry::nElmt();
+  real_t      area = 0.0;
+  int_t       i;
+
+  for (i = 0; i < nel; i++) area += _elmt[i] -> area();
+
+  return area;
+}
+
+
 ostream& operator << (ostream& strm,
 		      AuxField& F   )
 // ---------------------------------------------------------------------------

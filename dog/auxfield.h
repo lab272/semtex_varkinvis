@@ -54,9 +54,10 @@ public:
   AuxField& divY     ();
 
   real_t mode_L2     (const int_t) const;
-  real_t integral    ()          const;
   real_t CFL         (const int_t) const;
-
+  real_t integral    ()            const;
+  real_t area        ()            const;
+  
   real_t probe       (const Element*, const real_t, 
 		      const real_t, const int_t)    const;
   real_t probe       (const Element*, const real_t,

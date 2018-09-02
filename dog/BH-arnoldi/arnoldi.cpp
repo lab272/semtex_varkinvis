@@ -305,12 +305,20 @@ int main (int    argc,
     converged = EV_test (i, kdim, zvec, wr, wi, resnorm, evtol, nvec);
   }
 
+#if 0
+
+  EV_post (Tseq, ntot, kdim, zvec, wr, wi, converged);
+  
+#else
+
   if      (!converged)
     message (prog, "not converged", ERROR);
   else if (converged == nvec)
     message (prog, ": all estimates converged",  REMARK);
   else
     message (prog, ": minimum residual reached", REMARK);
+
+#endif
 
 #endif
 

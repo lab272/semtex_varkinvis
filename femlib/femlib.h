@@ -10,7 +10,10 @@
 #include <cmath>
 
 #include "cfemdef.h"
+
+#if 0
 #include "polylib.h"
+#endif
 
 extern "C" {
 

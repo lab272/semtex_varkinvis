@@ -4,7 +4,7 @@
 // explicitly supressed by setting revpar == true (command line).
 //
 // If negation is called for, the velocity component that would cross
-// the reflectoin boundary is not negated, but the other two are.
+// the reflection boundary is not negated, but the other two are.
 //
 // Built from semtex/utility/data2df_template.cpp.  See also
 // dog/symmetrise.cpp and flipmap.cpp
@@ -24,6 +24,11 @@
 // will have twice as many elements.  It is assumed that the mapfile
 // has a structure appropriate to the task of the reflection mapping
 // on the full domain (mapfile produced by dog/flipmap).
+//
+// A "hidden constraint" with this plan of attack is that the layout
+// of the first half of elements used to generate the flip map has to
+// agree with the layout used on the starting mesh.  This means that
+// the design/layout of the two session files cannot be independent.
 ///////////////////////////////////////////////////////////////////////////////
 
 static char RCS[] = "$Id$";

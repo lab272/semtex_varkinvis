@@ -20,6 +20,19 @@ typedef Point                      Vector;
 #define STR_MAX    2048
 #define F77NAME(x) x##_
 
+/* 
+   Choose Chebyshev or Legendre polynomials as the underlying basis
+   for quadrature points and weights.  Legendre is the default.
+*/
+
+#if defined(CHEBYSHEV)
+#define JAC_ALFA -0.5
+#define JAC_BETA -0.5
+#else
+#define JAC_ALFA  0.0
+#define JAC_BETA  0.0
+#endif
+
 typedef enum quadrature_kind {
   GJ  = 'G',	/* Gauss-Jacobi quadrature.         */
   GLJ = 'L',	/* Gauss-Lobatto-Jacobi quadrature. */

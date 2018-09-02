@@ -6,7 +6,7 @@
 //
 // Synopsis:
 // --------
-// normalize [-h] [-p] [-s scale] session [session.fld]
+// normalize [-h] [-p] [-s scale] [-z] session [session.fld]
 //
 // Description: 
 // ----------- 
@@ -31,6 +31,9 @@
 // Following the normalization, optionally scale by a given
 // multiplicative factor (supplied on command line).
 //
+// If flag -z is specified, also set the integral mean value of each
+// scalar to zero.
+//
 // Take only the first dump in the field file. 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +44,7 @@ static char RCS[] = "$Id$";
 
 static char  prog[]  = "normalize";
 static int_t verbose = 0;
-static void  getargs  (int, char**, char*&, char*&, bool&, real_t&);
+static void  getargs  (int, char**, char*&, char*&, bool&, bool&, real_t&);
 static int_t getDump  (istream&, vector<AuxField*>&, Header&, 
 		       vector<Element*>&, const int_t, const int_t);
 static bool  doSwap   (const char*);
@@ -60,14 +63,14 @@ int main (int    argc,
   real_t             norm, scale = 1.0;
   FEML*              F;
   Mesh*              M;
-  bool               pressure = false;
+  bool               pressure = false, demean = false;
   vector<Element*>   Esys;
   vector<AuxField*>  u;
 
   // -- Initialize.
 
   Femlib::initialize (&argc, &argv);
-  getargs            (argc, argv, session, dump, pressure, scale);
+  getargs            (argc, argv, session, dump, pressure, demean, scale);
 
   if (dump) {
     fldfile = new ifstream (dump);
@@ -97,9 +100,12 @@ int main (int    argc,
     norm = sqrt (2.0 * norm);
   }
 
- // -- Normalisation + scaling.
+ // -- Normalise, scale, demean;
 
-  for (i = 0; i <= NCMP; i++) *u[i] *= scale/norm;
+  for (i = 0; i <= NCMP; i++) {
+    *u[i] *= scale/norm;
+    if (demean) *u[i] -= u[i] -> integral() / u[i] -> area();
+  }
 
   // -- Output.
 
@@ -116,6 +122,7 @@ static void getargs (int     argc    ,
 		     char*&  session ,
 		     char*&  dump    ,
 		     bool&   pressure,
+		     bool&   demean  ,
 		     real_t& scale   )
 // ---------------------------------------------------------------------------
 // Deal with command-line arguments.
@@ -125,7 +132,8 @@ static void getargs (int     argc    ,
     "options:\n"
     "-h       ... print this message\n"
     "-p       ... mode normalization on pressure rather than velocity\n"
-    "-s scale ... multiplicative scale applied after normalization\n";
+    "-s scale ... multiplicative scale applied after normalization\n"
+    "-z       ... demean each field (mass-weighted)\n";
  
   while (--argc && **++argv == '-')
     switch (*++argv[0]) {
@@ -138,6 +146,9 @@ static void getargs (int     argc    ,
       break;
     case 'p':
       pressure = true;
+      break;
+    case 'z':
+      demean = true;
       break;
     case 's':
       if   (*++argv[0]) scale = atof (*argv);

@@ -50,6 +50,7 @@ int main (int    argc,
   Data2DF*         tmp;
   char             generator = 'x';
   vector<int_t>    positive, negative;
+  real_t           mean2d;
 
   Femlib::initialize (&argc, &argv);
   getargs (argc, argv, mapping, input);
@@ -88,6 +89,15 @@ int main (int    argc,
       if      (u[i] -> getName() == 'u') *u[i] -= *tmp;
       else if (u[i] -> getName() == 'v') *u[i] -= *tmp;
       else if (u[i] -> getName() == 'w') *u[i] += *tmp;
+
+#if 0
+      // -- Enforce zero mean value.
+
+      mean2d = Veclib::sum (u[i] -> _ntot, u[i] -> _plane[0], 1)/u[i] -> _ntot;
+
+      Veclib::sadd (u[i] -> _ntot, -mean2d,
+		    u[i] -> _plane[0], 1, u[i] -> _plane[0], 1);
+#endif
     }
 
     *u[i] *= 0.5;

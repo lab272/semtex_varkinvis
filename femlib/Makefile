@@ -24,11 +24,11 @@ endif
 
 INITIAL    = initial
 
-OPERATORS  = polyops  operators  matops  polylib  filter
+OPERATORS  = polyops  polylib  operators  matops  filter
 
-FFT	   = temfftd  canfft  fourier
+FFT	   = temfftd  canfft   fourier
 
-MEMORY     = mapping  family  message
+MEMORY     = mapping  family   message
 
 IMPORT     = netlib
 

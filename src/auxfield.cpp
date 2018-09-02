@@ -1811,21 +1811,20 @@ AuxField& AuxField::mag(const vector <AuxField*>& a)
 // ---------------------------------------------------------------------------
 {
   const char routine[] = "AuxField::vmag(a)";
-  const int_t ndim      = a.size();
-  if (ndim == 2)
-  {
+  const int_t ncom     = a.size();
+  
+  if (ncom == 2) {
     if (_size != a[0]->_size || _size != a[1]->_size)
       message (routine, "non-congruent inputs", ERROR);
     Veclib::vhypot (_size, a[0]->_data, 1, a[1]->_data, 1, _data, 1);
-  }
-  else if (ndim == 3)
-  {
+  } else if (ncom == 3) {
     if (_size != a[2]->_size || _size != a[0]->_size || _size != a[1]->_size)
       message (routine, "non-congruent inputs", ERROR);
-    Veclib::vmag (_size, a[2]->_data, 1, a[0]->_data, 1, a[1]->_data, 1, _data, 1);
-  }
-  else
+    Veclib::vmag (_size,
+		  a[2]->_data, 1, a[0]->_data, 1, a[1]->_data, 1, _data, 1);
+  } else
     message (routine, "need 2D or 3D vector", ERROR);
+  
   return *this;
 }
 

@@ -59,7 +59,7 @@ static char RCS[] = "$Id$";
 
 static char prog[] = "flipmap";
 
-const real_t EPS = EPSSP;	// -- Default positional tolerance.
+const real_t EPS = EPSDP;	// -- Default positional tolerance.
 
 static void  getargs  (int, char**, char&, real_t&, ifstream&);
 static int_t header   (ifstream&);

@@ -1,8 +1,10 @@
 /*****************************************************************************
  * polyops.c:  Routines for manipulating polynomials.
  *
+ * All spectral polynomial routines used by semtex are contained in this file.
+ *
  * Copyright (c) 1994 <--> $Date$, Hugh Blackburn
-  *
+ *
  * This file is part of Semtex.
  * 
  * Semtex is free software; you can redistribute it and/or modify it
@@ -39,12 +41,12 @@
  * dgll    : Derivative operator for Gauss-Lobatto-Legendre interpolant.
  * uniknot : Points uniformly distributed on [-1, 1].
  *
- * Routines that deal specifically with orthogonal polynomials come from
+ * Many routines that deal specifically with orthogonal polynomials come from
  * a library of spectral routines written in FORTRAN by Einar Ronquist, MIT.
  * Many of the formulae used may be found in Canuto, Hussaini, Quarteroni &
  * Zang, "Spectral Methods in Fluid Dynamics", Springer, 1988.
- * The jacobf routine comes from Funaro, as that has been verified to work
- * also for alpha, beta != 0.0, 0.5.
+ * The JACOBF routine comes from Funaro, as that has been verified to work
+ * also for alpha, beta != 0.0, -0.5 (i.e. Legendre and Chebyshev polynomials).
  *
  * Everything here is real_t (double) precision.
  *
@@ -350,7 +352,7 @@ void JACGR (const int_t  n    ,
   real_t          pn, pdn, pnp1, pdnp1, pnm1, pdnm1, func, funcd;
 
   np  = n + 1;
-  con = 2.0 * M_PI / (n<<1 + 1);
+  con = 2.0 * M_PI / ((n<<1) + 1);
 
   for (j = 0; j < np; j++) {
     x = -cos (con * j);
@@ -515,11 +517,11 @@ void ZWGLL (real_t*     z ,
 }
    
 
-void ZWGLJ (real_t*      z ,
-	    real_t*      w ,
+void ZWGLJ (real_t*      z    ,
+	    real_t*      w    ,
 	    const real_t alpha,
 	    const real_t beta ,
-	    const int_t  np)
+	    const int_t  np   )
 /* ------------------------------------------------------------------------- *
  * Gauss-Lobatto-Jacobi points and weights, for Jacobi constants alpha & beta.
  *

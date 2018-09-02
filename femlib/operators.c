@@ -1,5 +1,5 @@
 /*****************************************************************************
- * operators.c:  operators for mesh points, derivatives, quadratures.
+ * operators.c: operators for mesh points, derivatives, quadratures.
  *
  * Copyright (c) 1994 <--> $Date$, Hugh Blackburn
  *
@@ -22,7 +22,7 @@
  *
  *
  * All 2D matrices have row-major ordering (but we have moved to flat storage).
- * All routines are real_t (double) precision.
+ * All routines are real_t (i.e. double) precision.
  * For definitions of constants (LL, GLL, etc) see cfemdef.h.
  *
  * $Id$
