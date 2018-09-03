@@ -66,6 +66,11 @@ void Geometry::set (const int_t nel  ,
 	     _nbase, _npert, _nz); message (routine, err, ERROR);
   }
 
+  // -- We can only allow SO2_2D if BETA != 0.
+
+  if ((_cat == SO2_2D) && (Femlib::value ("BETA") > EPSDP))
+    message (routine, "SO2_2D needs BETA=0, i.e. z-invariance, too.", ERROR);
+
   // -- Other sanity checks.
 
   if (_nproc  > 1) message (routine, "serial execution only",          ERROR);
