@@ -91,18 +91,6 @@ Element::Element (const int_t id,
   Family::adopt (_npnp, &_Q4   );
   Family::adopt (_npnp, &_Q8   );
   Family::adopt (_npnp, &_delta);
-
-#if defined (DAMPING)
-  // -- Compile-in hack for LES.
-#include "damping.C"
-  // -- Van Driest damping.
-  // An ad-hoc modification to mesh length scale to account for wall
-  // effects in LES.  This example is for a pipe flow, radius 0.5.
-  // Femlib::prepVec
-  // ("delta x y","delta*sqrt(1-exp(-(75.27*abs(0.5-sqrt(x*x+y*y)))^3))");
-  // Femlib__parseVec (_npnp, _delta, _xmesh, _ymesh, _delta);
-#endif
-
 }
 
 

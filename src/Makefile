@@ -66,12 +66,14 @@ CFLAGS   = $(DEFINES) $(OPT) -ansi
 CPPFLAGS += -I/sw/include
 CXXFLAGS = $(DEFINES) $(OPT) -ansi -Wno-unused-value  -Wno-parentheses
 FFLAGS   = $(DEFINES) $(OPT)
-LIBDIR   += -L/sw/lib -L/sw/lib/gcc7/lib
+# -- Use the next line with fink
+#LIBDIR   += -L/sw/lib -L/sw/lib/gcc7/lib
 LDFLAGS  = $(OPT) $(LIBDIR) -lfem -lvec $(F77LIBS)
 F77LIBS  = -framework Accelerate -lgfortran
 CLDFLAGS = $(LDFLAGS)
 ifdef MPI
-  LIBDIR   += -L/sw/lib/openmpi
+# -- use the next line with fink
+#  LIBDIR   += -L/sw/lib/openmpi
   LDFLAGS   =  $(OPT) $(LIBDIR) -lfem_mp -lvec $(F77LIBS) -lmpi
 else
   LDFLAGS   =  $(OPT) $(LIBDIR) -lfem -lvec $(F77LIBS)
