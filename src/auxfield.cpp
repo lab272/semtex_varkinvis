@@ -1725,45 +1725,67 @@ void AuxField::lengthScale (real_t* tgt) const
 }
 
 
-real_t AuxField::CFL (const int_t dir) const
+real_t AuxField::CFL (const int_t dir, int_t& el) const
 // ---------------------------------------------------------------------------
 // Return the inverse CFL timescale using this AuxField as a velocity 
 // component in the nominated direction.  Computations only occur on the
 // zeroth Fourier mode.
 // dir == 0 ==> CFL estimate in first direction, 1 ==> 2nd, 2 ==> 3rd.
 // AuxField is presumed to have been Fourier transformed in 3rd direction.
+//
+// Reference: Karniadakis & Sherwin 2e, section 6.3.
 // ---------------------------------------------------------------------------
 {
   const char       routine[] = "AuxField::CFL";
-  const int_t      nel  = Geometry::nElmt();
-  const int_t      npnp = Geometry::nTotElmt();
-  register int_t   i;
+  const int_t      nel      = Geometry::nElmt();
+  const int_t      npnp     = Geometry::nTotElmt();
+  const int_t      nP       = Geometry::nPlane();
+  const int_t      nZ       = Geometry::nZProc();
+  const int_t      nT       = Femlib::ivalue("N_TIME");
+  const real_t     dz       = Femlib::value ("TWOPI / BETA / N_Z");
+  const real_t     alpha    = 0.723;		  // -- Indicative max eigval.
+  const real_t     c_lambda = 0.2;                // -- See reference.
+  const int_t      P        = Geometry::nP() - 1; // -- Polynomial order.
+  register int_t   i, k;
   register real_t* p;
+  register real_t* pk;
   vector<real_t>   work (npnp);
-  real_t           dxy, CFL = 0.0;
+  real_t           CFL = -FLT_MAX;
+  real_t           cfl;
  
-  {
-    const int_t   nP = Geometry::nP();
-    const real_t* z;
-    Femlib::quadrature (&z, 0, 0, 0, nP, GLJ, 0.0, 0.0);
-    dxy = z[1] - z[0];
-  }
-
   switch (dir) {
   case 0:
-    for (p = _data, i = 0; i < nel; i++, p += npnp)
-      CFL = max (CFL, _elmt[i] -> CFL (dxy, p, 0, &work[0]));
+    for (k = 0; k < nZ; k++)
+      for (p = _plane[k], i = 0; i < nel; i++, p += npnp) {
+        cfl = _elmt[i] -> CFL (p, 0, &work[0]);
+        if (cfl > CFL) {
+           el = i;
+           CFL = cfl;
+        }
+      }
+    CFL *= (c_lambda * P * P) / alpha;
     break;
   case 1:
-    for (p = _data, i = 0; i < nel; i++, p += npnp)
-      CFL = max (CFL, _elmt[i] -> CFL (dxy, 0, p, &work[0]));
+    for (k = 0; k < nZ; k++)
+      for (p = _plane[k], i = 0; i < nel; i++, p += npnp) {
+        cfl = _elmt[i] -> CFL (0, p, &work[0]);
+        if (cfl > CFL) {
+           el = i;
+           CFL = cfl;
+        }
+      }
+    CFL *= (c_lambda * P * P) / alpha;
     break;
   case 2: {
-    const int_t  nP = Geometry::nPlane();
-    const real_t dz = Femlib::value ("TWOPI / BETA / N_Z");
-    for (i = 0; i < nP; i++)
-      CFL = max (CFL, fabs (_data[i]));
-    CFL /= dz;
+    for(k = 0; k < nZ; k++)
+      for (i = 0; i < nP; i++) {
+        cfl = fabs (_plane[k][i]);
+        if (cfl > CFL) {
+          el = i%npnp;
+          CFL = cfl;
+        }
+      }
+    CFL *= M_PI / alpha / dz;
     break;
   }
   default:
@@ -1812,7 +1834,6 @@ AuxField& AuxField::mag(const vector <AuxField*>& a)
 {
   const char routine[] = "AuxField::vmag(a)";
   const int_t ncom     = a.size();
-  
   if (ncom == 2) {
     if (_size != a[0]->_size || _size != a[1]->_size)
       message (routine, "non-congruent inputs", ERROR);
@@ -1820,11 +1841,9 @@ AuxField& AuxField::mag(const vector <AuxField*>& a)
   } else if (ncom == 3) {
     if (_size != a[2]->_size || _size != a[0]->_size || _size != a[1]->_size)
       message (routine, "non-congruent inputs", ERROR);
-    Veclib::vmag (_size,
-		  a[2]->_data, 1, a[0]->_data, 1, a[1]->_data, 1, _data, 1);
+    Veclib::vmag (_size,a[2]->_data,1, a[0]->_data,1, a[1]->_data,1, _data,1);
   } else
     message (routine, "need 2D or 3D vector", ERROR);
-  
   return *this;
 }
 

@@ -63,8 +63,10 @@ else
   OPT    = -m64 -O2
 endif
 CFLAGS   = $(DEFINES) $(OPT) -ansi
+# -- Use the next line with fink
 CPPFLAGS += -I/sw/include
-CXXFLAGS = $(DEFINES) $(OPT) -ansi -Wno-unused-value  -Wno-parentheses
+CXXFLAGS = $(DEFINES) $(OPT) -ansi \
+	-Wno-unused-value -Wno-parentheses -Wno-switch
 FFLAGS   = $(DEFINES) $(OPT)
 # -- Use the next line with fink
 #LIBDIR   += -L/sw/lib -L/sw/lib/gcc7/lib

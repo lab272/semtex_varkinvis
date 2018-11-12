@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// nonlinear.C
+// nonlinear.cpp
 //
 // Compute nonlinear (forcing) terms in Navier--Stokes equations: N(u) + f.
 //
@@ -33,6 +33,40 @@ static char RCS[] = "$Id$";
 #include <dns.h>
 
 
+void centrifugalBuoyancy (Domain*            D     ,
+			  const AuxField*    Scalar,
+			  vector<AuxField*>& N     )
+// ----------------------------------------------------------------------------
+// See Lopez, Marques & Avila (2012) JFM 737 for an explanation of
+// this term.  Only used if TOKEN "CENT_BUOY" is non-zero (default is
+// zero).  Because this factors the non-linear advection terms, it is
+// included in this file.  Standard Boussinesq buoyancy owing to a
+// constant potential field (i.e. gravity) is dealt with in
+// fieldforce.cpp.  We will only call this routine if a scalar field
+// is present.
+// ----------------------------------------------------------------------------
+{
+  const int_t      nZP   = Geometry::nZProc();
+  const int_t      nTot  = Geometry::nTotProc();
+  const int_t      nCmpt = D -> nVelCmpt();
+  static real_t*   work;
+  static AuxField* tmp;
+  int_t            i;
+
+  if (!Femlib::ivalue ("CENT_BUOY")) return;
+
+  if (!work) {          // -- First time through, allocate more workspace.
+    work = new real_t [nTot];
+    tmp  = new AuxField (work, nZP, D -> elmt);
+  }
+
+  *tmp  = *Scalar;
+  *tmp -=  Femlib::value ("T_REF");
+  *tmp *= -Femlib::value ("BETA_T");
+  *tmp += 1.0;
+
+  for (i = 0; i < nCmpt; i++) *N[i] *= *tmp;
+}
 
 
 void skewSymmetric (Domain*     D ,
@@ -69,6 +103,8 @@ void skewSymmetric (Domain*     D ,
 // NB: for the cylindrical coordinate formulation we actually here 
 // compute y*Nx, y*Ny, Nz, as outlined in Blackburn & Sherwin (2004).
 //
+// If a scalar, c, is present, also compute the advection term u.grad(c).  
+//
 // Data are transformed to physical space for most of the operations,
 // For gradients in the Fourier direction however, the data must be
 // transferred back to Fourier space.  Note that there is no longer
@@ -76,19 +112,20 @@ void skewSymmetric (Domain*     D ,
 // storage areas of D->u (including pressure) are overwritten here.
 // ---------------------------------------------------------------------------
 {
-  const int_t NDIM = Geometry::nDim();	// -- Number of space dimensions.
-  const int_t NCOM = D -> nField() - 1;	// -- Number of velocity components.
-  const int_t nP   = Geometry::planeSize();
-  const int_t nZ   = Geometry::nZ();
-  const int_t nZP  = Geometry::nZProc();
-  const int_t nTot = Geometry::nTotProc();
+  const int_t NDIM  = Geometry::nDim();
+  const int_t NADV  = D -> nAdvect();
+  const int_t NCOM  = D -> nVelCmpt();
+  const int_t nP    = Geometry::planeSize();
+  const int_t nZ    = Geometry::nZ();
+  const int_t nZP   = Geometry::nZProc();
+  const int_t nTot  = Geometry::nTotProc();
 
-  vector<AuxField*> U (NCOM), N (NCOM), Uphys (NCOM);
-  AuxField*         tmp    = D -> u[NCOM]; // -- Pressure is used for scratch.
+  vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
+  AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
   Field*            master = D -> u[0];	   // -- For smoothing operations.
   int_t             i, j;
 
-  for (i = 0; i < NCOM; i++) {
+  for (i = 0; i < NADV; i++) {
     Uphys[i] = D -> u[i];
     N[i]     = Uf[i];
     U[i]     = Us[i];
@@ -101,7 +138,7 @@ void skewSymmetric (Domain*     D ,
 
   if (Geometry::cylindrical()) {
 
-    for (i = 0; i < NCOM; i++) {
+    for (i = 0; i < NADV; i++) {
 
       if (i == 0) N[0] -> timesMinus (*Uphys[0], *Uphys[1]);
       if (i == 1) N[1] -> timesMinus (*Uphys[1], *Uphys[1]);
@@ -110,89 +147,96 @@ void skewSymmetric (Domain*     D ,
 
       if (NCOM == 3) {
 
-	if (i == 1) {
-	  tmp -> times (*Uphys[2], *Uphys[2]);
-	  N[1] -> axpy ( 2.0, *tmp);
-	}
+        if (i == 1) {
+          tmp -> times (*Uphys[2], *Uphys[2]);
+          N[1] -> axpy ( 2.0, *tmp);
+        }
 
-	if (i == 2) {
-	  tmp -> times (*Uphys[2], *Uphys[1]);
-	  N[2] -> axpy (-3.0, *tmp);
-	}
+        if (i == 2) {
+          tmp -> times (*Uphys[2], *Uphys[1]);
+          N[2] -> axpy (-3.0, *tmp);
+        }
 
-	if (nZ > 2) {
-	  (*tmp = *U[i]) . gradient (2) . transform (INVERSE);
-	  N[i] -> timesMinus (*Uphys[2], *tmp);
+        if (nZ > 2) {
+          (*tmp = *U[i]) . gradient (2) . transform (INVERSE);
+          N[i] -> timesMinus (*Uphys[2], *tmp);
 
-	  tmp -> times (*Uphys[i], *Uphys[2]);
-	  (*tmp) . transform (FORWARD). gradient (2). transform (INVERSE);
-	  *N[i] -= *tmp;
-	}
+          tmp -> times (*Uphys[i], *Uphys[2]);
+          (*tmp) . transform (FORWARD). gradient (2). transform (INVERSE);
+          *N[i] -= *tmp;
+        }
       }
 
-      if (i == 2) N[i] -> divY ();
+      if (i >= 2) N[i] -> divY ();
       
       // -- 2D convective derivatives.
 
       for (j = 0; j < 2; j++) {
-	(*tmp = *Uphys[i]) . gradient (j);
-	if (i < 2) tmp -> mulY ();
-	N[i] -> timesMinus (*Uphys[j], *tmp);
+        (*tmp = *Uphys[i]) . gradient (j);
+        if (i < 2) tmp -> mulY ();
+        N[i] -> timesMinus (*Uphys[j], *tmp);
       }
 
       // -- 2D conservative derivatives.
 
       for (j = 0; j < 2; j++) {
-	(*tmp). times (*Uphys[j], *Uphys[i]) . gradient (j);
-	if (i <  2) tmp -> mulY ();
-	*N[i] -= *tmp;
+        (*tmp). times (*Uphys[j], *Uphys[i]) . gradient (j);
+        if (i <  2) tmp -> mulY ();
+        *N[i] -= *tmp;
       }
 
       *N[i] *= 0.5;      // -- Average the two forms to get skew-symmetric.
 
-      FF   -> addPhysical (N[i], tmp, i, Uphys);
-      
-      N[i] -> transform (FORWARD);
-
-      FF   -> addFourier (N[i], tmp, i, U);
-
-      master -> smooth (N[i]);
+      if (i < NCOM) {
+        FF   -> addPhysical (N[i], tmp, i, Uphys);
+        N[i] -> transform (FORWARD);
+        FF   -> addFourier (N[i], tmp, i, U);
+        master -> smooth (N[i]);
+      } else {
+        master -> smooth (N[i]);
+        N[i] -> transform (FORWARD);
+      }
     }
 
   } else {			// -- Cartesian coordinates.
 
-    for (i = 0; i < NCOM; i++) {
+    for (i = 0; i < NADV; i++) {
       for (j = 0; j < NDIM; j++) {
 
-	// -- Perform n_i -= u_j d(u_i) / dx_j.
+        // -- Perform n_i -= u_j d(u_i) / dx_j.
 
-	if (j == 2) (*tmp = *U[i]) . gradient (j) . transform (INVERSE);
-	else    (*tmp = *Uphys[i]) . gradient (j);
-	N[i] -> timesMinus (*Uphys[j], *tmp);
+        if (j == 2) (*tmp = *U[i]) . gradient (j) . transform (INVERSE);
+        else    (*tmp = *Uphys[i]) . gradient (j);
+        N[i] -> timesMinus (*Uphys[j], *tmp);
 
-	// -- Perform n_i -= d(u_i u_j) / dx_j.
+        // -- Perform n_i -= d(u_i u_j) / dx_j.
 
-	tmp -> times (*Uphys[i], *Uphys[j]);
-	if (j == 2) tmp -> transform (FORWARD);
-	tmp -> gradient (j);
-	if (j == 2) tmp -> transform (INVERSE);
-	*N[i] -= *tmp;
+        tmp -> times (*Uphys[i], *Uphys[j]);
+        if (j == 2) tmp -> transform (FORWARD);
+        tmp -> gradient (j);
+        if (j == 2) tmp -> transform (INVERSE);
+        *N[i] -= *tmp;
 
       }
 
       *N[i] *= 0.5;      // -- Average the two forms to get skew-symmetric.
       
-      FF   -> addPhysical (N[i], tmp, i, Uphys);
-      
-      N[i] -> transform (FORWARD);
-
-      FF   -> addFourier (N[i], tmp, i, U);
-
-      master -> smooth (N[i]);
+      if (i < NCOM) { 
+        FF   -> addPhysical (N[i], tmp, i, Uphys);
+        N[i] -> transform (FORWARD);
+        FF   -> addFourier (N[i], tmp, i, U);
+        master -> smooth (N[i]);
+      } else {
+        master -> smooth (N[i]);
+        N[i] -> transform (FORWARD);
+      }
     }
   }
-}
 
+  // -- If requested, apply centrifugal buoyancy forcing to the rhs operator.
+  
+  if (D -> hasScalar()) centrifugalBuoyancy (D, Uphys[NCOM], N);
+}
 
 
 void altSkewSymmetric (Domain*     D ,
@@ -201,59 +245,39 @@ void altSkewSymmetric (Domain*     D ,
 		       AuxField**  Uf,
 		       FieldForce* FF)
 // ---------------------------------------------------------------------------
-// Velocity field data areas of D (which on entry contain velocity
-// data from the previous timestep) and first level of Us are swapped
-// (so that subsequently Us stores the old velocity data), then the
-// next stage of nonlinear forcing terms N(u) are computed from
-// velocity fields and left in the first level of Uf.
+// This is a cheaper approximation to the full skew-symmetric
+// computation (see previous routine).  The formulation of nonlinear
+// terms used here is so-called "alternating skew symmetric" method
+// (first documented by Bob Kerr) which uses the non-conservative and
+// conservative forms of the nonlinear terms on alternating
+// timesteps. This has shown in testing to be as robust as the full
+// skew symmetric method but costs half as much.
 //
-// Nonlinear terms N(u) in robust skew-symmetric form are (the average
-// of the so-called non-conservative and conservative ways of
-// computing the nonlinear terms, theoretically equivalent if the
-// velocity field is divergence-free):
-//
-//           N  = -0.5 ( u . grad u + div uu )
-//           ~           ~        ~       ~~
-// i.e., in Cartesian component form
-//
-//           N  = -0.5 ( u  d(u ) / dx  + d(u u ) / dx ).
-//            i           j    i      j      i j      j
-//
-// in cylindrical coordinates
-//
-//           Nx = -0.5 {ud(u)/dx + vd(u)/dy +  d(uu)/dx + d(vu)/dy +
-//                 1/y [wd(u)/dz + d(uw)/dz + vu      ]}
-//           Ny = -0.5 {ud(v)/dx + vd(v)/dy +  d(uv)/dx + d(vv)/dy +
-//                 1/y [wd(v)/dz + d(vw)/dz + vv - 2ww]}
-//           Nz = -0.5 {ud(w)/dx + vd(w)/dy +  d(uw)/dx + d(vw)/dy +
-//                 1/y [wd(w)/dz + d(ww)/dz + 3wv     ]}
-//
-// NB: for the cylindrical coordinate formulation we actually here
-// compute y*Nx, y*Ny, Nz, as outlined in reference[3].
-//
-// The formulation of nonlinear terms used here is so-called
-// "alternating skew symmetric" method (first documented by Bob Kerr)
-// which uses the non-conservative and conservative forms of the
-// nonlinear terms on alternating timesteps. This has shown in testing
-// to be as robust as the full skew symmetric method but costs half as
-// much.
+// NB: this is now used as the default advection scheme.  As noted, it
+// is about as robust but computationally cheaper than full
+// skew-symmetric.  However, it has a slight defect, too: owing to
+// alternation, it may produce small high-frequency temporal
+// oscillations in the solution, of period 2*D_T.  If that is a
+// problem, try full skew-symmetric (previous routine) or the
+// non-conservative form of the nonlinear terms (next routine).
 // ---------------------------------------------------------------------------
 {
-  const int_t NDIM = Geometry::nDim();	// -- Number of space dimensions.
-  const int_t NCOM = D -> nField() - 1;	// -- Number of velocity components.
-  const int_t nP   = Geometry::planeSize();
-  const int_t nZ   = Geometry::nZ();
-  const int_t nZP  = Geometry::nZProc();
-  const int_t nTot = Geometry::nTotProc();
+  const int_t NDIM  = Geometry::nDim();
+  const int_t NADV  = D -> nAdvect();
+  const int_t NCOM  = D -> nVelCmpt();
+  const int_t nP    = Geometry::planeSize();
+  const int_t nZ    = Geometry::nZ();
+  const int_t nZP   = Geometry::nZProc();
+  const int_t nTot  = Geometry::nTotProc();
 
-  vector<AuxField*> U (NCOM), N (NCOM), Uphys (NCOM);
-  AuxField*         tmp    = D -> u[NCOM]; // -- Pressure is used for scratch.
+  vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
+  AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
   Field*            master = D -> u[0];	   // -- For smoothing operations.
   int_t             i, j;
 
   static int        toggle = 1;            // -- Switch u.grad(u) or div(uu).
 
-  for (i = 0; i < NCOM; i++) {
+  for (i = 0; i < NADV; i++) {
     Uphys[i] = D -> u[i];
     N[i]     = Uf[i];
     U[i]     = Us[i];
@@ -268,74 +292,84 @@ void altSkewSymmetric (Domain*     D ,
 
     if (toggle) { // -- Convective component u.grad(u).
 
-      for (i = 0; i < NCOM; i++) {
+      for (i = 0; i < NADV; i++) {
 
-	// -- Terms involving azimuthal derivatives and frame components.
+        // -- Terms involving azimuthal derivatives and frame components.
 
-	if (NCOM == 3) {
-	  if (i == 1) N[1] -> times      (*Uphys[2], *Uphys[2]);
-	  if (i == 2) N[2] -> timesMinus (*Uphys[2], *Uphys[1]);
+        if (NCOM == 3) {
+          if (i == 1) N[1] -> times      (*Uphys[2], *Uphys[2]);
+          if (i == 2) N[2] -> timesMinus (*Uphys[2], *Uphys[1]);
 
-	  if (nZ > 2) {
-	    (*tmp = *U[i]) . gradient (2) . transform (INVERSE);
-	    N[i] -> timesMinus (*Uphys[2], *tmp);
-	  }
-	}
+          if (nZ > 2) {
+            (*tmp = *U[i]) . gradient (2) . transform (INVERSE);
+            N[i] -> timesMinus (*Uphys[2], *tmp);
+          }
+        }
 
-	if (i == 2) N[i] -> divY ();
+        if (i >= 2) N[i] -> divY ();
 
-	// -- 2D convective derivatives.
+        // -- 2D convective derivatives.
 
-	for (j = 0; j < 2; j++) {
-	  (*tmp = *Uphys[i]) . gradient (j);
-	  if (i <  2) tmp -> mulY ();
-	  N[i] -> timesMinus (*Uphys[j], *tmp);
-	}
+        for (j = 0; j < 2; j++) {
+          (*tmp = *Uphys[i]) . gradient (j);
+          if (i <  2) tmp -> mulY ();
+          N[i] -> timesMinus (*Uphys[j], *tmp);
+        }
 
-	FF     -> addPhysical (N[i], tmp, i, Uphys);
-	N[i]   -> transform   (FORWARD);
-        FF     -> addFourier  (N[i], tmp, i, U);
-	master -> smooth      (N[i]);
+        if(i < NCOM) {// don't apply body forces to the passive tracer
+          FF     -> addPhysical (N[i], tmp, i, Uphys);
+          N[i]   -> transform   (FORWARD);
+          FF     -> addFourier  (N[i], tmp, i, U);
+          master -> smooth      (N[i]);
+        } else {
+          master -> smooth      (N[i]);
+          N[i]   -> transform   (FORWARD);
+        }
       }
 
     } else { // -- Conservative component div(uu).
 
-      for (i = 0; i < NCOM; i++) {
+      for (i = 0; i < NADV; i++) {
 
-	// -- Terms involving azimuthal derivatives and frame components.
+        // -- Terms involving azimuthal derivatives and frame components.
 
-	if (i == 0) N[0] -> timesMinus (*Uphys[0], *Uphys[1]);
-	if (i == 1) N[1] -> timesMinus (*Uphys[1], *Uphys[1]);
+        if (i == 0) N[0] -> timesMinus (*Uphys[0], *Uphys[1]);
+        if (i == 1) N[1] -> timesMinus (*Uphys[1], *Uphys[1]);
 
-	if (NCOM == 3) {
+        if (NCOM == 3) {
 
-	  if (i == 1) N[1] -> timesPlus (*Uphys[2], *Uphys[2]);
-	  if (i == 2) {
-	    tmp -> times (*Uphys[2], *Uphys[1]);
-	    N[2] -> axpy (-2., *tmp);
-	  }
+          if (i == 1) N[1] -> timesPlus (*Uphys[2], *Uphys[2]);
+          if (i == 2) {
+            tmp -> times (*Uphys[2], *Uphys[1]);
+            N[2] -> axpy (-2., *tmp);
+          }
 
-	  if (nZ > 2) {
-	    tmp -> times (*Uphys[i], *Uphys[2]);
-	    (*tmp) . transform (FORWARD). gradient (2). transform (INVERSE);
-	    *N[i] -= *tmp;
+          if (nZ > 2) {
+            tmp -> times (*Uphys[i], *Uphys[2]);
+            (*tmp) . transform (FORWARD). gradient (2). transform (INVERSE);
+            *N[i] -= *tmp;
           }
         }
 
-	if (i == 2) N[i] -> divY ();
+        if (i >= 2) N[i] -> divY ();
 
-	// -- 2D conservative derivatives.
+        // -- 2D conservative derivatives.
 
-	for (j = 0; j < 2; j++) {
-	  (*tmp). times (*Uphys[j], *Uphys[i]) . gradient (j);
-	  if (i <  2) tmp -> mulY ();
-	  *N[i] -= *tmp;
-	}
+        for (j = 0; j < 2; j++) {
+          (*tmp). times (*Uphys[j], *Uphys[i]) . gradient (j);
+          if (i <  2) tmp -> mulY ();
+          *N[i] -= *tmp;
+        }
 
-	FF     -> addPhysical (N[i], tmp, i, Uphys);
-	N[i]   -> transform   (FORWARD);
-        FF     -> addFourier  (N[i], tmp, i, U);
-	master -> smooth      (N[i]);
+        if (i < NCOM) {  // -- Don't apply body forces to the passive tracer.
+          FF     -> addPhysical (N[i], tmp, i, Uphys);
+          N[i]   -> transform   (FORWARD);
+          FF     -> addFourier  (N[i], tmp, i, U);
+          master -> smooth      (N[i]);
+        } else {
+          master -> smooth      (N[i]);
+          N[i]   -> transform   (FORWARD);
+        }
       }
     }
 
@@ -343,39 +377,51 @@ void altSkewSymmetric (Domain*     D ,
 
     if (toggle) { // -- Convective component u.grad(u).
 
-      for (i = 0; i < NCOM; i++) {
-	for (j = 0; j < NDIM; j++) { // -- Perform n_i -= u_j d(u_i) / dx_j.
+      for (i = 0; i < NADV; i++) {
+        for (j = 0; j < NDIM; j++) { // -- Perform n_i -= u_j d(u_i) / dx_j.
 
-	  if (j == 2) (*tmp = *U[i]) . gradient (j) . transform (INVERSE);
-	  else    (*tmp = *Uphys[i]) . gradient (j);
-	  N[i] -> timesMinus (*Uphys[j], *tmp);
-	}
+          if (j == 2) (*tmp = *U[i]) . gradient (j) . transform (INVERSE);
+          else    (*tmp = *Uphys[i]) . gradient (j);
+          N[i] -> timesMinus (*Uphys[j], *tmp);
+        }
 
-        FF     -> addPhysical (N[i], tmp, i, Uphys);
-	N[i]   -> transform   (FORWARD);
-        FF     -> addFourier  (N[i], tmp, i, U);
-	master -> smooth      (N[i]);
+        if(i < NCOM) {// don't apply body forces to the passive tracer
+          FF     -> addPhysical (N[i], tmp, i, Uphys);
+          N[i]   -> transform   (FORWARD);
+          FF     -> addFourier  (N[i], tmp, i, U);
+          master -> smooth      (N[i]);
+        } else {
+          master -> smooth      (N[i]);
+          N[i]   -> transform   (FORWARD);
+        }
       }
 
     } else { // -- Conservative component div(uu).
 
-      for (i = 0; i < NCOM; i++) {
-	for (j = 0; j < NDIM; j++) { // -- Perform n_i -= d(u_i u_j) / dx_j.
+      for (i = 0; i < NADV; i++) {
+        for (j = 0; j < NDIM; j++) { // -- Perform n_i -= d(u_i u_j) / dx_j.
 
-	  tmp -> times (*Uphys[i], *Uphys[j]);
-	  if (j == 2) tmp -> transform (FORWARD);
-	  tmp -> gradient (j);
-	  if (j == 2) tmp -> transform (INVERSE);
-	  *N[i] -= *tmp;
+          tmp -> times (*Uphys[i], *Uphys[j]);
+          if (j == 2) tmp -> transform (FORWARD);
+          tmp -> gradient (j);
+          if (j == 2) tmp -> transform (INVERSE);
+          *N[i] -= *tmp;
         }
 
-        FF     -> addPhysical (N[i], tmp, i, Uphys);
-	N[i]   -> transform   (FORWARD);
-        FF     -> addFourier  (N[i], tmp, i, U);
-	master -> smooth      (N[i]);
+        if (i < NCOM) { // -- Don't apply body forces to the passive tracer.
+          FF     -> addPhysical (N[i], tmp, i, Uphys);
+          N[i]   -> transform   (FORWARD);
+          FF     -> addFourier  (N[i], tmp, i, U);
+          master -> smooth      (N[i]);
+        } else {
+          master -> smooth      (N[i]);
+          N[i]   -> transform   (FORWARD);
+        }
       }
     }
   }
+
+  if (D -> hasScalar()) centrifugalBuoyancy(D, Uphys[NCOM], N);
 
   toggle = 1 - toggle;
 }
@@ -387,13 +433,16 @@ void convective (Domain*     D ,
 		 AuxField**  Uf,
 		 FieldForce* FF)
 // ---------------------------------------------------------------------------
-// Nonlinear terms N(u) in convective form are
+// Nonlinear terms N(u) in (non-conservative) convective form are
 //                 ~ ~
 //           N  = - u . grad u
 //           ~      ~        ~
 //
 // This has a similar operation count to altSkewSymmetric() but seems
-// less stable.
+// somewhat less stable/robust at high Reynolds numbers.  However, it
+// *is* smooth in time, so if stability isn't an issue, but temporal
+// smoothness and computational cost are, give it a try if you don't
+// want to pay for full skew-symmetric.
 //
 // i.e., in Cartesian component form
 //
@@ -410,19 +459,20 @@ void convective (Domain*     D ,
 // compute y*Nx, y*Ny, Nz, as outlined in Blackburn & Sherwin (2004).
 // ---------------------------------------------------------------------------
 {
-  const int_t NDIM = Geometry::nDim();	// -- Number of space dimensions.
-  const int_t NCOM = D -> nField() - 1;	// -- Number of velocity components.
-  const int_t nP   = Geometry::planeSize();
-  const int_t nZ   = Geometry::nZ();
-  const int_t nZP  = Geometry::nZProc();
-  const int_t nTot = Geometry::nTotProc();
+  const int_t NDIM  = Geometry::nDim();
+  const int_t NADV  = D -> nAdvect();
+  const int_t NCOM  = D -> nVelCmpt();
+  const int_t nP    = Geometry::planeSize();
+  const int_t nZ    = Geometry::nZ();
+  const int_t nZP   = Geometry::nZProc();
+  const int_t nTot  = Geometry::nTotProc();
 
-  vector<AuxField*> U (NCOM), N (NCOM), Uphys (NCOM);
-  AuxField*         tmp    = D -> u[NCOM]; // -- Pressure is used for scratch.
+  vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
+  AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
   Field*            master = D -> u[0];	   // -- For smoothing operations.
   int_t             i, j;
 
-  for (i = 0; i < NCOM; i++) {
+  for (i = 0; i < NADV; i++) {
     Uphys[i] = D -> u[i];
     N[i]     = Uf[i];
     U[i]     = Us[i];
@@ -435,52 +485,64 @@ void convective (Domain*     D ,
 
   if (Geometry::cylindrical()) {
 
-    for (i = 0; i < NCOM; i++) {
+    for (i = 0; i < NADV; i++) {
 
       // -- Terms involving azimuthal derivatives and frame components.
 
       if (NCOM == 3) {
-	if (i == 1) N[1] -> times      (*Uphys[2], *Uphys[2]);
-	if (i == 2) N[2] -> timesMinus (*Uphys[2], *Uphys[1]);
+        if (i == 1) N[1] -> times      (*Uphys[2], *Uphys[2]);
+        if (i == 2) N[2] -> timesMinus (*Uphys[2], *Uphys[1]);
 
-	if (nZ > 2) {
-	  (*tmp = *U[i]) . gradient (2) . transform (INVERSE);
-	  N[i] -> timesMinus (*Uphys[2], *tmp);
-	}
+        if (nZ > 2) {
+          (*tmp = *U[i]) . gradient (2) . transform (INVERSE);
+          N[i] -> timesMinus (*Uphys[2], *tmp);
+        }
       }
 
-      if (i == 2) N[i] -> divY ();
+      if (i >= 2) N[i] -> divY ();
 
       // -- 2D convective derivatives.
 
       for (j = 0; j < 2; j++) {
-	(*tmp = *Uphys[i]) . gradient (j);
-	if (i < 2) tmp -> mulY ();
-	N[i] -> timesMinus (*Uphys[j], *tmp);
+        (*tmp = *Uphys[i]) . gradient (j);
+        if (i < 2) tmp -> mulY ();
+        N[i] -> timesMinus (*Uphys[j], *tmp);
       }
 
-      FF     -> addPhysical (N[i], tmp, i, Uphys);
-      N[i]   -> transform   (FORWARD);
-      FF     -> addFourier  (N[i], tmp, i, U);
-      master -> smooth      (N[i]);
+      if (i < NCOM) {
+        FF     -> addPhysical (N[i], tmp, i, Uphys);
+        N[i]   -> transform   (FORWARD);
+        FF     -> addFourier  (N[i], tmp, i, U);
+        master -> smooth      (N[i]);
+      } else {
+        master -> smooth      (N[i]);
+        N[i]   -> transform   (FORWARD);
+      }
     }
 
   } else {			// -- Cartesian coordinates.
 
-    for (i = 0; i < NCOM; i++) {
+    for (i = 0; i < NADV; i++) {
       for (j = 0; j < NDIM; j++) { // -- Perform n_i -= u_j d(u_i) / dx_j.
 
-	if (j == 2) (*tmp = *U[i]) . gradient (j) . transform (INVERSE);
-	else    (*tmp = *Uphys[i]) . gradient (j);
-	N[i] -> timesMinus (*Uphys[j], *tmp);
+        if (j == 2) (*tmp = *U[i]) . gradient (j) . transform (INVERSE);
+        else    (*tmp = *Uphys[i]) . gradient (j);
+        N[i] -> timesMinus (*Uphys[j], *tmp);
       }
 
-      FF     -> addPhysical (N[i], tmp, i, Uphys);
-      N[i]   -> transform   (FORWARD);
-      FF     -> addFourier  (N[i], tmp, i, U);
-      master -> smooth      (N[i]);
+      if (i < NCOM) {
+        FF     -> addPhysical (N[i], tmp, i, Uphys);
+        N[i]   -> transform   (FORWARD);
+        FF     -> addFourier  (N[i], tmp, i, U);
+        master -> smooth      (N[i]);
+      } else {
+        master -> smooth      (N[i]);
+        N[i]   -> transform   (FORWARD);
+      }
     }
   }
+
+  if (D -> hasScalar()) centrifugalBuoyancy(D, Uphys[NCOM], N);
 }
 
 
@@ -494,19 +556,20 @@ void Stokes (Domain*     D ,
 // still need to zero storage areas and add in body force ff.
 // ---------------------------------------------------------------------------
 {
-  const int_t NDIM = Geometry::nDim();	// -- Number of space dimensions.
-  const int_t NCOM = D -> nField() - 1;	// -- Number of velocity components.
-  const int_t nP   = Geometry::planeSize();
-  const int_t nZ   = Geometry::nZ();
-  const int_t nZP  = Geometry::nZProc();
-  const int_t nTot = Geometry::nTotProc();
+  const int_t NDIM  = Geometry::nDim();
+  const int_t NADV  = D -> nAdvect();
+  const int_t NCOM  = D -> nVelCmpt();
+  const int_t nP    = Geometry::planeSize();
+  const int_t nZ    = Geometry::nZ();
+  const int_t nZP   = Geometry::nZProc();
+  const int_t nTot  = Geometry::nTotProc();
 
-  vector<AuxField*> U (NCOM), N (NCOM), Uphys (NCOM);
-  AuxField*         tmp    = D -> u[NCOM]; // -- Pressure is used for scratch.
+  vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
+  AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
   Field*            master = D -> u[0];	   // -- For smoothing operations.
   int_t             i, j;
 
-  for (i = 0; i < NCOM; i++) {
+  for (i = 0; i < NADV; i++) {
     Uphys[i] = D -> u[i];
     N[i]     = Uf[i];
     U[i]     = Us[i];
@@ -516,11 +579,17 @@ void Stokes (Domain*     D ,
   }
 
   B -> maintainPhysical(master, Uphys, NCOM);
-  
+ 
   for (i = 0; i < NCOM; i++) {
     FF     -> addPhysical (N[i], tmp, i, Uphys);
     N[i]   -> transform   (FORWARD);
     FF     -> addFourier  (N[i], tmp, i, U);
     master -> smooth      (N[i]);
   }
+  if (D -> hasScalar()) {
+    N[NCOM]-> transform   (FORWARD);
+    master -> smooth      (N[NCOM]);
+  }
+
+  if (D -> hasScalar()) centrifugalBuoyancy (D, Uphys[NCOM], N);
 }

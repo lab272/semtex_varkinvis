@@ -91,6 +91,18 @@ Element::Element (const int_t id,
   Family::adopt (_npnp, &_Q4   );
   Family::adopt (_npnp, &_Q8   );
   Family::adopt (_npnp, &_delta);
+
+#if defined (DAMPING)
+  // -- Compile-in hack for LES.
+#include "damping.C"
+  // -- Van Driest damping.
+  // An ad-hoc modification to mesh length scale to account for wall
+  // effects in LES.  This example is for a pipe flow, radius 0.5.
+  // Femlib::prepVec
+  // ("delta x y","delta*sqrt(1-exp(-(75.27*abs(0.5-sqrt(x*x+y*y)))^3))");
+  // Femlib__parseVec (_npnp, _delta, _xmesh, _ymesh, _delta);
+#endif
+
 }
 
 
@@ -1223,8 +1235,7 @@ real_t Element::probe (const real_t  r   ,
 }
 
 
-real_t Element::CFL (const real_t  d   ,
-		     const real_t* u   ,
+real_t Element::CFL (const real_t* u   ,
 		     const real_t* v   ,
 		     real_t*       work) const
 // ---------------------------------------------------------------------------
@@ -1255,13 +1266,11 @@ real_t Element::CFL (const real_t  d   ,
   Veclib::zero (loopcnt, work, 1);
 
   if        (u) {
-    if (_drdx) for (i = 0; i < loopcnt; i++) work[i] += d * fabs (_drdx[i]);
-    if (_dsdx) for (i = 0; i < loopcnt; i++) work[i] += d * fabs (_dsdx[i]);
-    Veclib::vdiv (loopcnt, u, 1, work, 1, work, 1);
+    if (_drdx) for (i = 0; i < loopcnt; i++) work[i] += u[i] * fabs (_drdx[i]);
+    if (_dsdx) for (i = 0; i < loopcnt; i++) work[i] += u[i] * fabs (_dsdx[i]);
   } else if (v) {
-    if (_drdy) for (i = 0; i < loopcnt; i++) work[i] += d * fabs (_drdy[i]);
-    if (_dsdy) for (i = 0; i < loopcnt; i++) work[i] += d * fabs (_dsdy[i]);
-    Veclib::vdiv (loopcnt, v, 1, work, 1, work, 1);
+    if (_drdy) for (i = 0; i < loopcnt; i++) work[i] += v[i] * fabs (_drdy[i]);
+    if (_dsdy) for (i = 0; i < loopcnt; i++) work[i] += v[i] * fabs (_dsdy[i]);
   }
 
   i = Blas::iamax (loopcnt, work, 1);

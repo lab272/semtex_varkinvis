@@ -27,7 +27,7 @@ SEMHDR   = $(addsuffix .h,$(SEMFILES)) sem.h
 # ----------------------------------------------------------------------------
 # Default build for Navier--Stokes solver.
 #
-NS_FILES = drive integrate nonlinear dnsanalysis
+NS_FILES = drive integrate integrates nonlinear dnsanalysis
 NS_OBJ   = $(addsuffix .o,$(NS_FILES))
 
 $(PROG): sem $(SEMOBJ) $(NS_OBJ)

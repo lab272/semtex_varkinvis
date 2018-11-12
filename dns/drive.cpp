@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////
-// drive.C: control spectral element DNS for incompressible flows.
+// drive.cpp: control spectral element DNS for incompressible flows.
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
 //
@@ -13,6 +13,7 @@
 //   -v[v...] ... increase verbosity level
 //   -chk     ... turn off checkpoint field dumps [default: selected]
 //   -S|C|N   ... regular skew-symm || convective || Stokes advection
+//   -f       ... freeze velocity field (to advect scalar, only)
 //
 // AUTHOR:
 // ------
@@ -47,12 +48,14 @@ static char RCS[] = "$Id$";
 #include <dns.h>
 
 static char prog[] = "dns";
-static void getargs    (int, char**, char*&);
+static void getargs    (int, char**, bool&, char*&);
 static void preprocess (const char*, FEML*&, Mesh*&, vector<Element*>&,
 			BCmgr*&, Domain*&, FieldForce*&);
 
-void integrate (void (*)(Domain*, BCmgr*, AuxField**, AuxField**, FieldForce*),
+void integrate (void (*)
+		(Domain*, BCmgr*, AuxField**, AuxField**, FieldForce*),
 		Domain*, BCmgr*, DNSAnalyser*, FieldForce*);
+void AdvectDiffuse (Domain*, BCmgr*, DNSAnalyser*);
 
 
 int main (int    argc,
@@ -66,6 +69,7 @@ int main (int    argc,
 #endif
 
   char*            session;
+  bool             freeze = false;
   vector<Element*> elmt;
   FEML*            file;
   Mesh*            mesh;
@@ -75,9 +79,12 @@ int main (int    argc,
   FieldForce*      FF;
 
   Femlib::initialize (&argc, &argv);
-  getargs (argc, argv, session);
+  getargs (argc, argv, freeze, session);
 
   preprocess (session, file, mesh, elmt, bman, domain, FF);
+
+  if ((!domain -> hasScalar()) && freeze)
+    message (prog, "need scalar declared if velocity is frozen", ERROR);
 
   analyst = new DNSAnalyser (domain, bman, file);
 
@@ -85,11 +92,15 @@ int main (int    argc,
 
   ROOTONLY domain -> report ();
   
-  switch (Femlib::ivalue ("ADVECTION")) {
-  case 0: integrate (   skewSymmetric, domain, bman, analyst, FF); break;
-  case 1: integrate (altSkewSymmetric, domain, bman, analyst, FF); break;
-  case 2: integrate (      convective, domain, bman, analyst, FF); break;
-  case 3: integrate (          Stokes, domain, bman, analyst, FF); break;
+  if (freeze) 
+    AdvectDiffuse (domain, bman, analyst); // -- Velocity field doesn't evolve.
+  else {
+    switch (Femlib::ivalue ("ADVECTION")) {
+    case 0: integrate (   skewSymmetric,domain,bman,analyst,FF); break;
+    case 1: integrate (altSkewSymmetric,domain,bman,analyst,FF); break;
+    case 2: integrate (      convective,domain,bman,analyst,FF); break;
+    case 3: integrate (          Stokes,domain,bman,analyst,FF); break;
+    }
   }
 
   Femlib::finalize ();
@@ -97,9 +108,9 @@ int main (int    argc,
   return EXIT_SUCCESS;
 }
 
-
 static void getargs (int    argc   ,
 		     char** argv   ,
+		     bool&  freeze ,
 		     char*& session)
 // ---------------------------------------------------------------------------
 // Install default parameters and options, parse command-line for optional
@@ -111,7 +122,8 @@ static void getargs (int    argc   ,
   const char usage[]   = "Usage: %s [options] session-file\n"
     "  [options]:\n"
     "  -h       ... print this message\n"
-    "  -i      ... use iterative solver for viscous steps\n"
+    "  -f       ... freeze velocity field (scalar advection/diffusion only)\n"
+    "  -i       ... use iterative solver for viscous steps\n"
     "  -v[v...] ... increase verbosity level\n"
     "  -chk     ... turn off checkpoint field dumps [default: selected]\n"
     "  -S|C|N   ... regular skew-symm || convective || Stokes advection\n";
@@ -128,6 +140,9 @@ static void getargs (int    argc   ,
     case 'S': Femlib::ivalue ("ADVECTION", 0); break;
     case 'C': Femlib::ivalue ("ADVECTION", 2); break;
     case 'N': Femlib::ivalue ("ADVECTION", 3); break;
+    case 'f':
+      freeze = true;
+      break;
     case 'i':
       do			// -- Only allowing ITERATIVE=1 (Viscous).
 	Femlib::ivalue ("ITERATIVE", 1);
@@ -151,6 +166,8 @@ static void getargs (int    argc   ,
 
   if   (argc != 1) message (routine, "no session definition file", ERROR);
   else             session = *argv;
+
+  Femlib::value ("DTBDX", 0.0);
 }
 
 
@@ -198,9 +215,9 @@ static void preprocess (const char*       session,
   // -- If token RANSEED > 0 then initialize the random number
   //    generator based on wall clock time and process ID (i.e. a "truly"
   //    pseudo-random number).  NB: it is important to have done this
-  //    before any other possible call to random number routines.
+  //    here, before any other possible call to random number routines.
 
-  if (Femlib::ivalue("RANSEED") > 0) {
+  if (Femlib::ivalue ("RANSEED") > 0) {
     procid = Geometry::procID();
     seed   = -abs((procid + 1) * (char) time(NULL));
   } else seed = -1;
@@ -239,7 +256,7 @@ static void preprocess (const char*       session,
 
   VERBOSE cout << "done" << endl;
 
-  // -- Sanity checks on installed tokens.
+  // -- Sanity checks on installed tokens.  Could be more extensive.
 
   if (Femlib::ivalue ("SVV_MN") > Geometry::nP())
     message (routine, "SVV_MN exceeds N_P", ERROR);
