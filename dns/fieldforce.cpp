@@ -1,8 +1,3 @@
-#include <sem.h>
-#include <fieldforce.h>
-#include <feml.h>
-
-
 //////////////////////////////////////////////////////////////////////////////
 // This code was originally contributed by Thomas Albrecht.
 //
@@ -23,9 +18,34 @@
 // There are actually two storages, one for physical, and one for
 // Fourier space.  A specific forcing subclass implements whichever
 // suits best.
+//
+// Copyright (c) 2016 <--> $Date$,
+//                         Thomas Albrecht, Hugh Blackburn
+//
+// --
+// This file is part of Semtex.
+//
+// Semtex is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the
+// Free Software Foundation; either version 2 of the License, or (at your
+// option) any later version.
+//
+// Semtex is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+// for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Semtex (see the file COPYING); if not, write to the Free
+// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+// 02110-1301 USA.
 //////////////////////////////////////////////////////////////////////////////
 
 static char RCS[] = "$Id$";
+
+#include <sem.h>
+#include <fieldforce.h>
+#include <feml.h>
 
 static int_t NCOM; // -- Number of velocity components.
 
@@ -113,10 +133,10 @@ void FieldForce::addPhysical (AuxField*         Ni ,
 
   // -- Just as for the nonlinear terms themselves, have to multiply
   //    the axial and radial components by radius if in cylindrical
-  //    space.  Thie requires us to call addPhysical() after the
+  //    space.  This requires us to call addPhysical() after the
   //    nonlinear terms have been created and likewise multiplied.
   
-  if (Geometry::cylindrical() && (com <  2)) buf -> mulY ();
+  if (Geometry::cylindrical() && (com < 2)) buf -> mulY ();
   *Ni += *buf;
 
 #if 0
@@ -830,16 +850,16 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
 // Constructor for Boussinesq buoyancy.  NB: we only implement
 // buoyancy terms that derive from a gravity field.  More correctly
 // they should also account at least for reference frame acceleration
-// (e.g. of Coriolis type).  C'est dommage.  For cylindrical
-// coordinates, only the axial component of the gravity vector gets
-// used/has relevance.
+// (e.g. of Coriolis type) or body force.  C'est dommage.  For
+// cylindrical coordinates, only the axial component of the gravity
+// vector gets used/has relevance.
 // ---------------------------------------------------------------------------
 {
   const char  routine[] = "BuoyancyForce::BuoyancyForce";
   const int_t verbose   = Femlib::ivalue ("VERBOSE");
-  const char* vecGrav[] = {"BOUSSINESQ_GX",      // -- Gravity dirn. cosines.
- 		           "BOUSSINESQ_GY",
-			   "BOUSSINESQ_GZ"};
+  const char* vecGrav[] = {"BOUSSINESQ_GX",  // -- Gravity direction cosines
+ 		           "BOUSSINESQ_GY",  //    (or scaled equivalent, since
+			   "BOUSSINESQ_GZ"}; //    normalisation is applied).
   real_t      gravMag = 0.0, norm = 0.0;
   int_t       i;
 
@@ -872,7 +892,7 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
   _enabled = true;
   _D = D;
   _a.resize (1);
-  _a[0] = allocAuxField(D); // -- Workspace for use by applicator.
+  _a[0] = allocAuxField (D); // -- Workspace for use by applicator.
 }
 
 
