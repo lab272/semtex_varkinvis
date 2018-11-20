@@ -83,7 +83,6 @@ void integrate (void (*advection) (Domain*    ,
                 BCmgr*       B ,
                 DNSAnalyser* A ,
                 FieldForce*  FF)
-
 // ---------------------------------------------------------------------------
 // On entry, D contains storage (in the following order!) for:
 // -- velocity Fields 'u', 'v' (and 'w' if 2D3C or 3D),
@@ -99,6 +98,7 @@ void integrate (void (*advection) (Domain*    ,
   NDIM = Geometry::nDim();	       // -- Number of space dimensions.
   NORD = Femlib::ivalue ("N_TIME");    // -- Time integration order.
   C3D  = Geometry::cylindrical() && NDIM == 3;
+  
   int_t              i, j, k;
   const real_t       dt    = Femlib:: value ("D_T");
   const int_t        nStep = Femlib::ivalue ("N_STEP");
@@ -155,7 +155,7 @@ void integrate (void (*advection) (Domain*    ,
     //    Add physical space forcing, again at old time level.
 
     advection (D, B, Us[0], Uf[0], FF);
-
+    
     // -- Now update the time (remainder including BCs at new time level).
 
     D -> step += 1;
@@ -176,6 +176,7 @@ void integrate (void (*advection) (Domain*    ,
     waveProp (D, const_cast<const AuxField***>(Us),
 	         const_cast<const AuxField***>(Uf));
     for (i = 0; i < NADV; i++) AuxField::swapData (D -> u[i], Us[0][i]);
+
     rollm     (Uf, NORD, NADV);
     setPForce (const_cast<const AuxField**>(Us[0]), Uf[0]);
     Solve     (D, NADV,  Uf[0][0], MMS[NADV]);
@@ -192,7 +193,7 @@ void integrate (void (*advection) (Domain*    ,
     // -- Re-evaluate velocity (possibly time-dependent) BCs.
 
     for (i = 0; i < NADV; i++)  {
-      D -> u[i] -> evaluateBoundaries (Pressure, D -> step, false);
+      D -> u[i] -> evaluateBoundaries (NULL,     D -> step, false);
       D -> u[i] -> bTransform         (FORWARD);
       D -> u[i] -> evaluateBoundaries (Pressure, D -> step, true);
     }
@@ -204,12 +205,13 @@ void integrate (void (*advection) (Domain*    ,
       AuxField::couple (Uf [0][1], Uf [0][2], FORWARD);
       AuxField::couple (D -> u[1], D -> u[2], FORWARD);
     }
+
     for (i = 0; i < NADV; i++) Solve (D, i, Uf[0][i], MMS[i]);
     if (C3D)
       AuxField::couple (D -> u[1], D -> u[2], INVERSE);
 
     // -- Process results of this step.
-
+    
     A -> analyse (Us[0], Uf[0]);
   }
 }
@@ -280,7 +282,8 @@ static void project (const Domain* D ,
 //
 //                    u^^ = u^ - D_T * grad P,
 //
-// then scale by -1.0 / (D_T * KINVIS) to create forcing for viscous step.
+// then scale by -1.0 / (D_T * KINVIS) to create forcing for viscous step
+// (this is -1.0 / (D_T  * diffusivity) in the case of a scalar field).
 //
 // u^^ is left in Uf.
 // ---------------------------------------------------------------------------
@@ -296,8 +299,8 @@ static void project (const Domain* D ,
     *Uf[i] *= alpha;
   }
 
-  if (NADV > NCOM)  // -- Rescale temperature equation by the Prandtl number.
-    *Uf[NCOM] *= Pr;
+  // -- For scalar, use diffusivity instead of viscosity.
+  if (NADV > NCOM) *Uf[NCOM] *= Pr;
 
   for (i = 0; i < NDIM; i++) {
     (*Us[0] = *D -> u[NADV]) . gradient (i);
@@ -318,8 +321,7 @@ static Msys** preSolve (const Domain* D)
 // ---------------------------------------------------------------------------
 {
   const int_t             nmodes = Geometry::nModeProc();
-  const int_t             base   = Geometry::baseMode();
-  const int_t             itLev  = Femlib::ivalue ("ITERATIVE");
+  const int_t             base   = Geometry::baseMode(); const int_t             itLev  = Femlib::ivalue ("ITERATIVE");
   const real_t            beta   = Femlib:: value ("BETA");
   const vector<Element*>& E = D -> elmt;
   Msys**                  M = new Msys* [static_cast<size_t>(NADV + 1)];

@@ -166,8 +166,6 @@ static void getargs (int    argc   ,
 
   if   (argc != 1) message (routine, "no session definition file", ERROR);
   else             session = *argv;
-
-  Femlib::value ("DTBDX", 0.0);
 }
 
 

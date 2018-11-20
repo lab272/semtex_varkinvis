@@ -117,6 +117,9 @@ void skewSymmetric (Domain*     D ,
           N[2] -> axpy (-3.0, *tmp);
         }
 
+	if (i == 3)
+	  N[3] -> timesMinus (*Uphys[3], *Uphys[1]);
+	  
         if (NDIM == 3) {
           (*tmp = *U[i]) . gradient (2) . transform (INVERSE);
           N[i] -> timesMinus (*Uphys[2], *tmp);
@@ -226,9 +229,8 @@ void altSkewSymmetric (Domain*     D ,
   AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
   Field*            master = D -> u[0];	   // -- For smoothing operations.
   int_t             i, j;
-
   static int        toggle = 1;            // -- Switch u.grad(u) or div(uu).
-
+  
   for (i = 0; i < NADV; i++) {
     Uphys[i] = D -> u[i];
     N[i]     = Uf[i];
@@ -294,6 +296,7 @@ void altSkewSymmetric (Domain*     D ,
             tmp -> times (*Uphys[2], *Uphys[1]);
             N[2] -> axpy (-2., *tmp);
           }
+	  if (i == 3) N[3] -> timesMinus (*Uphys[3], *Uphys[1]);
           if (NDIM == 3) {
             tmp -> times (*Uphys[i], *Uphys[2]);
             (*tmp) . transform (FORWARD). gradient (2). transform (INVERSE);
