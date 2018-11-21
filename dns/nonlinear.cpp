@@ -43,7 +43,8 @@ void skewSymmetric (Domain*     D ,
 // data from the previous timestep, in Fourier space) and first level
 // of Us are swapped (so that subsequently Us stores the old velocity
 // data), then the next stage of nonlinear forcing terms N(u) are
-// computed from velocity fields and left in the first level of Uf.
+// computed from velocity fields and left in the first (i.e. the
+// supplied) level of Uf.
 //
 // Nonlinear terms N(u) in skew-symmetric form are
 //                 ~ ~
@@ -67,13 +68,25 @@ void skewSymmetric (Domain*     D ,
 // NB: for the cylindrical coordinate formulation we actually here 
 // compute y*Nx, y*Ny, Nz, as outlined in Blackburn & Sherwin (2004).
 //
-// If a scalar, c, is present, also compute the advection term u.grad(c).  
+// If a scalar, c, is present, also compute the advection term
+// -0.5*[u.grad(c)+div(uc)].  This is a straightforward extension to
+// the above for Cartesian coordinates (the loop over i is extended by
+// 1 and the last component of 'u_i' is c), whereas in cylindrical
+// coordinates we have
 //
-// Data are transformed to physical space for most of the operations,
+//           Nc = -0.5 {ud(c)/dx + vd(c)/dy + d(uc)/dx + d(vc)/dy +
+//                 1/y [wd(c)/dz + d(wc)/dz + cv ]}
+//
+// Data are transformed to physical space for most of the operations.
 // For gradients in the Fourier direction however, the data must be
-// transferred back to Fourier space.  Note that there is no longer
-// any provision for dealiasing in the Fourier direction and that all
+// transferred back to Fourier space prior to differention in z, then
+// trsnsformed back.  The final form of N delivered at the end of the
+// routine is in Fourier space.  Note that there is no longer any
+// provision for dealiasing in the Fourier direction and that all
 // storage areas of D->u (including pressure) are overwritten here.
+//  
+// NB: for the cylindrical coordinate formulation we actually here 
+// compute y*Nx, y*Ny, Nz, as outlined in Blackburn & Sherwin (2004).  
 // ---------------------------------------------------------------------------
 {
   const int_t NDIM = Geometry::nDim();
@@ -219,6 +232,26 @@ void altSkewSymmetric (Domain*     D ,
 // oscillations in the solution, of period 2*D_T.  If that is a
 // problem, try full skew-symmetric (previous routine) or the
 // non-conservative form of the nonlinear terms (next routine).
+//
+// Here are the two components of skew symmetric form in cylindrical
+// coords (cf. what is written above for the full skew symmetric form):
+//
+// Non-conservative form:
+//
+//           Nx = -{ud(u)/dx + vd(u)/dy + 1/y [wd(u)/dz     ]}
+//           Ny = -{ud(v)/dx + vd(v)/dy + 1/y [wd(v)/dz - ww]}
+//           Nz = -{ud(w)/dx + vd(w)/dy + 1/y [wd(w)/dz + wv]}
+//           Nc = -{ud(c)/dx + vd(c)/dy + 1/y [wd(c)/dz     ]}
+//
+// Conservative form:
+//
+//           Nx = -{d(uu)/dx + d(vu)/dy + 1/y [d(uw)/dz + vu     ]}
+//           Ny = -{d(uv)/dx + d(vv)/dy + 1/y [d(vw)/dz + vv - ww]}
+//           Nz = -{d(uw)/dx + d(vw)/dy + 1/y [d(ww)/dz + 2wv    ]}
+//           Nc = -{d(uc)/dx + d(vc)/dy + 1/y [d(wc)/dz + cv     ]}
+//
+// NB: for the cylindrical coordinate formulation we actually here 
+// compute y*Nx, y*Ny, Nz, as outlined in Blackburn & Sherwin (2004).  
 // ---------------------------------------------------------------------------
 {
   const int_t NDIM = Geometry::nDim();
@@ -405,6 +438,7 @@ void convective (Domain*     D ,
 //           Nx = -{ud(u)/dx + vd(u)/dy + 1/y [wd(u)/dz]}
 //           Ny = -{ud(v)/dx + vd(v)/dy + 1/y [wd(v)/dz - ww]}
 //           Nz = -{ud(w)/dx + vd(w)/dy + 1/y [wd(w)/dz + wv]}
+//           Nc = -{ud(c)/dx + vd(c)/dy + 1/y [wd(c)/dz     ]}  
 //
 // NB: for the cylindrical coordinate formulation we actually here 
 // compute y*Nx, y*Ny, Nz, as outlined in Blackburn & Sherwin (2004).
