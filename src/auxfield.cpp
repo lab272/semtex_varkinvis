@@ -55,9 +55,9 @@ AuxField::AuxField (real_t*           alloc,
   _size (nz * Geometry::planeSize()),
   _data (alloc)
 {
-  const char     routine[] = "AuxField::AuxField";
-  const int_t    nP = Geometry::planeSize();
-  register int_t k;
+  const char  routine[] = "AuxField::AuxField";
+  const int_t nP = Geometry::planeSize();
+  int_t       k;
 
   if (Geometry::nElmt() != _elmt.size())
     message (routine, "conflicting number of elements in input data", ERROR);
@@ -199,14 +199,14 @@ AuxField& AuxField::operator = (const char* function)
 // Set AuxField's value to temporo-spatially varying function.  Physical space.
 // ---------------------------------------------------------------------------
 {
-  const int_t    nel = Geometry::nElmt();
-  const int_t    np2 = Geometry::nTotElmt();
-  const int_t    kb  = Geometry::basePlane();
-  const int_t    nP  = Geometry::nPlane();
-  const int_t    NP  = Geometry::planeSize();
-  const real_t   dz  = Femlib::value ("TWOPI / BETA / N_Z");
-  register int_t i, k;
-  real_t*        p;
+  const int_t  nel = Geometry::nElmt();
+  const int_t  np2 = Geometry::nTotElmt();
+  const int_t  kb  = Geometry::basePlane();
+  const int_t  nP  = Geometry::nPlane();
+  const int_t  NP  = Geometry::planeSize();
+  const real_t dz  = Femlib::value ("TWOPI / BETA / N_Z");
+  int_t        i, k;
+  real_t*      p;
 
   for (k = 0; k < _nz; k++) {
     Femlib::value ("z", (kb + k) * dz);
@@ -321,6 +321,7 @@ AuxField& AuxField::innerProductMode (const vector <AuxField*>& a,
   return *this;
 }
 
+
 AuxField& AuxField::crossProductPlus (const int                com, 
 				      const vector<real_t>&    a  ,
                                       const vector<AuxField*>& b  )
@@ -389,24 +390,24 @@ AuxField& AuxField::crossXPlus (const int             com,
 // vector a is given in Cartesian coordinates and x is the position vector.
 // ---------------------------------------------------------------------------
 {
-  const int_t      nel  = Geometry::nElmt();
-  const int_t      npnp = Geometry::nTotElmt();
-  const int_t  nz = Geometry::nZ();
-  const int_t  bP = Geometry::basePlane ();
-  const int_t  procID = Geometry::procID();
-  register int_t   i, k;
-  register real_t* p;
+  const int_t    nel  = Geometry::nElmt();
+  const int_t    npnp = Geometry::nTotElmt();
+  const int_t    nz = Geometry::nZ();
+  const int_t    bP = Geometry::basePlane ();
+  const int_t    procID = Geometry::procID();
+  int_t          i, k, z;
+  real_t*        p;
   vector<real_t> alocal = a;
-  real_t theta;
-  real_t zp;	// z position
-  const real_t beta = Femlib::value ("BETA");
+  real_t         theta;
+  real_t         zp;	// z position
+  const real_t   beta = Femlib::value ("BETA");
 
   // WATCH OUT:  nz == total number of z-planes
   //            _nz == number of z-planes per process
 
   // -- loop zplanes of current process
-  for (int_t k = 0; k < _nz; k++) {
-    int_t z = procID * _nz + k;		// absolute z-plane
+  for (k = 0; k < _nz; k++) {
+    z = procID * _nz + k;		// absolute z-plane
     if (Geometry::cylindrical()) {
       // -- Omega vector is given in Cartesian coordinates.
       //    Project components to cylindrical/local.
@@ -873,21 +874,12 @@ void AuxField::errors (const Mesh* mesh    ,
   L2 /= area;
   H1 /= area;
 
-#if 1
   ostringstream sf;
   sf << "AuxField '"
      << name()
      << "' error norms (inf, L2, H1): "
      << Li << "  " << L2 << "  " << H1;
   message ("", sf.str().c_str(), REMARK);
-#else
-  char  s[StrMax];
-  ostrstream (s, StrMax) << "AuxField '"
-			 << name()
-			 << "' error norms (inf, L2, H1): "
-			 << Li << "  " << L2 << "  " << H1 << ends;
-  message ("", s, REMARK);
-#endif
 }
 
 
@@ -1353,9 +1345,9 @@ void AuxField::swapData (AuxField* x,
 // (Static class member function.)  Swap data areas of two fields.
 // ---------------------------------------------------------------------------
 {
-  const char       routine[] = "AuxField::swapData";
-  register int_t k;
-  register real_t*   tmp;
+  const char routine[] = "AuxField::swapData";
+  int_t      k;
+  real_t*    tmp;
 
   if (x -> _size != y -> _size)
     message (routine, "non-congruent inputs", ERROR);
