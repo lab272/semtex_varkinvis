@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # xfield: extract the nominated field from a field file, place it in a
 # field file of its own.

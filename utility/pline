@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # pline: generate a uniformly-spaced line of points from one position
 # to another.

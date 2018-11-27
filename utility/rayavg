@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # rayavg: generate field-dump averages along rays in the
 # dx,dy-direction emanating from an x-y line. It is assumed that the

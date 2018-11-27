@@ -1,11 +1,13 @@
 #!/bin/tcsh
-##############################################################################
+#
 # Run the same job in a list of directories.
 #
 # Usage: run_job job dir_file
 # 
-# 	"job" is a (c)shell script (see "job_example")
+# 	"job" is a (c)shell script (see "run_job_example")
 # 	"dir_file" is a list of directories in the current directory
+#
+# $Id$
 ##############################################################################
 
 if ($#argv != 2) then

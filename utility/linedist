@@ -1,10 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 #
 # linedist: generate a set of 1D points from an initial to a final location
-# according to a geometrc growth factor (that may be 1).
+# according to a geometric growth factor (that may be 1).
 #
 # usage: linedist x1 x2 npoints growth
-
+#
+# $Id$
 
 case $# in
 4) ;;
