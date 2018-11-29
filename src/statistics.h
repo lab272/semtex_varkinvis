@@ -28,7 +28,7 @@ protected:
   int_t                _nvel;	 // -- No. of velocity components.
   int_t                _nrey;	 // -- No. of Reynolds stress correlations.
   int_t                _neng;	 // -- No. additional correlations for energy.
-  bool                 _do_scat; // -- TRUE if scalar field is included.
+  bool                 _do_scat; // -- TRUE if scalar field is present.
 };
 
 #endif

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// statistics.C: routines for statistical analysis of AuxFields.
+// statistics.cpp: routines for statistical analysis of AuxFields.
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
 //
@@ -22,10 +22,22 @@
 // Reynolds stresses. (Correlations, based on products of variables,
 // are computed and held in physical space.)
 // 
-// Naming scheme for components of the symmetric "Reynolds stresses" tensor:
+// Naming scheme for components of the symmetric "Reynolds stresses" tensor
+// (u,v,w,c are respectively velocity components and scalar):
 //
-//                 / uu uv uw uc \     /  A  B  D  G \     /  A  B \
-//                 | .  vv vw vu |  =  |  .  C  E  H |  =  \  .  C /  -- if 2C
+//                 / uu uv \        =  /  A  B \
+//                 \ .  vv /           \  .  C /
+//
+//                 / uu uv uw \        /  A  B  D \
+//                 | .  vv vw |     =  |  .  C  E |
+//                 \ .  .  ww /        \  .  .  F /
+//
+//                 / uu uv uc \        /  A  B  G \
+//                 | .  vv vc |     =  |  .  C  H |
+//                 \ .  .  cc /        \  .  .  J /
+//
+//                 / uu uv uw uc \     /  A  B  D  G \
+//                 | .  vv vw vu |  =  |  .  C  E  H |
 //                 | .  .  ww wc |     |  .  .  F  I |
 //                 \ .  .  .  cc /     \  .  .  .  J /
 //
@@ -40,7 +52,7 @@
 // computation of energy equation terms. Again, the correct terms need
 // to be made in post-processing.
 //
-// a) Scalar: 
+// a) Scalar:
 //    i) q = 0.5 [u^2 + v^2 (+ w^2)]
 //   ii) d = SijSij
 //
@@ -96,14 +108,14 @@ Statistics::Statistics (Domain* D) :
 // ---------------------------------------------------------------------------
 // Store averages for all Domain Fields, and correlations.
 // ---------------------------------------------------------------------------
-  _name    (D -> name),
-  _base    (D),
-  _iavg    (Femlib::ivalue ("AVERAGE")),
-  _nraw    (_base -> nField()),
-  _nvel    (_base -> nVelCmpt()),
-  _nrey    ((_iavg > 1) ? ((_nvel+1)*_nvel)/2 : 0),
-  _neng    (0),
-  _do_scat (_base -> hasScalar()) // -- Do scalar transport.
+  _name (D -> name),
+  _base (D),
+  _iavg (Femlib::ivalue ("AVERAGE")),
+  _nraw (_base -> nField()),
+  _nvel (_base -> nVelCmpt()),  
+  _nrey ((_iavg > 1) ? ((_nraw-1)*_nraw)/2 : 0),
+  _neng (0),
+ _do_scat (_base -> hasScalar()) // -- Do scalar transport.
 {
   if (_iavg == 0) return;
   if ((_iavg  < 0) || (_iavg > 3))
@@ -123,9 +135,19 @@ Statistics::Statistics (Domain* D) :
       _avg[_base -> u[i] -> name()] =
 	new AuxField (new real_t[ntot],nz,_base->elmt,_base->u[i]->name());
 
-  if (_iavg > 1) // -- Set up buffers for Reynolds stress correlations.
-    for (i = 0; i < _nrey; i++)
-      _avg['A' + i] = new AuxField (new real_t[ntot],nz,_base->elmt,'A'+i);
+  if (_iavg > 1) {// -- Set up buffers for Reynolds stress correlations.
+    if(_nvel == 3 || (_nvel == 2 && !_do_scat))
+      for (i = 0; i < _nrey; i++)
+        _avg['A' + i] = new AuxField (new real_t[ntot],nz,_base->elmt,'A'+i);
+    else {
+      _avg['A'] = new AuxField (new real_t[ntot],nz,_base->elmt,'A');
+      _avg['B'] = new AuxField (new real_t[ntot],nz,_base->elmt,'B');
+      _avg['C'] = new AuxField (new real_t[ntot],nz,_base->elmt,'C');
+      _avg['G'] = new AuxField (new real_t[ntot],nz,_base->elmt,'G');
+      _avg['H'] = new AuxField (new real_t[ntot],nz,_base->elmt,'H');
+      _avg['J'] = new AuxField (new real_t[ntot],nz,_base->elmt,'J');
+    }
+  }
 
   if (_iavg > 2) { // -- Set up addtional buffers for energy correlations.
 
@@ -147,17 +169,11 @@ Statistics::Statistics (Domain* D) :
     if (_nvel == 3) {
       _avg['t'] = new AuxField (new real_t[ntot],nz,_base->elmt,'t'); ++_neng;
     }
-    if (_do_scat) {
-      _avg['u'] = new AuxField (new real_t[ntot],nz,_base->elmt,'u'); ++_neng;
-    }
 
     _avg['a'] = new AuxField (new real_t[ntot],nz,_base->elmt,'a'); ++_neng;
     _avg['b'] = new AuxField (new real_t[ntot],nz,_base->elmt,'b'); ++_neng;
     if (_nvel == 3) {
       _avg['c'] = new AuxField (new real_t[ntot],nz,_base->elmt,'c'); ++_neng;
-    }
-    if (_do_scat) {
-      _avg['d'] = new AuxField (new real_t[ntot],nz,_base->elmt,'d'); ++_neng;
     }
       
     // -- Tensor.
@@ -254,18 +270,27 @@ void Statistics::update (AuxField** wrka,
     _avg['A'] -> timesPlus (*wrka[0], *wrka[0]);
     _avg['B'] -> timesPlus (*wrka[0], *wrka[1]);
     _avg['C'] -> timesPlus (*wrka[1], *wrka[1]);
-    
-    if (_nvel == 3 || _do_scat) {
+
+    // -- Two velocity components and scalar.
+    if (_nvel == 2 && _do_scat) {
+      _avg['G'] -> timesPlus (*wrka[0], *wrka[2]);
+      _avg['H'] -> timesPlus (*wrka[1], *wrka[2]);
+      _avg['J'] -> timesPlus (*wrka[2], *wrka[2]);
+    }
+
+    // -- Three velocity components.
+    if (_nvel == 3) {
       _avg['D'] -> timesPlus (*wrka[0], *wrka[2]);
       _avg['E'] -> timesPlus (*wrka[1], *wrka[2]);
       _avg['F'] -> timesPlus (*wrka[2], *wrka[2]);
-    }
 
-    if(_nvel == 3 && _do_scat) {
-      _avg['G'] -> timesPlus (*wrka[0], *wrka[3]);
-      _avg['H'] -> timesPlus (*wrka[1], *wrka[3]);
-      _avg['I'] -> timesPlus (*wrka[2], *wrka[3]);
-      _avg['J'] -> timesPlus (*wrka[3], *wrka[3]);
+      // -- Three velocity components and scalar.
+      if(_do_scat) {
+        _avg['G'] -> timesPlus (*wrka[0], *wrka[3]);
+        _avg['H'] -> timesPlus (*wrka[1], *wrka[3]);
+        _avg['I'] -> timesPlus (*wrka[2], *wrka[3]);
+        _avg['J'] -> timesPlus (*wrka[3], *wrka[3]);
+      }
     }
   }
 
