@@ -57,8 +57,8 @@ endif (WITH_MPI)
 
 # -- Build the top-level spectral element solvers elliptic and dns.
 
-include (elliptic/CMakelists.txt)
-include (dns/CMakelists.txt)
+include (elliptic/CMakeLists.txt)
+include (dns/CMakeLists.txt)
 
 # -- Build/install pre/post processing utilities.
 
