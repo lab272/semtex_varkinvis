@@ -1,0 +1,23 @@
+# -- Definitions used to compile elliptic solver.
+
+set (ell_src
+  ${CMAKE_CURRENT_LIST_DIR}/helmholtz.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/drive.cpp
+)
+
+set (import_serial_libs ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+set (import_par_libs    ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${MPI_LIBRARIES})
+
+# -- Default/serial executable (no MPI).
+
+add_executable             (elliptic ${ell_src})
+target_include_directories (elliptic PUBLIC src elliptic)
+target_link_libraries      (elliptic src fem vec ${import_serial_libs})
+
+# -- Add multi-process (_mp) excutable if so directed.
+
+if (WITH_MPI)
+  add_executable             (elliptic_mp ${ell_src})
+  target_include_directories (elliptic_mp PUBLIC src dns)
+  target_link_libraries      (elliptic_mp src fem_mp vec ${import_par_libs})
+endif (WITH_MPI)
