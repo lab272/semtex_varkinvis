@@ -1733,14 +1733,12 @@ real_t AuxField::CFL (const int_t dir, int_t& el) const
   const int_t      npnp     = Geometry::nTotElmt();
   const int_t      nP       = Geometry::nPlane();
   const int_t      nZ       = Geometry::nZProc();
-  const int_t      nT       = Femlib::ivalue("N_TIME");
   const real_t     dz       = Femlib::value ("TWOPI / BETA / N_Z");
   const real_t     alpha    = 0.723;		  // -- Indicative max eigval.
   const real_t     c_lambda = 0.2;                // -- See reference.
   const int_t      P        = Geometry::nP() - 1; // -- Polynomial order.
   register int_t   i, k;
   register real_t* p;
-  register real_t* pk;
   vector<real_t>   work (npnp);
   real_t           CFL = -FLT_MAX;
   real_t           cfl;
@@ -1769,11 +1767,11 @@ real_t AuxField::CFL (const int_t dir, int_t& el) const
     CFL *= (c_lambda * P * P) / alpha;
     break;
   case 2: {
-    for(k = 0; k < nZ; k++)
+    for (k = 0; k < nZ; k++)
       for (i = 0; i < nP; i++) {
         cfl = fabs (_plane[k][i]);
         if (cfl > CFL) {
-          el = i%npnp;
+          el  = i % npnp;
           CFL = cfl;
         }
       }
@@ -1784,6 +1782,7 @@ real_t AuxField::CFL (const int_t dir, int_t& el) const
     message (routine, "nominated direction out of range [0--2]", ERROR);
     break;
   }
+  
   return CFL;
 }
 

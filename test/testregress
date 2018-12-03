@@ -23,9 +23,11 @@ do
   $CODE -chk $i >/dev/null 2>&1
   compare -n $i $i.fld > /dev/null 2> $i.new
   cmp -s $i.new ../regress/$i.ok
-  case $? in
-  0) echo passed: $i ;;
-  1) echo failed: $i ;;
-  esac
+  if [ $? -ne 0 ]
+  then
+      echo failed: $i
+  else
+      echo passed: $i
+  fi
   rm $i*
 done

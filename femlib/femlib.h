@@ -115,7 +115,7 @@ void iabandon (int_t**);
 void dabandon (real_t**);
 void sabandon (float**);
 
-int_t  FamilySize (int_t*, int_t*, int_t*);
+int_t FamilySize (int_t*, int_t*, int_t*);
 
 // -- Routines from fourier.c:
 
@@ -125,6 +125,7 @@ void dDFTr (real_t*, const int_t, const int_t, const int_t);
 
 void bvdFilter (const int_t,const real_t,const real_t, const real_t, real_t*);
 
+#if defined(MPI)
 // -- Routines from message.c:
 
 void message_init      (int*, char***);
@@ -139,8 +140,9 @@ void message_irecv     (int_t*,  const int_t, const int_t);
 void message_dexchange (real_t*, const int_t, const int_t, const int_t);
 void message_sexchange (float*,  const int_t, const int_t, const int_t);
 void message_iexchange (int_t*,  const int_t, const int_t, const int_t);
+#endif
 
-// -- FORTRAN
+  // -- Fortran:
 // -- Routines from NETLIB.f:
 
 void F77NAME(genrcm) (const int_t&,int_t*,int_t*,int_t*,int_t*,int_t*);
@@ -195,14 +197,26 @@ class Femlib {
 public:
 
   static void initialize (int* argc, char*** argv)
+#if defined(MPI)    
     { message_init (argc, argv); }
+#else
+    { yy_initialize (); }
+#endif
+  static void finalize ()
+#if defined(MPI)
+    { message_stop (); }
+#else
+    { }
+#endif    
   static void prepVec (const char* v, const char* f)
     { yy_vec_init (v, f); }
-  static void finalize () 
-    { message_stop (); }
-  static void synchronize ()
-    { message_sync(); }
 
+  static void synchronize ()
+#if defined(MPI)    
+    { message_sync(); }
+#else
+    { }
+#endif  
 #if 0
   // -- This form seems to cause a problem, hence workaround:
   static void parseVec (const int_t n ... )
@@ -377,7 +391,7 @@ public:
 		    const int_t& ip, const int_t& iq, const int_t& ir,
 		    const int_t& lot, const int_t& isign)
     { F77NAME(dgpfa) (a, b, trig, inc, jump, n, ip, iq, ir, lot, isign); }
-
+#if defined(MPI) // -- MPI: use appropriate routines in message.c.
   static void send  (real_t* data, const int_t N, const int_t tgt)
     { message_dsend (data, N, tgt); }
   static void recv  (real_t* data, const int_t N, const int_t src)
@@ -399,6 +413,20 @@ public:
   static void exchange  (int_t* data,  const int_t nZ,
 			 const int_t nP, const int_t sign)
     { message_iexchange (data, nZ, nP, sign); }
+#else // -- Compiling without MPI: use empty stubs.
+  static void send      (real_t* data, const int_t N, const int_t tgt) { }
+  static void recv      (real_t* data, const int_t N, const int_t src) { }
+  static void send      (float*  data, const int_t N, const int_t tgt) { }
+  static void recv      (float*  data, const int_t N, const int_t src) { }
+  static void send      (int_t*  data, const int_t N, const int_t tgt) { }
+  static void recv      (int_t*  data, const int_t N, const int_t src) { }
+  static void exchange  (real_t* data, const int_t nZ,
+			 const int_t nP, const int_t sign)             { }
+  static void exchange  (float* data, const int_t nZ,
+			 const int_t nP, const int_t sign)             { }
+  static void exchange  (int_t* data,  const int_t nZ,
+			 const int_t nP, const int_t sign)             { }
+#endif  
 
   static void grad2 (const real_t* x, const real_t* y, real_t* xr, real_t* ys,
 		     const real_t* dv, const real_t* dt,

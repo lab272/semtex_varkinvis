@@ -1,5 +1,7 @@
 ##############################################################################
-# Compile test codes for femlib library functions.
+# Compile test codes for femlib library functions.  These are intended
+# for developer-level debugging.  Please check within the specific
+# codes for purpose.
 #
 # $Id$
 ##############################################################################

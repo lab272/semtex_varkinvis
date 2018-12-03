@@ -10,6 +10,7 @@
 <USER>
 	Geometry 2D-Cartesian
 	Exact    sin(x)*exp(-y)
+	c =      sin(x)*exp(-y)	
 </USER>
 
 <TOKENS>

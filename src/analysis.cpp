@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 // analysis.C: implement Analyser class for NS-type solvers.
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
@@ -435,7 +435,7 @@ void Analyser::divergence (AuxField** Us) const
 
 void Analyser::estimateCFL () const
 // ---------------------------------------------------------------------------
-// Estimate and print the peak CFL number, based on zero-mode velocities.
+// Estimate and print the peak CFL number.
 // References:
 //      SEM:     Karniadakis and Sherwin (2005), section 6.3.1
 //      Fourier: Canuto, Hussaini, Quarteroni and Zhang, vol. 1 (2006), 

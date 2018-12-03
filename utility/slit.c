@@ -40,7 +40,7 @@ void slit     (FILE *fp, int n, int *col);
 int  get_line (FILE *fp, char coltext[][MAXSTR], int *nwords);
 
 
-main(int argc, char *argv[])
+int main (int argc, char *argv[])
 /* ========================================================================= *
  * This does adminstration for the routines which do all the work.
  * ========================================================================= */
@@ -88,7 +88,7 @@ main(int argc, char *argv[])
       }
     }
   }
-  exit(0);
+  exit (0);
 }
 
 

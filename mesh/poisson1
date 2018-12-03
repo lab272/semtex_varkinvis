@@ -11,6 +11,7 @@
 	Geometry 2D-Cartesian
 	Forcing  sin(PI*x)*sin(PI*y)
 	Exact    -1.0/(2*PI*PI)*sin(PI*x)*sin(PI*y)
+	c =      -1.0/(2*PI*PI)*sin(PI*x)*sin(PI*y)	
 </USER>
 
 <TOKENS>
