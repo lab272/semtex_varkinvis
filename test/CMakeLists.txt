@@ -47,6 +47,8 @@ add_test(tube2   ${CMAKE_SOURCE_DIR}/test/testregression ""
 		 ${CMAKE_SOURCE_DIR}/build/dns tube2  )
 add_test(tube3   ${CMAKE_SOURCE_DIR}/test/testregression ""
 		 ${CMAKE_SOURCE_DIR}/build/dns tube3  )
+add_test(tube4   ${CMAKE_SOURCE_DIR}/test/testregression ""
+		 ${CMAKE_SOURCE_DIR}/build/dns tube4  )		 
 add_test(sbr     ${CMAKE_SOURCE_DIR}/test/testregression ""
 		 ${CMAKE_SOURCE_DIR}/build/dns sbr    )
 add_test(tc1     ${CMAKE_SOURCE_DIR}/test/testregression ""
