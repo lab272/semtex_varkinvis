@@ -354,6 +354,7 @@ int_t FEML::sections (vector <const char*>& present)
   return _nKey;
 }
 
+
 bool FEML::echo (ostream&    stream,
 		 const char* key   )
 // ---------------------------------------------------------------------------
@@ -427,6 +428,8 @@ bool FEML::echo (ostream&    stream,
   }
 
   _feml_file >> skipws;
+
+  return true;
 }
 
 #undef VERBOSE

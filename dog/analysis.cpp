@@ -208,20 +208,38 @@ void Analyser::estimateCFL () const
 // Estimate and print the peak CFL number, based on zero-mode velocities.
 // ---------------------------------------------------------------------------
 {
-  const real_t CFL_max = 0.7;	// -- Approximate maximum for scheme.
-  const real_t SAFETY  = 0.9;	// -- Saftey factor.
-  const real_t dt      = Femlib::value ("D_T");
-  real_t       CFL_dt, dt_max;
-  int_t        percent;
+  const int_t    pid     = Geometry::procID();
+  const int_t    nProc   = Geometry::nProc();
+  const real_t   dt      = Femlib::value ("D_T");
+  real_t         CFL_dt, dt_max;
+  int_t          i, percent;
+  char           vcmpt;
+  real_t         CFL_i[3];
+  real_t         cmpt_i;
+  int_t          elmt_i, elmt_j, elmt_k;
 
-  CFL_dt = max (_src -> u[0] -> CFL (0), _src -> u[1] -> CFL (1));
-  // if (Geometry::nPert() == 3) CFL_dt = max (CFL_dt, _src -> u[2] -> CFL (2));
+  CFL_i[0] = _src -> u[0] -> CFL(0, elmt_i);
+  CFL_i[1] = _src -> u[1] -> CFL(1, elmt_j);
 
-  dt_max  = SAFETY * CFL_max / CFL_dt;
-  percent = static_cast<int_t>(100.0 * dt / dt_max);
+  CFL_dt = max(CFL_i[0], CFL_i[1]);
+  cmpt_i = (CFL_i[0] > CFL_i[1]) ? 0.0 : 1.0;
+  elmt_i = (CFL_i[0] > CFL_i[1]) ? elmt_i : elmt_j;
 
-  cout << "-- CFL: "     << CFL_dt * dt;
-  cout << ", dt (max): " << dt_max;
-  cout << ", dt (set): " << dt;
-  cout << " ("           << percent << "%)" << endl;
+  if (_src -> nField() > 3) {
+    CFL_i[2] = _src -> u[2] -> CFL(2, elmt_k);
+
+    if (CFL_i[2] > CFL_dt) {
+      CFL_dt = CFL_i[2];
+      cmpt_i = 2.0;
+      elmt_i = elmt_k;
+    }
+  }
+  cout << setprecision (3)
+       << "# CFL: "     << CFL_dt * dt
+       << ", dt (max): " << dt_max
+       << ", dt (set): " << dt
+       << " ("           << percent
+       << "%), field: "  << vcmpt 
+       << ", elmt: "     << elmt_i + 1 << endl;
+  // -- 1-based indexing as in session file.
 }
