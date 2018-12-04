@@ -46,14 +46,11 @@ add_compile_options (
 
 # -- Build semtex libraries.
 
-include_directories (veclib femlib ${MPI_INCLUDE_PATH})
+include_directories (veclib femlib ${MPI_C_INCLUDE_PATH})
 
 add_subdirectory (veclib)
 add_subdirectory (femlib)
 add_subdirectory (src)
-if (WITH_MPI)
-  target_compile_definitions (fem_mp PRIVATE MPI=ON)
-endif (WITH_MPI)
 
 # -- Build the top-level spectral element solvers elliptic and dns.
 
@@ -76,56 +73,3 @@ include (test/CMakeLists.txt)
 if (EXISTS ${CMAKE_SOURCE_DIR}/stab)
   include (${CMAKE_SOURCE_DIR}/stab/CMakeLists.txt)
 endif()
-
-#  option (WITH_FLIP   "Build dog with half-period map"                 OFF)
-#  option (WITH_ARPACK "Build dog with ARPACK"                          OFF)
-#  add_subdirectory (stab)
-#  add_executable (dog
-#  		 ${CMAKE_SOURCE_DIR}/stab/analysis.cpp
-#		 ${CMAKE_SOURCE_DIR}/stab/auxfield.cpp
-#		 ${CMAKE_SOURCE_DIR}/stab/bcmgr.cpp
-#		 ${CMAKE_SOURCE_DIR}/stab/domain.cpp		 
-#		 ${CMAKE_SOURCE_DIR}/stab/drive.cpp
-#		 ${CMAKE_SOURCE_DIR}/stab/edge.cpp
-#		 ${CMAKE_SOURCE_DIR}/stab/feml.cpp
-#		 ${CMAKE_SOURCE_DIR}/stab/field.cpp
-#		 ${CMAKE_SOURCE_DIR}/stab/geometry.cpp		 
-# 		 ${CMAKE_SOURCE_DIR}/stab/integrate.cpp
-#  		 ${CMAKE_SOURCE_DIR}/stab/stabanalysis.cpp
-#		 
-#		 ${CMAKE_SOURCE_DIR}/src/boundary.cpp
-#		 ${CMAKE_SOURCE_DIR}/src/bsys.cpp
-#		 ${CMAKE_SOURCE_DIR}/src/condition.cpp
-#		 ${CMAKE_SOURCE_DIR}/src/data2df.cpp		 
-#		 ${CMAKE_SOURCE_DIR}/src/element.cpp
-#		 ${CMAKE_SOURCE_DIR}/src/family.cpp
-#		 ${CMAKE_SOURCE_DIR}/src/history.cpp
-#		 ${CMAKE_SOURCE_DIR}/src/integration.cpp
-#		 ${CMAKE_SOURCE_DIR}/src/matrix.cpp
-#		 ${CMAKE_SOURCE_DIR}/src/mesh.cpp
-#		 ${CMAKE_SOURCE_DIR}/src/misc.cpp
-#		 ${CMAKE_SOURCE_DIR}/src/particle.cpp
-#		 ${CMAKE_SOURCE_DIR}/src/svv.cpp
-#		 )
-# target_link_libraries (dog fem vec
-#  			${BLAS_LIBRARIES} ${LAPACK_LIBRARIES}
-#			${ARPACK_LIBRARY})
-#  target_include_directories(dog PUBLIC stab src)
-#  include (stab/BH-arnoldi/CMakeLists.txt)       
-#  if (WITH_FLIP)
-#    target_compile_definitions (dog PRIVATE FLIP=ON  )
-#  endif (WITH_FLIP)
-#  if (WITH_ARPACK)
-#    target_compile_definitions (dog PRIVATE ARPACK=ON)
-#  endif(WITH_ARPACK)
-#  if (WITH_ARPACK)
-#    find_library (ARPACK_LIBRARY NAMES "arpack" HINTS ENV
-#    		 LD_LIBRARY_PATH PATHS
-#		 /usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64)
-#    if (ARPACK_LIBRARY)
-#      message ("... found ARPACK: ${ARPACK_LIBRARY}")
-#    else()
-#      message (FATAL_ERROR "... have not found ARPACK, terminating build.")
-#    endif()
-#  endif (WITH_ARPACK)  
-#endif()

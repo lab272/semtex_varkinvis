@@ -5,8 +5,11 @@ set (ell_src
   ${CMAKE_CURRENT_LIST_DIR}/drive.cpp
 )
 
+include_directories (veclib femlib ${MPI_C_INCLUDE_PATH})
+
 set (import_serial_libs ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-set (import_par_libs    ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${MPI_LIBRARIES})
+set (import_par_libs    ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES}
+    			${MPI_C_LIBRARIES})
 
 # -- Default/serial executable (no MPI).
 
@@ -18,6 +21,7 @@ target_link_libraries      (elliptic src fem vec ${import_serial_libs})
 
 if (WITH_MPI)
   add_executable             (elliptic_mp ${ell_src})
-  target_include_directories (elliptic_mp PUBLIC src dns)
+  target_compile_definitions (elliptic_mp PUBLIC -DMPI)
+  target_include_directories (elliptic_mp PUBLIC src)
   target_link_libraries      (elliptic_mp src fem_mp vec ${import_par_libs})
 endif (WITH_MPI)

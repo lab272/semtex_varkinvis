@@ -13,13 +13,13 @@ BISON_TARGET (Parser initial.y ${CMAKE_CURRENT_BINARY_DIR}/initial.c)
 set (fem_lib_src
   ${BISON_Parser_OUTPUTS}
   polyops.c  operators.c   polylib.c  filter.c
-  fourier.c  mapping.c     family.c
+  fourier.c  mapping.c     family.c   message.c
   temfftd.F  matops.F      canfft.f   netlib.f  
 )
 
 add_library (fem STATIC ${fem_lib_src})
 
 if (WITH_MPI)
-  set (fem_mp_lib_src ${fem_lib_src} message.c)
-  add_library (fem_mp STATIC ${fem_mp_lib_src})
+  add_library (fem_mp STATIC ${fem_lib_src})
+  target_compile_definitions (fem_mp PRIVATE -DMPI)	
 endif()
