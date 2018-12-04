@@ -46,7 +46,7 @@ do
   then
     chmod 0644 ../regress/$i.ok
   fi
-  compare -n $i $i.fld > /dev/null 2> ../regress/$i.ok
+  $COMPARE -n $i $i.fld > /dev/null 2> ../regress/$i.ok
   chmod 0444 ../regress/$i.ok
   rm $i*
 done
@@ -73,7 +73,7 @@ do
   then
     chmod 0644 ../regress/$i.ok
   fi
-  compare -n $i $i.fld > /dev/null 2> ../regress/$i.ok
+  $COMPARE -n $i $i.fld > /dev/null 2> ../regress/$i.ok
   chmod 0444 ../regress/$i.ok
   rm $i*
 done
