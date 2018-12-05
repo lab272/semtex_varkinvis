@@ -17,11 +17,11 @@ add_executable             (elliptic ${ell_src})
 target_include_directories (elliptic PUBLIC src elliptic)
 target_link_libraries      (elliptic src fem vec ${import_serial_libs})
 
-# -- Add multi-process (_mp) excutable if so directed.
+# -- Add multi-process (_mp) executable if possible.
 
-if (WITH_MPI)
+if (MPI_FOUND)
   add_executable             (elliptic_mp ${ell_src})
   target_compile_definitions (elliptic_mp PUBLIC -DMPI)
   target_include_directories (elliptic_mp PUBLIC src)
   target_link_libraries      (elliptic_mp src fem_mp vec ${import_par_libs})
-endif (WITH_MPI)
+endif (MPI_FOUND)

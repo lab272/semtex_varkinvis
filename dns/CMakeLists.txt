@@ -21,11 +21,11 @@ add_executable             (dns ${dns_src})
 target_include_directories (dns PUBLIC src dns)
 target_link_libraries      (dns src fem vec ${import_serial_libs})
 
-# -- Add multi-process (_mp) excutable if so directed.
+# -- Add multi-process (_mp) executable if possible.
 
-if (WITH_MPI)
+if (MPI_FOUND)
   add_executable             (dns_mp ${dns_src})
   target_compile_definitions (dns_mp PRIVATE -DMPI)
   target_include_directories (dns_mp PUBLIC src dns)
   target_link_libraries      (dns_mp src fem_mp vec ${import_par_libs})
-endif (WITH_MPI)
+endif (MPI_FOUND)

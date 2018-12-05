@@ -5,16 +5,16 @@
 #    build subdirectory, e.g.: cd build; cmake ..; make
 
 project (semtex C CXX Fortran)
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.8)
 
 # -- Pull in the pre-processor flags, which can optionally be set on
-#    the comamnd line (if not enabled here).  E.g. cmake -DWITH_MPI=ON ..
+#    the comamnd line (if not enabled here).  E.g. cmake -DDEBUG=ON ..
 #
 # -- Note that even with the MPI option set, all codes other than the
 #    elliptic and dns solvers are serial executables and hence do not
 #    exploit or benefit from presence of MPI.
 
-option (WITH_MPI    "Build dns+elliptic solvers with MPI"            OFF)
+option (WITH_MPI    "Build dns+elliptic solvers with MPI"            ON )
 option (DEBUG       "Build with debugging preprocessor conditionals" OFF)
 if (DEBUG)
   set (CMAKE_BUILD_TYPE "Debug")
@@ -30,7 +30,10 @@ find_package   (BISON  REQUIRED)
 find_package   (BLAS   REQUIRED)
 find_package   (LAPACK REQUIRED)
 if (WITH_MPI)
-  find_package (MPI    REQUIRED)
+  find_package (MPI)
+  if (MPI_FOUND)
+    message (STATUS "Building codes elliptic_mp and dns_mp with MPI support.")
+  endif (MPI_FOUND)
 endif (WITH_MPI)
 
 # -- Set compiler warning supressions (some of which are unknown to Fortran).
