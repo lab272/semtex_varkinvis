@@ -19,9 +19,9 @@ to DNS (and also, if requested, advected in a frozen/supplied velocity
 field).
 
 Spectral elements are used to discretise planar geometries, with
-variations in the third (homogeneous/periodic) direction accomodated
-via Fourier expansions (i.e. spatial discretisation is 2D spectral
-element X Fourier).
+solution variations in the third (homogeneous/periodic) direction
+accommodated via Fourier expansions (i.e. spatial discretisation is 2D
+spectral element X Fourier).
 
 
 
@@ -29,10 +29,10 @@ Technical details
 -----------------
 
 The code is designed to compile and run on Unix-based operating
-systems including Linux and OSX (and has been sucessfully compiled and
-run on a wide variety of such systems for over two decades).  Optional
-multi-process parallelisation across Fourier modes is supported via
-MPI.
+systems including Linux and OSX (and has been successfully compiled
+and run on a wide variety of such systems for over two decades).
+Optional multi-process parallelisation across Fourier modes is
+supported via MPI.
 
 The method uses continuous-Galerkin Legendre--Gauss--Lobatto
 nodal-based spectral-element elliptic equation solvers, a 2,3,5
@@ -45,7 +45,7 @@ for robust operation.
 Elliptic equations are by default solved using direct methods
 (Cholesky decomposition allied with element-level static
 condensation), but optionally can be solved using (Jacobi)
-preconditioned congugate-gradient methods allied with tensor-product
+preconditioned conjugate-gradient methods allied with tensor-product
 methods.  The code typically operates most efficiently with moderate
 spectral element polynomial orders (4-10).
 
@@ -192,7 +192,7 @@ their directories (this will also show you the compiler flags being
 used).  If the libraries can be compiled and archived (to produce
 libvec.a and libfem.a) the most likely issue is the final linking of
 the executables for dns, enumerate and compare.  Once you can get the
-libaries to compile "by hand", go back up to this (README) directory
+libraries to compile "by hand", go back up to this (README) directory
 and do "make clean; make libs".  When that completes OK, go to the dns
 directory and do "make clean; make", with the aim of compiling and
 linking the executable "dns".  If dns is not produced, you will need
@@ -208,7 +208,7 @@ utilities:
 
 At this stage, and if you have MPI, you may wish to try building and
 linking the parallel library libfem_mp.a and solver dns_mp (typically
-run like this: "mpirun -np <ncores> dns_mp").
+run like this: "mpirun -np <n_cores> dns_mp").
 
   >% make parallel
 
@@ -230,7 +230,7 @@ have standard extensions:
 
 session.num  Global node numbers, produced by enumerate utility.
 session.fld  Solution/field file.  Binary format by default.
-session.rst  Restart file.  Read in to initialize solution if present.
+session.rst  Restart file.  Read in to initialise solution if present.
 session.avg  Average file.  Used to store time-mean averages.
 
 After writing a new session file it is best to run meshpr on it before
