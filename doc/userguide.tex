@@ -3,7 +3,7 @@
 %
 % $Id$
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\documentclass[11pt,a4paper]{report}
+\documentclass[11pt]{report}
 
 \usepackage{%
 graphicx,
@@ -12,7 +12,8 @@ amsmath,
 bm,
 cancel,
 subfigure,
-color
+color,
+a4wide
 }
 
 \graphicspath{{./Figs/}}
@@ -27,6 +28,7 @@ color
 
 \renewcommand{\baselinestretch}      {1.0}
 \renewcommand{\familydefault}{cmss}
+\renewcommand{\bibname}{References}
 
 \def\bs#1{\mbox{\boldmath$#1$}}                     % bold symbol typeface
 \def\vec#1{\mbox{\bf#1}}                            % bold vector typeface
@@ -35,34 +37,27 @@ color
 \def\undertext#1{$\underline{\smash{\hbox{#1}}}$}   % underline running text
 \def\refitem{\noindent\hangindent=2em}              % hanging indent
 
-\newcommand{\Semtex}{\emph{Semtex}}
-\newcommand{\Dog}{\emph{Dog}}
+\newcommand{\Semtex}{\emph{Semtex}} \newcommand{\Dog}{\emph{Dog}}
 \newcommand{\SM}{\emph{SuperMongo}}
 \newcommand{\Tecplot}{\emph{Tecplot}}
-\newcommand\qp{qua\-si-per\-io\-dic}
-\newcommand\cc{complex-conjugate}
+\newcommand\qp{qua\-si-per\-io\-dic} \newcommand\cc{complex-conjugate}
 \newcommand\oned{one-di\-men\-sion\-al}
 \newcommand\twod{two-di\-men\-sion\-al}
 \newcommand\threed{three-di\-men\-sion\-al}
 \newcommand\twoc{two-com\-po\-nent}
 \newcommand\threec{three-com\-po\-nent}
 \newcommand\gll{Gauss--Lobatto--Legendre}
-\newcommand\real{{\mbox{Re}}}
-\newcommand\imag{{\mbox{Im}}}
-\newcommand\etal{{\it et al}.} 
-\newcommand{\ie}{i.e.\ } 
-\newcommand{\eg}{e.g.\ } 
-\newcommand{\CC}{\mathrm{c.c.}} 
-\newcommand\cd{\mathrm{d}} 
-\newcommand\cD{\mathrm{D}} 
-\newcommand\ce{\mathrm{e}} 
-\newcommand\ci{\mathrm{i}} 
-\newcommand\KH{Kelvin--Helmholtz} 
-\newcommand\Pois{Poiseuille} 
-\newcommand\HP{Hagen--Poiseuille} 
-\newcommand\Orrsom{Orr--Sommerfeld} 
-\newcommand\GLL{Gauss--Lobatto--Legendre} 
-\newcommand\NavSto{Navier--Stokes} 
+\newcommand\real{{\mbox{Re}}} \newcommand\imag{{\mbox{Im}}}
+\newcommand\etal{{\it et al}.}  \newcommand{\ie}{i.e.\ }
+\newcommand{\eg}{e.g.\ } \newcommand{\CC}{\mathrm{c.c.}}
+\newcommand\cd{\mathrm{d}} \newcommand\cD{\mathrm{D}}
+\newcommand\ce{\mathrm{e}} \newcommand\ci{\mathrm{i}}
+\newcommand\KH{Kelvin--Helmholtz} \newcommand\Pois{Poiseuille}
+\newcommand\HP{Hagen--Poiseuille} \newcommand\Orrsom{Orr--Sommerfeld}
+\newcommand\GLL{Gauss--Lobatto--Legendre}
+\newcommand\NavSto{Navier--Stokes}
+\newcommand{\cpp}{C\nolinebreak\hspace{-.05em}\raisebox{.3ex}{\footnotesize\bf
++}\nolinebreak\hspace{-.10em}\raisebox{.3ex}{\footnotesize\bf+}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
@@ -91,7 +86,7 @@ Monash University
 
 \today
 
-\Semtex\ version 8.2
+\Semtex\ version 9
 
 \vspace*{\fill}
 
@@ -190,34 +185,54 @@ A significant additional novelty of \Semtex~V8 is the option of robust
 outflow boundary conditions \citep{dkc14}, which alleviate much of the
 numerical stability problem associated with inflows that occur at the
 outflow boundary.
+%
+As of \Semtex~V9, DNS variables may optionally contain a scalar
+variable in addition to velocity components and pressure.  If
+requested, evolution of the scalar can be obtained in a frozen,
+presupplied velocity field.
+
+\Semtex\ solves problems in \twod\ domains or in \threed\ domains that
+can be obtained from arbitrary \twod\ domains by extrusion in an
+orthogonal direction in which the solution fields are periodic (often
+such problems are referred to as $2\tfrac{1}{2}$-dimensional).  Quite
+a large number of fundamental problems in mechanics can be tackled
+using this level of geometric complexity, but if you need genuiunely
+\threed\ geometries then look elsewhere.  While parallel execution is
+supported, the method is only parallel across the
+homogeneous/extrustion/Fourier direction, so each process has to be
+able to accommodate at least two \twod\ data planes and associated
+overheads.  Sometimes this design restriction is significant.  Code
+performance is typically quite efficient (and fast) up to some
+hundreds or perhaps thousands of processors, but this is
+problem-dependent.
 
 %-----------------------------------------------------------------------------
 \section{Implementation}
 
-The top level of the code is written in C++, with calls to C and
-FORTRAN library routines, \eg BLAS and LAPACK. The original
+The top level of the code is written in \cpp, with calls to C and
+Fortran library routines, \eg BLAS and LAPACK. The original
 implementation for two-dimensional Cartesian geometries was extended
 to three dimensions using Fourier expansion functions for
 spatially-periodic directions in Cartesian and cylindrical spaces.
 Concurrent execution is supported, using MPI as the basis for
-interprocessor communications, and the code has been ported to DEC,
-NEC, Fujitsu, Compaq, SGI, Apple and Linux multiprocessor
-machines. Basically it ought to work with little trouble on any
-contemporary UNIX system.
+interprocessor communications, and the code has been run on a wide
+variety of conventional multiprocessor machines.  Basically it ought
+to work with little trouble on any contemporary Unix system.  GPUs are
+not supported, nor is OpenMP.  The code is unlikely to benefit much, if
+at all, from multi-threaded execution.
 
-There are various code extensions that are not part of the base
+There have been various code extensions that are not part of the base
 distribution. These include dynamic and non-dynamic LES
 \citep{blsc03}, simple power-law type non-Newtonian rheologies
-\citep{rb06}, scalar transport \citep{hmb01a,hmb02b}, buoyancy via the
-Boussinesq approximation, accelerating frame of reference coupling for
+\citep{rb06}, accelerating frame of reference coupling for
 aeroelasticity \citep{bh96a,bh99,bgw01,hmb03}, solution of
 steady-state flows via Newton--Raphson iteration \citep{hmb02a}
 
 However, linear stability analysis
 \citep{hmb02a,bllo03b,bllo03a,bml05,shbl05,ebs06,blsh07} and optimal
 transient growth analysis \citep{bbs08a} are released as an additional
-code base (called \Dog), see the accompanying user guide called
-`Working \Dog'.
+open-source code base (called \Dog), see the accompanying user guide
+called `Working \Dog'.
 
 %-----------------------------------------------------------------------------
 \section{Further reading}
@@ -241,103 +256,43 @@ well as spectral element methods in fluid dynamics.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Starting out}
 
-It is assumed you're using some version of UNIX (which includes Mac OS
-X), and the current \Semtex\ versions assume that your C++ compiler
-supports the standard libraries.  Makefiles assume GNUmake (by now this
-is usually the standard supplied variant of \texttt{make}).
-\SM\ and \emph{Tecplot} would be nice to have but are not
-essential to get up and running, and VTK-based post processors such as
-\emph{VisIt} or \emph{ParaView} can alternatively be used for
-post-processing in place of \emph{Tecplot}. All major executables have
-a \texttt{-h} command line option which provides a usage prompt.
-
-Application programs/Makefiles can be found in top and upper-level
-directories:
+It is assumed you are using some version of Unix (which includes Mac
+OS~X), with a development system that includes C, \cpp\ and Fortran
+compilers, bison (or yacc), make, and optionally cmake. \SM\ and
+\emph{Tecplot} would be nice to have but are not essential to get up
+and running, and VTK-based visualisation tools such as \emph{VisIt} or
+\emph{ParaView} can alternatively be used for post-processing in place
+of \emph{Tecplot}. All major executables have a \texttt{-h} command
+line option which provides a usage prompt.
+%
+The central solvers provided by the \Semtex\ package are
 \begin{tabbing}
-\texttt{ellipticxx} \= \kill
-\texttt{elliptic} \> Solve elliptic (Laplace, Poisson, Helmholtz)
-problems.\\ \texttt{dns} \> Solve time-varying incompressible
-\NavSto\ problems, Cartesian/cylindrical.
+\texttt{ellipticx} \= \kill
+\texttt{elliptic} \> for elliptic (Laplace, Poisson, Helmholtz)
+problems,\\ \texttt{dns} \> for time-varying incompressible
+\NavSto\ problems, with an optional scalar,
 \end{tabbing}
+and (if MPI is present) their equivalent multi-process versions
+\texttt{elliptic\_mp} and \texttt{dns\_mp}.  There are also a number
+of pre- and post-processing utilities.
 
-%============================================================================
-\section{Testing}
-
-Unpack the tar file, then run \texttt{make test}. This will copy
-header files to their correct places, compile and place the libraries,
-make two central utilities (\texttt{compare} and \texttt{enumerate}),
-then make the direct numerical simulation solver \texttt{dns} and run
-regression checks on its output for a number of test cases. If all
-goes well, this process will end with a number of tests reported as
-\texttt{passed}. In that case, go on and compile all the utilities,
-too (\texttt{cd utility; make all}).
-
-%----------------------------------------------------------------------------
-\subsection{Troubleshooting installation problems}
-If the above process didn't work, there are a number of possible
-things lacking on your system, e.g.:
-\begin{enumerate}
-\item GNU's \texttt{make}: it needs to be in your \texttt{path}
-  somewhere.  On most current UNIX systems, the system-supplied
-  \texttt{make} \emph{is} the GNU version. So now (as of 2010) this is
-  assumed; you can easily check by running \texttt{make --version} and
-  looking at the first line of output.  If not, it may be installed as
-  \texttt{gmake}. Otherwise you will need to get it installed. Alter
-  the variable \texttt{MAKE} in \texttt{semtex/Makefile} so that it
-  gets to the installed GNU \texttt{make}, if required.
-\item The BLAS and LAPACK libraries\,---\,these may be in
-  \texttt{/usr/lib} or \texttt{/usr/local/lib}: search for
-  \texttt{libblas} and \texttt{liblapack}.  On many systems, BLAS and
-  LAPACK are vendor-supplied as part of some `math kernel' library.
-  NB: since quite heavy use is made of BLAS routine \texttt{dgemm}, it
-  can be worthwhile finding BLAS versions in which this is well
-  optimised, see \S\,\ref{sec.speed}.
-\item A standard C++ compiler, a C compiler, and a FORTRAN compiler
-  that can deal with FORTRAN-77.  Note that F90, F95 compilers now
-  often supplant F77 compilers, and these can (and should) be
-  substituted if available. GNU's standard FORTRAN compiler is now
-  called \texttt{gfortran} and is part of the standard \texttt{gcc}
-  compiler suite.
-\item Either \verb|yacc| or \verb|bison|.
-
-\end{enumerate}
-If you have all these things but there are still compilation problems,
-you have some work to do.
-
-The first place to look is in the file \texttt{src/Makefile} which has
-the master set of compilation flags and directives for various
-operating systems. You my find your system here, or one that is
-similar. Even if this is not the case, you should pick up some clues
-about how to set up for compilation on a new system.  As well, check
-the \texttt{README} file in the top directory. Of course, it is
-possible that the code is incompatible with some detail of your
-compilation system or has a bug, but it has had fairly extensive
-exercise on a number of UNIX systems by now. 
-
-If you are having problems, it's usually best to start small and work
-up. First try to make and install the \verb+veclib+ and \verb+femlib+
-libraries, since they do not use C++ or the linker. Try
-\verb+make libs+ at the top level, then if this is still problematic
-go to the \verb+veclib+ directory, do \texttt{make clean; make; make
-install}. When that works, do the same in the \texttt{femlib}
-directory. Next move on and try a simple C++ compile and link, e.g.\
-in the \texttt{utility} directory do \texttt{make calc} and try
-running \texttt{calc} (which is a little like the UNIX calculator
-utility \texttt{bc}, but uses \Semtex's function parser, and links
-\texttt{libfem.a}, the library produced in \texttt{femlib}): try say
-\texttt{1+1}. Next you should try compiling something that links to
-the BLAS and LAPACK, e.g.\ \texttt{compare}. Once this will compile,
-everything should.
-
+Instructions for building and testing the codes are given in the
+accompanying \texttt{README} file.  The rest of this document assumes
+that you are able to build a working set of executables and place them
+in your \texttt{PATH}.
 
 %============================================================================
 \section{Files}
 
-\Semtex\ uses a base input file which describes the mesh, boundary
-conditions.  We call this a \verb+session+ file and typically it has
-no root extension.  It is written in a format patterned on HTML, which
-we have called FEML (for Finite Element Markup Language).  There are a
-number of example session files in the mesh directory.  Other files
+\Semtex\ uses a text input file which describes the mesh, boundary
+conditions and other problem parameters.  We call this a session file
+and typically it has no root extension.  It is written in a format
+loosely patterned on HTML, which we have called FEML (for Finite
+Element Markup Language) --- alternatively you could consider FEML as
+a cut-down version of XML.  FEML is `just enough' to compactly
+describe spectral element problems to the solvers.  There are a number
+of example session files in the mesh directory; some of these are used
+in regression testing (and in the following document).  Other files
 have standard extensions:
 \begin{tabbing}
 \texttt{session.numxx} \= \kill
@@ -362,12 +317,61 @@ simulations.  \texttt{Meshpr} will catch most of the easier-to-make
 errors.  You can also plot up the results using \SM\ or other
 utility as a visual check.
 
+
+%============================================================================
+\section{Structure of a session file}
+
+More details are provided in the next chapter, but a brief outline is
+that a session file has a number of sections that should appear once
+each, but can be supplied in arbitrary order.  Any line whose first
+character is \verb+#+ is a comment line.  Sections are demarcated (as
+in HTML) using paired opening (\verb+<+name\verb+>+) and closing
+(\verb+</+name\verb+>+) tags.  The opening tag will sometimes supply a
+numeric parameter, \eg \verb+<NODES NUMBER=10>+.  The minimal set of
+sections required for a session file to validly describe a domain in
+which a solution can be obtained is: \verb+NODES+, \verb+ELEMENTS+ and
+\verb+SURFACES+: \verb+NODES+ describe the corner vertices of
+\verb+ELEMENTS+, while \verb+SURFACES+ describe what happens on the
+outer boundaries of the domain. Sides of all \verb+ELEMENTS+ (which
+run between \verb+NODES+) must either mate with the side of another
+\verb+ELEMENT+ or be dealt with in the \verb+SURFACES+ section.
+
+%----------------------------------------------------------------------------
+\subsection{\texttt{NODES}}
+
+%----------------------------------------------------------------------------
+\subsection{\texttt{ELEMENTS}}
+
+%----------------------------------------------------------------------------
+\subsection{\texttt{SURFACES}}
+
+%----------------------------------------------------------------------------
+\subsection{\texttt{TOKENS}}
+
+%----------------------------------------------------------------------------
+\subsection{\texttt{FIELDS}}
+
+%----------------------------------------------------------------------------
+\subsection{\texttt{GROUPS}}
+
+%----------------------------------------------------------------------------
+\subsection{\texttt{BCS}}
+
+%----------------------------------------------------------------------------
+\subsection{\texttt{CURVES}}
+
+%----------------------------------------------------------------------------
+\subsection{\texttt{FORCE}}
+
+%----------------------------------------------------------------------------
+\subsection{\texttt{USER}}
+
+
 %============================================================================
 \section{Utilities}
 
-Source code for these is found in the \texttt{utility} directory. You
-will need to make most of these by hand (using the supplied
-\texttt{Makefile}, and \texttt{make all}).  Here is a summary:
+Source code for these is found in the \texttt{utility} directory.
+Here is a summary of the most-used utilities:
 \begin{tabbing}
 \texttt{enumeratexx}  \= \kill
 \texttt{addfield} \>   
@@ -2167,7 +2171,7 @@ may want to try altering the parameter \texttt{LVR} in
 \textsl{This chapter is in development.}\\
 
 
-While the top level of the code is written in C++, the bulk of
+While the top level of the code is written in \cpp, the bulk of
 computational work is carried out using 3rd-party libraries: BLAS and
 LAPACK (vendor- or distribution-supplied) for 2D operations,
 Temperton's 2-3-5 prime factor FFT (incorporated into \texttt{femlib})
@@ -2181,15 +2185,15 @@ Some fundamental design decisions:
 \begin{enumerate}
 \item
 Most real-type data arrays are flat, 1D, zero-indexed, i.e. the same
-as employed in FORTRAN, and this makes them easy to use with FORTRAN
+as employed in Fortran, and this makes them easy to use with Fortran
 routines.
 \item
 The layout of these flat arrays are typically taken as row-major,
-which is standard C/C++. However, FORTRAN uses column-major
+which is standard C/\cpp. However, Fortran uses column-major
 ordering. For this reason, any BLAS or LAPACK operation may at first
 sight seem to be the transpose of what is intended.
 \item
-Most low-level C++ methods in the code do not incorporate internal
+Most low-level \cpp\ methods in the code do not incorporate internal
 data storage but can be regarded as operator routines, and get handed
 addresses to appropriate parts of storage from within the flat data
 arrays on which to work.
@@ -2209,13 +2213,13 @@ Class private or protected member data names start with an underscore,
 \item
 Directory layout.  The following directories are present in the
 distribution: \verb|include| which has copies of header files;
-\verb|src| which holds C++ source code for the classes shared by
+\verb|src| which holds \cpp\ source code for the classes shared by
 \Semtex\ applications; \verb|veclib| which holds routines for many
 standard loops over vectors, with a mnemonic naming convention (the
 code here is almost exclusively written in C); \verb|femlib| has
 \oned\ spectral polynomial routines (knot and quadrature point
 computations, differentiation matrix construction) and FFTs, all
-written in either C or FORTRAN77; \verb|utility| routines for pre and
+written in either C or Fortran77; \verb|utility| routines for pre and
 post-processing; \verb|test| which has code validity regression tests,
 with the `right answers' stored in \verb|regress|; \verb|mesh| holds a
 selection of session files.  The two main application code
@@ -2834,6 +2838,8 @@ values in friction velocity units with comparison to data from
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\clearpage
+\addcontentsline{toc}{chapter}{References}
 \bibliographystyle{dcu}
 \bibliography{userguide}
 

@@ -40,7 +40,8 @@ prime-factor FFT, and a backward-time (a.k.a. stiffly-stable)
 equal-order (P_N-P_N) velocity-pressure semi-explicit timesplitting
 method for DNS, with first-, second-, or third-order time integation.
 Skew-symmetric forms of the nonlinear terms in the NSE are the default
-for robust operation.
+for robust operation. No form of dealiasing is used when creating
+nonlinear product terms.
 
 Elliptic equations are by default solved using direct methods
 (Cholesky decomposition allied with element-level static
@@ -64,6 +65,8 @@ directories:
 elliptic   elliptic (Laplace, Poisson, Helmholtz) solver.
 dns        Navier--Stokes DNS solver (uses same elliptic solver routines).
 utility/*  various utility programs.
+
+A user guide is provided in the doc directory.
 
 Required third-party software
 -----------------------------

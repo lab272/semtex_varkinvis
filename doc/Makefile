@@ -7,3 +7,4 @@ default:
 	pdflatex userguide
 	bibtex userguide
 	pdflatex userguide
+	pdflatex userguide
