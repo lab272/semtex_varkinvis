@@ -352,36 +352,40 @@ with in the \verb+SURFACES+ section.
 %----------------------------------------------------------------------------
 \subsection{\texttt{NODES}}
 
-This section describes the location of the nodes which position
-element corner vertices in $(x,y)$ space.  The attribute \verb|NUMBER|
-is required in the opening tag; this should match the number of
-\verb|NODES| which follow.  This can exceed the number of unique
-\verb|NODES| which are actually required for all the element vertices
-(\ie spare \verb|NODES| are allowed, but they have to be included in
-the \verb|NUMBER| count.).  Each line of the \verb|NODES| section has
-four entries: an integer numeric tag (mostly used by human readers of
-the file, since it is actually ignored!) followed by three numbers
-which give the location of each \verb|NODE| in $(x,y,z)$
-space\,---\,despite the fact that only the $(x,y)$ coordinates are
-currently used by \Semtex.  Different \verb|NODES| can take the same
-position in $(x,y)$ space (and in fact, if you want to make a
-zero-width slit boundary within a mesh, differently-indexed
-\verb|NODES| at identical locations will be required).
+This section describes the location of the \verb|NODES| which position
+\verb|ELEMENT| corner vertices in $(x,y)$ space.  The attribute
+\verb|NUMBER| is required in the opening tag; this should match the
+number of \verb|NODES| which follow.  This can exceed the number of
+unique \verb|NODES| which are actually required for all the element
+vertices (\ie spare \verb|NODES| are allowed, but they have to be
+included in the \verb|NUMBER| count). The minimum required
+\verb|NUMBER| of \verb|NODES| is four (\ie for a single
+\verb|ELEMENT|).  Each line of the \verb|NODES| section has four
+entries: an integer numeric tag (mostly used by human readers of the
+file, since it is actually ignored!)  followed by three numbers which
+give the location of each \verb|NODE| in $(x,y,z)$ space\,---\,despite
+the fact that only the $(x,y)$ coordinates are currently used by
+\Semtex.  Different \verb|NODES| can take the same position in $(x,y)$
+space (and in fact, if you want to make a zero-width slit boundary
+within a mesh, differently-indexed \verb|NODES| at identical locations
+will be required).
+
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{ELEMENTS}}
 
 The \verb|ELEMENTS| section also requires a \verb|NUMBER| attribute,
-which gives the number of \verb|ELEMENTS| that follow.  \Semtex\ only
+which gives the number of \verb|ELEMENTS| that follow.  The minimum
+required \verb|NUMBER| of \verb|ELEMENTS| is one.  \Semtex\ only
 presently allows quadrilateral elements (though these may have curved
 edges).  Despite this restriction, each element is listed with an
 opening \verb|<Q>| tag and a closing \verb|</Q>| tag.  The data that
 describe and element are: a unique integer identifier, followed by the
 opening tag \verb|<Q>|, four integer \verb|NODE| identifiers,
 terminated by the closing tag \verb|</Q>|.  The ordering of these
-nodes must be such that their locations traverse a patch of $(x,y)$
-space in a counter-clockwise sense, but the ordering is otherwise
-arbitrary.
+\verb|NODES| must be such that their locations traverse a patch of
+$(x,y)$ space in a counter-clockwise sense, but the ordering is
+otherwise arbitrary.
 
 The sides of an \verb|ELEMENT| are taken as running between the vertex
 nodes with a 1-based indexing: the side between the first and second
@@ -392,7 +396,7 @@ should of course not cross one another, though this is not actually
 enforced in the code.  What \emph{is} checked is that for all
 elements, each side either matches the side of another element (as
 determined using the \verb|NODE| indices of all \verb|ELEMENTS|) or
-has \verb|SURFACE| information supplied.  This ensured that the
+has valid \verb|SURFACE| information supplied.  This ensured that the
 $(x,y)$ region of a \twod\ solution domain, though possibly
 multiply-connected, is completely covered by the spectral element mesh
 and has appropriate boundary condition information.
@@ -400,12 +404,11 @@ and has appropriate boundary condition information.
 %----------------------------------------------------------------------------
 \subsection{\texttt{SURFACES}}
 
-This section is used to close up the solution domain by supplying
-links to boundary condition information or by describing periodic
-connections.  Any \verb|ELEMENT| side that does not mate to the side
-of another \verb|ELEMENT| requires a link to boundary condition
-information elsewhere in the session file or be paired up with another
-element side within this section.
+Any \verb|ELEMENT| side that does not mate to the side of another
+\verb|ELEMENT| requires a link to boundary condition information
+elsewhere in the session file or be paired up with another element
+side (to provide a periodic connection) within this section.  The
+\verb|SURFACES| section deals with these requirements.
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{FIELDS}}
