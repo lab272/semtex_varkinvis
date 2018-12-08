@@ -11,7 +11,6 @@ natbib,
 amsmath,
 bm,
 cancel,
-subfigure,
 color,
 a4wide
 }
@@ -159,10 +158,10 @@ requirements for assembled system matrices.
 
 While the numerical method is very accurate and efficient, it also has
 the advantage that complex geometries can be accommodated by employing
-unstructured meshes.  The vertices of spectral elements meshes can be
-produced using finite-element mesh generation procedures, or any other
-method (for \Semtex, only meshes with quadrilateral elements are
-accepted).
+unstructured (though conforming) meshes.  The vertices of spectral
+elements meshes can be produced using finite-element mesh generation
+procedures, or any other method (for \Semtex, only meshes with
+quadrilateral elements are accepted).
 
 Time integration employs a backwards-time differencing scheme
 described by \citet{kio91}, more recently classified as a
@@ -292,8 +291,8 @@ Element Markup Language) --- alternatively you could consider FEML as
 a cut-down version of XML.  FEML is `just enough' to compactly
 describe spectral element problems to the solvers.  There are a number
 of example session files in the mesh directory; some of these are used
-in regression testing (and in the following document).  Other files
-have standard extensions:
+in regression testing (and/or described in the following document).
+Files other than session file have standard extensions:
 \begin{tabbing}
 \texttt{session.numxx} \= \kill
 \texttt{session.num}  \>
@@ -321,35 +320,98 @@ utility as a visual check.
 %============================================================================
 \section{Structure of a session file}
 
-More details are provided in the next chapter, but a brief outline is
-that a session file has a number of sections that should appear once
-each, but can be supplied in arbitrary order.  Any line whose first
-character is \verb+#+ is a comment line.  Sections are demarcated (as
-in HTML) using paired opening (\verb+<+name\verb+>+) and closing
-(\verb+</+name\verb+>+) tags.  The opening tag will sometimes supply a
-numeric parameter, \eg \verb+<NODES NUMBER=10>+.  The minimal set of
-sections required for a session file to validly describe a domain in
-which a solution can be obtained is: \verb+NODES+, \verb+ELEMENTS+ and
-\verb+SURFACES+: \verb+NODES+ describe the corner vertices of
-\verb+ELEMENTS+, while \verb+SURFACES+ describe what happens on the
-outer boundaries of the domain. Sides of all \verb+ELEMENTS+ (which
-run between \verb+NODES+) must either mate with the side of another
-\verb+ELEMENT+ or be dealt with in the \verb+SURFACES+ section.
+More details (and examples) are provided in the next chapter, but a
+brief outline is that a session file is an ASCII text file with a
+number of sections that should appear once each, but which can be
+supplied in arbitrary order.  Any line whose first character is
+\verb+#+ is taken as a comment line\,---\,these can appear in
+arbitrary locations within a session file.  It is generally safe to
+use either spaces or tabs as white space in a session file.  In a
+session file, integer indices that number specific entities such as
+\verb|NODES| and \verb|ELEMENTS| are indexed starting from~1: this is
+also true of related warning or error messages that \Semtex\ codes may
+issue (though within the code itself, such indices are if necessary
+adjusted to follow the standard C convention of being indexed starting
+from~0).  Much of the structure of a session file is actually
+free-format, but it is generally safest to assume that collections of
+data which are usually shown on a single line in the examples should
+not extend over multiple lines.
+
+As in HTML, sections are demarcated using paired opening
+(\verb+<+name\verb+>+) and closing (\verb+</+name\verb+>+) tags.  The
+opening tag will sometimes require a numeric attribute, \eg
+\verb+<NODES NUMBER=10>+.  The minimal set of sections required for a
+session file to validly describe a domain in which a solution can be
+obtained is: \verb+NODES+, \verb+ELEMENTS+ and \verb+SURFACES+:
+\verb+NODES+ describe the corner vertices of \verb+ELEMENTS+, while
+\verb+SURFACES+ describe what happens on the outer boundaries of the
+domain. Sides of all \verb+ELEMENTS+ (which run between \verb+NODES+)
+must either mate with the side of another \verb+ELEMENT+ or be dealt
+with in the \verb+SURFACES+ section.
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{NODES}}
 
+This section describes the location of the nodes which position
+element corner vertices in $(x,y)$ space.  The attribute \verb|NUMBER|
+is required in the opening tag; this should match the number of
+\verb|NODES| which follow.  This can exceed the number of unique
+\verb|NODES| which are actually required for all the element vertices
+(\ie spare \verb|NODES| are allowed, but they have to be included in
+the \verb|NUMBER| count.).  Each line of the \verb|NODES| section has
+four entries: an integer numeric tag (mostly used by human readers of
+the file, since it is actually ignored!) followed by three numbers
+which give the location of each \verb|NODE| in $(x,y,z)$
+space\,---\,despite the fact that only the $(x,y)$ coordinates are
+currently used by \Semtex.  Different \verb|NODES| can take the same
+position in $(x,y)$ space (and in fact, if you want to make a
+zero-width slit boundary within a mesh, differently-indexed
+\verb|NODES| at identical locations will be required).
+
 %----------------------------------------------------------------------------
 \subsection{\texttt{ELEMENTS}}
+
+The \verb|ELEMENTS| section also requires a \verb|NUMBER| attribute,
+which gives the number of \verb|ELEMENTS| that follow.  \Semtex\ only
+presently allows quadrilateral elements (though these may have curved
+edges).  Despite this restriction, each element is listed with an
+opening \verb|<Q>| tag and a closing \verb|</Q>| tag.  The data that
+describe and element are: a unique integer identifier, followed by the
+opening tag \verb|<Q>|, four integer \verb|NODE| identifiers,
+terminated by the closing tag \verb|</Q>|.  The ordering of these
+nodes must be such that their locations traverse a patch of $(x,y)$
+space in a counter-clockwise sense, but the ordering is otherwise
+arbitrary.
+
+The sides of an \verb|ELEMENT| are taken as running between the vertex
+nodes with a 1-based indexing: the side between the first and second
+\verb|NODES| is number 1, the side between the second and third
+\verb|NODES| is number 2, and so on.  This information is relevant in
+the following \verb|SURFACES| section. Sides of distinct elements
+should of course not cross one another, though this is not actually
+enforced in the code.  What \emph{is} checked is that for all
+elements, each side either matches the side of another element (as
+determined using the \verb|NODE| indices of all \verb|ELEMENTS|) or
+has \verb|SURFACE| information supplied.  This ensured that the
+$(x,y)$ region of a \twod\ solution domain, though possibly
+multiply-connected, is completely covered by the spectral element mesh
+and has appropriate boundary condition information.
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{SURFACES}}
 
-%----------------------------------------------------------------------------
-\subsection{\texttt{TOKENS}}
+This section is used to close up the solution domain by supplying
+links to boundary condition information or by describing periodic
+connections.  Any \verb|ELEMENT| side that does not mate to the side
+of another \verb|ELEMENT| requires a link to boundary condition
+information elsewhere in the session file or be paired up with another
+element side within this section.
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{FIELDS}}
+
+%----------------------------------------------------------------------------
+\subsection{\texttt{TOKENS}}
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{GROUPS}}
@@ -430,7 +492,7 @@ Here is a summary of the most-used utilities:
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Examples and hints}
+\chapter{Examples}
 
 We will run through some examples to illustrate input files, utility
 routines, and the use of the solvers.
@@ -2715,14 +2777,17 @@ reason for the plateau seen at the highest wavenumbers in
 figure~\ref{pic:modal_en}(b)).
 
 \begin{figure}
-   \centering
-   \subfigure[ ]
-   {\includegraphics[height=0.22\textheight]{dns_modal_t}}
-    \subfigure[ ]
-   {\includegraphics[height=0.22\textheight]{dns_modal_k}}
-    \caption{Modal energies for (a) the individual wave numbers over
+  \begin{center}
+    \begin{tabular}{cccc}
+    \raisebox{27ex}{(a)}&
+      \includegraphics[height=0.22\textheight]{dns_modal_t}&
+    \raisebox{27ex}{(b)}&
+      \includegraphics[height=0.22\textheight]{dns_modal_k}
+    \end{tabular}
+  \end{center}
+ \caption{Modal energies for (a) the individual wave numbers over
       time and (b) by wavenumber.}
-    \label{pic:modal_en}
+ \label{pic:modal_en}
 \end{figure}
 
 Figure~\ref{pic:modal_en}(a) shows the evolution of kinetic energies
