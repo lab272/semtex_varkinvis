@@ -500,8 +500,9 @@ patterned on the \verb|hoc3| program in \citet{kernighan84} which uses
 $\cos$ and $\tan^{-1}$ as well as standard arithmetic operations $+$,
 $-$, $\ast$ and $/$.  \verb|TOKENS| can be defined in terms of
 standard/inbuilt \verb|TOKENS| or ones which have been defined
-earlier.  To see all the predefined \verb|TOKENS| and functions, run
-the \Semtex\ utility \verb|"calc -h"|.
+earlier.  To see all the predefined \verb|TOKENS| and functions, check
+the \Semtex\ utility \verb|"calc -h"|\,---\,\verb|calc| uses the same
+parser to evaluate expressions given on the command line.
 
 Below is a simple example in which (in order) cylindrical coordinates
 are selected, the time step (\verb|D_T|) is set, as is the
@@ -558,8 +559,8 @@ involved may differ).
 \end{verbatim}
 }
 %
-As we will elaborate below, the string \verb|axis| is also significant
-to the solver if cylindrical coordinates are chosen.
+As will be elaborated below, the string \verb|axis| is also
+significant to the solver if cylindrical coordinates are chosen.
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{BCS}}
