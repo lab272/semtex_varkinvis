@@ -560,19 +560,114 @@ involved may differ).
 }
 %
 As will be elaborated below, the string \verb|axis| is also
-significant to the solver if cylindrical coordinates are chosen.
+significant to the solver if cylindrical coordinates are chosen by
+setting \verb|CYLINDRICAL = 1| in \verb|TOKENS|.
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{BCS}}
 
+Data in this section links a \verb|GROUP| character with a brief
+description of the set of boundary conditions to be applied for
+solution of each \verb|FIELD|.  Again, a \verb|NUMBER| attribute is
+required in the opening tag.  For each set of \verb|BCS|, we must
+supply: an integer tag, a \verb|GROUP| character, and another integer
+for the number of \verb|BC| descriptors that follow (which should
+match the number of solution \verb|FIELDS|).  Subsequent to that are
+the actual descriptors of the \verb|BCS| which are to be applied to
+each \verb|FIELD| in the relevant \verb|GROUP|.  While (at first)
+there are apparerntly a variety of \verb|BC| types which may be
+selected, in practice the solver is only capable of applying either
+Dirichlet, Neumann or mixed (Robin) boundary conditions for any
+\verb|FIELD|, but sometimes these are set automatically within the
+code.  Here is an introductory example:
+%
+{\small
+\begin{verbatim}
+<BCS NUMBER=1>
+  1  v  4
+        <D> u = 1-exp(LAMBDA*x)*cos(2*PI*y)             </D>
+        <D> v = LAMBDA/(2*PI)*exp(LAMBDA*x)*sin(2*PI*y) </D>
+        <D> w = 0.0                                     </D>
+        <H> p                                           </H>
+</BCS>
+\end{verbatim}
+}
+%
+We see that for each \verb|FIELD| variable a boundary condition is
+set.  For Dirichlet (value) boundary conditions the tag used is
+\verb|<D>|; for Neumann (gradient) boundary conditions the tag is
+\verb|<N>|; for mixed boundary conditions the tag is \verb|<M>|.  In
+the example, Dirichlet conditions are supplied for \verb|FIELDS|
+\verb|u|, \verb|v| and \verb|w|; these can either be set by parsing a
+string (which should contain no white space), or directly with a
+numeric value.  In the case of parsing a string, we can use
+\verb|TOKENS| and/or space/time variables \verb|x|, \verb|y|, \verb|z|
+and \verb|t| (the string supplied is re-parsed every timestep as the
+code runs and \verb|t| updates).  We see that for the pressure,
+\verb|p|, we have given the special tag \verb|<H>| to denote a
+``high-order'' boundary condition, which is actually an
+internally-computed Neumann type \citep[see][]{kio91}.
+
+For more details regarding boundary condition types, see
+\S\,\ref{sec.bcs} below.
 %----------------------------------------------------------------------------
 \subsection{\texttt{CURVES}}
+
+Element edges do not have to be straight; the user can alternatively
+select circular arcs or spline fits through data supplied in external
+files.  The infomation is supplied to the solver in the \verb|CURVES|
+section.
+%
+{\small
+\begin{verbatim}
+<CURVES NUMBER=1>
+  1  4  3  <ARC> 1.0 </ARC>
+</CURVES>
+\end{verbatim}
+}
+%
+For eacn numbered \verb|CURVE| we first provide the element and side
+number to which it applies (above, these numbers are 4 and 3
+respectively) followed by a tagged section which nominates the kind of
+curve.  For a circular \verb|ARC|, we must give the radius as a signed
+number: positive values denote convex arcs while negative values
+denote concave arcs.  Such curves do not have to be on the external
+boundary of a mesh, but could be internal: in this case the user must
+also supply correspoding information for the mating element edge.  The
+code does not check that such curves conform (\eg with matching $\pm$
+radii); that is up to the user.
+
+See \S\,\ref{sec.curves} for further information and a discussion of
+\verb|SPLINE| curves.
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{FORCE}}
 
+This optional section declares various kinds of body-force information
+for \NavSto\ momentum equations.  Please consult \S\,\ref{sec.dns_ff}
+for more detail.
+
+
 %----------------------------------------------------------------------------
 \subsection{\texttt{USER}}
+
+The principal purpose of the \verb|USER| section is in specifying
+solution values which are parsed and written out as a field dump using
+the \verb|compare| utility.  These could be \eg an analytical solution
+or an initial condition such as a solid-body rotation.  If they are an
+analytical solution, another utility (\verb|rstress|) could
+subsequently be used to subtract the computed solution\,---\,this
+technique is used in regression testing. Example:
+%
+{\small
+\begin{verbatim}
+<USER>
+  u = -cos(PI*x)*sin(PI*y)*exp(-2.0*PI*PI*KINVIS*t)
+  v =  sin(PI*x)*cos(PI*y)*exp(-2.0*PI*PI*KINVIS*t)
+  p = -0.25*(cos(TWOPI*x)+cos(TWOPI*y))*exp(-4.0*PI*PI*KINVIS*t)
+</USER>
+\end{verbatim}
+}
 
 
 %============================================================================
@@ -638,7 +733,7 @@ Here is a summary of the most-used utilities:
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Examples}
+\chapter{Example applications}
 
 We will run through some examples to illustrate input files, utility
 routines, and the use of the solvers.
@@ -1085,6 +1180,7 @@ solvers.
 
 %----------------------------------------------------------------------------
 \subsection{Curved element edges}
+\label{sec.curves}
 
 The mesh is somewhat similar to that for the Taylor flow example, the
 only difference being in the use of a curved edge for the 3rd edge of
