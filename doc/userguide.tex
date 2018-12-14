@@ -320,15 +320,18 @@ utility as a visual check.
 
 %============================================================================
 \section{Structure of a session file}
+\label{sec.session}
 
-More details (and examples) are provided in the next chapter, but a
-brief outline is that a session file is an ASCII text file with a
-number of sections that should appear once each, but which can be
-supplied in arbitrary order.  Any line whose first character is
-\verb+#+ is taken as a comment line\,---\,these can appear in
-arbitrary locations within a session file.  It is generally safe to
-use either spaces or tabs as white space in a session file.  In a
-session file, integer indices that number specific entities such as
+More details (and examples) for such files are provided below and in
+the next chapter, but a brief outline is that a session file is an
+ASCII text file with a number of sections that should appear once
+each, but which can be supplied in arbitrary order.  Any line whose
+first character is \verb+#+ is taken as a comment line\,---\,these can
+appear in arbitrary locations within a session file.  It is generally
+safe to use either spaces or tabs as white space in a session file,
+where such space is permitted (within function strings to be
+interpreted by the internal function parser, it is not).  In a session
+file, integer indices that number specific entities such as
 \verb|NODES| and \verb|ELEMENTS| are indexed starting from~1: this is
 also true of related warning or error messages that \Semtex\ codes may
 issue (though within the code itself, such indices are if necessary
@@ -352,6 +355,7 @@ with in the \verb+SURFACES+ section.
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{NODES}}
+\label{sec.nodes}
 
 This section describes the location of the \verb|NODES| which position
 \verb|ELEMENT| corner vertices in $(x,y)$ space.  The attribute
@@ -382,16 +386,22 @@ will be required).  Example (enough \verb|NODES| for a single
 </NODES>
 \end{verbatim}
 }
-
+%
+It is often convenient to move and rescale the nodal locations
+declared in this section. This may be achieved by setting
+\verb|TOKENS| called \verb|X_SCALE|, \verb|X_SHIFT|, \verb|Y_SCALE|
+and \verb|Y_SHIFT|.  The convention is that the locations are first
+shifted and then scaled.
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{ELEMENTS}}
+\label{sec.elements}
 
 The \verb|ELEMENTS| section also requires a \verb|NUMBER| attribute,
 which gives the number of \verb|ELEMENTS| that follow.  The minimum
 required \verb|NUMBER| of \verb|ELEMENTS| is one.  \Semtex\ only
 presently allows quadrilateral elements (though these may have curved
-edges).  Despite this restriction, each element is listed with an
+edges); despite this restriction, each element is listed with an
 opening \verb|<Q>| tag and a closing \verb|</Q>| tag.  The data that
 describe and element are: a unique integer identifier, followed by the
 opening tag \verb|<Q>|, four integer \verb|NODE| identifiers,
@@ -409,7 +419,7 @@ should of course not cross one another, though this is not actually
 enforced in the code.  What \emph{is} checked is that for all
 elements, each side either matches the side of another element (as
 determined using the \verb|NODE| indices of all \verb|ELEMENTS|) or
-has valid \verb|SURFACE| information supplied.  This ensured that the
+has valid \verb|SURFACE| information supplied.  This ensures that the
 $(x,y)$ region of a \twod\ solution domain, though possibly
 multiply-connected, is completely covered by the spectral element mesh
 and has appropriate boundary condition information.  A
@@ -426,6 +436,7 @@ follows:
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{SURFACES}}
+\label{sec.surfaces}
 
 Any \verb|ELEMENT| side that does not mate to the side of another
 \verb|ELEMENT| based on its \verb|NODES| requires a link to boundary
@@ -435,7 +446,7 @@ with another element side (to provide a periodic connection).  The
 opening tag must include a numeric attribute that matches the
 following number of surface specifications.
 
-Each surface is described by: a single integer tag (again, mostly for
+Each surface is described by: a single integer index (again, mostly for
 convenience of human readers), followed by a pair of integers that
 give element and side numbers for this \verb|SURFACE| (these relate
 back to information given in the \verb|ELEMENTS| section), and then a
@@ -451,15 +462,17 @@ self-connection:
 {\small
 \begin{verbatim}
 <SURFACES NUMBER=3>
-  1  1  1  <B> w </B>
-  2  1  3  <B> t </B>
-  3  1  2  <P> 1 4 </P>
+  1  1  1  <B>  w  </B>
+  2  1  3  <B>  t  </B>
+  3  1  2  <P>  1  4  </P>
 </ELEMENTS>
 \end{verbatim}
 }
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{FIELDS}}
+\label{sec.fields}
+
 
 This brief section nominates the list of solution veriables (\ie those
 which satisfy a partial differential equation and for which we must
@@ -483,26 +496,27 @@ before the pressure. Example for a 2D2C flow with scalar:
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{TOKENS}}
+\label{sec.tokens}
 
 In this section, \verb|TOKENS| that have significance either directly
 to the solver or for use elsewhere in the session file may be defined.
 This section \emph{is not} free-form: each \verb|TOKEN| must be
-defined on a separate line (up to a maximum 2048 characters in
-length) in the form
+defined on a separate line in the form
 \begin{quote}
   \verb|TOKEN = string_evaluating_to_value|
 \end{quote}
-The string following the equals sign should not contain white space.
-It can either directly supply a numeric value, or be somthing that may
-be parsed to deliver a numeric value.  The function parser is
-patterned on the \verb|hoc3| program in \citet{kernighan84} which uses
-\verb|yacc|, and has many standard math functions such as $\exp$,
-$\cos$ and $\tan^{-1}$ as well as standard arithmetic operations $+$,
-$-$, $\ast$ and $/$.  \verb|TOKENS| can be defined in terms of
-standard/inbuilt \verb|TOKENS| or ones which have been defined
-earlier.  To see all the predefined \verb|TOKENS| and functions, check
-the \Semtex\ utility \verb|"calc -h"|\,---\,\verb|calc| uses the same
-parser to evaluate expressions given on the command line.
+The string following the equals sign should not contain white space
+and may be a maximum of 2048 characters in length.  It can either
+directly supply a numeric value, or be somthing that may be parsed to
+deliver a numeric value.  The function parser is patterned on the
+\verb|hoc3| program in \citet{kernighan84} which uses \verb|yacc|, and
+has many standard math functions such as $\exp$, $\cos$ and
+$\tan^{-1}$ as well as standard arithmetic operations $+$, $-$, $\ast$
+and $/$.  \verb|TOKENS| can be defined in terms of standard/inbuilt
+\verb|TOKENS| or ones which have been defined earlier.  To see all the
+predefined \verb|TOKENS| and functions, check the \Semtex\ utility
+\verb|"calc -h"|\,---\,\verb|calc| uses the same parser to evaluate
+expressions given on the command line.
 
 Below is a simple example in which (in order) cylindrical coordinates
 are selected, the time step (\verb|D_T|) is set, as is the
@@ -532,6 +546,7 @@ session file.
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{GROUPS}}
+\label{sec.groups}
 
 This is another brief section but one that requires a numeric
 parameter and which is used in defining boundary conditions. A
@@ -565,6 +580,7 @@ setting \verb|CYLINDRICAL = 1| in \verb|TOKENS|.
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{BCS}}
+\label{sec.bcs}
 
 Data in this section links a \verb|GROUP| character with a brief
 description of the set of boundary conditions to be applied for
@@ -612,6 +628,7 @@ For more details regarding boundary condition types, see
 \S\,\ref{sec.bcs} below.
 %----------------------------------------------------------------------------
 \subsection{\texttt{CURVES}}
+\label{sec.curves}
 
 Element edges do not have to be straight; the user can alternatively
 select circular arcs or spline fits through data supplied in external
@@ -642,14 +659,15 @@ See \S\,\ref{sec.curves} for further information and a discussion of
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{FORCE}}
+\label{sec.force}
 
 This optional section declares various kinds of body-force information
 for \NavSto\ momentum equations.  Please consult \S\,\ref{sec.dns_ff}
 for more detail.
 
-
 %----------------------------------------------------------------------------
 \subsection{\texttt{USER}}
+\label{sec.user}
 
 The principal purpose of the \verb|USER| section is in specifying
 solution values which are parsed and written out as a field dump using
@@ -669,6 +687,31 @@ technique is used in regression testing. Example:
 \end{verbatim}
 }
 
+%----------------------------------------------------------------------------
+\subsection{\texttt{HISTORY}}
+\label{sec.history}
+
+This section controls the output of history point data at specific
+points in the domain to an ASCII file called session\verb|.his|.
+Output is made every \verb|IO_HIS| integration steps.  Solution data
+is written out for all \verb|FIELD| variables.  Note: the requested
+point has to actually lie in the solution domain; if it does not, no
+output will result. Each point has an integer numeric tag, followed by
+a location in $(x,y,z)$ space (even for \twod\ solutions).
+%
+{\small
+\begin{verbatim}
+<HISTORY NUMBER=1>
+  1	0.5	0.1	0.0
+</HISTORY>
+\end{verbatim}
+}
+%
+As a side note: since the mesh nodal locations may be scaled and
+shifted using tokens \verb|X_SCALE|, \verb|X_SHIFT|, \verb|Y_SCALE|
+and \verb|Y_SHIFT| (see \eg \S\,\ref{sec.nodes}) the spatial locations
+called up in the \verb|HISTORY| section are in the resulting
+scaled/shifted space.
 
 %============================================================================
 \section{Utilities}
