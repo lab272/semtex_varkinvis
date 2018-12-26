@@ -272,7 +272,7 @@ static void getforcing (const char* session  ,
   const char routine[] = "getforcing";
   char       restartfile[StrMax];
   
-  ROOTONLY cout << "-- Forcing          : ";
+  ROOTONLY cout << "-- Forcing                 : ";
   ifstream file (strcat (strcpy (restartfile, session), ".frc"));
 
   if (file) {

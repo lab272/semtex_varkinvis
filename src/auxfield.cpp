@@ -875,11 +875,11 @@ void AuxField::errors (const Mesh* mesh    ,
   H1 /= area;
 
   ostringstream sf;
-  sf << "AuxField '"
+  sf << "'"
      << name()
      << "' error norms (inf, L2, H1): "
      << Li << "  " << L2 << "  " << H1;
-  message ("", sf.str().c_str(), REMARK);
+  message ("Field", sf.str().c_str(), REMARK);
 }
 
 

@@ -144,7 +144,7 @@ shown in figure~\ref{fig:shapes}.
 In smooth function spaces it can be shown that the resulting
 interpolants converge exponentially fast (faster than any negative
 integer power of $N$) as the order of the interpolant is increased.
-See \citet{chqz88}, \S\S\,2.3.2 and~9.4.3.
+See \citet{chqz88}, \S\S\,2.3.2 and~9.4.3 or \citet{chqz06} \S\,5.4.
 \item[Gauss--Lobatto quadrature] Efficiency (particularly in iterative
   methods) is achieved by using Gauss--Lobatto quadrature for
   evaluating elemental integrals: the quadrature points reside at the
@@ -189,7 +189,8 @@ outflow boundary.
 As of \Semtex~V9, DNS variables may optionally contain a scalar
 variable in addition to velocity components and pressure.  If
 requested, evolution of the scalar can be obtained in a frozen,
-presupplied velocity field.
+presupplied velocity field, \ie as solution of an advection--diffusion
+problem.
 
 \Semtex\ solves problems in \twod\ domains or in \threed\ domains that
 can be obtained from arbitrary \twod\ domains by extrusion in an
@@ -218,8 +219,9 @@ Concurrent execution is supported, using MPI as the basis for
 interprocessor communications, and the code has been run on a wide
 variety of conventional multiprocessor machines.  Basically it ought
 to work with little trouble on any contemporary Unix system.  GPUs are
-not supported, nor is OpenMP.  The code is unlikely to benefit much, if
-at all, from multi-threaded execution.
+not supported, nor is OpenMP.  The code is unlikely to benefit much,
+if at all, from multi-threaded execution, and we generally suggest
+that multi-threaded execution be disabled.
 
 There have been various code extensions that are not part of the base
 distribution. These include dynamic and non-dynamic LES
@@ -240,18 +242,19 @@ called `Working \Dog'.
 The most comprehensive references on spectral methods in general are
 \citet{gs77}, \citet{chqz88,chqz06}.  The first papers by
 \citet{pat84} and \citet{kp86} provide a good introduction to spectral
-elements, although some aspects have changed with time and
-\citet{mt89} is more up-to-date.  The use of Fourier expansions to
-extend the method to three spatial dimensions is discussed by
-\citet{ap89}, \citet{kar89} and \citet{kar90}.  The use of spectral
-element techniques in cylindrical coordinates is dealt with in
-\citet{blsh04}.  The book by \citet{fun97} provides useful information
-and further references.  Recent overviews and some applications appear
-in \citet{kh98,hen99b}.  The definitive reference is now the book by
-\citet{kars05}, but you will also find the text by \citet*{dfm02}
-useful for alternative explanations and views. More recently, the book
-by \citet{chqz07} provides both theory and applications of spectral as
-well as spectral element methods in fluid dynamics.
+elements, although some aspects changed with time and \citet{mt89} is
+more reflective of the methods used in \Semtex.  The adoption of
+Fourier expansions to extend the method to three spatial dimensions is
+discussed by \citet{ap89}, \citet{kar89} and \citet{kar90}.  The use
+of spectral element techniques in cylindrical coordinates is dealt
+with in \citet{blsh04}.  The book by \citet{fun97} provides useful
+information and further references.  Recent overviews and some
+applications appear in \citet{kh98,hen99b}.  The definitive reference
+is now the book by \citet{kars05}, but you will also find the text by
+\citet*{dfm02} useful for alternative explanations and views. More
+recently, the book by \citet{chqz07} provides both theory and
+applications of spectral as well as spectral element methods in fluid
+dynamics.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Starting out}
@@ -314,7 +317,7 @@ Files other than session file have standard extensions:
 When writing a new session file it is best to run \texttt{meshpr}
 (and/or \texttt{meshpr -c}) on it before trying to use it for
 simulations.  \texttt{Meshpr} will catch most of the easier-to-make
-errors.  You can also plot up the results using \SM\ or other
+geometric anomalies.  You can also plot up the results using \SM\ or other
 utility as a visual check.
 
 
@@ -322,24 +325,24 @@ utility as a visual check.
 \section{Structure of a session file}
 \label{sec.session}
 
-More details (and examples) for such files are provided below and in
-the next chapter, but a brief outline is that a session file is an
-ASCII text file with a number of sections that should appear once
-each, but which can be supplied in arbitrary order.  Any line whose
-first character is \verb+#+ is taken as a comment line\,---\,these can
-appear in arbitrary locations within a session file.  It is generally
-safe to use either spaces or tabs as white space in a session file,
-where such space is permitted (within function strings to be
-interpreted by the internal function parser, it is not).  In a session
-file, integer indices that number specific entities such as
-\verb|NODES| and \verb|ELEMENTS| are indexed starting from~1: this is
-also true of related warning or error messages that \Semtex\ codes may
-issue (though within the code itself, such indices are if necessary
-adjusted to follow the standard C convention of being indexed starting
-from~0).  Much of the structure of a session file is actually
-free-format, but it is generally safest to assume that collections of
-data which are usually shown on a single line in the examples should
-not extend over multiple lines.
+More details and examples for such files are provided below and in the
+next chapter, but a brief outline is that a session file is an ASCII
+text file with a number of sections that should appear once each, but
+which can be supplied in arbitrary order.  Any line whose first
+character is \verb+#+ is taken as a comment line; these can appear in
+arbitrary locations within a session file.  It is generally safe to
+use either spaces or tabs as white space in a session file, where such
+space is permitted; within function strings to be interpreted by the
+internal function parser, it is not.  In a session file, integer
+indices that number specific entities such as \verb|NODES| and
+\verb|ELEMENTS| are indexed starting from~1: this is also true of
+related warning or error messages that \Semtex\ codes may issue,
+though within the code itself, such indices are if necessary adjusted
+to follow the standard C convention of being indexed starting from~0.
+Much of the structure of a session file is actually free-format, but
+it is generally safest to assume that collections of data which are
+usually shown on a single line in the examples should not extend over
+multiple lines.
 
 As in HTML, sections are demarcated using paired opening
 (\verb+<+name\verb+>+) and closing (\verb+</+name\verb+>+) tags.  The
@@ -349,9 +352,9 @@ session file to validly describe a domain in which a solution can be
 obtained is: \verb+NODES+, \verb+ELEMENTS+ and \verb+SURFACES+:
 \verb+NODES+ describe the corner vertices of \verb+ELEMENTS+, while
 \verb+SURFACES+ describe what happens on the outer boundaries of the
-domain. Sides of all \verb+ELEMENTS+ (which run between \verb+NODES+)
-must either mate with the side of another \verb+ELEMENT+ or be dealt
-with in the \verb+SURFACES+ section.
+domain. Sides of all \verb+ELEMENTS+\,---\,which run between
+\verb+NODES+\,---\,must either mate with the side of another
+\verb+ELEMENT+ or be dealt with in the \verb+SURFACES+ section.
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{NODES}}
@@ -362,19 +365,19 @@ This section describes the location of the \verb|NODES| which position
 \verb|NUMBER| is required in the opening tag; this should match the
 number of \verb|NODES| which follow.  This can exceed the number of
 unique \verb|NODES| which are actually required for all the element
-vertices (\ie spare \verb|NODES| are allowed, but they have to be
-included in the \verb|NUMBER| count). The minimum required
-\verb|NUMBER| of \verb|NODES| is four (\ie for a single
-\verb|ELEMENT|).  Each line of the \verb|NODES| section has four
-entries: an integer numeric tag (mostly used by human readers of the
-file, since it is actually ignored!)  followed by three numbers which
+vertices, \ie spare \verb|NODES| are allowed, but they have to be
+included in the \verb|NUMBER| count. The minimum required
+\verb|NUMBER| of \verb|NODES| is four, \ie for a single
+\verb|ELEMENT|.  Each line of the \verb|NODES| section has four
+entries: an integer numeric index, mostly used by human readers of the
+file, since it is actually ignored!  followed by three numbers which
 give the location of each \verb|NODE| in $(x,y,z)$ space\,---\,despite
 the fact that only the $(x,y)$ coordinates are currently used by
 \Semtex.  Different \verb|NODES| can take the same position in $(x,y)$
-space (and in fact, if you want to make a zero-width slit boundary
+space, and in fact, if you want to make a zero-width slit boundary
 within a mesh, differently-indexed \verb|NODES| at identical locations
-will be required).  Example (enough \verb|NODES| for a single
-\verb|ELEMENT|):
+will be required.  Example, with just enough \verb|NODES| for a single
+\verb|ELEMENT|:
 %
 {\small
 \begin{verbatim}
@@ -388,7 +391,7 @@ will be required).  Example (enough \verb|NODES| for a single
 }
 %
 It is often convenient to move and rescale the nodal locations
-declared in this section. This may be achieved by setting
+declared in this section. This may be achieved simply by setting
 \verb|TOKENS| called \verb|X_SCALE|, \verb|X_SHIFT|, \verb|Y_SCALE|
 and \verb|Y_SHIFT|.  The convention is that the locations are first
 shifted and then scaled.
@@ -400,8 +403,8 @@ shifted and then scaled.
 The \verb|ELEMENTS| section also requires a \verb|NUMBER| attribute,
 which gives the number of \verb|ELEMENTS| that follow.  The minimum
 required \verb|NUMBER| of \verb|ELEMENTS| is one.  \Semtex\ only
-presently allows quadrilateral elements (though these may have curved
-edges); despite this restriction, each element is listed with an
+presently allows quadrilateral elements, though these may have curved
+edges; despite this restriction, each element is listed with an
 opening \verb|<Q>| tag and a closing \verb|</Q>| tag.  The data that
 describe and element are: a unique integer identifier, followed by the
 opening tag \verb|<Q>|, four integer \verb|NODE| identifiers,
@@ -417,8 +420,8 @@ nodes with a 1-based indexing: the side between the first and second
 the following \verb|SURFACES| section. Sides of distinct elements
 should of course not cross one another, though this is not actually
 enforced in the code.  What \emph{is} checked is that for all
-elements, each side either matches the side of another element (as
-determined using the \verb|NODE| indices of all \verb|ELEMENTS|) or
+elements, each side either matches the side of another element, as
+determined using the \verb|NODE| indices of all \verb|ELEMENTS|, or
 has valid \verb|SURFACE| information supplied.  This ensures that the
 $(x,y)$ region of a \twod\ solution domain, though possibly
 multiply-connected, is completely covered by the spectral element mesh
@@ -519,7 +522,7 @@ predefined \verb|TOKENS| and functions, check the \Semtex\ utility
 expressions given on the command line.
 
 Below is a simple example in which (in order) cylindrical coordinates
-are selected, the time step (\verb|D_T|) is set, as is the
+are selected, the time step, \verb|D_T|, is set, as is the
 time-stepping order \verb|N_TIME|, the number of points along the edge
 of every element, \verb|NP|, following which a value for a new
 \verb|TOKEN|, \verb|Re|, is obtained by parsing a string and used to
@@ -542,7 +545,7 @@ solver.) All such \verb|TOKENS| may be used subsequently in the
 }
 %
 Note that \verb|TOKENS| is evaluated before any other section of a
-session file.
+session file, so that its definitions have global scope.
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{GROUPS}}
@@ -555,13 +558,13 @@ string can potentially be used by more than a single \verb|GROUP|,
 thus linking them together.  The name is also used both in the
 \verb|BCS| section and the \verb|SURFACES| section, so provides a
 short-hand way of linking \verb|BCS| to \verb|SURFACES|.  At first
-this seems a redundant indirection (why not just have \verb|SURFACES|
-and \verb|BCS|?), but it is useful because of the ability to join up
+this seems a redundant indirection; why not just have \verb|SURFACES|
+and \verb|BCS|?, but it is useful because of the ability to join up
 \verb|GROUPS| of \verb|BCS| via a common string, which may have
-significance to the solver (\eg all \verb|BCS| in the \verb|wall|
+significance to the solver: \eg all \verb|BCS| in the \verb|wall|
 group will have normal and tangential tractions evaluated, integrated
 and printed to file \verb|session.flx|, even though the \verb|BCS|
-involved may differ).
+involved may differ.
 %
 {\small
 \begin{verbatim}
@@ -574,28 +577,31 @@ involved may differ).
 \end{verbatim}
 }
 %
-As will be elaborated below, the string \verb|axis| is also
-significant to the solver if cylindrical coordinates are chosen by
-setting \verb|CYLINDRICAL = 1| in \verb|TOKENS|.
+As will be elaborated in chapter~\ref{ch.examples}, the string
+\verb|axis| is also significant to the solver if cylindrical
+coordinates are chosen by setting \verb|CYLINDRICAL = 1| in
+\verb|TOKENS|, while the string \verb|outflow| is required for a
+\verb|GROUP| associated with a set of boundary conditions of robust
+outflow type \citep{dkc14}.
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{BCS}}
-\label{sec.bcs}
+\label{sec.bcss}
 
 Data in this section links a \verb|GROUP| character with a brief
 description of the set of boundary conditions to be applied for
 solution of each \verb|FIELD|.  Again, a \verb|NUMBER| attribute is
 required in the opening tag.  For each set of \verb|BCS|, we must
-supply: an integer tag, a \verb|GROUP| character, and another integer
-for the number of \verb|BC| descriptors that follow (which should
-match the number of solution \verb|FIELDS|).  Subsequent to that are
-the actual descriptors of the \verb|BCS| which are to be applied to
-each \verb|FIELD| in the relevant \verb|GROUP|.  While (at first)
-there are apparerntly a variety of \verb|BC| types which may be
-selected, in practice the solver is only capable of applying either
-Dirichlet, Neumann or mixed (Robin) boundary conditions for any
-\verb|FIELD|, but sometimes these are set automatically within the
-code.  Here is an introductory example:
+supply: an integer index, a \verb|GROUP| character, and another
+integer for the number of \verb|BC| descriptors that follow (which
+should match the number of solution \verb|FIELDS|).  Subsequent to
+that are the actual descriptors of the \verb|BCS| which are to be
+applied to each \verb|FIELD| in the relevant \verb|GROUP|.  While at
+first it may seem that there are apparently a variety of \verb|BC|
+types which may be selected, in practice the solver is only capable of
+applying either Dirichlet, Neumann or mixed (Robin) boundary
+conditions for any \verb|FIELD|, but sometimes these are set
+automatically within the code.  Here is an introductory example:
 %
 {\small
 \begin{verbatim}
@@ -618,8 +624,8 @@ the example, Dirichlet conditions are supplied for \verb|FIELDS|
 string (which should contain no white space), or directly with a
 numeric value.  In the case of parsing a string, we can use
 \verb|TOKENS| and/or space/time variables \verb|x|, \verb|y|, \verb|z|
-and \verb|t| (the string supplied is re-parsed every timestep as the
-code runs and \verb|t| updates).  We see that for the pressure,
+and \verb|t|; the string supplied is re-parsed every timestep as the
+code runs and \verb|t| updates.  We see that for the pressure,
 \verb|p|, we have given the special tag \verb|<H>| to denote a
 ``high-order'' boundary condition, which is actually an
 internally-computed Neumann type \citep[see][]{kio91}.
@@ -628,7 +634,7 @@ For more details regarding boundary condition types, see
 \S\,\ref{sec.bcs} below.
 %----------------------------------------------------------------------------
 \subsection{\texttt{CURVES}}
-\label{sec.curves}
+\label{sec.curvess}
 
 Element edges do not have to be straight; the user can alternatively
 select circular arcs or spline fits through data supplied in external
@@ -643,7 +649,7 @@ section.
 \end{verbatim}
 }
 %
-For eacn numbered \verb|CURVE| we first provide the element and side
+For each numbered \verb|CURVE| we first provide the element and side
 number to which it applies (above, these numbers are 4 and 3
 respectively) followed by a tagged section which nominates the kind of
 curve.  For a circular \verb|ARC|, we must give the radius as a signed
@@ -654,8 +660,8 @@ also supply correspoding information for the mating element edge.  The
 code does not check that such curves conform (\eg with matching $\pm$
 radii); that is up to the user.
 
-See \S\,\ref{sec.curves} for further information and a discussion of
-\verb|SPLINE| curves.
+See \S\,\ref{sec.curves} for further information relating to and a
+discussion of \verb|SPLINE| curves.
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{FORCE}}
@@ -689,7 +695,7 @@ technique is used in regression testing. Example:
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{HISTORY}}
-\label{sec.history}
+\label{sec.historyy}
 
 This section controls the output of history point data at specific
 points in the domain to an ASCII file called session\verb|.his|.
@@ -777,9 +783,10 @@ Here is a summary of the most-used utilities:
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Example applications}
+\label{ch.examples}
 
 We will run through some examples to illustrate input files, utility
-routines, and the use of the solvers.
+routines, and use of the solvers.
 
 %============================================================================
 \section{2D Taylor flow}
@@ -1051,15 +1058,22 @@ as the restart file.
 {\small
 \begin{verbatim}
 karman[23] dns taylor2
--- Restarting from file:  taylor2.rst
-   Start time       : 0
-   Time step        : 0.02
-   Number of steps  : 20
-   End time         : 0.4
-   Integration order: 2
--- Building matrices for Fields "uvp"   [*]
--- Building matrices for Fields "uvp"   [.]
--- Building matrices for Fields "uvp"   [*]
+-- Initial condition       : read from file taylor2.rst
+-- Coordinate system       : Cartesian
+   Solution fields         : uvp
+   Number of elements      : 4
+   Number of planes        : 1
+   Number of processors    : 1
+   Polynomial order (np-1) : 10
+   Time integration order  : 2
+   Start time              : 0
+   Finish time             : 0.4
+   Time step               : 0.02
+   Number of steps         : 20
+   Dump interval (steps)   : 20 (checkpoint)
+-- Installing matrices for field 'u' [*]
+-- Installing matrices for field 'v' [.]
+-- Installing matrices for field 'p' [*]
 Step: 1  Time: 0.02
 Step: 2  Time: 0.04
 Step: 3  Time: 0.06
@@ -1090,9 +1104,9 @@ in seeing error norms here, we'll discard this field file.
 {\small
 \begin{verbatim}
 karman[24] compare taylor2 taylor2.fld > /dev/null
-Field 'u': norm_inf: 1.13019e-05
-Field 'v': norm_inf: 1.13019e-05
-Field 'p': norm_inf: 0.422391
+Field 'u': norm_inf: 1.127e-05
+Field 'v': norm_inf: 1.127e-05
+Field 'p': norm_inf: 4.224e-01
 \end{verbatim}
 }
 \noindent
@@ -1314,32 +1328,20 @@ result using \texttt{compare}.
 {\small
 \begin{verbatim}
 karman[287] elliptic -i laplace6
--- Initializing solution with zero IC
-   Start time       : 0
-   Time step        : 0.01
-   Number of steps  : 1
-   End time         : 0.01
-   Integration order: 2
-karman[288] compare laplace6 laplace6.fld > /dev/null
-Field 'c': norm_inf: 1.37112e-08
+-- Forcing                 : set to zero
+-- Initial condition       : set to zero
+Field: 'c' error norms (inf, L2, H1): 1.93215e-12  8.91558e-13  1.88887e-11
 \end{verbatim}
 }
 
 Next try the direct solver (default):
 {\small
 \begin{verbatim}
-karman[288] compare laplace6 laplace6.fld > /dev/null
-Field 'c': norm_inf: 1.37112e-08
 karman[289] elliptic laplace6
--- Initializing solution with zero IC
-   Start time       : 0
-   Time step        : 0.01
-   Number of steps  : 1
-   End time         : 0.01
-   Integration order: 2
--- Building matrices for Fields "c"     [*]
-karman[290] compare laplace6 laplace6.fld > /dev/null
-Field 'c': norm_inf: 3.10862e-15
+-- Forcing                 : set to zero
+-- Initial condition       : set to zero
+-- Installing matrices for field 'c' [*]
+Field: 'c' error norms (inf, L2, H1): 5.44009e-15  1.5745e-15  6.77144e-14
 \end{verbatim}
 }
 \noindent
@@ -1466,30 +1468,54 @@ conditions must be set, corresponding to the four fields \verb+u+,
 \verb+v+, \verb+w+ and \verb+p+.  A new feature is a pressure BC of
 type \verb+H+, which is an internally-computed Neumann boundary
 condition, (a \verb+H+igh-order pressure BC) as described in
-\citet{kio91}.  This is the kind of pressure BC that is supplied at
-all places except on outflow boundaries.  The pressure BC is computed
+\citet{kio91}.  This is the kind of pressure BC that we would
+typically supply on all surfaces except on outflow boundaries or, in
+cylindrical coordinates, on the $x$-axis.  The pressure BC is computed
 internally, so no value is required (if given, it will be ignored).
 
 %----------------------------------------------------------------------------
 \subsection{Running the codes}
 
+Since we already have an analytical solution for the problem, we may
+as well use that to generate an initial condition and then run for a
+moderate number of time steps (\eg 200) to see if the discrete
+solution diverges much from this.
+{\small
+\begin{verbatim}
+karman[23] compare kovas3 > kovas3.rst
+karman[24] dns kovas3
+\end{verbatim}
+}
+
 After running \verb+dns+, we confirm there is only a single dump in the
 field file \verb+kovas3.fld+, then run compare in order to examine the
-error norms for the solution.  Following that we prepare input for
-\emph{Tecplot}, projecting the interpolation to a $20\times20$ grid in each
-element.  A view of the result can be seen in figure~\ref{kov3soln}.
+error norms for the solution.
+%
 {\small
 \begin{verbatim}
 karman[25] convert kovas3.fld | grep -i session
 kovas3                    Session
 karman[26] compare kovas3 kovas3.fld > /dev/null
-Field 'u': norm_inf: 5.70744e-05
-Field 'v': norm_inf: 3.04095e-05
-Field 'w': norm_inf: 0
-Field 'p': norm_inf: 0.928545
+Field 'u': norm_inf: 5.773e-05
+Field 'v': norm_inf: 3.145e-05
+Field 'w': norm_inf: 0.000e+00
+Field 'p': norm_inf: 9.286e-01
 karman[27] meshpr kovas3 | sem2tec -n20 kovas3.fld
 \end{verbatim}
 }
+%
+The errors incurred are relatively small and could be reduced by
+re-running with increased polynomial order; in \verb|kovas3|,
+\verb|N_P = 8|, \ie the polynomial order in each direction for each
+element is~7.  Increasing \verb|N_P| to~13 will reduce the errors in
+velocity by more than three orders of magnitude (check for yourself),
+illustrating the exponential convergence property of spectral element
+methods.
+
+Finally we prepare input for \emph{Tecplot}, projecting the
+interpolation to a $20\times20$ grid in each element in order to
+produce smoother contours.  A view of the result can be seen in
+figure~\ref{kov3soln}.
 \begin{figure}
 \begin{center}
 \includegraphics[width=0.65\textwidth]{kovas3_bitmap}
@@ -1537,7 +1563,7 @@ direction are implicitly zero when \verb+N_Z=1+. (But see
         N_P         = 11
         N_STEP      = 100000
         D_T         = 0.01
-	Re          = 2119
+        Re          = 2119
         KINVIS      = 1/Re
         OMEGA       = 1.0
         TOL_REL     = 1e-12
@@ -1634,8 +1660,9 @@ direction are implicitly zero when \verb+N_Z=1+. (But see
 }
 
 The mesh for the problem is shown in figure~\ref{vb1msh}, and the
-velocity field is shown compared to an experimental streakline flow
-visualisation on the front cover of this document.
+velocity field estimate obtained by running \verb|dns| is shown
+compared to an experimental streakline flow visualisation on the front
+cover of this document.
 \begin{figure}
 \begin{center}
 \includegraphics[width=0.6\textwidth]{vb1mesh}
@@ -1660,10 +1687,10 @@ group.  A further restriction is that the group to which the axis
 belongs must have name \verb+axis+.
 
 Finally, say you wish to solve a cylindrical-coordinate problem where
-you know there is an $n$-fold azimuthal symmetry (say $n=3$). In that
-case, it is much cheaper to solve with \verb+BETA=3+, and use
-one-third the number of azimuthal planes that would be required for
-\verb+BETA=1+.
+you know that, while the solution may be \threed, there is an $n$-fold
+azimuthal symmetry (say $n=3$). In that case, it is much cheaper to
+solve with \verb+BETA=3+, and use one-third the number of azimuthal
+planes that would be required for \verb+BETA=1+.
 
 %=============================================================================
 \section{Boundary condition roundup}
@@ -1828,18 +1855,23 @@ with the $x$ axis of a cylindrical coordinate system as described in
 
 You are liable to come up against a few generic problems when making
 and running your own cases. Here we will restrict discussion to
-\NavSto\ problems and \verb+dns+. The best diagnostic of trouble is
-the divergence of the solution. The code will output an estimate of
+\NavSto\ problems and \verb+dns+.  The code will output an estimate of
 the CFL-timestep every \verb+IO_CFL+ timesteps (default 50), along
 with the average divergence of the solution (in the operator-splitting
 used, incompressibility is only ensured in the spatial-convergence
-limit). Unfortunately the CFL estimate is presently unreliable, but
-the divergence energy provides an excellent diagnostic of trouble!  If
-velocity and length scales are of order unity, the reported divergence
-energy should be much less than unity; if the divergence is large then
-either the solution is blowing up\footnote{One wag suggested the name
-  \Semtex\ was associated with this property of the solutions.}, or
-the spatial resolution is inadequate, or both.
+limit).
+%
+The CFL estimate is generally quite reliable and provides guidance as
+to which velocity component and element number is the most critical,
+but also the divergence energy provides an excellent diagnostic of
+trouble!
+%
+If velocity and length scales are of order unity, the reported
+divergence energy should be much less than unity; if the divergence is
+comparatively large then either the solution is blowing
+up,\footnote{One wag suggested the name \Semtex\ was associated with
+  this property of the solutions.} or the spatial resolution is
+inadequate, or both.
 
 By far the most common problem is that the solution will have a
 CFL-type instability brought about by using too large a time-step;
@@ -1946,7 +1978,7 @@ reached, the outcome (the termimal solution field) is written to
 Sometimes however, one wants a sequence of field dumps to be written
 to \verb+session.fld+.  One can toggle this behaviour on the command
 line using \verb+dns -chk+, or alternatively set the \verb+TOKEN+
-\verb+CHKPOINT=0+ (the default being \verb+CHKPOINT=1+).  Note that
+\verb+CHKPOINT=0+ (the default being \verb+CHKPOINT=1+).  Beware:
 turning off checkpointing can result in the generation of extremely
 large \verb+session.fld+ files.
 
