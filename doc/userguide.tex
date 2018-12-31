@@ -33,6 +33,7 @@ a4wide
 \def\vec#1{\mbox{\bf#1}}                            % bold vector typeface
 \def\Rey{\mbox{\it Re}}                             % Reynolds number
 \def\St{\mbox{\it St}}                              % Strouhal number
+\def\Pr{\mbox{\it Pr}}                              % Prandtl number
 \def\undertext#1{$\underline{\smash{\hbox{#1}}}$}   % underline running text
 \def\refitem{\noindent\hangindent=2em}              % hanging indent
 
@@ -192,20 +193,33 @@ requested, evolution of the scalar can be obtained in a frozen,
 presupplied velocity field, \ie as solution of an advection--diffusion
 problem.
 
-\Semtex\ solves problems in \twod\ domains or in \threed\ domains that
-can be obtained from arbitrary \twod\ domains by extrusion in an
-orthogonal direction in which the solution fields are periodic (often
-such problems are referred to as $2\tfrac{1}{2}$-dimensional).  Quite
-a large number of fundamental problems in mechanics can be tackled
-using this level of geometric complexity, but if you need genuiunely
-\threed\ geometries then look elsewhere.  While parallel execution is
-supported, the method is only parallel across the
-homogeneous/extrustion/Fourier direction, so each process has to be
-able to accommodate at least two \twod\ data planes and associated
-overheads.  Sometimes this design restriction is significant.  Code
-performance is typically quite efficient (and fast) up to some
-hundreds or perhaps thousands of processors, but this is
-problem-dependent.
+As suggested in figure~\ref{fig.extrude}, \Semtex\ can solve problems
+in \twod\ domains or in \threed\ domains that can be obtained from
+arbitrary \twod\ domains by extrusion in an orthogonal direction in
+which the solution fields are periodic; often such problems are
+referred to as $2\tfrac{1}{2}$-dimensional.  Quite a large number of
+fundamental problems in mechanics can be tackled using this level of
+geometric complexity, but if you need genuinely \threed\ geometries
+then look elsewhere.  While parallel execution is supported, the
+method is only parallel across the homogeneous/extrustion/Fourier
+direction, so each process has to be able to accommodate at least two
+\twod\ data planes and associated overheads.  Sometimes this design
+restriction is significant.  Code performance is typically quite
+efficient (and fast) up to some hundreds or perhaps thousands of
+processors, but this is problem-dependent.
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.85\textwidth]{2+5DSemMesh}
+  \end{center}
+  \caption{ \Semtex\ can solve either elliptic or incompressible
+    \NavSto\ problems in domains which are either \twod\ or made
+    \threed\ by extrusion in a periodic direction.  Either Cartesian
+    (left) or cylindrical (right) coordinate systems can be used.
+  }
+  \label{fig.extrude}
+\end{figure}
+
 
 %-----------------------------------------------------------------------------
 \section{Implementation}
@@ -242,47 +256,114 @@ called `Working \Dog'.
 The most comprehensive references on spectral methods in general are
 \citet{gs77}, \citet{chqz88,chqz06}.  The first papers by
 \citet{pat84} and \citet{kp86} provide a good introduction to spectral
-elements, although some aspects changed with time and \citet{mt89} is
-more reflective of the methods used in \Semtex.  The adoption of
-Fourier expansions to extend the method to three spatial dimensions is
-discussed by \citet{ap89}, \citet{kar89} and \citet{kar90}.  The use
-of spectral element techniques in cylindrical coordinates is dealt
-with in \citet{blsh04}.  The book by \citet{fun97} provides useful
-information and further references.  Recent overviews and some
-applications appear in \citet{kh98,hen99b}.  The definitive reference
-is now the book by \citet{kars05}, but you will also find the text by
-\citet*{dfm02} useful for alternative explanations and views. More
-recently, the book by \citet{chqz07} provides both theory and
-applications of spectral as well as spectral element methods in fluid
-dynamics.
+elements, although some implementation details changed with time and
+\citet{mt89} is more reflective of the methods used in \Semtex.  The
+adoption of Fourier expansions to extend the method to three spatial
+dimensions is discussed by \citet{ap89}, \citet{kar89} and
+\citet{kar90}.  The use of spectral element techniques in cylindrical
+coordinates is dealt with in \citet{blsh04}.  The book by
+\citet{fun97} provides useful information and further references.
+Recent overviews and some applications appear in \citet{kh98,hen99b}.
+The definitive reference is now the book by \citet{kars05}, but you
+will also find the text by \citet*{dfm02} useful for alternative
+explanations and views. More recently, the book by \citet{chqz07}
+provides both theory and applications of spectral as well as spectral
+element methods in fluid dynamics.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Starting out}
 
+%============================================================================
+\section{Computational environment}
+
 It is assumed you are using some version of Unix (which includes Mac
 OS~X), with a development system that includes C, \cpp\ and Fortran
-compilers, bison (or yacc), make, and optionally cmake. \SM\ and
-\emph{Tecplot} would be nice to have but are not essential to get up
-and running, and VTK-based visualisation tools such as \emph{VisIt} or
-\emph{ParaView} can alternatively be used for post-processing in place
-of \emph{Tecplot}. All major executables have a \texttt{-h} command
-line option which provides a usage prompt.
-%
+compilers, bison (or yacc), make, and optionally cmake. For
+post-processing, \SM\ and \emph{Tecplot} would be nice to have but are
+not essential to get up and running, and VTK-based visualisation tools
+such as \emph{VisIt} or \emph{ParaView} can alternatively be used in
+place of \emph{Tecplot}.
+
+Instructions for building and testing the codes are given in the
+accompanying \texttt{README} file.  The rest of the present document
+assumes that you are able to build a working set of executables and
+place them in your \texttt{PATH}.
+
+%============================================================================
+\section{Equations to be solved}
+
 The central solvers provided by the \Semtex\ package are
 \begin{tabbing}
-\texttt{ellipticx} \= \kill
-\texttt{elliptic} \> for elliptic (Laplace, Poisson, Helmholtz)
-problems,\\ \texttt{dns} \> for time-varying incompressible
+\texttt{xxxxellipticx} \= \kill
+\hspace*{4ex}\texttt{elliptic} \> for elliptic (Laplace, Poisson, Helmholtz)
+problems,\\
+\hspace*{4ex}\texttt{dns} \> for time-varying incompressible
 \NavSto\ problems, with an optional scalar,
 \end{tabbing}
 and (if MPI is present) their equivalent multi-process versions
 \texttt{elliptic\_mp} and \texttt{dns\_mp}.  There are also a number
-of pre- and post-processing utilities.
+of associated pre- and post-processing utilities.
 
-Instructions for building and testing the codes are given in the
-accompanying \texttt{README} file.  The rest of this document assumes
-that you are able to build a working set of executables and place them
-in your \texttt{PATH}.
+Elliptic equations dealt with by \Semtex\ are in general of Helmholtz
+type;
+\[
+\nabla^2 c - \lambda^2 c = f,
+\]
+where $\lambda$ is a real constant and $f$ is in general a function of
+space; if $\lambda=0$ we have Poisson's equation while if also $f=0$
+we have Laplace's equation.  These equations are solved via a
+Petrov--Galerkin method using standard finite-element techniques.
+While elliptic equations may be of less interest to many readers than
+the \NavSto\ equations, it is simple to provide an elliptic solver
+since it underlies the time-splitting approach adopted for tackling
+the \NavSto\ equations, \ie basically as a sequence of solutions to
+elliptic scalar equations in each timestep.
+%
+The incompressible \NavSto\ equations are
+\[
+\partial_t\bm{u}+\bm{N}(\bm{u}) = -\nabla P + \nu\nabla^2\bm{u} + \bm{f}
+\quad\text{with}\quad
+\bm{\nabla\cdot u} = 0; 
+\]
+$P=p/\rho$ is sometimes called the modified pressure and
+$\nu=\mu/\rho$ is the kinematic viscosity, while $\bm{f}$ represents
+body force per unit mass; see \S\,\ref{sec.dns_ff} for a description
+of the forms of $\bm{f}$ implemented in the code.  The nonlinear terms
+$\bm{N}(\bm{u})$ can be represented in two ways which are equivalent
+in the continuous setting but have somewhat different behaviour in the
+discrete setting: either in the `non-conservative' form
+$\bm{u\cdot\nabla u}$ or the `skew-symmetric' form $[\bm{u\cdot\nabla
+    u} + \bm{\nabla\cdot uu}]/2$.
+%
+While both forms are provided, generally we use the skew-symmetric
+form since compared to the non-conservative form it tends to be more
+robust (has better energy conservation properties), or a
+simplified/cheaper form called the `alternating skew-symmetric' which
+alternates between using $\bm{u\cdot\nabla u}$ and $\bm{\nabla\cdot
+  uu}$ on successive timesteps; this proves to be almost as robust as
+full skew-symemtric but has a computational cost equivalent to the
+non-conservative form.  We can also demand that $\bm{N}(\bm{u}) = 0$
+in which case we have the (unsteady) Stokes equations.
+%
+If an advected scalar $c$ is present, the \NavSto\ equations are
+augmented by the advection--diffusion equation
+\[
+\partial_t c + \bm{C}(c) = \alpha\nabla^2 c,
+\]
+where $\alpha = \nu/\Pr$ ($\Pr$ being the Prandtl number).  In this
+case again, $\bm{C}(c)$ can take non-conservative form
+$\bm{u\cdot\nabla}c$, skew-symemtric form $[\bm{u\cdot\nabla}c +
+  \bm{\nabla\cdot u}c]/2$, the alternating equivalent or indeed
+$\bm{C}(c)=0$ according to what is requested for the momentum
+equations.  It is possible to run \verb|dns| in a mode which uses a
+`frozen' velocity field $\bm{u}$, in which case just the
+advection--diffusion equation for $c$ is integrated forward in time.
+
+As with many codes used to solve the unsteady \NavSto\ equations,
+diffusion-type terms (those involving $\nabla^2$) are dealt with
+implicitly in time, while the nonlinear-type terms $\bm{N}$ and
+$\bm{C}$ are dealt with explicitly, so that stable time integration
+generally requires a time-step restriction of CFL type.
 
 %============================================================================
 \section{Files}
@@ -713,11 +794,10 @@ a location in $(x,y,z)$ space (even for \twod\ solutions).
 \end{verbatim}
 }
 %
-As a side note: since the mesh nodal locations may be scaled and
-shifted using tokens \verb|X_SCALE|, \verb|X_SHIFT|, \verb|Y_SCALE|
-and \verb|Y_SHIFT| (see \eg \S\,\ref{sec.nodes}) the spatial locations
-called up in the \verb|HISTORY| section are in the resulting
-scaled/shifted space.
+While mesh nodal locations may be scaled and shifted using tokens
+\verb|X_SCALE|, \verb|X_SHIFT|, \verb|Y_SCALE| and \verb|Y_SHIFT| (see
+\eg \S\,\ref{sec.nodes}), the spatial locations declared in the
+\verb|HISTORY| section should be given in the resulting mapped space.
 
 %============================================================================
 \section{Utilities}
@@ -787,6 +867,218 @@ Here is a summary of the most-used utilities:
 
 We will run through some examples to illustrate input files, utility
 routines, and use of the solvers.
+
+%============================================================================
+\section{Elliptic equations}
+\label{sec.laplace}
+
+In this section we illustrate the use of the elliptic solver for a \twod\
+Laplace problem, $\nabla^2 c = 0$.  In this case the function
+\begin{equation}
+  c(x,y) = \sin(x) \exp(-y)
+\end{equation}
+satisfies Laplace's equation and is used to set the boundary
+conditions.  This example illustrates the methods used to set BCs and
+also to generate curved element boundaries.  Also we will demonstrate
+the selection of the iterative PCG solver as an alternative to the
+default direct solver. The session file \texttt{laplace6} is provided
+in the \verb|mesh| subdirectory.
+
+The elliptic solver can also be used to solve Poisson and Helmholtz
+problems in \twod\ and \threed\ Cartesian and cylindrical coordinate
+systems.  Apart from this use it provides a means to test new
+formulations of elliptic solution routines used also in the
+\NavSto\ type solvers.
+
+{\small
+\begin{verbatim}
+##############################################################################
+# Laplace problem on unit square, BC c(x, y) = sin(x)*exp(-y)
+# is also the analytical solution.  Use essential (Dirichlet) BC
+# on upper, curved edge, with natural (Neumann) BCs elsewhere.
+
+<FIELDS>
+  c
+</FIELDS>
+
+<USER>
+        c = sin(x)*exp(-y)
+</USER>
+
+<TOKENS>
+        N_P      = 11
+        TOL_REL  = 1e-12
+        STEP_MAX = 1000
+</TOKENS>
+
+<GROUPS NUMBER=4>
+        1       d       value
+        2       a       slope
+        3       b       slope
+        4       c       slope
+</GROUPS>
+
+<BCS NUMBER=4>
+        1       d       1
+                        <D>     c =  sin(x)*exp(-y)     </D>
+        2       a       1
+                        <N>     c = -cos(x)*exp(-y)     </N>
+        3       b       1
+                        <N>     c =  cos(x)*exp(-y)     </N>
+        4       c       1
+                        <N>     c =  sin(x)*exp(-y)     </N>
+</BCS>
+
+<NODES NUMBER=9>
+        1       0.0     0.0     0.0
+        2       0.5     0.0     0.0
+        3       1.0     0.0     0.0
+        4       0.0     0.5     0.0
+        5       0.5     0.5     0.0
+        6       1.0     0.5     0.0
+        7       0.0     1.0     0.0
+        8       0.5     1.0     0.0
+        9       1.0     1.0     0.0
+</NODES>
+
+<ELEMENTS NUMBER=4>
+        1       <Q>  1  2  5  4  </Q>
+        2       <Q>  2  3  6  5  </Q>
+        3       <Q>  4  5  8  7  </Q>
+        4       <Q>  5  6  9  8  </Q>
+</ELEMENTS>
+
+<SURFACES NUMBER=8>
+        1       1       1       <B>     c       </B>
+        2       2       1       <B>     c       </B>
+        3       2       2       <B>     b       </B>
+        4       4       2       <B>     b       </B>
+        5       4       3       <B>     d       </B>
+        6       3       3       <B>     d       </B>
+        7       3       4       <B>     a       </B>
+        8       1       4       <B>     a       </B>
+</SURFACES>
+
+<CURVES NUMBER=1>
+        1       4       3       <ARC>   1.0     </ARC>
+</CURVES>
+\end{verbatim}
+}
+
+%----------------------------------------------------------------------------
+\subsection{Curved element edges}
+\label{sec.curves}
+
+The mesh is somewhat similar to that for the Taylor flow example, the
+only difference being in the use of a curved edge for the 3rd edge of
+element~4, as specified in the \texttt{CURVES} section.  Both
+\texttt{ARC} and \texttt{SPLINE} type curves are currently
+implemented.  For the \texttt{ARC} type, the parameter supplies the
+radius of the curve: a positive value implies that the curve makes the
+element convex on that side, while a negative value implies a concave
+side.  Note that where elements mate along a curved side, the curve
+must be defined twice, once for each element, and with radii of
+different signs on each side.  The mesh for this problem can be seen
+in figure~\ref{lapcurve}.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.5\textwidth]{laplace6mesh}
+\end{center}
+\caption{
+\label{lapcurve}
+  The mesh corresponding to the \texttt{laplace6} session file.
+}
+\end{figure}
+
+For the \texttt{SPLINE} type, the parameter supplies the name of an
+ASCII file which contains a list of ($x$,\,$y$) coordinate pairs
+(white-space delimited). Naturally, the list of points should be in
+arc-length order. A single file can be used to supply the curved edges
+for a set of element edges. The vertices of the relevant elements do
+not have to lie exactly on the splined curve\,---\,if they do not,
+those vertices get shifted to the intersection of the projection of
+the straight line joining the original vertex position and its
+neighbouring ``curve-normal' vertex, and the cubic spline joining the
+points in the file. On the other hand, it is good practise to ensure
+that the declared vertex locations lie close to the spline, and to
+check the mesh that is produced: use \texttt{meshpr} to do this.
+
+%----------------------------------------------------------------------------
+\subsection{Boundary conditions}
+
+The other new sections introduced in the session file for this example
+(\texttt{GROUPS}, \texttt{BCS}) are used to impose boundary conditions
+on the problem.  The \texttt{GROUPS} section associates a character
+group tag (\eg \verb+d+) with a string (\eg \verb+value+), but note
+that different groups can be associated with the same
+string\footnote{This allows actions to be taken over a set of BCs
+  which share the same string.}.  Groups \verb+a+, \verb+b+ and
+\verb+c+ will be used to set natural (\ie slope or Neumann), boundary
+conditions ($\partial c/\partial n=\textrm{value}$), while group
+\verb+a+ will be used to impose an essential or Dirichlet condition
+($c=\textrm{value}$).
+
+The \texttt{BCS} section is used to define the boundary conditions
+which will be applied for each group.  For each group, after the
+numeric tag (ignored) appears the character for that group, then the
+number of BCs that will be applied: this corresponds to the number of
+fields in the problem, in this case~1 (\verb+c+).  BCs are typically
+of Dirichlet, Neumann, or mixed type (note that domain periodicity can
+be employed but that this does not constitute a boundary condition).
+So in this case we will declare the BC types to be \verb+D+ ({\texttt
+  D}irichlet) for group \verb+d+ and \verb+N+ ({\texttt N}eumann) for
+groups \verb+a+, \verb+b+ and \verb+c+.  On Neumann boundaries, the
+value which must be supplied is the slope of the solution along the
+outward normal to the solution domain.  Note the fact that the BCs can
+be set using the function parser, using the built-in functions and
+variables, also any symbols defined in the \texttt{TOKENS} section, as
+well as the spatial variables \verb+x+, \verb+y+ and \verb+z+.  The
+BCs can also be functions of time, \verb+t+, and for time-varying
+problems the boundary conditions are re-evaluated every time step.
+
+The BC groups are associated with element edges in the \texttt{SURFACES}
+section, in a similar way to the use of periodic boundaries for the
+\texttt{taylor2} problem, although the edges are set to be \verb+B+ (BC)
+rather than \verb+P+ (periodic).
+
+Periodic edges, Dirichlet, Neumann and mixed boundary conditions can
+be arbitrarily combined in a problem.  Dirichlet conditions over-ride
+Neumann ones where they meet (say at the corner node of an
+element). See further discussion on boundary conditions in
+\S\,\ref{sec.bcs} below.
+
+%----------------------------------------------------------------------------
+\subsection{Running the codes}
+
+We will run the solver and compare the computed solution to the
+analytical solution.  We will select the iterative (PCG) solver using
+the \verb+-i+ command-line option to \texttt{elliptic}, then check the 
+result using \texttt{compare}.
+{\small
+\begin{verbatim}
+$ elliptic -i laplace6
+-- Forcing                 : set to zero
+-- Initial condition       : set to zero
+Field: 'c' error norms (inf, L2, H1): 1.93215e-12  8.91558e-13  1.88887e-11
+\end{verbatim}
+}
+
+Next try the direct solver (default):
+{\small
+\begin{verbatim}
+$ elliptic laplace6
+-- Forcing                 : set to zero
+-- Initial condition       : set to zero
+-- Installing matrices for field 'c' [*]
+Field: 'c' error norms (inf, L2, H1): 5.44009e-15  1.5745e-15  6.77144e-14
+\end{verbatim}
+}
+\noindent
+In this case the direct solver is more accurate, but comparable
+accuracy with the iterative solver could be obtained by decreasing
+\verb+TOL_REL+ in the \texttt{TOKENS} section (and further increasing
+\verb+STEP_MAX+, which has a default value of 500).
 
 %============================================================================
 \section{2D Taylor flow}
@@ -954,15 +1246,15 @@ the \texttt{enumerate}, \texttt{compare}, \texttt{meshpr} and
 \texttt{dns} simulation code.
 {\small
 \begin{verbatim}
-karman[16] cp ../mesh/taylor2 .
+$ cp ../mesh/taylor2 .
 \end{verbatim}
 }
 
 First we'll examine the mesh, using \SM\ macros.
 {\small
 \begin{verbatim}
-karman[17] meshpr taylor2 > taylor2.msh
-karman[18] sm
+$ meshpr taylor2 > taylor2.msh
+$ sm
 Hello Hugh, please give me a command
 : meshplot taylor2.msh 1
 Read lines 1 to 1 from taylor2.msh
@@ -995,8 +1287,8 @@ solution code would run \texttt{enumerate} automatically to generate
 hand' to highlight its existence and illustrate its use.
 {\small
 \begin{verbatim}
-karman[19] enumerate taylor2 > taylor2.num
-karman[20] head -20 taylor2.num
+$ enumerate taylor2 > taylor2.num
+$ head -20 taylor2.num
 # FIELDS         :  uvp
 # ----------------  ----------
 # 1 NUMBER SETS  :         uvp
@@ -1027,8 +1319,8 @@ look at the start of it by converting it to ASCII format.  Also, the
 header of these files is always in ASCII format, and so can be
 examined directly using the Unix \texttt{head} command.  {\small
 \begin{verbatim}
-karman[21] compare taylor2 > taylor2.rst
-karman[22] convert taylor2.rst | head -20
+$ compare taylor2 > taylor2.rst
+$ convert taylor2.rst | head -20
 taylor2                   Session
 Wed Aug 13 21:39:47 1997  Created
 11   11   1    4          Nr, Ns, Nz, Elements
@@ -1057,7 +1349,7 @@ Then the \texttt{dns} solver is run to generate a solution or
 as the restart file.
 {\small
 \begin{verbatim}
-karman[23] dns taylor2
+$ dns taylor2
 -- Initial condition       : read from file taylor2.rst
 -- Coordinate system       : Cartesian
    Solution fields         : uvp
@@ -1103,7 +1395,7 @@ is a field file which contains the difference: since we're only interested
 in seeing error norms here, we'll discard this field file.
 {\small
 \begin{verbatim}
-karman[24] compare taylor2 taylor2.fld > /dev/null
+$ compare taylor2 taylor2.fld > /dev/null
 Field 'u': norm_inf: 1.127e-05
 Field 'v': norm_inf: 1.127e-05
 Field 'p': norm_inf: 4.224e-01
@@ -1118,7 +1410,7 @@ Finally we will use \texttt{sem2tec} to generate a \emph{Tecplot}
 input file.  The \emph{Tecplot} utility \texttt{preplot} must also be
 in your \texttt{path}.  {\small
 \begin{verbatim}
-karman[36] sem2tec -m taylor2.msh taylor2.fld
+$ sem2tec -m taylor2.msh taylor2.fld
 \end{verbatim}
 }
 \noindent
@@ -1138,217 +1430,6 @@ grid of the same order (use \verb|-n 0| to disable this feature).
   Solution to the \texttt{taylor2} problem, visualized using \emph{Tecplot}.
 }
 \end{figure}
-
-%============================================================================
-\section{2D Laplace problem}
-\label{sec.laplace}
-
-In this section we illustrate the use of the elliptic solver for a 2D
-Laplace problem, $\nabla^2 c = 0$.  In this case the function
-\begin{equation}
-  c(x,y) = \sin(x) \exp(-y)
-\end{equation}
-satisfies Laplace's equation and is used to set the boundary
-conditions.  This example illustrates the methods used to set BCs and
-also to generate curved element boundaries.  Also we will demonstrate
-the selection of the PCG solver.  We will call the session file
-\texttt{laplace6}.
-
-The elliptic solver can also be used to solve Poisson and Helmholtz
-problems in 2D and 3D Cartesian and cylindrical coordinate systems.
-Apart from this use it provides a means to test new formulations of
-elliptic solution routines used also in the \NavSto\ type
-solvers.
-
-{\small
-\begin{verbatim}
-##############################################################################
-# Laplace problem on unit square, BC c(x, y) = sin(x)*exp(-y)
-# is also the analytical solution.  Use essential (Dirichlet) BC
-# on upper, curved edge, with natural (Neumann) BCs elsewhere.
-
-<FIELDS>
-        c
-</FIELDS>
-
-<USER>
-        c =  sin(x)*exp(-y)
-</USER>
-
-<TOKENS>
-        N_P      = 11
-        TOL_REL  = 1e-12
-        STEP_MAX = 1000
-</TOKENS>
-
-<GROUPS NUMBER=4>
-        1       d       value
-        2       a       slope
-        3       b       slope
-        4       c       slope
-</GROUPS>
-
-<BCS NUMBER=4>
-        1       d       1
-                        <D>     c =  sin(x)*exp(-y)     </D>
-        2       a       1
-                        <N>     c = -cos(x)*exp(-y)     </N>
-        3       b       1
-                        <N>     c =  cos(x)*exp(-y)     </N>
-        4       c       1
-                        <N>     c =  sin(x)*exp(-y)     </N>
-</BCS>
-
-<NODES NUMBER=9>
-        1       0.0     0.0     0.0
-        2       0.5     0.0     0.0
-        3       1.0     0.0     0.0
-        4       0.0     0.5     0.0
-        5       0.5     0.5     0.0
-        6       1.0     0.5     0.0
-        7       0.0     1.0     0.0
-        8       0.5     1.0     0.0
-        9       1.0     1.0     0.0
-</NODES>
-
-<ELEMENTS NUMBER=4>
-        1       <Q>     1 2 5 4         </Q>
-        2       <Q>     2 3 6 5         </Q>
-        3       <Q>     4 5 8 7         </Q>
-        4       <Q>     5 6 9 8         </Q>
-</ELEMENTS>
-
-<SURFACES NUMBER=8>
-        1       1       1       <B>     c       </B>
-        2       2       1       <B>     c       </B>
-        3       2       2       <B>     b       </B>
-        4       4       2       <B>     b       </B>
-        5       4       3       <B>     d       </B>
-        6       3       3       <B>     d       </B>
-        7       3       4       <B>     a       </B>
-        8       1       4       <B>     a       </B>
-</SURFACES>
-
-<CURVES NUMBER=1>
-        1       4       3       <ARC>   1.0     </ARC>
-</CURVES>
-\end{verbatim}
-}
-
-%----------------------------------------------------------------------------
-\subsection{Curved element edges}
-\label{sec.curves}
-
-The mesh is somewhat similar to that for the Taylor flow example, the
-only difference being in the use of a curved edge for the 3rd edge of
-element~4, as specified in the \texttt{CURVES} section.  Both
-\texttt{ARC} and \texttt{SPLINE} type curves are currently
-implemented.  For the \texttt{ARC} type, the parameter supplies the
-radius of the curve: a positive value implies that the curve makes the
-element convex on that side, while a negative value implies a concave
-side.  Note that where elements mate along a curved side, the curve
-must be defined twice, once for each element, and with radii of
-different signs on each side.  The mesh for this problem can be seen
-in figure~\ref{lapcurve}.
-
-\begin{figure}
-\begin{center}
-\includegraphics[width=0.5\textwidth]{laplace6mesh}
-\end{center}
-\caption{
-\label{lapcurve}
-  The mesh corresponding to the \texttt{laplace6} session file.
-}
-\end{figure}
-
-For the \texttt{SPLINE} type, the parameter supplies the name of an
-ASCII file which contains a list of ($x$,\,$y$) coordinate pairs
-(white-space delimited). Naturally, the list of points should be in
-arc-length order. A single file can be used to supply the curved edges
-for a set of element edges. The vertices of the relevant elements do
-not have to lie exactly on the splined curve\,---\,if they do not,
-those vertices get shifted to the intersection of the projection of
-the straight line joining the original vertex position and its
-neighbouring ``curve-normal' vertex, and the cubic spline joining the
-points in the file. On the other hand, it is good practise to ensure
-that the declared vertex locations lie close to the spline, and to
-check the mesh that is produced: use \texttt{meshpr} to do this.
-
-%----------------------------------------------------------------------------
-\subsection{Boundary conditions}
-
-The other new sections introduced in the session file for this example
-(\texttt{GROUPS}, \texttt{BCS}) are used to impose boundary conditions
-on the problem.  The \texttt{GROUPS} section associates a character
-group tag (\eg \verb+d+) with a string (\eg \verb+value+), but note
-that different groups can be associated with the same
-string\footnote{This allows actions to be taken over a set of BCs
-  which share the same string.}.  Groups \verb+a+, \verb+b+ and
-\verb+c+ will be used to set natural (\ie slope or Neumann), boundary
-conditions ($\partial c/\partial n=\textrm{value}$), while group
-\verb+a+ will be used to impose an essential or Dirichlet condition
-($c=\textrm{value}$).
-
-The \texttt{BCS} section is used to define the boundary conditions
-which will be applied for each group.  For each group, after the
-numeric tag (ignored) appears the character for that group, then the
-number of BCs that will be applied: this corresponds to the number of
-fields in the problem, in this case~1 (\verb+c+).  BCs are typically
-of Dirichlet, Neumann, or mixed type (note that domain periodicity can
-be employed but that this does not constitute a boundary condition).
-So in this case we will declare the BC types to be \verb+D+ ({\texttt
-  D}irichlet) for group \verb+d+ and \verb+N+ ({\texttt N}eumann) for
-groups \verb+a+, \verb+b+ and \verb+c+.  On Neumann boundaries, the
-value which must be supplied is the slope of the solution along the
-outward normal to the solution domain.  Note the fact that the BCs can
-be set using the function parser, using the built-in functions and
-variables, also any symbols defined in the \texttt{TOKENS} section, as
-well as the spatial variables \verb+x+, \verb+y+ and \verb+z+.  The
-BCs can also be functions of time, \verb+t+, and for time-varying
-problems the boundary conditions are re-evaluated every time step.
-
-The BC groups are associated with element edges in the \texttt{SURFACES}
-section, in a similar way to the use of periodic boundaries for the
-\texttt{taylor2} problem, although the edges are set to be \verb+B+ (BC)
-rather than \verb+P+ (periodic).
-
-Periodic edges, Dirichlet, Neumann and mixed boundary conditions can
-be arbitrarily combined in a problem.  Dirichlet conditions over-ride
-Neumann ones where they meet (say at the corner node of an
-element). See further discussion on boundary conditions in
-\S\,\ref{sec.bcs} below.
-
-%----------------------------------------------------------------------------
-\subsection{Running the codes}
-
-We will run the solver and compare the computed solution to the
-analytical solution.  We will select the iterative (PCG) solver using
-the \verb+-i+ command-line option to \texttt{elliptic}, then check the 
-result using \texttt{compare}.
-{\small
-\begin{verbatim}
-karman[287] elliptic -i laplace6
--- Forcing                 : set to zero
--- Initial condition       : set to zero
-Field: 'c' error norms (inf, L2, H1): 1.93215e-12  8.91558e-13  1.88887e-11
-\end{verbatim}
-}
-
-Next try the direct solver (default):
-{\small
-\begin{verbatim}
-karman[289] elliptic laplace6
--- Forcing                 : set to zero
--- Initial condition       : set to zero
--- Installing matrices for field 'c' [*]
-Field: 'c' error norms (inf, L2, H1): 5.44009e-15  1.5745e-15  6.77144e-14
-\end{verbatim}
-}
-\noindent
-In this case the direct solver is more accurate, but comparable
-accuracy with the iterative solver could be obtained by decreasing
-\verb+TOL_REL+ in the \texttt{TOKENS} section (and further increasing
-\verb+STEP_MAX+, which has a default value of 500).
 
 %============================================================================
 \section{3D Kovasznay flow}
@@ -1482,8 +1563,8 @@ moderate number of time steps (\eg 200) to see if the discrete
 solution diverges much from this.
 {\small
 \begin{verbatim}
-karman[23] compare kovas3 > kovas3.rst
-karman[24] dns kovas3
+$ compare kovas3 > kovas3.rst
+$ dns kovas3
 \end{verbatim}
 }
 
@@ -1493,14 +1574,14 @@ error norms for the solution.
 %
 {\small
 \begin{verbatim}
-karman[25] convert kovas3.fld | grep -i session
+$ convert kovas3.fld | grep -i session
 kovas3                    Session
-karman[26] compare kovas3 kovas3.fld > /dev/null
+$ compare kovas3 kovas3.fld > /dev/null
 Field 'u': norm_inf: 5.773e-05
 Field 'v': norm_inf: 3.145e-05
 Field 'w': norm_inf: 0.000e+00
 Field 'p': norm_inf: 9.286e-01
-karman[27] meshpr kovas3 | sem2tec -n20 kovas3.fld
+$ meshpr kovas3 | sem2tec -n20 kovas3.fld
 \end{verbatim}
 }
 %
@@ -1580,7 +1661,7 @@ direction are implicitly zero when \verb+N_Z=1+. (But see
                         <D>     u = 0           </D>
                         <D>     v = 0           </D>
                         <D>     w = OMEGA*y     </D>
-                        <H>     p               </H>
+Q: How do I make the option/alt key act like Meta or send escape codes?                        <H>     p               </H>
         2       w       4
                         <D>     u = 0           </D>
                         <D>     v = 0           </D>
@@ -1691,6 +1772,10 @@ you know that, while the solution may be \threed, there is an $n$-fold
 azimuthal symmetry (say $n=3$). In that case, it is much cheaper to
 solve with \verb+BETA=3+, and use one-third the number of azimuthal
 planes that would be required for \verb+BETA=1+.
+
+%============================================================================
+\section{Buoyancy driven flow in a cavity}
+\label{sec.tdrivcav}
 
 %=============================================================================
 \section{Boundary condition roundup}
@@ -2074,13 +2159,16 @@ locations as the simulation proceeds.  The locations need not
 correspond to grid points, as data are interpolated onto the given
 spatial locations using the elemental basis functions.  Locations of
 history points are declared in the \verb+session+ file as follows:
+%
+{\small
 \begin{verbatim}
 <HISTORY NUMBER=1>
 #       tag     x       y       z 
         1       0       0       0
 </HISTORY>
 \end{verbatim}
-
+}
+%
 A file called \verb+session.his+ is produced as output.  Each line of
 the file contains the step number, the time, the history point tag
 number, followed by values for each of the solution variables.  The
@@ -2102,11 +2190,15 @@ Restarts are made by reading \verb+session.avg+ if it exists.
 Setting \verb+AVERAGE = 2+ will accumulate averages for Reynolds
 stresses as well, with reserved names \verb+ABCDEF+, corresponding to
 products
+%
+{\small
 \begin{verbatim}
 uu uv uw     A  B  D
    vv vw  =     C  E
       ww           F
 \end{verbatim}
+}
+%
 The hierarchy is named this way to allow accumulation of products in 2D
 as well as 3D (for 2D you get only \verb+ABC+).  In order to actually
 compute the Reynolds stresses from the accumulated products you need
@@ -2235,7 +2327,7 @@ to the RHS of the \NavSto\ equation. The currently implemented types
 include (any combination allowed):\\[1em]
 \begin{tabular}{rll}
  $ \bm{f} =$ & $\bm{f}_{const}$                           
-  & constant force \\
+  & constant force (frame acceleration)\\
            $+$ & $\bm{a_1}(\bm{x})$                       
   & steady, but spatially varying force\\
            $+$ & $\bm{a_2}(\bm{x}) \, \bm{\alpha}(t) $ 
@@ -2251,7 +2343,9 @@ include (any combination allowed):\\[1em]
            $-$ & 2 $\bm{\Omega} \times \bm{u} - 
                     (\cd\bm{\Omega}/\cd t) \times \bm{x} -
                     \bm{\Omega} \times \bm{\Omega} \times \bm{x}$  
-  &  Coriolis force. \\
+  & Coriolis force \\
+           $-$ & $\beta_T(c-c_\textrm{ref})\bm{g}$
+  & Boussinesq buoyancy.                
 \end{tabular}\\[1em]
 
 %----------------------------------------------------------------------------
@@ -2508,6 +2602,41 @@ $\cd\bm{\Omega}/\cd t$, if given, is ignored.
 See \citet{ablmm15} for an example of DNS carried out in a rotating
 frame of reference.
 
+%----------------------------------------------------------------------------
+\subsection{Boussinesq buoyancy}
+\label{sec.bous}
+
+This option is available if your simulation includes a scalar, in
+which case it can be considered as a temperature, allowing for the
+introduction of body forces based on density variation produced by a
+coefficient of thermal expansion $\beta_T$.  In the Boussinesq
+approximation, the flow is still assumed to be incompressible, and the
+added body force is of form $-\beta_T(c-c_\textrm{ref})\bm{g}$, where
+$c_\textrm{ref}$ is a reference value of scalar (\ie temperature) and
+$\bm{g}$ is the gravitational acceleration vector.  Note that for an
+ideal gas, $\beta_T=1/c_\textrm{ref}$.
+
+\begin{verbatim}
+<FORCE>
+        BOUSSINESQ_TREF    = 288.15
+        BOUSSINESQ_BETAT   = 1./BOUSSINESQ_TREF
+        BOUSSINESQ_GRAVITY = 10.
+        BOUSSINESQ_GY      = -1.0
+</FORCE>
+\end{verbatim}
+
+The gravity vector is supplied as a magnitude,
+\verb|BOUSSINESQ_GRAVITY|, and a set of direction cosines; in the
+above example, only the $y$ component is set, with the other
+components defaulting to zero.  If cylindrical coordinates are
+employed, only the axial, $x$, direction cosine is used, \ie the
+gravity vector must be aligned with the axis of the coordinate system.
+
+A further restriction to note is that while logically buoyancy forces
+should recognize potential-type reference frame forces (such as
+rotation), at present, this is not implememnted, and buoyancy only
+responds to gravity fields.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Specialised executables}
 
@@ -2526,7 +2655,7 @@ which change to the \verb+femlib+ directory, then do
 are not dealiased when running in parallel, but are dealiased in the
 Fourier direction when running on one process, or running the serial
 code. To get a serial code that does not perform dealiasing on Fourier
-terms (e.g.\ for cross-checking), compile the serial code using
+terms (\eg for cross-checking), compile the serial code using
 \verb+make ALIAS=1+ to produce \verb+dns_alias+ (in which case make
 sure you delete \verb+nonlinear.o+ first).
 
@@ -2708,11 +2837,13 @@ which exercise most code features.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\chapter{Utilities}
+\chapter{Utility programs}
+\label{sec.util}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{DNS 101 --- Turbulent channel flow}
+\label{sec.dns101}
 
 \textsl{This chapter was largely the contribution of Peter Kulb from
   TU-Dresden.  It is intended as a introductory guide for those
