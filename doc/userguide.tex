@@ -3503,6 +3503,14 @@ options:
 \section{\texttt{integral}}
 \label{sec.integral}
 
+The \verb|integral| utility approximates the integral of each scalar
+in a field file over the domain area using \GLL\ quadrature.  Also,
+the area of the domain is similarly approximated.  If the session file
+has $\texttt{N\_Z}>1$ then the values are multiplied by $L_z =
+2\pi/\beta$ to give volume integrals.  If the coordinate system is
+cylindrical, the integrals computed further are weighted by radius.
+The $(x,y)$ centroidal locations of each integral are also reported.
+
 {\small
 \begin{verbatim}
 $ integral -h
@@ -3519,6 +3527,21 @@ options:
 \section{\texttt{interp}}
 \label{sec.intero}
 
+\verb|Interp| interpolates field data onto a set of $(x,y)$ points
+supplied as ASCII data. If the session file and field dump are
+\threed\ then the \twod\ interpolation is carried out on every
+$z-$plane.  If the set of data points has a header indicating it is
+the output of \verb|meshpr| (cf.\ \S\,\ref{sec.meshpr}) then the
+interpolated data is output as an ASCII-format field file (with
+header), otherwise the outcome is also ASCII data but without a
+header.  The basic purpose of the utility is to facilitate
+interpolation of data from one domain onto another (the domains do not
+have to conform but it is assumed that they overlap).  Thus the `to'
+point file is typically produced using \verb|meshpr| from the session
+file onto which interpolation is required whereas the command-line
+supplied session and field file constitute the `from' domain and
+data.
+%
 {\small
 \begin{verbatim}
 $ interp -h
@@ -3531,11 +3554,26 @@ Usage: interp [options] -s session dump
 \end{verbatim}
 }
 %
+Each of the points for which interpolation is requested is located in
+the \verb|session| domain using Newton--Raphson iteration and an
+element-by-element search; the convergence of the iteration can be
+controlled by variables \verb|NR_MAX| and \verb|TOL_POS|, which can be
+reset from their default values in the \verb|session| file.  If a
+requested point cannot be found then a warning is issued (unless the
+\verb|-q| command-line flag is set) and zero values are returned for
+the interpolated variables.
 
 %=============================================================================
 \section{\texttt{mapmesh}}
 \label{sec.mapmesh}
 
+This utility may be used to reposition $x$ and/or $y$ locations of
+\verb|NODES| within a session file according to mapping functions
+supplied on the command line; the output is a new session file.
+Potentially one could use this with the \verb|rectmesh| utility
+(\S\,\ref{sec.rectmesh}) to remap a logically/originally rectangular
+domain onto something more useful.
+%
 {\small
 \begin{verbatim}
 $ mapmesh -h
@@ -3552,6 +3590,12 @@ Usage: mapmesh [options] session
 \section{\texttt{meshpr}}
 \label{sec.meshpr}
 
+We often need the mesh locations within elements; this information is
+provided by \verb|meshpr| (`mesh printer').  The number of points
+along each element edge (\verb|N_P|) and number of planes (\verb|N_Z|)
+are taken from the supplied session file but these values can be
+over-ridden by command line flags.
+%
 {\small
 \begin{verbatim}
 $ meshpr -h
@@ -3574,6 +3618,11 @@ options:
 \section{\texttt{noiz}}
 \label{sec.noiz}
 
+The \verb|noiz| utility can be used to add Gaussian-distributed white
+noise of specified standard deviation to all scalars in a field
+file. If requested, this noise can be added only to specified Fourier
+modes, otherwise it is added to all modes/data planes.
+%
 {\small
 \begin{verbatim}
 $ noiz -h
@@ -3588,6 +3637,9 @@ options:
 \end{verbatim}
 }
 %
+A lesser-used functionality of \verb|noiz| is, if the \verb|-f|
+command-line flag is set, to filter out (zero) data of a field file in
+a single Fourier mode as given on the command line.
 
 %=============================================================================
 \section{\texttt{probe}}
