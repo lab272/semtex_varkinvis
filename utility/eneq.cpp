@@ -4,7 +4,6 @@
 // (3.2.1) which is the default action, or the mean flow energy
 // equation, T&L (3.1.11). Output values have dimensions of kinetic
 // energy per unit mass per unit time, i.e. power per unit mass.
-
 //
 // Copyright (c) 2004 <--> $Date$, Hugh Blackburn
 //
@@ -156,7 +155,7 @@ static const char* fieldNames(map<char, AuxField*>&);
 int main (int    argc,
 	  char** argv)
 // ---------------------------------------------------------------------------
-// Driver -- adapted from probe.C.
+// Driver -- adapted from probe.cpp.
 // ---------------------------------------------------------------------------
 {
   const char           *session, *dump;

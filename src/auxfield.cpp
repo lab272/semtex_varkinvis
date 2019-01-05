@@ -1816,7 +1816,7 @@ AuxField& AuxField::vvmvt    (const AuxField& w,
 }
 
 
-AuxField& AuxField::mag(const vector <AuxField*>& a)
+AuxField& AuxField::mag (const vector <AuxField*>& a)
 // ---------------------------------------------------------------------------
 // compute magnitude of given vector a.
 // in 2D: wrapper for xvhypot:  z[i] = sqrt(SQR(x[i]) + SQR(y[i]))
@@ -1904,6 +1904,9 @@ AuxField& AuxField::projStab (const real_t alpha,
 // this is not enforced.
 //
 // Work is overwritten during processing.
+//
+// NB: I have never found this stabilisation to work in semtex!
+// Perhaps because it is P_N--P_N rather than P_N--P_N-2?
 // ---------------------------------------------------------------------------
 {
   const int_t nel  = Geometry::nElmt();

@@ -6,11 +6,11 @@
 # resubmit), else 0.  This can be used in many queuing systems as part
 # of a termination test.
 #
-# If no gawk, try nawk.
+# If no awk, or gawk, try nawk.
 #
 # $Id$
 
 head $1.rst | grep Time | grep -v step | \
-	gawk '{t = $1} \
+	awk '{t = $1} \
 	END {if (t >= '$2') exit 1; else exit 0 }'
 

@@ -252,9 +252,8 @@ enumerate Generate global node numbering, with RCM optimization.
 compare   Generate restart files, compare solutions to a function.
 convert   Convert field file formats (IEEE-big/little, ASCII).
 meshpr    Generate 2D mesh locations for plotting or checking.
-addvort   Add vorticity vector components to a field file.
-addfield  Add vorticity, also divergence, helicity, etc.
-sem2tec   Convert field files to Amtec TECPLOT format (OK with Paraview/VisIt).
+addfield  Add vorticity, also divergence, helicity, etc to a field file.
+sem2tec   Convert field files to Amtec Tecplot format (OK with Paraview/VisIt).
 project   Convert a field file to a different order interpolation.
 interp    Interpolate field file from one 2D mesh to another.
 probe     Probe field file at specified points.
@@ -266,6 +265,15 @@ rectmesh  Generate a start-out session file from a list of x and y values.
 Most executables have a -h command line option which gives a help
 prompt.  If that is insufficient help, please read the header section
 of the associated source files or the semtex user guide.
+
+User guide
+----------
+
+Assuming you have a latex/pdflatex system installed: 
+
+  %> cd doc; make
+
+to produce userguide.pdf.
 
 Author
 ------

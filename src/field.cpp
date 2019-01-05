@@ -633,6 +633,8 @@ Field& Field::solve (AuxField*             f  ,
 //
 //   The notation under JACPCG follows that used in Fig 2.5 of Barrett
 //   et al., "Templates for the Solution of Linear Systems", netlib.
+//   Iteration stops when ||r|| = ||Ax - b|| < TOL_REL^2 * ||b|
+//   (Criterion 2 in Barrett et al.).
 //   ---------------------------------------------------------------------------
 {
   const char  routine[] = "Field::solve";

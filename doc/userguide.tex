@@ -103,6 +103,7 @@ Monash University
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Introduction}
+\label{ch.intro}
 
 \Semtex\ is a family of spectral element simulation codes, most
 prominently a code for direct numerical simulation of incompressible
@@ -110,9 +111,11 @@ flow.  The spectral element method is a high-order finite element
 technique that combines the geometric flexibility of finite elements
 with the high accuracy of spectral methods.  The method was pioneered
 in the mid 1980's by Anthony Patera at MIT
-\citep{pat84,kp86}. \Semtex\ uses parametrically mapped quadrilateral
-elements, the classic GLL `nodal' shape function basis, and continuous
-Galerkin projection.  Algorithmically the code is similar to Ron
+\citep{pat84,kp86}. \Semtex\ uses parametrically mapped
+\twod\ quadrilateral elements, the classic GLL `nodal' shape function
+basis, and continuous Galerkin projection. Extension to
+\threed\ capability is achieved using Fourier expansions in an
+orthogonal direction.  Algorithmically the code is similar to Ron
 Henderson's \emph{Prism} \citep{hk95,kh98,hen99b}, but with some
 differences in design, and lacks mortar element capability. A notable
 extension is that \Semtex\ can solve problems in cylindrical as well
@@ -274,6 +277,7 @@ element methods in fluid dynamics.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Starting out}
+\label{ch.start}
 
 %============================================================================
 \section{Computational environment}
@@ -380,32 +384,40 @@ loosely patterned on HTML, which we have called FEML (for Finite
 Element Markup Language) --- alternatively you could consider FEML as
 a cut-down version of XML.  FEML is `just enough' to compactly
 describe spectral element problems to the solvers.  There are a number
-of example session files in the mesh directory; some of these are used
-in regression testing (and/or described in the following document).
-Files other than session file have standard extensions:
+of example session files provided in the mesh subdirectory; some of
+these are used in regression testing (and/or described in the
+following document).  Files other than session file have standard
+extensions:
 \begin{tabbing}
 \texttt{session.numxx} \= \kill
 \texttt{session.num}  \>
         Global node numbers, produced by enumerate utility.\\
 \texttt{session.fld}  \>
-        Solution/field file.  Binary format by default.\\
+        Solution/field file.  Binary format by default,
+        but with a 10-line ASCII header.\\
 \texttt{session.rst}  \>
         Restart file. Read in to initialize solution if present.\\
+\texttt{session.chk}  \>
+        Intermediate solution checkpoint/restart files.\\
 \texttt{session.avg} \> Averaged results. Read back in for
         continuation (over-written).\\
 \texttt{session.his} \> History point data.\\
 \texttt{session.flx} \> Time series of pressure and viscous forces
         integrated over the \texttt{wall} boundary group.\\
-\texttt{session.mdl} \> Time series of kinetic energies in the Fourier modes.\\
+\texttt{session.mdl} \> Time series of kinetic energies
+        in solution Fourier modes.\\
 \texttt{session.par} \> Used to define initial particle locations.\\
 \texttt{session.trk} \> Integrated particle locations.\\
 \end{tabbing}
-When writing a new session file it is best to run \texttt{meshpr}
+When writing a new session file it is prudent to run \texttt{meshpr}
 (and/or \texttt{meshpr -c}) on it before trying to use it for
-simulations.  \texttt{Meshpr} will catch most of the easier-to-make
-geometric anomalies.  You can also plot up the results using \SM\ or other
-utility as a visual check.
+simulations, since \texttt{meshpr} will catch most of the easier-to-make
+geometric anomalies.  You can also plot up the results using \SM\ or
+other utility as a visual check.
 
+NB: the 10-line ASCII header of any field file can quickly be viewed
+using the Unix \verb|head| utility, regardless of the format of
+following field data.
 
 %============================================================================
 \section{Structure of a session file}
@@ -806,6 +818,7 @@ While mesh nodal locations may be scaled and shifted using tokens
 
 %============================================================================
 \section{Utilities}
+\label{sec.utilities}
 
 Source code for these is found in the \texttt{utility} directory.
 Here is a summary of the most-used utilities:
@@ -864,7 +877,7 @@ Here is a summary of the most-used utilities:
         Extract the mesh nodes corresponding to surfaces with the
 	\verb+wall+ group.
 \end{tabbing}
-
+See also chapter~\ref{ch.utilities}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Example applications}
@@ -1164,6 +1177,7 @@ for \Semtex\ codes such as \verb|dns| and the utility programs too.
 
 %============================================================================
 \section{2D Taylor flow}
+\label{sec.taylor}
 
 Taylor flow is an analytical solution to the \NavSto\ equations.
 In the $x$--$y$ plane the solution is 
@@ -2342,6 +2356,7 @@ large.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Extra controls}
+\label{ch.extra}
 
 This chapter describes some additional features that are implemented
 within the \NavSto\ solver \verb+dns+ to control execution and
@@ -2969,43 +2984,39 @@ rotation), at present this is not implemented, so that buoyancy only
 responds to gravity fields.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Specialised executables}
+%\chapter{Specialised executables}
+%\label{ch.special}
 
-The special compilations below can be combined.
-
-%=============================================================================
-\section{Concurrent execution}
-\label{sec.parallel}
-
-The code supports concurrent execution for 3D simulations, with MPI
-used as the message-passing kernel. Compile using \verb+make MPI=1+ to
-produce \verb+dns_mp+. (You will also need to compile in the
-appropriate message-passing routines in compiling \verb+femlib+, for
-which change to the \verb+femlib+ directory, then do
-\verb+make clean; make MPI=1; make install MPI=1+.)  Nonlinear terms
-are not dealiased when running in parallel, but are dealiased in the
-Fourier direction when running on one process, or running the serial
-code. To get a serial code that does not perform dealiasing on Fourier
-terms (\eg for cross-checking), compile the serial code using
-\verb+make ALIAS=1+ to produce \verb+dns_alias+ (in which case make
-sure you delete \verb+nonlinear.o+ first).
+%The special compilations below can be combined.
 
 %=============================================================================
-\section{Vector architectures}
-\label{sec.vector}
+%\section{Concurrent execution}
+%\label{sec.parallel}
 
-The code has a fair amount of low-level optimisation built in for
-vector computer architectures, but it's not compiled in by default. To
-get vector-optimised routines, add \verb+-D_VECTOR_ARCH+ to the
-section of \texttt{src/Makefile} appropriate to your machine. Also you
-may want to try altering the parameter \texttt{LVR} in
-\texttt{src/temfftd.F} if your job makes heavy use of FFTs.
+%The code supports concurrent execution for \threed\ simulations, with
+%MPI used as the message-passing kernel. If you are using
+%build-in-source compilation, compile using \verb+make MPI=1+ to produce
+%\verb+dns_mp+. You will also need to first compile in the appropriate
+%message-passing routines in compiling \verb+femlib+, for which, if you
+%are using the build-in-place mode, change to the \verb+femlib+
+%directory, then do \verb+make clean; make MPI=1; make install MPI=1+.  If 
+
+%=============================================================================
+%\section{Vector architectures}
+%\label{sec.vector}
+
+%The code has a fair amount of low-level optimisation built in for
+%vector computer architectures, but it's not compiled in by default. To
+%get vector-optimised routines, add \verb+-D_VECTOR_ARCH+ to the
+%section of \texttt{src/Makefile} appropriate to your machine. Also you
+%may want to try altering the parameter \texttt{LVR} in
+%\texttt{src/temfftd.F} if your job makes heavy use of FFTs.
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Code design and the \Semtex\ API}
-\label{sec.api}
+\label{ch.api}
 
 \textsl{This chapter is in development.}\\
 
@@ -3115,6 +3126,13 @@ Static condensation.
 Message passing and data exchange.
 \end{enumerate}
 
+The code has a fair amount of low-level optimisation built in for
+vector computer architectures, but it's not compiled in by default. To
+get vector-optimised routines, add \verb+-D_VECTOR_ARCH+ to the
+section of \texttt{src/Makefile} appropriate to your machine. Also you
+may want to try altering the parameter \texttt{LVR} in
+\texttt{src/temfftd.F} if your job makes heavy use of FFTs.
+
 \begin{figure}
 \begin{center}
 \includegraphics[viewport=72 130 770 492,width=\textwidth,clip=true]
@@ -3176,14 +3194,18 @@ which exercise most code features.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Utility programs}
-\label{sec.util}
+\label{ch.utilities}
 
-Part of the stength of \Semtex\ lies in the accompanying 
-utility programs that are useful to the CFD analyst.
+Part of the stength of \Semtex\ lies in the accompanying utility
+programs that are useful to the CFD analyst.  Many of the utilities
+below will read from standard input and write to standard output,
+allowing the user to chain operations together in the standard Unix
+workflow model. At present, all utility programs support serial
+operation only.
 
 %=============================================================================
 \section{\texttt{addfield}}
-\label{sec.add}
+\label{sec.addfield}
 
 This utility is used to compute and add more variables derived from
 the original solution variables.
@@ -3209,11 +3231,59 @@ options:
 \end{verbatim}
 }
 %
-
+The computed variables are added to those in the original field file
+and a new binary file is output.  Here is an example where we add
+vorticity to the field file produced by running \verb|dns| on the
+\verb|taylor2| session file produced in \S\,\ref{sec.taylor}:
+{\small
+\begin{verbatim}
+$ convert taylor2.fld | head -12
+taylor2                   Session
+Fri Jan 04 10:44:51 2019  Created
+11 11 1 4                 Nr, Ns, Nz, Elements
+20                        Step
+0.4                       Time
+0.02                      Time step
+0.01                      Kinvis
+1                         Beta
+uvp                       Fields written
+ASCII                     Format
+ 1.745305889e-15  4.584452860e-15  -0.004570994584
+-1.028018800e-06    0.09562927785  2.193775364e-14
+$ addfield -v -s taylor2 taylor2.fld | convert | head -12
+taylor2                   Session
+Sat Jan 05 15:05:10 2019  Created
+11 11 1 4                 Nr, Ns, Nz, Elements
+20                        Step
+0.4                       Time
+0.02                      Time step
+0.01                      Kinvis
+1                         Beta
+uvpt                      Fields written
+ASCII                     Format
+ 1.745305889e-15  4.584452860e-15  -0.004570994584     -5.806132467
+-1.028018800e-06    0.09562927785  2.193775364e-14     -5.775032679
+\end{verbatim}
+}
+\noindent
+There is only a single component of vorticity added (\verb|t|) since
+the solution is 2D2C; the $(x,y,z)$ components of vorticity are named
+$(r,s,t)$.\footnote{The convention in \Semtex\ is that scalar fields
+  take single-character names.} Note also the use made above of the
+\verb|convert| utility (see \S\,\ref{sec.convert}) to convert a binary
+field file to ASCII for human readability.
 
 %=============================================================================
 \section{\texttt{calc}}
 \label{sec.calc}
+
+The \verb|calc| utility is a command-line double-precision calculator
+that uses the same parser and predefined internal variables as
+\verb|dns| and \verb|elliptic|, and is in concept much like the
+\verb|hoc3| program described by \citet{kernighan84}.  It is very useful for
+checking strings that you intend to place in a session file for use by
+the internal parser.  When called with \verb|-h| it lists all the
+predefined internal variables and functions.
 
 {\small
 \begin{verbatim}
@@ -3249,11 +3319,61 @@ Procedures: step, jn, yn, rad, ang, rejn,imjn, jacobi, womcos,womsin
 \end{verbatim}
 }
 %
+Here is a small example:
+{\small
+\begin{verbatim}
+$ calc
+x=-2
+y=2
+DEG*atan(y/x)
+-45
+DEG*y~x
+135
+\end{verbatim}
+}
+\noindent
+Terminate input with \verb|^D| (\verb|EOF|) or \verb|^C| (\verb|SIGINT|).
 
+%=============================================================================
+\section{\texttt{chop}}
+\label{sec.chop}
+
+This is a small but very useful utility for dealing with ASCII text
+files, often used with the \verb|slit| utility (\S\,\ref{sec.slit}) to
+`slice and dice' columnar data files, though it has a variety of other
+uses.  Probably there is a standard Unix utility that does all of what
+\verb|chop| does, and more\,---\,but \verb|chop| is small and
+beautiful. All it does is reproduce lines from a text file on a
+requested numbered basis (see an example in the following section).
+{\small
+\begin{verbatim}
+$ chop -h
+usage: chop [options] [input]
+  options:
+  -h         ... display this message
+  -n <lines> ... reproduce this many lines of file    [Default: to EOF]
+  -s <line>  ... start at this line number            [Default: 1]
+  -S <num>   ... skip <num> lines between each output [Default: 1]
+\end{verbatim}
+}
 
 %=============================================================================
 \section{\texttt{compare}}
 \label{sec.compare}
+
+The \verb|compare| utility deals with the \verb|<USER>| section of
+session files, and has two principal modes of operation.  If called
+with just a session file on the command line, it uses the definitions
+of the \verb|<USER>| section to prepare a field file.  This can be
+useful, for example, for producing files of initial conditions.  If
+called with both a session file and a field file, the information in
+the \verb|<USER>| section is computed and the data in the field file
+is subtracted from it; this is useful \eg when comparing a computed
+and analytical solution.  In this second mode of operation, the
+difference is written to the standard output as a binary field file,
+and a summary of the largest difference in each variable is written to
+standard error\,---\,this feature is used by the regression checks in
+the \verb|test| subdirectory.
 
 {\small
 \begin{verbatim}
@@ -3266,11 +3386,40 @@ options:
 \end{verbatim}
 }
 %
+In the following example, we use compare to generate a laminar initial
+condition for a channel flow, then add white noise in Fourier mode~1
+to initiate transition (see \S\,\ref{sec.noiz}); this is is a fairly
+standard model for (eventually) generating a turbulent flow and is
+also used in chapter~\ref{ch.dns101}, but there with noise in all
+Fourier modes.  {\small
+\begin{verbatim}
+$ chop -s 7 -n 6 ../mesh/chan3
+<USER>
+        u = 1.0-y*y
+        v = 0.0
+        w = 0.0
+        p = 0.0
+</USER>
+$ compare ../mesh/chan3 | noiz -m 1 -p 1e-3 > chan3.rst
+\end{verbatim}
+}
 
 %=============================================================================
 \section{\texttt{convert}}
 \label{sec.convert}
 
+The adopted \Semtex\ standard format for field data files is: a
+10-line ASCII header, followed by binary data.  But who wants to read
+binary data?  The \verb|compare| utility exists to convert between
+binary and ASCII data formats.  Also, it can convert
+IEEE-little-endian binary data files to IEEE-big-endian binary data
+files, which can be useful when moving/processing data produced on one
+computer to/on another, though \Semtex\ codes should normally be able
+to detect the difference and do the conversion without giving notice.
+One other useful feature of \verb|convert| is that it can be used to
+extract a specific field dump from within a sequence stored in a
+single field file (use \verb|-d| and \verb|-b| together to get the
+requested dump in binary format).
 {\small
 \begin{verbatim}
 $ convert -h
@@ -3288,11 +3437,22 @@ other options are:
 \end{verbatim}
 }
 %
+In binary data format, field variables are stored sequentially in the
+order listed in the header.  However, when printed out in ASCII
+format, these differrent variables appear in sequential columns, as we
+already saw in \S\,\ref{sec.addfield}.
 
 %=============================================================================
 \section{\texttt{eneq}}
 \label{sec.eneq}
 
+From a \verb|.avg| statistics file collected from \verb|dns| with
+\verb|AVERAGE=3| set, compute terms in either the TKE (turbulent
+kinetic energy) equation or the MKE (mean kinetic energy) equation.
+If you are planning to use this utility, this is a case where we must
+suggest you read the header of the source code
+(\verb|utility/eneq.cpp|), since there is too much information to
+reasonably present in this user guide.
 {\small
 \begin{verbatim}
 $ eneq -h
@@ -3307,6 +3467,24 @@ options:
 %=============================================================================
 \section{\texttt{enumerate}}
 \label{sec.enumerate}
+
+This utility generates global numberings for element-edge nodes that
+are used in spectral element assembly operations, and writes an ASCII
+file (\eg \verb|session.num|). Depending on the mode of operation, it
+can produce `naive' ascending element-by-element numbering, or
+bandwidth-minimisation numberings of various degrees of exhaustiveness
+using the Reverse-Cuthill-McKee (RCM) algorithm described \eg in
+\citet{george81} and also used in \verb|SPARSPAK| which is admittedly
+antiquated.  Such global numberings are needed for all the elliptic
+solvers used in \Semtex. One point to note is is that since Dirichlet
+BC data are lifted out of the Galerkin solution, nodes which
+correspond to Dirichlet BCs are partitioned to the end of the
+numbering and are not considered in bandwidth minimisation.  Another
+point is that if the corresponding elliptic problem is singular, \eg a
+pressure field with all-Neumann BCs, enumerate will partition out one
+element-edge node to be assigned a homogeneous Dirichlet value (\ie
+the solution is pinned to zero at an arbitrary location) to make the
+problem non-singular.
 
 {\small
 \begin{verbatim}
@@ -3428,6 +3606,42 @@ Usage: probe [options] -s session dump
 %
 
 %=============================================================================
+\section{\texttt{probeline}}
+\label{sec.probeline}
+
+{\small
+\begin{verbatim}
+$ probeline -h
+Usage: probeline [-h] -p "[n:]x0,y0,z0,dx,dy,dz" -s session dump
+\end{verbatim}
+}
+%
+
+%=============================================================================
+\section{\texttt{probeplane}}
+\label{sec.probeplane}
+
+{\small
+\begin{verbatim}
+$ probeplane -h
+Usage: probeplane [options] -s session dump
+options:
+-h                ... print this message
+-xy "x0,y0,dx,dy" ... xy-cutting plane
+-xz "x0,z0,dx,dz" ... xz-cutting plane
+-yz "y0,z0,dy,dz" ... yz-cutting plane
+-orig #           ... origin of the cutting plane along ortho axis
+-nx #             ... resolution along the x-axis
+-ny #             ... resolution along the y-axis
+-swap             ... swap output x <--> y (rotate)
+-tec              ... write TECPLOT-formatted ASCII output
+-sm               ... write SM-formatted binary output
+-0	         ... output zero if point is outside mesh (instead of warning)
+\end{verbatim}
+}
+%
+
+%=============================================================================
 \section{\texttt{project}}
 \label{sec.project}
 
@@ -3516,11 +3730,15 @@ options:
 \section{\texttt{sem2vtk}}
 \label{sec.sem2vtk}
 
-Deprecated.  Delete?
+Deprecated.
+
+%=============================================================================
+\section{\texttt{slit}}
+\label{sec.slit}
 
 %=============================================================================
 \section{\texttt{traction}}
-\label{sec.traction}
+\label{sec.tractionu}
 
 {\small
 \begin{verbatim}
@@ -3571,7 +3789,7 @@ options:
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{DNS 101 --- Turbulent channel flow}
-\label{sec.dns101}
+\label{ch.dns101}
 
 \textsl{This chapter was largely the contribution of Peter Kulb from
   TU-Dresden.  It is intended as a introductory guide for those

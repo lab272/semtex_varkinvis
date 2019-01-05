@@ -126,7 +126,7 @@ int main (int    argc,
 {
   char   *session = 0, field[StrMax], axistag;
   FEML*  file;
-  int_t  np = 0, opt = 1;
+  int_t  np = 0, opt = 3;
   bool   cyl3D = false;
 
   Femlib::initialize (&argc, &argv);
@@ -213,7 +213,7 @@ static void getargs (int    argc   ,
                  "  -h       ... display this message\n"
                  "  -v       ... set verbose output\n"
 		 "  -n N     ... override number of element knots to be N\n"
-		 "  -O [0-3] ... bandwidth optimization level [Default: 1]\n";
+		 "  -O [0-3] ... bandwidth optimization level [Default: 3]\n";
   char err[StrMax];
   char c;
 

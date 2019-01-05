@@ -7,7 +7,6 @@
 # testing.
 
 <USER>
-	Geometry 2D-Cartesian
 	Exact    sin(TWOPI*x)*sinh(TWOPI*y)/sinh(TWOPI)
 	c =      sin(TWOPI*x)*sinh(TWOPI*y)/sinh(TWOPI)	
 </USER>
