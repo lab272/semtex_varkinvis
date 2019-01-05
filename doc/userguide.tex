@@ -3621,7 +3621,10 @@ options:
 The \verb|noiz| utility can be used to add Gaussian-distributed white
 noise of specified standard deviation to all scalars in a field
 file. If requested, this noise can be added only to specified Fourier
-modes, otherwise it is added to all modes/data planes.
+modes, otherwise it is added to all modes/data planes.  One minor
+point to note here with respect to restart files for DNS is that such
+white-noise perturbations are not divergence-free, though they will
+become so (or approximately so) after time-stepping commences.
 %
 {\small
 \begin{verbatim}
