@@ -368,6 +368,11 @@ equations.  It is possible to run \verb|dns| in a mode which uses a
 `frozen' velocity field $\bm{u}$, in which case just the
 advection--diffusion equation for $c$ is integrated forward in time.
 
+Numbers of velocity components and spatial dimensions: for
+\NavSto\ type problems, \Semtex\ can solve problems which are (a)
+\twod\ and \twoc, (b) \twod\ and \threec, or \threed\ and
+\threec\ (a.k.a.\ 2D2C, 2D3C, 3DC).
+
 As with many codes used to solve the unsteady \NavSto\ equations,
 diffusion-type terms (those involving $\nabla^2$) are dealt with
 implicitly in time, while the nonlinear-type terms $\bm{N}$ and
@@ -463,8 +468,8 @@ This section describes the location of the \verb|NODES| which position
 \verb|NUMBER| is required in the opening tag; this should match the
 number of \verb|NODES| which follow.  This can exceed the number of
 unique \verb|NODES| which are actually required for all the element
-vertices, \ie spare \verb|NODES| are allowed, but they have to be
-included in the \verb|NUMBER| count. The minimum required
+vertices, \ie spare/unused \verb|NODES| are allowed, but they have to
+be included in the \verb|NUMBER| count. The minimum required
 \verb|NUMBER| of \verb|NODES| is four, \ie for a single
 \verb|ELEMENT|.  Each line of the \verb|NODES| section has four
 entries: an integer numeric index, mostly used by human readers of the
@@ -642,8 +647,10 @@ solver.) All such \verb|TOKENS| may be used subsequently in the
 \end{verbatim}
 }
 %
-Note that \verb|TOKENS| is evaluated before any other section of a
-session file, so that its definitions have global scope.
+This would result in the token \verb|KINVIS| taking the value
+0.0450039 (to 6 sf.). Note that \verb|TOKENS| is evaluated before any
+other section of a session file, so that its definitions have global
+scope.
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{GROUPS}}
@@ -856,11 +863,11 @@ Here is a summary of the most-used utilities:
         Convert a field file to a different order interpolation.\\
 \texttt{rectmesh} \>
         Generate a template session file for a rectangular domain.\\
-\texttt{resubmit} \> Shell utility for automatic job resubmission.\\
+%\texttt{resubmit} \> Shell utility for automatic job resubmission.\\
 \texttt{rstress} \>
 	Postprocess to compute Reynolds stresses from a file of
         time-averaged variables.\\
-\texttt{save} \> Shell utility for automatic job resubmission.\\
+%\texttt{save} \> Shell utility for automatic job resubmission.\\
 \texttt{sem2tec} \>   
         Convert field files to Amtec \Tecplot\ format.\\
         \> Note that by default, \verb|sem2tec| interpolates the original GLL-        mesh-based data onto \\
@@ -987,17 +994,17 @@ provided in the \verb|mesh| subdirectory.
 
 Refer to \S\,\ref{sec.session} for a discussion of the purposes of
 each of the sections within this file.  Within the \verb|TOKENS|
-section, \verb|N_P = 11| declares that there will be 11 points along
-the side of each element and hence, \twod\ element shape functions are
-tensor products of 10th-order polynomials.  \verb|TOL_REL = 1e-12|
+section, \verb|N_P=11| declares that there will be 11 points along the
+side of each element and hence, \twod\ element shape functions are
+tensor products of 10th-order polynomials.  \verb|TOL_REL=1e-12|
 directs the iterative preconditioned conjugate gradient solver, if
 used, to stop when the solution residual $||r^{(i)}|| = ||A x^{(i)} -
-b|| < \verb|TOL_REL|\,||b||$, while \verb|STEP_MAX = 1000| directs
-that no more than 1000 iterations be taken; note that these values are
-only relevant if an iterative solver is chosen instead of default
-direct solution, and that the default values of the two tokens are
-respectively \verb|1e-8| and \verb|500|, as may be established by
-running \verb|calc -h|.
+b|| < \verb|TOL_REL|\times||b||$, while \verb|STEP_MAX=1000| directs that
+no more than 1000 iterations be taken in striving to reach
+\verb|TOL_REL|; note that these values are only relevant if an
+iterative solver is chosen instead of default direct solution, and
+that the default values of the two tokens are respectively \verb|1e-8|
+and \verb|500|, as may be established by running \verb|calc -h|.
 
 %----------------------------------------------------------------------------
 \subsection{Curved element edges}
@@ -1037,7 +1044,7 @@ for a set of element edges. The vertices of the relevant elements do
 not have to lie exactly on the splined curve\,---\,if they do not,
 those vertices get shifted to the intersection of the projection of
 the straight line joining the original vertex position and its
-neighbouring ``curve-normal' vertex, and the cubic spline joining the
+neighbouring `curve-normal' vertex, and the cubic spline joining the
 points in the file. On the other hand, it is good practise to ensure
 that the declared vertex locations lie close to the spline, and to
 check the mesh that is produced: use \texttt{meshpr} to do this.
@@ -1087,19 +1094,9 @@ conditions in \S\,\ref{sec.bcs} below.
 \label{sec.runell}
 
 We will run the \verb|elliptic| solver and compare the computed
-solution to the analytical solution.  We will first select the
-iterative (PCG) solver using the \verb+-i+ command-line option to
-\texttt{elliptic}, then check the result using \texttt{compare}.
-       {\small
-\begin{verbatim}
-$ elliptic -i laplace6
--- Forcing                 : set to zero
--- Initial condition       : set to zero
-Field: 'c' error norms (inf, L2, H1): 1.93215e-12  8.91558e-13  1.88887e-11
-\end{verbatim}
-}
-
-Next try the (default) direct solver:
+solution to the analytical solution.  We will first run with the
+default direct solver: 
+%
 {\small
 \begin{verbatim}
 $ elliptic laplace6
@@ -1107,6 +1104,18 @@ $ elliptic laplace6
 -- Initial condition       : set to zero
 -- Installing matrices for field 'c' [*]
 Field: 'c' error norms (inf, L2, H1): 5.44009e-15  1.5745e-15  6.77144e-14
+\end{verbatim}
+}
+
+Next try the iterative (PCG) solver using the
+\verb+-i+ command-line option to \texttt{elliptic}:
+%
+{\small
+\begin{verbatim}
+$ elliptic -i laplace6
+-- Forcing                 : set to zero
+-- Initial condition       : set to zero
+Field: 'c' error norms (inf, L2, H1): 1.93215e-12  8.91558e-13  1.88887e-11
 \end{verbatim}
 }
 \noindent
@@ -1135,8 +1144,10 @@ $ meshpr laplace6 | sem2tec laplace6.fld
 \end{verbatim}
 }
 %
-which produces \verb|laplace6.plt|.  A contour plot of the solution
-obtained with \Tecplot\ is shown in figure~\ref{fig.lapcont}.
+\noindent
+which produces \verb|laplace6.plt|, an input file format which can be
+read by \Tecplot.  A contour plot of the solution obtained with
+\Tecplot\ is shown in figure~\ref{fig.lapcont}.
 
 \begin{figure}
 \begin{center}
@@ -1171,8 +1182,10 @@ Various session files for elliptic problems can be found in the
 \verb|mesh| subdirectory, with fairly obvious names. One of these,
 \verb|laplace8| is for a \threed\ problem in cylindrical coordinates.
 If a solution is desired in cylindrical coordinates, one must also set
-the token \verb|CYLINDRICAL = 1|; this convention applies in general
-for \Semtex\ codes such as \verb|dns| and the utility programs too.
+the token \verb|CYLINDRICAL=1|; this convention applies in general for
+\Semtex\ codes such as \verb|dns| and the utility programs too.  The
+default value of \verb|CYLINDRICAL| is 0 (corresponding to Cartesian
+coordinates).
 
 
 %============================================================================
@@ -1545,7 +1558,7 @@ see the actual solution values and on the original mesh).
 
 Here we will solve another viscous flow for which an analytical
 solution exists, the Kovasznay flow (we will call the session file
-\verb+kovas3+).  In the $x$--$y$ plane, this flow is
+\verb+kovas3+).  In the $(x,y)$ plane, this flow is
 \begin{eqnarray}
         u &=& 1 - \exp(\lambda x)\cos(2\pi y)           \\
         v &=& \lambda/(2\pi)\exp(\lambda x)\sin(2\pi y) \\
@@ -1556,15 +1569,18 @@ where $\lambda = \Rey/2 - (0.25\Rey^2 + 4\pi^2)^{1/2}$.
 
 Although the solution has only two velocity components, we will set up
 and solve the problem in three dimensions, with a periodic length in
-the~$z$ direction of~1.0 and 8~$z$ planes of data.  The length in the
-$z$ direction is set within the code by the variable \verb+BETA+ where
-$\beta=2\pi/L_z$.  The default value of \verb+BETA+ is 1, so we reset
-this in the \texttt{TOKENS} section using the function parser.  The
-exact velocity boundary conditions are supplied on at the left and
+the~$z$ direction of~1.0 and eight $z$-planes of data.  The length in
+the $z$ direction is set within the code by the variable \verb+BETA+
+where $\beta=2\pi/L_z$.  The default value of \verb+BETA+ is 1, so we
+reset this in the \texttt{TOKENS} section using the function parser.
+The exact velocity boundary conditions are supplied on at the left and
 right edges of the domain, and periodic boundaries are used on the
 upper and lower edges (the domain has $-0.5\le y\le0.5$).  Since the
 flow evolves to a steady state, first order timestepping is employed
 (\verb+N_TIME = 1+).
+
+The session file below is provided
+as \verb|mesh/kovas3|.
 
 {\small
 \begin{verbatim}
@@ -1676,9 +1692,13 @@ $ dns kovas3
 \end{verbatim}
 }
 
-After running \verb+dns+, we confirm there is only a single dump in the
-field file \verb+kovas3.fld+, then run compare in order to examine the
-error norms for the solution.
+After running \verb+dns+, we confirm there is only a single dump in
+the field file \verb+kovas3.fld+,\footnote{Note the use of
+  \texttt{convert} and \texttt{grep} to see how many dumps are
+  contained within a field file.  More generally (\eg within a script)
+  we could pipe the outcome into \texttt{wc -l} to provide a numeric
+  value.}  then run compare in order to examine the error norms for
+the solution.
 %
 {\small
 \begin{verbatim}
@@ -1711,10 +1731,35 @@ figure~\ref{kov3soln}.
 \end{center}
 \caption{
 \label{kov3soln}
-  Solution to the \texttt{kovas3} problem, visualized using
-  \Tecplot.  The plot shows contours of $v$ velocity component
-  and streamlines.  }
+  Solution to the \texttt{kovas3} problem, visualized using \Tecplot.
+  The plot shows contours of $v$ velocity component and streamlines.
+  Since the solution is in fact \twod\ but we carried out a
+  \threed\ solution, the results are identical on each $z$-plane of
+  data. }
 \end{figure}
+
+%----------------------------------------------------------------------------
+\subsection{Valid values of \texttt{N\_Z} in \Semtex}
+\label{sec.nz}
+
+This was a `fake' \threed\ problem since while we used \verb|N_Z=8|,
+in fact the solution is \twod, at least in Cartesian coordinates; the
+solution is invariant in the $z$-direction (in
+chapter\,\ref{ch.dns101} we will examine turbulent DNS which \emph{is}
+\threed). In passing we note here the values which \verb|N_Z| can take
+for \threed\ solutions: since we use a 2--3--5 prime-factor
+complex--complex FFT \citep{temp92} together with a real--complex
+conversion \citep[\eg \S\,12.3,][]{press92} to carry out Fourier
+transforms, \verb|N_Z| must be even (factorisable by 2) but can also
+have factors of 3 and 5.  Hence valid values of \verb|N_Z| are: $2, 4,
+6, 8, 10, 12, 16, 20, 24, 30, 32 \ldots$.  Of course \verb|N_Z=1| is
+also valid but the solution will perforce be \twod.  However, owing to
+the use of complex--real conversion in which the Nyquist data are
+always set to zero, in fact a solution with \verb|N_Z=2| will also
+always be \twod\ (the same on both $z$-planes).  Hence the minimum
+value of \verb|N_Z| which in fact allows any \threed\-ity in
+\Semtex\ is 4.  For \NavSto\ problems, flows which have
+$\texttt{N\_Z}>1$ must also have three velocity components.
 
 %============================================================================
 \section{Vortex breakdown\,---\,a cylindrical-coordinate problem}
@@ -1726,21 +1771,23 @@ $H/R=2.5$ with the flow driven by a spinning lid at one end.  At the
 Reynolds number we'll use, $\Rey=\Omega R^2/\nu=2119$, a vortex
 breakdown is known to occur.  The flow in this case is invariant in
 the azimuthal direction, but has three velocity components (it is
-2D/3C).  In the cylindrical code, the order of spatial directions and
-velocity components is $x$, $r$, $\theta$, though we retain the
-coordinate names $x$, $y$, $z$ (\ie $y\equiv r$ and $z\equiv\theta$,
-$v\equiv\bm{u}_r$, $w\equiv\bm{u}_\theta$).
+2D3C) and hence we use \verb|N_Z=1|.  In the cylindrical code, the
+order of spatial directions and velocity components is $x$, $r$,
+$\theta$, though we retain the coordinate names $x$, $y$, $z$ (\ie
+$y\equiv r$ and $z\equiv\theta$, $v\equiv\bm{u}_r$,
+$w\equiv\bm{u}_\theta$).
 
 Note that for a full circle in the azimuthal direction, \texttt{BETA =
   1.0}, which is the default value. In fact, the value would not be
 used in the present solution, since all derivatives in the azimuthal
 direction are implicitly zero when \verb+N_Z=1+. (But see
-\S\,\ref{sec.cbcs} below.)
+\S\,\ref{sec.cbcs} below.)  The session file below is provided as
+\verb|mesh/vb1|.
 
 {\small
 \begin{verbatim}
 #############################################################################
-# 15 element driven cavity flow.
+# 15 element driven cavity flow.  2D/3C
 
 <FIELDS>
         u v w p
@@ -2037,37 +2084,38 @@ $\Ra=\cg\beta_TL^3
 \subsection{Timestepping stability: CFL and divergence energy}
 \label{sec.cfl}
 
-However, we have not yet touched upon the \verb|dns| output
-information regarding CFL limits and divergence.  These are reported
-in \verb|dns| output every \verb|IO_CFL| steps.  The CFL estimates are
-computed according to methods outlined in \S\,6.3 of \citet{kars05}
-based on velocity component values and mesh sizes, and are roughly
-proportional to $u\Delta t/\Delta x$.  Typically, we need to keep CFL
-values below around unity to maintain stability with explicit time
-integration methods of the kind used here for advection based on
-nonlinear terms.  We see that at the end of integration, our CFL value
-is actually larger than this (1.4), though stable integration is
-achieved (partly since, as we are integrating towards a steady-state
-solution, we have used first-order timestepping rather than the
-second-order default).  Also, we see which velocity component ($v$) is
-the most critical with respect to CFL instability, and in which
-element (1) this occurs.
+We have not yet touched upon the \verb|dns| output information
+regarding CFL limits and divergence (as listed in the example above).
+These are reported in \verb|dns| output every \verb|IO_CFL| steps.
+The CFL estimates are computed according to methods outlined in
+\S\,6.3 of \citet{kars05} based on velocity component values and mesh
+sizes, and are roughly proportional to $u\Delta t/\Delta x$.
+Typically, we need to keep CFL values below around unity to maintain
+stability with explicit time integration methods of the kind used here
+for advection based on nonlinear terms.  We see that at the end of
+integration, our CFL value is actually larger than this (1.4), though
+stable integration is achieved (partly since, as we are integrating
+towards a steady-state solution, we have used first-order timestepping
+rather than the second-order default).  Also, we see which velocity
+component ($v$) is the most critical with respect to CFL instability,
+and in which element (1) this occurs.
 
 On the lines following CFL estimate reports, we get another indication
 of solution robustness, the (average) divergence energy, which is
-$(2A)^{-1}\int (\bm{\nabla\cdot u})^2\, \cd \Omega$ where $A=\int\cd\Omega$
-is the area of the domain.  Our numerical method, which uses a
-time-splitting approach to integrating the \NavSto\ equations, commits
-a divergence error that is asymptotically proportional to $|\Delta
-t|^2$ (even when the mesh is adequate for spatial resolution). If the
-timestep is too large, we will also get large divergence energy: for
-solutions with length and velocity scales of order unity, a rule of
-thumb is that reported divergence energies should be well below unity
-in order for results to be reasonably well resolved in time.
-Typically, if the timestep is too large, CFL instability will set in
-and both the reported CFL and divergence energy values will start to
-become vey large before the simulation terminates with a
-floating-point overflow error (Unix \verb|SIG8|).
+$(2A)^{-1}\int (\bm{\nabla\cdot u})^2\, \cd \Omega$ where
+$A=\int\cd\Omega$ is the area of the domain.  Our numerical method,
+which uses a time-splitting approach to integrating the
+\NavSto\ equations, commits a divergence error that is asymptotically
+proportional to $|\Delta t|^\texttt{N\_TIME}$ (even when the mesh is
+adequate for spatial resolution). If the timestep is too large, we
+will also get large divergence energy: for solutions with length and
+velocity scales of order unity, a rule of thumb is that reported
+divergence energies should be well below unity in order for results to
+be reasonably well resolved in time.  Typically, if the timestep is
+too large, CFL instability will set in and both the reported CFL and
+divergence energy values will start to become vey large before the
+simulation terminates with a floating-point overflow error (Unix
+\verb|SIG8|).
 
 \begin{figure}
 \begin{center}
@@ -2430,7 +2478,7 @@ hundred.
 
 A file called \verb+session.flx+ is used to store the integral over
 the \verb+wall+ group boundaries of viscous and pressure stresses
-(i.e.\ lift and drag forces).  Output is done every \verb+IO_HIS+
+(\ie lift and drag forces).  Output is done every \verb+IO_HIS+
 steps.  For each direction ($x$, $y$, $z$), the outputs are in turn
 the pressure, viscous, and total force per unit length.  In 2D the
 $z$-components are always zero, while in 3D the $z$-component pressure
@@ -2458,7 +2506,7 @@ called \verb+traction+ which is a post-processor that takes a standard
 \section{Modal energies}
 \label{sec.modal}
 
-For \threed\ simulations (\verb+N_Z > 2+), a file of modal energies,
+For \threed\ simulations (\verb+N_Z > 1+), a file of modal energies,
 \verb+session.mdl+, is produced.  This provides valuable diagnostic
 information for turbulent flow simulations.  For each active Fourier
 mode $k$ in the simulation, the value output every \verb+IO_HIS+ steps
@@ -3112,9 +3160,9 @@ The parser and what things can be parsed.
 \item
 What is done in the driver routine and the basic idea of code layout.
 \item
-\textsl{Implications of Fourier transform in one direction} For 3D
+\textsl{Implications of Fourier transform in one direction} For \threed\
 computations, note that for all of the timestepping loop, other than
-during computation of the nonlinear terms, field variables are help in
+during computation of the nonlinear terms, field variables are held in
 the Fourier-transformed state.
 \item
 Tensor-product derivative operations.
@@ -3142,7 +3190,7 @@ may want to try altering the parameter \texttt{LVR} in
   \texttt{dns/integrate.C}) for a three-velocity-component,
   second-order-time, stepping scheme. Presence of a '-' indicates that
   the relevant storage is free for over-writing if desired.  Diagonal
-  lines divide the upper- and lower-order storage so that e.g.\ the
+  lines divide the upper- and lower-order storage so that \eg the
   first entry under column labelled \texttt{Us[.][0]} corresponds
   (above diagonal) to \texttt{Us[0][0]} and (below) to
   \texttt{Us[1][0]}.
@@ -3474,18 +3522,10 @@ file (\eg \verb|session.num|). Depending on the mode of operation, it
 can produce `naive' ascending element-by-element numbering, or
 bandwidth-minimisation numberings of various degrees of exhaustiveness
 using the Reverse-Cuthill-McKee (RCM) algorithm described \eg in
-\citet{george81} and also used in \verb|SPARSPAK| which is admittedly
+\citet{george81} and also used in \verb|SPARSPAK|, which is admittedly
 antiquated.  Such global numberings are needed for all the elliptic
-solvers used in \Semtex. One point to note is is that since Dirichlet
-BC data are lifted out of the Galerkin solution, nodes which
-correspond to Dirichlet BCs are partitioned to the end of the
-numbering and are not considered in bandwidth minimisation.  Another
-point is that if the corresponding elliptic problem is singular, \eg a
-pressure field with all-Neumann BCs, enumerate will partition out one
-element-edge node to be assigned a homogeneous Dirichlet value (\ie
-the solution is pinned to zero at an arbitrary location) to make the
-problem non-singular.
-
+solvers used in \Semtex.
+%
 {\small
 \begin{verbatim}
 $ enumerate -h
@@ -3498,6 +3538,14 @@ options:
 \end{verbatim}
 }
 %
+One point to note is is that since Dirichlet BC data are lifted out of
+the Galerkin solution, nodes which correspond to Dirichlet BCs are
+partitioned to the end of the numbering and are not considered in
+bandwidth minimisation.  Another point is that if the corresponding
+elliptic problem is singular, \eg a pressure field with all-Neumann
+BCs, enumerate will partition out one element-edge node to be assigned
+a homogeneous Dirichlet value (\ie the solution is pinned to zero at
+an arbitrary location) to make the problem non-singular.
 
 %=============================================================================
 \section{\texttt{integral}}
@@ -3525,7 +3573,7 @@ options:
 
 %=============================================================================
 \section{\texttt{interp}}
-\label{sec.intero}
+\label{sec.interp}
 
 \verb|Interp| interpolates field data onto a set of $(x,y)$ points
 supplied as ASCII data. If the session file and field dump are
@@ -3572,7 +3620,7 @@ This utility may be used to reposition $x$ and/or $y$ locations of
 supplied on the command line; the output is a new session file.
 Potentially one could use this with the \verb|rectmesh| utility
 (\S\,\ref{sec.rectmesh}) to remap a logically/originally rectangular
-domain onto something more useful.
+domain onto a shape that you need.
 %
 {\small
 \begin{verbatim}
@@ -3613,6 +3661,33 @@ options:
 \end{verbatim}
 }
 %
+{\small
+\begin{verbatim}
+$ meshpr ../mesh/vb1 | head
+11 11 1 15 NR NS NZ NEL
+                   0                       0
+ 0.01319971391838815                       0
+ 0.04310330526737112                       0
+ 0.08695293460075898                       0
+  0.1408483728826121                       0
+  0.2000000000000001                       0
+  0.2591516271173879                       0
+   0.313047065399241                       0
+  0.3568966947326289                       0
+\end{verbatim}
+}
+%
+Note that the output of meshpr is ASCII and has a single-line header
+that supplies the number of points in each direction in every element
+(in \Semtex\ these are always the same, and here called \verb|NR| and
+\verb|NS| for historical reasons, instead of \verb|N_P|), followed by
+the number of $z$-planes and elements.  What follows is a row-major
+listing of \GLL\ $(x,y)$ mesh locations in every element, \ie the same
+ordering as used internally for ordering of data in each $z$-plane.
+There is a total of $\texttt{NR}\times\texttt{NS}\times\texttt{NEL}$
+such lines.  If the session file is 3D (\ie $\texttt{N\_Z}>1$) that list
+is followed by \texttt{NZ} lines which provide the coordinates of
+$z$-planes.
 
 %=============================================================================
 \section{\texttt{noiz}}
@@ -3648,6 +3723,16 @@ a single Fourier mode as given on the command line.
 \section{\texttt{probe}}
 \label{sec.probe}
 
+This utility provides similar functionality to \verb|interp|
+(\S\,\ref{sec.interp}) in that it outputs field data as interpolated
+onto specified points.  However, \verb|probe| differs in that the
+points may be supplied in \threed\ space, whereas for \verb|interp|
+the points are in \twod\ space, \ie \verb|probe| also carries out
+Fourier series interpolation in the $z$-direction.  The \verb|interp|
+utility is designed mainly to interpolate from one 2D \Semtex\ mesh to
+another, and is capable of writing out an (ASCII-format) field file,
+while \verb|probe| isn't.
+%
 {\small
 \begin{verbatim}
 $ probe -h
@@ -3659,11 +3744,32 @@ Usage: probe [options] -s session dump
 \end{verbatim}
 }
 %
+Example, with probe point entered on command line (terminated with
+\verb|EOF/^D|):
+%
+{\small
+\begin{verbatim}
+$ probe -m -s vb1 vb1.fld
+0.5 0.5 0.0
+      0.023527766      0.005897312      0.078899172     0.0032106831
+\end{verbatim}
+}
+\noindent
+These are the values of $(u,v,w,p)$ at $(0.5,0.5,0)$ for the vortex
+breakdown solution of \S\,\ref{sec.vb}.  Without the \verb|-m| flag,
+probe will also give an integer index of the input point number and
+echo the location of the $(x,y,z)$ location of each probe point.
 
 %=============================================================================
 \section{\texttt{probeline}}
 \label{sec.probeline}
 
+\verb|Probeline| actually just provides an alternative interface to
+the \verb|probe| utility.  Instead of reading the required points from
+input, it computes them along a line that is specified on the command
+line as a starting point $(x_0,y_0,z_0)$ and a vector $(\Delta x,
+\Delta y, \Delta z)$.
+%
 {\small
 \begin{verbatim}
 $ probeline -h
@@ -3671,11 +3777,20 @@ Usage: probeline [-h] -p "[n:]x0,y0,z0,dx,dy,dz" -s session dump
 \end{verbatim}
 }
 %
+\noindent
+The default number of points (\verb|n|) is 64.  They are uniformly
+spaced along the line (like Matlab's \verb|linspace|).
 
 %=============================================================================
 \section{\texttt{probeplane}}
 \label{sec.probeplane}
 
+Like \verb|probeline|, \verb|probeplane| provides an alternative
+interface to the \verb|probe| utility.  Instead of internally
+computing points along a straight line, however, it computes them on a
+rectangular cutting plane that is orthogonal to the $x$, $y$ or $z$
+direction.
+%
 {\small
 \begin{verbatim}
 $ probeplane -h
@@ -3691,15 +3806,28 @@ options:
 -swap             ... swap output x <--> y (rotate)
 -tec              ... write TECPLOT-formatted ASCII output
 -sm               ... write SM-formatted binary output
--0	         ... output zero if point is outside mesh (instead of warning)
+-0                ... output zero if point is outside mesh (instead of warning)
 \end{verbatim}
 }
 %
+\noindent
+The default number of points (\verb|nx| or \verb|ny|) is 64.
 
 %=============================================================================
 \section{\texttt{project}}
 \label{sec.project}
 
+The purpose of this utility is to use inbuilt basis functions to
+project a solution from one polynomial order to another (higher or
+lower), retaining the same spectral element/Fourier structure.  The
+outcome could then be used \eg to restart a simulation on the same
+mesh but at a higher or lower resolution based on
+$p$-refinement/coarsening (here $p$ is polynomial order, not
+pressure). This purpose is distinct from that of the \verb|interp|
+utility, which can be used to transfer data from one domain/spectral
+element mesh (session file) to another.  The input file should be a
+binary field file.
+%
 {\small
 \begin{verbatim}
 $ project -h
@@ -3714,10 +3842,37 @@ Usage: project [options] [file]
 \end{verbatim}
 }
 %
+The use of the \verb|-n| command-line flag to project from one
+spectral element order to another in $(x,y)$ planes is perhaps both
+the most common use of this utility and fairly obvious.  Note that
+projecting a \threed\ solution to a single $z$-plane (\verb|-z 1|)
+effectively takes the spanwise/azimuthal average of the solution, and
+that in this case, by default, the third velocity component ($w$) will
+also be deleted: use the \verb|-w| command line flag to retain this
+component if you need to keep it.  The operation below will take a
+spanwise average of a 3D3C data file and keep all velocity components:
+%
+{\small
+\begin{verbatim}
+$ project -z 1 -w chan3.fld | project -z 80 > chan3_mean_in_z.fld
+\end{verbatim}
+}
 
 %=============================================================================
 \section{\texttt{rectmesh}}
 \label{sec.rectmesh}
+
+While by design, \Semtex\ deals with unstructured (though conforming)
+meshes, in a surprising number of cases a simple rectangular $(x,y)$
+mesh is enough.  The \verb|rectmesh| utility is designed to help you get
+started in such cases by producing a prototype session file with at
+least the \verb|NODES| and \verb|ELEMENTS| sections as required,
+leaving you to fix up the other sections using a text editor.  The
+ASCII input for rectmesh is simple: a list of $x$-locations, one per
+line, a blank one-line separator, followed by a list of $y$-locations.
+The spectral element mesh is produced by taking the tensor product of
+these two lists.  We direct the reader to \S\,\ref{sec.meshdesign} for
+an example.
 
 {\small
 \begin{verbatim}
@@ -3733,16 +3888,32 @@ Usage: rectmesh [options] [file]
 %
 
 %=============================================================================
-\section{\texttt{resubmit}}
-\label{sec.resubmit}
+%\section{\texttt{resubmit}}
+%\label{sec.resubmit}
 
-No usage prompt.
+%No usage prompt.
 %
 
 %=============================================================================
 \section{\texttt{rstress}}
 \label{sec.rstress}
 
+This utility has two different modes of use.  The name \verb|rstress|
+originally came about as a contraction of `Reynolds stress' which was
+also the original purpose of the utility: given a (single) \verb|.avg|
+file with accumulated running averages of velocities and their
+products, \eg $\langle u\rangle$, $\langle uv\rangle$ obtained by
+running a simulation with \verb|AVERAGE=2| set in the \verb|TOKENS|
+section, \verb|rstress| computes covariances by subtracting the
+products of means from means of products, so that \eg $\langle
+uv\rangle\to\langle u'v'\rangle$.
+
+The other mode of operation, given two input files, is to perform
+binary operations ($-$, $+$, $\times$, $/$) on the pair and write out
+the outcome.  The ordering (where it is significant for $-$ and $/$)
+is second.op.first.  The main use of this mode is to subtract one file
+(\eg an analytical solution) from another (\eg a computed result).
+%
 {\small
 \begin{verbatim}
 $ rstress -h
@@ -3753,12 +3924,14 @@ options:
 \end{verbatim}
 }
 %
+Please see also the discussions of \S\S\,\ref{sec.average}
+and~\ref{sec.stats}.
 
 %=============================================================================
-\section{\texttt{save}}
-\label{sec.save}
+%\section{\texttt{save}}
+%\label{sec.save}
 
-No usage prompt.
+%No usage prompt.
 
 %=============================================================================
 \section{\texttt{sem2tec}}
@@ -3975,6 +4148,7 @@ scale $l_w=\nu/u_\tau=5.46\times10^{-3}$.
 
 %============================================================================
 \section{Mesh design}
+\label{sec.meshdesign}
 
 In designing the mesh for the channel flow, rules of thumb established
 in related studies \citep{pio97,kmm87,blsc03} have been
@@ -4262,6 +4436,7 @@ plot figure~\ref{pic:modal_en}.)
 
 %=============================================================================
 \section{Flow statistics}
+\label{sec.stats}
 
 Flow statistics can be collected by setting the \verb|AVERAGE| token
 to non-zero values 1, 2 or 3 (here a value of 2 was used, see below).
