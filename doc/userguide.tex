@@ -869,7 +869,7 @@ Here is a summary of the most-used utilities:
         time-averaged variables.\\
 %\texttt{save} \> Shell utility for automatic job resubmission.\\
 \texttt{sem2tec} \>   
-        Convert field files to Amtec \Tecplot\ format.\\
+        Convert field files to AMTEC \Tecplot\ format.\\
         \> Note that by default, \verb|sem2tec| interpolates the original GLL-        mesh-based data onto \\
         \> a (isoparametrically mapped) uniform mesh for improved visual 
         appearance.  Sometimes\\ \>  it is useful to see the original data 
@@ -3690,6 +3690,25 @@ is followed by \texttt{NZ} lines which provide the coordinates of
 $z$-planes.
 
 %=============================================================================
+\section{\texttt{moden}}
+\label{sec.moden}
+
+The \verb|moden| utility is used to compute and output the
+\twod\ $(x,y)$ distribution of kinetic energy in a particular Fourier
+mode of a field file.  The \verb|-z| command-line flag asks that two
+$z$-planes of data be taken as the 0th Fourier mode, \eg in the case
+where we are dealing with a single complex eigenmode; otherwise, the
+kinetic energy in mode 0 is computed only from the real part of the
+Fourier transform of the input data.
+%
+{\small
+\begin{verbatim}
+$ moden -h
+moden [-h] [-m mode] [-z] [input[.fld]
+\end{verbatim}
+}
+
+%=============================================================================
 \section{\texttt{noiz}}
 \label{sec.noiz}
 
@@ -3937,6 +3956,16 @@ and~\ref{sec.stats}.
 \section{\texttt{sem2tec}}
 \label{sec.sem2tec}
 
+This is the primary utility used to prepare \Semtex\ output for
+post-processing in the form of input files for AMTEC's
+\Tecplot\ program.  While \Tecplot\ is a program which requies you to
+pay for a licence, there are several open-source programs
+(\emph{Paraview} and \emph{VisIt}) which will read \Tecplot\ input
+files (here with a \verb|.plt| extension).  To speed up the process,
+\verb|sem2tec| makes a system call to \verb|preplot|, an
+AMTEC-supplied utility, to convert the output of \verb|sem2tec| from
+ASCII to binary.
+%
 {\small
 \begin{verbatim}
 $ sem2tec -h
@@ -3953,16 +3982,88 @@ options:
 \end{verbatim}
 }
 %
+Two points to note initially: (a) each spectral--Fourier element
+becomes what \Tecplot\ calles a `zone'; (b) by default, \verb|sem2tec|
+interpolates the solution from the underlying \GLL\ mesh to an
+isoparametrically-mapped uniform mesh (this helps make smooth
+solutions seem more smooth to the human eye)\,---\,but occasionally
+you will wish to see the results computed by \Semtex\ on the original
+\GLL\ mesh, in which case use the \verb|-n 0| command-line
+instruction. Finally, for \threed\ solutions, especially in
+cylindrical coordinates, you may wish to use the \verb|-w| flag to
+`wrap' the outcome one more $z$-plane so that the visualisation
+appears more periodic.
+
+While we are on the topic of cylindrical-coordinate solutions and
+\Tecplot: it can initially seem confusing that the visualisation you
+will see for \threed\ solutions appears as though it is in Cartesian
+space.  That's because \Tecplot\ doesn't know the results are in
+cylindrical coordinates.  You have to use equations to map your data
+into Cartesian coordinates (under \verb|data/alter|).  Below we show
+an example equation file that you can read into \Tecplot\ to do the
+mapping.  This also maps velocity components into Cartesian space,
+though typically you might wish to view (say) cylindical veolcity
+components (\eg swirl/$w$) but in Cartesian coordinates.
+%
+{\small
+\begin{verbatim}
+#!MC 1120
+# Convert cylindrical coordinate data to Cartesian.
+$!ALTERDATA
+  EQUATION="{YC} = {Y}*cos({Z})"
+$!ALTERDATA
+  EQUATION="{ZC} = {Y}*sin({Z})"
+$!ALTERDATA
+  EQUATION="{VC} = {V}*cos({Z})-{W}*sin({Z})"
+$!ALTERDATA
+  EQUATION="{WC} = {W}*cos({Z})+{V}*sin({Z})"
+\end{verbatim}
+}
 
 %=============================================================================
 \section{\texttt{sem2vtk}}
 \label{sec.sem2vtk}
 
-Deprecated.
+Deprecated.  That's because many VTK-based visualisation programs (\eg
+\emph{VisIt} and \emph{Paraview}) now seem capable of reading
+\Tecplot\ input files.  It lives on just in case you might need to use
+some other visualisation tool that cannot, and requires \verb|.vtk|
+files.
+
+By the way: if you just need to visualise \threed\ isosurfaces, you
+may find that the \verb|sview| program that is available with
+\Semtex\ is, after some training, much simpler and quicker to use than
+any of the larger tools.  Also, \verb|sview| can read simple input
+scripts so is suited to making animations via a shell-based loop.  Its
+visualisation is based on OpenGL and GLUT.
 
 %=============================================================================
 \section{\texttt{slit}}
 \label{sec.slit}
+
+While the \verb|chop| utility (\S\,\ref{sec.chop}) reproduces specific
+rows or ACII input, \verb|slit| reproduces specific columns.  Often
+the two utilities are used in concert.  Unusally, \verb|slit| has no
+usage prompt to output via a \verb|-h| command-line argument.  From
+the header of \verb|utility/slit.c|:
+%
+{\small
+\begin{verbatim}
+Usage: slit [-c <colstr>] [file], where <colstr> is a
+comma-separated list of column numbers.
+\end{verbatim}
+}
+%
+Example, to extract time-series of Fourier mode 2 out of a \verb|.mdl|
+file (\S,\ref{sec.modal}) from the outcome of a simulation with 24
+$z$-planes (12 Fourier modes):
+%
+{\small
+\begin{verbatim}
+chop -s 5 -S 12 chan3.mdl | slit -c 1,3 > mode2.dat
+\end{verbatim}
+}
+%
 
 %=============================================================================
 \section{\texttt{traction}}
@@ -3982,6 +4083,11 @@ Usage: traction [options] session [file]  [options]:
 \section{\texttt{transform}}
 \label{sec.transform}
 
+\verb|Transform| is used to carry out a \twod\ discrete polynomial
+transform \citep[DPT,][]{boyd01,blsc03} in $(x,y)$ space or a \oned\ discrete
+Fourier transform (DFT/FFT) in the $z$-direction on a field file.  The
+default DPT is to the `modal' basis, see \citet{kars05}.
+%
 {\small
 \begin{verbatim}
 $ transform -h
