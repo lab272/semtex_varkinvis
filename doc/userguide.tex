@@ -1,4 +1,4 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % A user guide for semtex spectral element code.
 %
 % $Id$
@@ -12,6 +12,7 @@ amsmath,
 bm,
 cancel,
 color,
+xfrac,
 a4wide
 }
 
@@ -202,7 +203,7 @@ As suggested in figure~\ref{fig.extrude}, \Semtex\ can solve problems
 in \twod\ domains or in \threed\ domains that can be obtained from
 arbitrary \twod\ domains by extrusion in an orthogonal direction in
 which the solution fields are periodic; often such problems are
-referred to as $2\tfrac{1}{2}$-dimensional.  Quite a large number of
+referred to as $2\,\sfrac{1}{2}$-dimensional.  Quite a large number of
 fundamental problems in mechanics can be tackled using this level of
 geometric complexity, but if you need genuinely \threed\ geometries
 then look elsewhere.  While parallel execution is supported, the
@@ -286,7 +287,7 @@ It is assumed you are using some version of Unix (which includes Mac
 OS~X), with a development system that includes C, \cpp\ and Fortran
 compilers, bison (or yacc), make, and optionally cmake. For
 post-processing, \SM\ and \Tecplot\ would be nice to have but are
-not essential to get up and running. VTK-based visualisation tools
+not essential to get up and running, and VTK-based visualisation tools
 such as \emph{VisIt} or \emph{ParaView} can alternatively be used in
 place of \Tecplot.
 
@@ -325,7 +326,7 @@ the \NavSto\ equations, it is simple to provide an elliptic solver
 since it underlies the time-splitting approach adopted for tackling
 the \NavSto\ equations, \ie basically as a sequence of solutions to
 elliptic scalar equations in each timestep.
-%
+
 The incompressible \NavSto\ equations are
 \begin{equation}
 \partial_t\bm{u}+\bm{N}(\bm{u}) = -\nabla P + \nu\nabla^2\bm{u} + \bm{f}
@@ -371,7 +372,7 @@ advection--diffusion equation for $c$ is integrated forward in time.
 Numbers of velocity components and spatial dimensions: for
 \NavSto\ type problems, \Semtex\ can solve problems which are (a)
 \twod\ and \twoc, (b) \twod\ and \threec, or \threed\ and
-\threec\ (a.k.a.\ 2D2C, 2D3C, 3DC).
+\threec\ (a.k.a.\ 2D2C, 2D3C, 3D3C).
 
 As with many codes used to solve the unsteady \NavSto\ equations,
 diffusion-type terms (those involving $\nabla^2$) are dealt with
@@ -1310,8 +1311,8 @@ represent the three spatial coordinates and time.  Note that some
 constants such as \texttt{PI} and \texttt{TWOPI} are predefined, while
 others, like \texttt{KINVIS}, are set in the \texttt{TOKENS} section.
 Note also the use of predefined functions, accessed through an inbuilt
-function parser\footnote{The built-in functions and predefined constants
-can be found by running \texttt{calc -h}.}.
+function parser.\footnote{The built-in functions and predefined constants
+can be found by running \texttt{calc -h}.}
 
 The \texttt{FIELDS} section declares the one-character names of
 solution fields.  The names are significant: \texttt{u}, \texttt{v}
@@ -2313,14 +2314,14 @@ By far the most common problem is that the solution will have a
 CFL-type instability brought about by using too large a time-step;
 this instability is unavoidably associated with using explicit time
 integration for the advection terms in the \NavSto\ equations. This
-problem is easily enough fixed: try reducing \verb+D_T+ and increasing
-\verb+N_STEP+ to maintain the same integration interval. Obviously you
-will typically want \verb+D_T+ as large as possible, so if the problem
-runs stably, increase the timestep as much as is reasonable. If the
-velocity and timescales are of order unity, then the maximum timestep
-would typically be of order two orders of magnitude smaller
-(\verb+0.01+). Note that CFL-stability will decrease with increasing
-time-integration order (\verb+N_TIME+).
+problem is easily enough fixed: try reducing \verb+D_T+, and if
+required, increasing \verb+N_STEP+ to maintain the same integration
+interval. Obviously you will typically want \verb+D_T+ as large as
+possible, so if the problem runs stably, increase the timestep as much
+as is reasonable. If the velocity and timescales are of order unity,
+then the maximum timestep would typically be of order two orders of
+magnitude smaller (\verb+0.01+). Note that CFL-stability will decrease
+with increasing time-integration order (\verb+N_TIME+).
 
 If the solution persists in blowing up when the timestep is reduced,
 the next most common cause is that there is inflow across an outflow
@@ -3066,7 +3067,7 @@ responds to gravity fields.
 \chapter{Code design and the \Semtex\ API}
 \label{ch.api}
 
-\textsl{This chapter is in development.}\\
+%\textsl{This chapter is in development.}\\
 
 
 While the top level of the code is written in \cpp, the bulk of
@@ -3082,9 +3083,12 @@ now to be achieved by algorithm development.
 Some fundamental design decisions:
 \begin{enumerate}
 \item
-Most real-type data arrays are flat, 1D, zero-indexed, i.e. the same
-as employed in Fortran, and this makes them easy to use with Fortran
-routines.
+Most real-type data arrays are flat, 1D, zero-indexed, \ie the same as
+employed in Fortran, and this makes them easy to use with Fortran
+routines.  In \Semtex, all floating point numbers are double precision
+variables, and \verb|real_t| is used throughout the code as a
+\verb|typedef| stand-in for \verb|double| (likewise, \verb|int_t| is
+used as a stand-in for \verb|int|).
 \item
 The layout of these flat arrays are typically taken as row-major,
 which is standard C/\cpp. However, Fortran uses column-major
@@ -3092,7 +3096,7 @@ ordering. For this reason, any BLAS or LAPACK operation may at first
 sight seem to be the transpose of what is intended.
 \item
 Ordering of
-storage in data \verb|auxfields| is, working bottom-up: $(x,y)$ data
+storage in data \verb|AuxFields| is, working bottom-up: $(x,y)$ data
 in each element with internal row-major order starting from the
 bottom-left corner (\ie at the first vertex), then a list of elements
 as declared in the \verb|ELEMENTS| section of the session file, then
@@ -3114,65 +3118,130 @@ Class private or protected member data names start with an underscore,
 %=============================================================================
 \section{Useful things to know about}
 
-\begin{enumerate}
-\item
-Directory layout.  The following directories are present in the
-distribution: \verb|include| which has copies of header files;
-\verb|src| which holds \cpp\ source code for the classes shared by
-\Semtex\ applications; \verb|veclib| which holds routines for many
-standard loops over vectors, with a mnemonic naming convention (the
-code here is almost exclusively written in C); \verb|femlib| has
-\oned\ spectral polynomial routines (knot and quadrature point
-computations, differentiation matrix construction) and FFTs, all
-written in either C or Fortran77; \verb|utility| routines for pre and
-post-processing; \verb|test| which has code validity regression tests,
-with the `right answers' stored in \verb|regress|; \verb|mesh| holds a
-selection of session files.  The two main application code
-directories are \verb|elliptic| and \verb|dns| which
-have been described in earlier chapters.  The \verb|sm| directory
-contains useful \SM\ macros.
-\item
-Hierarchy of main data storage: domain, fields, auxfields,
-elements. The key entity for most applications programming is the
-\verb|AuxField| class, which contains scalar field variables and a
-list of \verb|Element| pointers.  The \verb|Field| class inherits from
-the \verb|AuxField| class, adding a list of boundary condition
-applicators and the ability to solve elliptic problems.  The
-\verb|Domain| class holds an array of \verb|Field| pointers and most
-of its internal storage is publicly accessible.
-\item
-Nodal elements: the shape functions used in the code correspond to the
-classical `nodal', rather than the `modal' scheme. This means that the
-shape functions are tensor products of 1D Lagrange interpolants that
-have value unity at one mesh node and zero at the others.
-\item
-\textsl{Timestepping algorithm and the code loop} The scheme is the `stiffly
-stable' scheme, based on backward differencing in time, and uses
-time-splitting, see \citet{kio91}. What is stored where, and when ---
-see figure~\ref{fig.storage}.
-\item
-\textsl{Boundary conditions, use of inheritance} Distinction between
-the way BCs are dealt with. Periodicity not a boundary condition.
-\item
-Support libraries and static member functions. BLAS-conformant increments.
-\item
-The parser and what things can be parsed.
-\item
-What is done in the driver routine and the basic idea of code layout.
-\item
-\textsl{Implications of Fourier transform in one direction} For \threed\
-computations, note that for all of the timestepping loop, other than
-during computation of the nonlinear terms, field variables are held in
-the Fourier-transformed state.
-\item
-Tensor-product derivative operations.
-\item
-Direct versus iterative solves.
-\item
-Static condensation.
-\item
-Message passing and data exchange.
-\end{enumerate}
+\begin{description}
+\item[Directory layout] The following directories are present in the
+  distribution: \verb|include| which has copies of header files;
+  \verb|src| which holds \cpp\ source code for the classes shared by
+  \Semtex\ applications; \verb|veclib| which holds routines for many
+  standard loops over vectors, with a mnemonic naming convention (the
+  code here is almost exclusively written in C); \verb|femlib| has
+  \oned\ spectral polynomial routines (knot and quadrature point
+  computations, differentiation matrix construction) and FFTs, all
+  written in either C or Fortran77; \verb|utility| routines for pre
+  and post-processing; \verb|test| which has code validity regression
+  tests, with the `right answers' stored in \verb|regress|;
+  \verb|mesh| holds a selection of session files.  The two main
+  application code directories are \verb|elliptic| and \verb|dns|
+  which have been described in earlier chapters.  The \verb|sm|
+  directory contains useful \SM\ macros, while the \verb|python|
+  directory has some useful scripts for data processing.
+
+\item[Hierarchy of main data storage] From top down: \verb|Domain|,
+  \verb|Field|s, \verb|AuxField|s, \verb|Element|s. The key entity for
+  most applications programming is the \verb|AuxField| class, which
+  contains scalar field variables and a list of \verb|Element|
+  pointers.  The \verb|Field| class inherits from the \verb|AuxField|
+  class, adding a list of boundary condition applicators and the
+  ability to solve elliptic problems.  The \verb|Domain| class holds
+  an array of \verb|Field| pointers and most of its internal storage
+  is publicly accessible.
+
+\item[Nodal elements] the shape functions used in the code correspond
+  to the classical `nodal', rather than the `modal' scheme. This means
+  that the shape functions are tensor products of 1D Lagrange
+  interpolants that have value unity at one mesh node and zero at the
+  others.
+  
+\item[Timestepping algorithm and the code loop] The scheme is the
+  `stiffly stable' scheme, based on backward differencing in time, and
+  uses time-splitting, see \citet{kio91}. What is stored where, and
+  when\,---\,see figure~\ref{fig.storage}.
+  
+\item[Boundary conditions and inheritance] Distinction between the way
+  BCs are dealt with. Note: periodicity technically does not
+  constitute a boundary condition.
+  
+\item[Support libraries and static member functions] The two
+  base-class libraries provided as part of \Semtex\ are called
+  \verb|veclib| and \verb|femlib|. \verb|Veclib| provides vector
+  algebra primitives and can be regarded as an extension to the BLAS:
+  check \verb|veclib/README| for a summary of the operations it
+  probides.  \verb|Femlib| is a bundle of low-level operations that
+  are finite-element and spectral-element-shape function related, 
+  also provides the parser (\verb|femlib/initial.y|) and
+  message-passing routines, as well as Fourier transforms.
+
+  It is standard to use library-name prefixes on calls to these
+  libraries, as well as for LAPACK and BLAS calls (\verb|Veclib::|,
+  \verb|Femlib::|, \verb|Lapack::|, \verb|Blas::|) to help the
+  programmer identify the libraries involved.  (These things could all
+  be \verb|namespace|d, but are not, partly because the header files
+  used to recruit all the calls into static member functions preceded
+  the introduction of namespaces into \cpp.)
+  
+\item[BLAS-conformant increments] Where access to a block of data is
+  obtained on the offset, skip model, this is done in a
+  BLAS-conformant way if the skip is negative: the start address is at
+  the high end of the memory space.
+  
+\item[The Geometry class] This class (\verb|src/geometry.cpp|)
+  centralises information about the `logical' (rather than `spatial')
+  geometry of the solution domain, for example, the number of points
+  along the edge of each element, the number of elements, number of
+  processes, the total number of $z$-planes, the number of $z$-planes
+  per process, the number of Fourier modes, the number of data in a
+  single $(x,y)$ plane, etc.
+
+  Most of these are fairly straightforward (peruse \verb|geometry.h|),
+  but it may be worthwhile to explain the distinction between
+  \verb|Geometry::nPlane()| and \verb|Geometry::planeSize()|.  The
+  first of these is simple to understand: the number of elements
+  multiplied by the number of points in each element.  The second is
+  similar, but often somewhat larger, because of (a) restrictions
+  brought on by the FFT used (the number of points in a plane must be
+  even if the solution is \threed\ and an FFT will be used in the
+  orthogonal direction) and (b) further requirements for parallel
+  execution, which requires block-transposes of data across
+  processes, as explained in \citet{rb06}.  In each case, the extra
+  padding does not end up entering computations.  The amount of data
+  allocated internally for each data plane is
+  \verb|Geometry::planeSize()|.  A consequence of this distinction is
+  that the memory for the first storage location in any data plane
+  does not necessarily immediately follow that for the last storage
+  location of the preceding plane.  In an \verb|AuxField|, the
+  variable \verb|_plane| references a set of pointers to the first
+  storage location of each plane on the current process.
+
+\item[Implications of Fourier transform in one direction] For
+  \threed\ computations, note that for all of the timestepping loop,
+  other than during computation of the nonlinear terms, field
+  variables are held in the Fourier-transformed state.  Field data
+  written out to file are in physical space.
+  
+\item[Static condensation] Because finite/spectral elememt shape
+  functions can be partitioned into sets which do/do not have non-zero
+  support at the edges of elements, and because global Galerkin shape
+  functions have only comparatively local support (confined to mating
+  finite elements), only element-edge variables need to be considered
+  when assembling the global Galerkin forms of elliptic equations.
+  Subsequently, remaining element-internal variables can be obtained by
+  local solutions on an element-by-element basis.  Recognition of this
+  fact has long been a part of finite-element procedures, where it
+  goes under various names: substructuring; static condensation;
+  Schur-complement solution.  \Semtex\ uses this methodology for
+  assembly and solution of elliptic equations when direct methods are
+  used.
+
+\item[Tensor-product derivative operations]
+
+\item[Direct versus iterative solves]
+  
+\item[Message passing and data exchange] One key simplification
+  regarding message passing: \emph{all} MPI calls used by \Semtex\ are
+  contained within \verb|femlib/message.c|, and the number of MPI
+  routines used is comparatively small.
+  
+\end{description}
 
 The code has a fair amount of low-level optimisation built in for
 vector computer architectures, but it's not compiled in by default. To
@@ -3214,10 +3283,14 @@ may want to try altering the parameter \texttt{LVR} in
 \section{Altering the code}
 \label{sec.alt}
 
+(The following discussion assumes you are using the compile-in-source
+build model, \ie \verb|make|, rather than compile-out-of-source with
+\verb|cmake|. However, similar considerations apply in either case.)
+
 If you want to alter the supplied source code, the first thing you
 need to know is that \texttt{make} will seek to resolve source file
 names in the current directory first, before looking elsewhere
-(e.g. the \texttt{src} directory, the \texttt{include} directory).
+(\eg the \texttt{src} directory, the \texttt{include} directory).
 This means that the best strategy is to copy (if not already present)
 \emph{only} the relevant files which you need to change into your
 current development directory, typically from the \texttt{src}
@@ -3227,9 +3300,9 @@ exactly which files you have had to change.
 
 For example, say you want to add some new functionality to the
 \texttt{AuxField} class, within the \texttt{dns} application. Make a
-clean copy of the source files (\texttt{Makefile}, \texttt{*.C},
+clean copy of the source files (\texttt{Makefile}, \texttt{*.cpp},
 \texttt{*.h}) in \texttt{dns} to another directory at the same
-level. In that directory, place copies of \texttt{auxfield.C} and (if
+level. In that directory, place copies of \texttt{auxfield.cpp} and (if
 required) \texttt{auxfield.h} from \texttt{../src} and then work on
 these.
 
@@ -3249,7 +3322,9 @@ programs that are useful to the CFD analyst.  Many of the utilities
 below will read from standard input and write to standard output,
 allowing the user to chain operations together in the standard Unix
 workflow model. At present, all utility programs support serial
-operation only.
+operation only.  Below we describe the purpose and use of compiled
+utility programs whose source code resides in the \verb|utility|
+directory.
 
 %=============================================================================
 \section{\texttt{addfield}}
@@ -4069,6 +4144,25 @@ chop -s 5 -S 12 chan3.mdl | slit -c 1,3 > mode2.dat
 \section{\texttt{traction}}
 \label{sec.tractionu}
 
+See also \S\,\ref{sec.traction}.  This utility is designed as a
+post-processing tool that will compute normal (pressure) and
+tangential (viscous) traction distributions on boundary
+\verb|SURFACES| that are in the \verb|wall| group from a
+\NavSto\ field file.\footnote{At a solid wall in incompressible flow,
+  wall-normal viscous traction is zero.}  If token \verb|IO_WSS| was
+set, such computations would have been carried out during runtime, as
+reported in \S\,\ref{sec.traction}.  The output is another (binary)
+field file but of reduced dimensionality: if the original solution
+domain was \twod, the outcome is \oned; if it was \threed\, the
+outcome is \twod: this reduction occurs because walls are one
+dimension lower than domains. The output variables are called $(n,t)$
+(2D) or $(n,t,s)$ (3D): $n$ being the normal traction (\ie pressure)
+and $t$ being the tangential viscous traction component that lies in
+the $(x,y)$ plane; $s$ is the out-of-plane component of viscous
+traction.  Together with the \verb|wallmesh| utility
+(\S\,\ref{sec.wallmesh}), one can run \verb|sem2tec| to produce a
+\Tecplot\ input file for visualisation purposes.
+%
 {\small
 \begin{verbatim}
 $ traction -h
@@ -4084,9 +4178,10 @@ Usage: traction [options] session [file]  [options]:
 \label{sec.transform}
 
 \verb|Transform| is used to carry out a \twod\ discrete polynomial
-transform \citep[DPT,][]{boyd01,blsc03} in $(x,y)$ space or a \oned\ discrete
-Fourier transform (DFT/FFT) in the $z$-direction on a field file.  The
-default DPT is to the `modal' basis, see \citet{kars05}.
+transform \citep[DPT,][]{boyd01,blsc03} in $(x,y)$ space or a
+\oned\ discrete Fourier transform (DFT/FFT) in the $z$-direction on a
+field file.  The default DPT is to the `modal' basis, see
+\citet{kars05} or \citet{blsc03}.
 %
 {\small
 \begin{verbatim}
@@ -4107,6 +4202,15 @@ options:
 \section{\texttt{wallmesh}}
 \label{sec.wallmesh}
 
+The \verb|wallmesh| utility extracts and prints up mesh locations for
+\verb|SURFACES| that are in the \verb|wall| group\,---\,it is a
+postprocessor for \verb|meshpr| that just supplies wall nodal
+locations, and the format is very similar to what \verb|meshpr|
+supplies, but of reduced dimensionality (see \S\,\ref{sec.tractionu}).
+Its output may be supplied to \verb|sem2tec| in combination with a
+wall traction file to produce a distribution of wall tractions that
+can be visualised in \Tecplot.
+%
 {\small
 \begin{verbatim}
 $ wallmesh -h
@@ -4116,9 +4220,18 @@ options:
 \end{verbatim}
 }
 %
-
-
-
+Note that meshpr is first used to supply locations from which only
+those in the \verb|wall| group are reproduced, and that in the header,
+\verb|NR=1|, as follows from the reduction in dimensionality, as shown
+below.  {\small
+\begin{verbatim}
+$ meshpr chan3 | wallmesh chan3 | chop -n 3
+7 1 24 8 NR NS NZ NEL
+  -3.141592653589793                      -1
+  -3.008250813538205                      -1
+\end{verbatim}
+}
+%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
