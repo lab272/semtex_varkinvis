@@ -112,9 +112,9 @@ flow.  The spectral element method is a high-order finite element
 technique that combines the geometric flexibility of finite elements
 with the high accuracy of spectral methods.  The method was pioneered
 in the mid 1980's by Anthony Patera at MIT
-\citep{pat84,kp86}. \Semtex\ uses parametrically mapped
-\twod\ quadrilateral elements, the classic GLL `nodal' shape function
-basis, and continuous Galerkin projection. Extension to
+\citep{pat84,kp86}. \Semtex\ uses isoparametrically mapped
+\twod\ quadrilateral elements, the classic \GLL\ `nodal' shape
+function basis, and continuous Galerkin projection. Extension to
 \threed\ capability is achieved using Fourier expansions in an
 orthogonal direction.  Algorithmically the code is similar to Ron
 Henderson's \emph{Prism} \citep{hk95,kh98,hen99b}, but with some
@@ -128,13 +128,13 @@ as Cartesian coordinate systems \citep{blsh04}.
 Some central features of the spectral element method are
 \begin{description}
 \item[Orthogonal polynomial-based shape functions] Spectral accuracy
-is achieved by using tensor-product Lagrange interpolants within each
-element, where the nodes of these shape functions are placed at the
-zeros of Legendre polynomials mapped from the canonical domain
-[-1,~1]$\times$[-1,~1] to each element.  In one spatial dimension, the
-resulting Gauss--Lobatto--Legendre Lagrange interpolant which is unity
-at one of the $N + 1$ Gauss--Lobatto points $x_j$ in [-1, 1] and zero at
-the others is
+  is achieved by using tensor-product Lagrange interpolants within
+  each element, where the nodes of these shape functions are placed at
+  the zeros of Legendre polynomials mapped from the canonical domain
+  [-1,~1]$\times$[-1,~1] to each element.  In one spatial dimension,
+  the resulting \GLL\ interpolant which is unity at one of the $N + 1$
+  Gauss--Lobatto points $x_j$ in $[-1\times+1]$ and zero at the others
+  is
 \begin{equation}
 \psi_j(x) = \frac{1}{N(N+1)L_N(x_j)}\frac{(1-x^2)L_N^\prime(x)}{x - x_j}.
 \end{equation}
@@ -144,24 +144,42 @@ shown in figure~\ref{fig:shapes}.
 \begin{center}
   \includegraphics[width=0.5\textwidth]{shape7x7}
 \end{center}
-\caption{The family of sixth-order one-dimensional GLL Lagrange shape
-  functions on the master domain $[-1,+1]$.}
+\caption{The family of sixth-order \oned\ GLL Lagrange shape functions
+  on the master domain $[-1,+1]$.}
 \label{fig:shapes}
 \end{figure}
 In smooth function spaces it can be shown that the resulting
 interpolants converge exponentially fast (faster than any negative
 integer power of $N$) as the order of the interpolant is increased.
 See \citet{chqz88}, \S\S\,2.3.2 and~9.4.3 or \citet{chqz06} \S\,5.4.
-\item[Gauss--Lobatto quadrature] Efficiency (particularly in iterative
-  methods) is achieved by using Gauss--Lobatto quadrature for
-  evaluating elemental integrals: the quadrature points reside at the
-  nodal points, which enables fast tensor-product techniques to be
+\item[Standard finite element isoparametric mapping] Two-dimensional
+  element shape functions are constructed as tensor products of
+  \oned\ shape functions.  Non-rectangular element shapes, if
+  required, are developed using isoparametric mappings between
+  physical $(x,y)$ space and master element $(r,s)$ space on the domain
+  $[-1,+1]\times[-1,+1]$, as illustrated in figure~\ref{fig.xyrs}.
+\begin{figure}
+\begin{center}
+  \includegraphics[width=0.65\textwidth]{xyrs}
+\end{center}
+\caption{Shape functions on \twod\ elements are constructed using
+  tensor products of \oned\ shape functions, incorporating an
+  isoparametric mapping from $(x,y)$ to master element $(r,s)$ space.
+}
+\label{fig.xyrs}
+\end{figure}
+
+\item[Gauss--Lobatto quadrature] Gauss--Lobatto quadrature is used for
+  approximating elemental integrals: the quadrature points reside at
+  the nodal points, which enables fast tensor-product techniques to be
   used for iterative matrix solution methods.  Gauss--Lobatto
-  quadrature on the nodal points delivers diagonal mass matrices.
-\item[Static condensation]
-Direct matrix solutions are sped up by using static condensation
-coupled with bandwidth reduction algorithms to reduce storage
-requirements for assembled system matrices.
+  quadrature on the nodal points conveniently produces diagonal mass
+  matrices when Lagrange interpolants are used as basis functions.
+  
+\item[Static condensation] Direct matrix solutions are sped up by
+  using static condensation coupled with bandwidth reduction
+  algorithms to reduce storage requirements for assembled system
+  matrices.
 \end{description}
 
 While the numerical method is very accurate and efficient, it also has
@@ -196,7 +214,7 @@ outflow boundary.
 As of \Semtex~V9, DNS variables may optionally contain a scalar
 variable in addition to velocity components and pressure.  If
 requested, evolution of the scalar can be obtained in a frozen,
-presupplied velocity field, \ie as solution of an advection--diffusion
+pre-supplied velocity field, \ie as solution of an advection--diffusion
 problem.
 
 As suggested in figure~\ref{fig.extrude}, \Semtex\ can solve problems
@@ -236,7 +254,7 @@ implementation for two-dimensional Cartesian geometries was extended
 to three dimensions using Fourier expansion functions for
 spatially-periodic directions in Cartesian and cylindrical spaces.
 Concurrent execution is supported, using MPI as the basis for
-interprocessor communications, and the code has been run on a wide
+interprocess communications, and the code has been run on a wide
 variety of conventional multiprocessor machines.  Basically it ought
 to work with little trouble on any contemporary Unix system.  GPUs are
 not supported, nor is OpenMP.  The code is unlikely to benefit much,
@@ -259,15 +277,16 @@ called `Working \Dog'.
 %-----------------------------------------------------------------------------
 \section{Further reading}
 
-The most comprehensive references on spectral methods in general are
-\citet{gs77}, \citet{chqz88,chqz06}.  The first papers by
-\citet{pat84} and \citet{kp86} provide a good introduction to spectral
-elements, although some implementation details changed with time and
-\citet{mt89} is more reflective of the methods used in \Semtex.  The
-adoption of Fourier expansions to extend the method to three spatial
-dimensions is discussed by \citet{ap89}, \citet{kar89} and
-\citet{kar90}.  The use of spectral element techniques in cylindrical
-coordinates is dealt with in \citet{blsh04}.  The book by
+A good introduction to (low-order) finite element methods is provided
+by \citet{hughes87}.  The most comprehensive references on spectral
+methods in general are \citet{gs77}, \citet{chqz88,chqz06}.  The first
+papers by \citet{pat84} and \citet{kp86} provide a good introduction
+to spectral elements, although some implementation details changed
+with time and \citet{mt89} is more reflective of the methods used in
+\Semtex.  The adoption of Fourier expansions to extend the method to
+three spatial dimensions is discussed by \citet{ap89}, \citet{kar89}
+and \citet{kar90}.  The use of spectral element techniques in
+cylindrical coordinates is dealt with in \citet{blsh04}.  The book by
 \citet{fun97} provides useful information and further references.
 Recent overviews and some applications appear in \citet{kh98,hen99b}.
 The definitive reference is now the book by \citet{kars05}, but you
@@ -308,8 +327,9 @@ problems,\\
 \NavSto\ problems, with an optional scalar,
 \end{tabbing}
 and (if MPI is present) their equivalent multi-process versions
-\texttt{elliptic\_mp} and \texttt{dns\_mp}.  There are also a number
-of associated pre- and post-processing utilities.
+\texttt{elliptic\_mp} and \texttt{dns\_mp}, which can speed up
+solution of \threed\ problems.  There are also a number of associated
+pre- and post-processing utilities.
 
 Elliptic equations dealt with by \Semtex\ are in general of Helmholtz
 type;
@@ -350,7 +370,7 @@ robust (has better energy conservation properties), or a
 simplified/cheaper form called the `alternating skew-symmetric' which
 alternates between using $\bm{u\cdot\nabla u}$ and $\bm{\nabla\cdot
   uu}$ on successive timesteps; this proves to be almost as robust as
-full skew-symemtric but has a computational cost equivalent to the
+full skew-symmetric but has a computational cost equivalent to the
 non-conservative form.  We can optionally demand that $\bm{N}(\bm{u})
 = 0$ in which case we have the (unsteady) Stokes equations.
 %
@@ -362,7 +382,7 @@ augmented by the advection--diffusion equation
 \end{equation}
 where $\alpha = \nu/\Pr$ ($\Pr$ being the Prandtl number).  In this
 case again, $\bm{C}(c)$ can take non-conservative form
-$\bm{u\cdot\nabla}c$, skew-symemtric form $[\bm{u\cdot\nabla}c +
+$\bm{u\cdot\nabla}c$, skew-symmetric form $[\bm{u\cdot\nabla}c +
   \bm{\nabla\cdot u}c]/2$, the alternating equivalent or indeed
 $\bm{C}(c)=0$ according to what is requested for the momentum
 equations.  It is possible to run \verb|dns| in a mode which uses a
@@ -402,7 +422,7 @@ extensions:
         Solution/field file.  Binary format by default,
         but with a 10-line ASCII header.\\
 \texttt{session.rst}  \>
-        Restart file. Read in to initialize solution if present.\\
+        Restart file. Read in to initialise solution if present.\\
 \texttt{session.chk}  \>
         Intermediate solution checkpoint/restart files.\\
 \texttt{session.avg} \> Averaged results. Read back in for
@@ -431,7 +451,7 @@ following field data.
 
 More details and examples for such files are provided below and in the
 next chapter, but a brief outline is that a session file is an ASCII
-text file with a number of sections that should appear once each, but
+text file with a number of sections that should each appear once, but
 which can be supplied in arbitrary order.  Any line whose first
 character is \verb+#+ is taken as a comment line; these can appear in
 arbitrary locations within a session file.  It is generally safe to
@@ -581,7 +601,7 @@ self-connection:
 \label{sec.fields}
 
 
-This brief section nominates the list of solution veriables (\ie those
+This brief section nominates the list of solution variables (\ie those
 which satisfy a partial differential equation and for which we must
 provide boundary conditions).  The \verb|FIELDS| are given standard
 single-character name-tags: \verb|u|, \verb|v|, \verb|w| and \verb|p|
@@ -744,7 +764,7 @@ For more details regarding boundary condition types, see
 
 Element edges do not have to be straight; the user can alternatively
 select circular arcs or spline fits through data supplied in external
-files.  The infomation is supplied to the solver in the \verb|CURVES|
+files.  The information is supplied to the solver in the \verb|CURVES|
 section.
 %
 {\small
@@ -762,7 +782,7 @@ curve.  For a circular \verb|ARC|, we must give the radius as a signed
 number: positive values denote convex arcs while negative values
 denote concave arcs.  Such curves do not have to be on the external
 boundary of a mesh, but could be internal: in this case the user must
-also supply correspoding information for the mating element edge.  The
+also supply corresponding information for the mating element edge.  The
 code does not check that such curves conform (\eg with matching $\pm$
 radii); that is up to the user.
 
@@ -846,7 +866,7 @@ Here is a summary of the most-used utilities:
 \texttt{eneq} \>   
         Compute terms in the energy transport equation.\\
 \texttt{enumerate}  \>
-        Generate global node numbering, with RCM optimization.\\
+        Generate global node numbering, with RCM optimisation.\\
 \texttt{integral} \> Obtain the 2D integral of fields over the
         domain area.\\
 \texttt{interp} \>   
@@ -880,19 +900,23 @@ Here is a summary of the most-used utilities:
         Convert field files to VTK format (\emph{VisIt, ParaView}).\\
 \texttt{transform} \>      
         Take Fourier, Legendre, modal basis transform of a field
-	file. Invertible.\\
+	file. Invertable.\\
 \texttt{wallmesh} \>      
         Extract the mesh nodes corresponding to surfaces with the
 	\verb+wall+ group.
 \end{tabbing}
 See also chapter~\ref{ch.utilities}.
 
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Example applications}
 \label{ch.examples}
 
 We will run through some examples to illustrate input files, utility
-routines, and use of the solvers.
+routines, and use of the solvers.  While most users will likely be
+primarily interested in solving \NavSto\ problems, we commence by
+outlining the use of the elliptic solver.
 
 %============================================================================
 \section{Elliptic equations}
@@ -1108,8 +1132,9 @@ Field: 'c' error norms (inf, L2, H1): 5.44009e-15  1.5745e-15  6.77144e-14
 \end{verbatim}
 }
 
-Next try the iterative (PCG) solver using the
-\verb+-i+ command-line option to \texttt{elliptic}:
+The `\verb|Installing matrices|' message indicates that a direct
+solution will be carried out.  Next try the iterative (PCG) solver
+using the \verb+-i+ command-line option to \texttt{elliptic}:
 %
 {\small
 \begin{verbatim}
@@ -1319,7 +1344,7 @@ solution fields.  The names are significant: \texttt{u}, \texttt{v}
 and \texttt{w} are the three velocity components (we only use
 \texttt{u} and \texttt{v} here for a 2D solution and the \texttt{w}
 component is always the direction of Fourier expansions), \texttt{p}
-is the pressure field.  The field name \texttt{c} is also recognized
+is the pressure field.  The field name \texttt{c} is also recognised
 as a scalar field for certain solvers, e.g. the elliptic solver.
 
 In the \texttt{TOKENS} section, second-order accurate time integration
@@ -1505,6 +1530,14 @@ Step: 19  Time: 0.38
 Step: 20  Time: 0.4
 \end{verbatim}
 }
+
+Note the difference in the information following the three
+`\verb|Installing matrices|' messages: every instance of `\verb|*|'
+indicates a new matrix system is being computed, while a `\verb|.|'
+indicates that a previously computed system will be used: in this
+case, the matrix system for `\verb|v|' can re-use the matrix system
+for `\verb|u|', since the Helmholtz constant and boundary conditions
+match.
 
 We can use \texttt{compare} to examine how close the solution is to the
 analytical solution.  The output of \texttt{compare} in this case
@@ -1732,7 +1765,7 @@ figure~\ref{kov3soln}.
 \end{center}
 \caption{
 \label{kov3soln}
-  Solution to the \texttt{kovas3} problem, visualized using \Tecplot.
+  Solution to the \texttt{kovas3} problem, visualised using \Tecplot.
   The plot shows contours of $v$ velocity component and streamlines.
   Since the solution is in fact \twod\ but we carried out a
   \threed\ solution, the results are identical on each $z$-plane of
@@ -1747,20 +1780,20 @@ This was a `fake' \threed\ problem since while we used \verb|N_Z=8|,
 in fact the solution is \twod, at least in Cartesian coordinates; the
 solution is invariant in the $z$-direction (in
 chapter\,\ref{ch.dns101} we will examine turbulent DNS which \emph{is}
-\threed). In passing we note here the values which \verb|N_Z| can take
-for \threed\ solutions: since we use a 2--3--5 prime-factor
-complex--complex FFT \citep{temp92} together with a real--complex
-conversion \citep[\eg \S\,12.3,][]{press92} to carry out Fourier
-transforms, \verb|N_Z| must be even (factorisable by 2) but can also
-have factors of 3 and 5.  Hence valid values of \verb|N_Z| are: $2, 4,
-6, 8, 10, 12, 16, 20, 24, 30, 32 \ldots$.  Of course \verb|N_Z=1| is
-also valid but the solution will perforce be \twod.  However, owing to
-the use of complex--real conversion in which the Nyquist data are
-always set to zero, in fact a solution with \verb|N_Z=2| will also
-always be \twod\ (the same on both $z$-planes).  Hence the minimum
-value of \verb|N_Z| which in fact allows any \threed\-ity in
-\Semtex\ is 4.  For \NavSto\ problems, flows which have
-$\texttt{N\_Z}>1$ must also have three velocity components.
+\threed). However, in passing, we note here the values which
+\verb|N_Z| can take for \threed\ solutions: since we use a 2--3--5
+prime-factor complex--complex FFT \citep{temp92} together with a
+real--complex conversion \citep[\eg \S\,12.3,][]{press92} to carry out
+Fourier transforms, \verb|N_Z| must be even (factorisable by 2) but
+can also have factors of 3 and 5.  Hence valid values of \verb|N_Z|
+are: $2, 4, 6, 8, 10, 12, 16, 20, 24, 30, 32 \ldots$.  Of course
+\verb|N_Z=1| is also valid but the solution will perforce be \twod.
+However, owing to the use of complex--real conversion in which the
+Nyquist data are always set to zero, in fact a solution with
+\verb|N_Z=2| will also always be \twod\ (the same on both $z$-planes).
+Hence the minimum value of \verb|N_Z| which in fact allows any
+\threed\-ity in \Semtex\ is 4.  For \NavSto\ problems, flows which
+have $\texttt{N\_Z}>1$ must also have three velocity components.
 
 %============================================================================
 \section{Vortex breakdown\,---\,a cylindrical-coordinate problem}
@@ -2114,7 +2147,7 @@ velocity scales of order unity, a rule of thumb is that reported
 divergence energies should be well below unity in order for results to
 be reasonably well resolved in time.  Typically, if the timestep is
 too large, CFL instability will set in and both the reported CFL and
-divergence energy values will start to become vey large before the
+divergence energy values will start to become very large before the
 simulation terminates with a floating-point overflow error (Unix
 \verb|SIG8|).
 
@@ -2181,7 +2214,7 @@ As written, they are for \twoc\ \NavSto\ problems but the
 generalisation to \threec\ problems should be obvious.
 
 See also \S\,3.2 of the \Dog\ user guide for a discussion of sets of
-boundary condtions appropriate for symmetry and anti-symmetry
+boundary conditions appropriate for symmetry and anti-symmetry
 boundaries.
 
 %-----------------------------------------------------------------------------
@@ -2433,7 +2466,7 @@ in file \verb+session.chk+ every \verb+IO_FLD+ steps (default value
 are usually two checkpoint files available for restarting if execution
 stops prematurely (\eg if terminated by a queuing system or by a
 floating point error).  Once the final time (\verb+N_STEP+) is
-reached, the outcome (the termimal solution field) is written to
+reached, the outcome (the terminal solution field) is written to
 \verb+session.fld+.
 
 Sometimes however, one wants a sequence of field dumps to be written
@@ -2675,7 +2708,7 @@ viscosity at higher wavenumbers either in Fourier space or in spectral
 element polynomial space.  The idea is that as resolution is increased
 via $p$-refinement, the effect `vanishes' \citep{tadmor89,mot93}.  One
 may regard SVV either as a type of implicit large-eddy simulation
-methodology \citep{pasquetti06} or as a means of stabilizing spectral
+methodology \citep{pasquetti06} or as a means of stabilising spectral
 element solutions especially at high Reynolds numbers
 \citep{xupa04,kish06}. Neither of these ideas has firm theoretical
 underpinning at this stage, yet the method does appear quite effective
@@ -2894,7 +2927,7 @@ in internal storage). SFD can also be considered as applying an IIR
 low-pass digital filter to the discrete approximation of the
 \NavSto\ equations.
 
-The two parameters are \verb|SFD_CHI| (\ie penalization multiplier
+The two parameters are \verb|SFD_CHI| (\ie penalisation multiplier
 $\chi$) and \verb|SFD_DELTA|, which is the time constant $\Delta$ used
 in updating a forwards-Euler approximation of the steady flow
 $\overline{\bm{u}}$ (see reference).  Both values are problem-specific
@@ -3028,7 +3061,7 @@ For historical reasons, the scalar $c$ goes under the pseudonym
 \verb|T| here, \ie $c_\textrm{ref}\equiv\verb|BOUSSINESQ_TREF|$
 
 A further restriction to note is that while, logically, buoyancy
-forces should recognize potential-type reference frame forces (such as
+forces should recognise potential-type reference frame forces (such as
 rotation), at present this is not implemented, so that buoyancy only
 responds to gravity fields.
 
@@ -3072,40 +3105,45 @@ responds to gravity fields.
 
 While the top level of the code is written in \cpp, the bulk of
 computational work is carried out using 3rd-party libraries: BLAS and
-LAPACK (vendor- or distribution-supplied) for 2D operations,
+LAPACK (vendor- or distribution-supplied) for \twod\ operations,
 Temperton's 2-3-5 prime factor FFT (incorporated into \texttt{femlib})
-for 3D operations, and (open)MPI for parallel operations.  Depending
-on what your application hits the hardest, one or other of these
-things may be the speed-determining component. Optimizing compilers
-are liable to make a only a small difference\,---\,most speed-up is
-now to be achieved by algorithm development.
+for \threed\ operations, and (open)MPI for parallel operations.
+Depending on what your application hits the hardest, one or other of
+these things may be the speed-determining component. Optimising
+compilers are liable to make a only a small difference\,---\,most
+speed-up is now to be achieved by further algorithm development.
+However, it is definitely worthwhile seeking out a fast BLAS library
+(as supplied with Apple's Xcode, Intel's MKL, or AMD's ACML).
 
 Some fundamental design decisions:
 \begin{enumerate}
 \item
-Most real-type data arrays are flat, 1D, zero-indexed, \ie the same as
-employed in Fortran, and this makes them easy to use with Fortran
-routines.  In \Semtex, all floating point numbers are double precision
-variables, and \verb|real_t| is used throughout the code as a
-\verb|typedef| stand-in for \verb|double| (likewise, \verb|int_t| is
-used as a stand-in for \verb|int|).
+  In \Semtex, all floating point numbers are double precision
+  variables, and \verb|real_t| is used throughout the code as a
+  \verb|typedef| stand-in for \verb|double| (likewise, \verb|int_t| is
+  used as a stand-in for \verb|int|).
 \item
-The layout of these flat arrays are typically taken as row-major,
-which is standard C/\cpp. However, Fortran uses column-major
-ordering. For this reason, any BLAS or LAPACK operation may at first
-sight seem to be the transpose of what is intended.
+  Most real-type data arrays are flat (\oned).  In C and \cpp, such
+  arrays have indices starting at 0, while in Fortran, indexing starts
+  at 1 by default\,---\,though the start address is identical. This
+  makes them easy to use with Fortran routines, but with the following
+  caveat.
 \item
-Ordering of
-storage in data \verb|AuxFields| is, working bottom-up: $(x,y)$ data
-in each element with internal row-major order starting from the
-bottom-left corner (\ie at the first vertex), then a list of elements
-as declared in the \verb|ELEMENTS| section of the session file, then
-by $z-$planes.
+  The layout of these flat arrays are typically taken as row-major,
+  which is standard C/\cpp. However, Fortran uses column-major
+  ordering. For this reason, any BLAS or LAPACK matrix operation may
+  at first sight seem to be the transpose of what is intended.
 \item
-Most low-level \cpp\ methods in the code do not incorporate internal
-data storage but can be regarded as operator routines, and get handed
-addresses to appropriate parts of storage from within the flat data
-arrays on which to work.
+  Ordering of storage in data \verb|AuxFields| is, working bottom-up:
+  $(x,y)$ data in each element with internal row-major order starting
+  from the bottom-left corner (\ie at the first vertex), then a list
+  of elements as declared in the \verb|ELEMENTS| section of the
+  session file, then by $z-$planes.
+\item
+  Most low-level \cpp\ methods in the code do not incorporate internal
+  data storage but can be regarded as operator routines, and get
+  handed addresses to appropriate parts of storage from within the
+  flat data arrays on which to work.
 \end{enumerate}
 
 Coding conventions:
@@ -3119,22 +3157,6 @@ Class private or protected member data names start with an underscore,
 \section{Useful things to know about}
 
 \begin{description}
-\item[Directory layout] The following directories are present in the
-  distribution: \verb|include| which has copies of header files;
-  \verb|src| which holds \cpp\ source code for the classes shared by
-  \Semtex\ applications; \verb|veclib| which holds routines for many
-  standard loops over vectors, with a mnemonic naming convention (the
-  code here is almost exclusively written in C); \verb|femlib| has
-  \oned\ spectral polynomial routines (knot and quadrature point
-  computations, differentiation matrix construction) and FFTs, all
-  written in either C or Fortran77; \verb|utility| routines for pre
-  and post-processing; \verb|test| which has code validity regression
-  tests, with the `right answers' stored in \verb|regress|;
-  \verb|mesh| holds a selection of session files.  The two main
-  application code directories are \verb|elliptic| and \verb|dns|
-  which have been described in earlier chapters.  The \verb|sm|
-  directory contains useful \SM\ macros, while the \verb|python|
-  directory has some useful scripts for data processing.
 
 \item[Hierarchy of main data storage] From top down: \verb|Domain|,
   \verb|Field|s, \verb|AuxField|s, \verb|Element|s. The key entity for
@@ -3145,44 +3167,6 @@ Class private or protected member data names start with an underscore,
   ability to solve elliptic problems.  The \verb|Domain| class holds
   an array of \verb|Field| pointers and most of its internal storage
   is publicly accessible.
-
-\item[Nodal elements] the shape functions used in the code correspond
-  to the classical `nodal', rather than the `modal' scheme. This means
-  that the shape functions are tensor products of 1D Lagrange
-  interpolants that have value unity at one mesh node and zero at the
-  others.
-  
-\item[Timestepping algorithm and the code loop] The scheme is the
-  `stiffly stable' scheme, based on backward differencing in time, and
-  uses time-splitting, see \citet{kio91}. What is stored where, and
-  when\,---\,see figure~\ref{fig.storage}.
-  
-\item[Boundary conditions and inheritance] Distinction between the way
-  BCs are dealt with. Note: periodicity technically does not
-  constitute a boundary condition.
-  
-\item[Support libraries and static member functions] The two
-  base-class libraries provided as part of \Semtex\ are called
-  \verb|veclib| and \verb|femlib|. \verb|Veclib| provides vector
-  algebra primitives and can be regarded as an extension to the BLAS:
-  check \verb|veclib/README| for a summary of the operations it
-  probides.  \verb|Femlib| is a bundle of low-level operations that
-  are finite-element and spectral-element-shape function related, 
-  also provides the parser (\verb|femlib/initial.y|) and
-  message-passing routines, as well as Fourier transforms.
-
-  It is standard to use library-name prefixes on calls to these
-  libraries, as well as for LAPACK and BLAS calls (\verb|Veclib::|,
-  \verb|Femlib::|, \verb|Lapack::|, \verb|Blas::|) to help the
-  programmer identify the libraries involved.  (These things could all
-  be \verb|namespace|d, but are not, partly because the header files
-  used to recruit all the calls into static member functions preceded
-  the introduction of namespaces into \cpp.)
-  
-\item[BLAS-conformant increments] Where access to a block of data is
-  obtained on the offset, skip model, this is done in a
-  BLAS-conformant way if the skip is negative: the start address is at
-  the high end of the memory space.
   
 \item[The Geometry class] This class (\verb|src/geometry.cpp|)
   centralises information about the `logical' (rather than `spatial')
@@ -3212,13 +3196,53 @@ Class private or protected member data names start with an underscore,
   variable \verb|_plane| references a set of pointers to the first
   storage location of each plane on the current process.
 
+%\item[Nodal elements] the shape functions used in the code correspond
+%  to the classical `nodal', rather than the `modal' scheme. This means
+%  that the shape functions are tensor products of 1D Lagrange
+%  interpolants that have value unity at one mesh node and zero at the
+%  others.
+  
+\item[Timestepping algorithm, storage schemes] The time integration
+  scheme used in \verb|dns| is the `stiffly stable' algorithm, based
+  on backward differencing in time, and uses time-splitting as
+  originally described in \citet{kio91}. What is stored where, and
+  when\,---\,see figure~\ref{fig.storage}.
+  
+%\item[Boundary conditions and inheritance] Distinction between the way
+%  BCs are dealt with. Note: periodicity technically does not
+%  constitute a boundary condition.
+  
+\item[Support libraries and static member functions] The two
+  base-class libraries provided as part of \Semtex\ are called
+  \verb|veclib| and \verb|femlib|. \verb|Veclib| provides vector
+  algebra primitives and can be regarded as an extension to the BLAS:
+  check \verb|veclib/README| for a summary of the operations it
+  provides.  \verb|Femlib| is a bundle of low-level operations that
+  are finite-element and spectral-element-shape function related, 
+  also provides the parser (\verb|femlib/initial.y|) and
+  message-passing routines, as well as Fourier transforms.
+
+  It is standard to use library-name prefixes on calls to these
+  libraries, as well as for LAPACK and BLAS calls (\verb|Veclib::|,
+  \verb|Femlib::|, \verb|Lapack::|, \verb|Blas::|) to help the
+  programmer identify the libraries involved.
+%  (These things could all
+%  be \verb|namespace|d, but are not, partly because the header files
+%  used to recruit all the calls into static member functions preceded
+%  the introduction of namespaces into \cpp.)
+  
+\item[BLAS-conformant increments] Where access to a block of data is
+  obtained on the offset, skip model, this is done in a
+  BLAS-conformant way if the skip is negative: the start address is at
+  the high end of the memory space.
+
 \item[Implications of Fourier transform in one direction] For
   \threed\ computations, note that for all of the timestepping loop,
   other than during computation of the nonlinear terms, field
   variables are held in the Fourier-transformed state.  Field data
   written out to file are in physical space.
   
-\item[Static condensation] Because finite/spectral elememt shape
+\item[Static condensation] Because finite/spectral element shape
   functions can be partitioned into sets which do/do not have non-zero
   support at the edges of elements, and because global Galerkin shape
   functions have only comparatively local support (confined to mating
@@ -3232,14 +3256,31 @@ Class private or protected member data names start with an underscore,
   assembly and solution of elliptic equations when direct methods are
   used.
 
-\item[Tensor-product derivative operations]
+%\item[Tensor-product derivative operations]
 
-\item[Direct versus iterative solves]
+%\item[Direct versus iterative solves]
   
 \item[Message passing and data exchange] One key simplification
   regarding message passing: \emph{all} MPI calls used by \Semtex\ are
   contained within \verb|femlib/message.c|, and the number of MPI
   routines used is comparatively small.
+
+\item[Contents of main directories] The following directories are
+  present in the distribution: \verb|include| which has copies of
+  header files; \verb|src| which holds \cpp\ source code for the
+  classes shared by \Semtex\ applications; \verb|veclib| which holds
+  routines for many standard loops over vectors, with a mnemonic
+  naming convention (the code here is almost exclusively written in
+  C); \verb|femlib| has \oned\ spectral polynomial routines (knot and
+  quadrature point computations, differentiation matrix construction)
+  and FFTs, all written in either C or Fortran77; \verb|utility|
+  routines for pre and post-processing; \verb|test| which has code
+  validity regression tests, with the `right answers' stored in
+  \verb|regress|; \verb|mesh| holds a selection of session files.  The
+  two main application code directories are \verb|elliptic| and
+  \verb|dns| which have been described in earlier chapters.  The
+  \verb|sm| directory contains useful \SM\ macros, while the
+  \verb|python| directory has some useful scripts for data processing.
   
 \end{description}
 
@@ -3317,14 +3358,16 @@ which exercise most code features.
 \chapter{Utility programs}
 \label{ch.utilities}
 
-Part of the stength of \Semtex\ lies in the accompanying utility
+Part of the strength of \Semtex\ lies in the accompanying utility
 programs that are useful to the CFD analyst.  Many of the utilities
 below will read from standard input and write to standard output,
 allowing the user to chain operations together in the standard Unix
 workflow model. At present, all utility programs support serial
 operation only.  Below we describe the purpose and use of compiled
 utility programs whose source code resides in the \verb|utility|
-directory.
+directory (you will also find there a few shell scripts such as
+\verb|rayavg|, \verb|pline|, \verb|restart|, \verb|run_job| and
+\verb|save|).
 
 %=============================================================================
 \section{\texttt{addfield}}
@@ -3562,7 +3605,7 @@ other options are:
 %
 In binary data format, field variables are stored sequentially in the
 order listed in the header.  However, when printed out in ASCII
-format, these differrent variables appear in sequential columns, as we
+format, these different variables appear in sequential columns, as we
 already saw in \S\,\ref{sec.addfield}.
 
 %=============================================================================
@@ -4033,7 +4076,7 @@ and~\ref{sec.stats}.
 
 This is the primary utility used to prepare \Semtex\ output for
 post-processing in the form of input files for AMTEC's
-\Tecplot\ program.  While \Tecplot\ is a program which requies you to
+\Tecplot\ program.  While \Tecplot\ is a program which requires you to
 pay for a licence, there are several open-source programs
 (\emph{Paraview} and \emph{VisIt}) which will read \Tecplot\ input
 files (here with a \verb|.plt| extension).  To speed up the process,
@@ -4058,7 +4101,7 @@ options:
 }
 %
 Two points to note initially: (a) each spectral--Fourier element
-becomes what \Tecplot\ calles a `zone'; (b) by default, \verb|sem2tec|
+becomes what \Tecplot\ calls a `zone'; (b) by default, \verb|sem2tec|
 interpolates the solution from the underlying \GLL\ mesh to an
 isoparametrically-mapped uniform mesh (this helps make smooth
 solutions seem more smooth to the human eye)\,---\,but occasionally
@@ -4077,7 +4120,7 @@ cylindrical coordinates.  You have to use equations to map your data
 into Cartesian coordinates (under \verb|data/alter|).  Below we show
 an example equation file that you can read into \Tecplot\ to do the
 mapping.  This also maps velocity components into Cartesian space,
-though typically you might wish to view (say) cylindical veolcity
+though typically you might wish to view (say) cylindrical velocity
 components (\eg swirl/$w$) but in Cartesian coordinates.
 %
 {\small
@@ -4117,8 +4160,8 @@ visualisation is based on OpenGL and GLUT.
 \label{sec.slit}
 
 While the \verb|chop| utility (\S\,\ref{sec.chop}) reproduces specific
-rows or ACII input, \verb|slit| reproduces specific columns.  Often
-the two utilities are used in concert.  Unusally, \verb|slit| has no
+rows or ASCII input, \verb|slit| reproduces specific columns.  Often
+the two utilities are used in concert.  Unusually, \verb|slit| has no
 usage prompt to output via a \verb|-h| command-line argument.  From
 the header of \verb|utility/slit.c|:
 %
@@ -4577,7 +4620,7 @@ example input file for this particular case:
 
 %=============================================================================
 \section{Initiating and monitoring transition}
-
+\label{sec.transition}
 
 The critical bulk Reynolds number for linear instability of channel
 flow is $\Rey_c = 5772$ but turbulence can typically be maintained down
@@ -4652,6 +4695,32 @@ $t\approx140$.  Figure~\ref{pic:modal_en}(b) shows the temporal
 average values of energies in the various Fourier modes.  (The
 \SM\ macros \verb|moden| and \verb|modav| were used to
 plot figure~\ref{pic:modal_en}.)
+
+%=============================================================================
+\section{Timestepping order, restarting}
+\label{sec.restart}
+
+\Semtex's \verb|dns| can run with first, second, or third-order
+accurate timestepping according the token \verb|N_TIME|, whose default
+value of 2 implies second-order timestepping, which is generally the
+best choice.  However, CFL stability declines somewhat as timestepping
+order increases, and if in any case you know that you are headed
+towards a steady-state outcome, \verb|N_TIME=1| might be a better
+choice so that comparatively larger timesteps could be used while
+still maintaining CFL stability.  These choices also have a subtle
+interaction with restarting (which can be accomplished by copying or
+moving \verb|session.fld| to \verb|session.rst| and running again),
+since only a single field dump is read from \verb|session.rst|,
+meaning that the first subsequent timestep can only be first-order
+accurate (the second can be second-order accurate, etc., up to the
+order you are running with).  For a turbulent flow this effect has
+only minor overall significance, but it can lead to small disruptions
+at every restart for a steady or periodic flow; generally it is an
+effect to be aware of rather than concerned about.
+
+As will be pointed out immediately below, when restarting with token
+$\texttt{AVERAGE}>0$, \verb|dns| will also attempt to read in
+\verb|session.avg| in order to continue accumulating statistics.
 
 %=============================================================================
 \section{Flow statistics}
@@ -4739,7 +4808,7 @@ values in friction velocity units with comparison to data from
 \includegraphics[width=0.67\linewidth]{dns_rms_wall}
 \end{center}
 \caption{ Root-mean-squares velocity fluctuations in global
-  coordinates normalized by the wall shear velocity
+  coordinates normalised by the wall shear velocity
   $u_{\tau}$. Comparison to data from \citet{kmm87}.}
 \label{pic:rms_global}
 \end{figure}
