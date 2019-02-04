@@ -534,8 +534,8 @@ describe and element are: a unique integer identifier, followed by the
 opening tag \verb|<Q>|, four integer \verb|NODE| identifiers,
 terminated by the closing tag \verb|</Q>|.  The ordering of these
 \verb|NODES| must be such that their locations traverse a patch of
-$(x,y)$ space in a counter-clockwise sense, but the ordering is
-otherwise arbitrary.
+$(x,y)$ space in a counter-clockwise sense, but is otherwise
+arbitrary.
 
 The sides of an \verb|ELEMENT| are taken as running between the vertex
 nodes with a 1-based indexing: the side between the first and second
@@ -578,9 +578,9 @@ convenience of human readers), followed by a pair of integers that
 give element and side numbers for this \verb|SURFACE| (these relate
 back to information given in the \verb|ELEMENTS| section), and then a
 tag-delimited list which provides either a single-character boundary
-condition \verb|GROUP| (delimited by \verb|<B>| and \verb|<\B>|) or a
+condition \verb|GROUP| (delimited by \verb|<B>| and \verb|</B>|) or a
 pair of integers that are the element and side of a periodic
-connection (delimited by \verb|<P>| and \verb|<\P>|.  Note that a
+connection (delimited by \verb|<P>| and \verb|</P>|.  Note that a
 periodic connection effectively deals with a pair of sides, and the
 reverse connection should not also appear.  Here is an example for a
 single \verb|ELEMENT| with two boundary conditions and a periodic
@@ -648,7 +648,7 @@ expressions given on the command line.
 Below is a simple example in which (in order) cylindrical coordinates
 are selected, the time step, \verb|D_T|, is set, as is the
 time-stepping order \verb|N_TIME|, the number of points along the edge
-of every element, \verb|NP|, following which a value for a new
+of every element, \verb|N_P|, following which a value for a new
 \verb|TOKEN|, \verb|Re|, is obtained by parsing a string and used to
 set the kinematic viscosity \verb|KINVIS| as used by the \verb|dns|
 solver.  (On its own, \verb|Re| is not directly significant to the
@@ -953,14 +953,14 @@ provided in the \verb|mesh| subdirectory.
   c
 </FIELDS>
 
-<USER>
-        c = sin(x)*exp(-y)
+<USER>  
+        Exact sin(x)*exp(-y)
+        c =   sin(x)*exp(-y)
 </USER>
 
 <TOKENS>
         N_P      = 11
         TOL_REL  = 1e-12
-        STEP_MAX = 1000
 </TOKENS>
 
 <GROUPS NUMBER=4>
@@ -4281,9 +4281,9 @@ $ meshpr chan3 | wallmesh chan3 | chop -n 3
 \chapter{DNS 101 --- Turbulent channel flow}
 \label{ch.dns101}
 
-\textsl{This chapter was largely the contribution of Peter Kulb from
-  TU-Dresden.  It is intended as a introductory guide for those
-  contemplating DNS of a turbulent flow.}\\
+%\textsl{This chapter was largely the contribution of Peter Kulb from
+%  TU-Dresden.  It is intended as a introductory guide for those
+%  contemplating DNS of a turbulent flow.}\\
 
 Turbulent Poiseuille flow between two parallel plates is a canonical
 test case for direct numerical simulation (DNS) codes.  While
@@ -4377,7 +4377,7 @@ When using periodicity in the streamwise direction, a body force is
 required in order to maintain the flow.  This is needed because the
 pressure as well as the velocity is required to be
 streamwise-periodic. The required body force per unit mass
-(i.e. acceleration) is calculated from a time-average force balance in
+(\ie acceleration) is calculated from a time-average force balance in
 $x$-direction for the entire channel
 \begin{eqnarray*}
  \rho \times f_x \times
