@@ -3,7 +3,7 @@
 # Run solver regression checks.
 
 # NB: you may need to edit the passed-in argument $EXEC to execute a
-# 2-process MPI job.  Its standard value is "mprin -np 2".  For serial
+# 2-process MPI job.  Its standard value is "mpirun -np 2".  For serial
 # tests, $EXEC is an empty string so that $CODE is run directly by the
 # shell.
 #

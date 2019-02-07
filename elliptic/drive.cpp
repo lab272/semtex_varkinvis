@@ -215,7 +215,8 @@ static void preprocess (const char*       session,
 
   VERBOSE cout << "Building forcing ...";
 
-  forcing = new AuxField(new real_t[(size_t)Geometry::nTotProc()],nz,elmt,'f');
+  forcing = new AuxField(new real_t[(size_t)Geometry::nTotProc()],
+			 Geometry::nZProc(), elmt, 'f');
 
   VERBOSE cout << "done" << endl;
 }

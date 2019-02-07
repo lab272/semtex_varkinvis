@@ -21,7 +21,7 @@ target_link_libraries      (elliptic src fem vec ${import_serial_libs})
 
 if (MPI_FOUND)
   add_executable             (elliptic_mp ${ell_src})
-  target_compile_definitions (elliptic_mp PUBLIC -DMPI)
+  target_compile_definitions (elliptic_mp PRIVATE -DMPI)
   target_include_directories (elliptic_mp PUBLIC src)
   target_link_libraries      (elliptic_mp src fem_mp vec ${import_par_libs})
 endif (MPI_FOUND)

@@ -28,7 +28,7 @@
 using namespace std;
 
 #include <cfemdef.h>
-#include <Array.h>
+//#include <Array.h>
 #include <veclib.h>
 #include <femlib.h>
 #include <blas.h>

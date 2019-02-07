@@ -131,9 +131,9 @@ Some central features of the spectral element method are
   is achieved by using tensor-product Lagrange interpolants within
   each element, where the nodes of these shape functions are placed at
   the zeros of Legendre polynomials mapped from the canonical domain
-  [-1,~1]$\times$[-1,~1] to each element.  In one spatial dimension,
+  $[-1,+1]\times[-1,+1]$ to each element.  In one spatial dimension,
   the resulting \GLL\ interpolant which is unity at one of the $N + 1$
-  Gauss--Lobatto points $x_j$ in $[-1\times+1]$ and zero at the others
+  Gauss--Lobatto points $x_j$ in $[-1,+1]$ and zero at the others
   is
 \begin{equation}
 \psi_j(x) = \frac{1}{N(N+1)L_N(x_j)}\frac{(1-x^2)L_N^\prime(x)}{x - x_j}.
