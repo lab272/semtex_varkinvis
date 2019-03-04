@@ -112,7 +112,7 @@ int main (int    argc,
     double** IT = dmatrix (0, ns-1, 0, ni-1);
 
     Femlib::GLLzw       (ns, z, w);
-    Femlib::LagrangeInt (ns, z, ni, x, II, IT);
+    Femlib::LagrangeInt (ns, z, ni, x, II[0], IT[0]);
 
     for (j = 0; j < ns; j++)
       for (i = 0; i < ni; i++) s[i][j] = II[i][j];
