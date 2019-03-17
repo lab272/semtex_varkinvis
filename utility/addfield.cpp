@@ -228,7 +228,7 @@ int main (int    argc,
 
   // -- Despite the fact that it's overkill we will take the
   //    simple-minded approach and always make Vij as a 3x3 tensor.
-  //    That's a wasteful for anything which is 2D but presumably for
+  //    That's wasteful for anything which is 2D but presumably for
   //    those cases the memory can be afforded.
 
   // -- The velocity gradient tensor is initially just a naive matrix

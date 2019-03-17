@@ -1383,7 +1383,7 @@ void Element::mapping ()
   
   Veclib::vmul  (_npnp, jac,  1, WW,   1, _Q4, 1);
 
-  // -- Construct partials for derivative operations.
+  // -- Construct forward partials for derivative operations.
 
   Veclib::copy  (_npnp, dyds, 1, _drdx, 1);
   Veclib::vneg  (_npnp, dxds, 1, _drdy, 1);

@@ -41,11 +41,10 @@ u v c p
         3 2.00 0.0 0.0
 </HISTORY>
 
-<GROUPS NUMBER=4>
+<GROUPS NUMBER=3>
         1       v       velocity
         2       a       axis
         3       w       wall
-	4	s	symmetry
 </GROUPS>
 
 <BCS NUMBER=3>
@@ -65,7 +64,6 @@ u v c p
         <D>     c = 1.0 </D>
         <H>     p       </H>
 </BCS>
-
 
 <NODES NUMBER=310>
     1                 0.56           0         0

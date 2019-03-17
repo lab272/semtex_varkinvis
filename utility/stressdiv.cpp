@@ -445,9 +445,9 @@ static void stress  (map<char, AuxField*>& in  ,
   if (Geometry::cylindrical()) {
     if (Geometry::nZ() == 1) {
                                 // -- 2D2C
-      (*out['u']  = *in['A']) . gradient(0);
+      (*out['u'] = *in['A']) . gradient(0);
       *out['u'] += (*work = *in['B']) . gradient(1);
-      (*out['v']  = *in['B']) . gradient(0);
+      (*out['v'] = *in['B']) . gradient(0);
       *out['v'] += (*work = *in['C']) . gradient(1);
 
       *out['u'] += (*work = *in['B']) . divY();
@@ -458,7 +458,7 @@ static void stress  (map<char, AuxField*>& in  ,
       *out['v'] *= -1.0;
 
       if (ncom == 3) {          // -- 2D3C
-        (*out['w']  = *in['D']) . gradient(0);
+        (*out['w'] = *in['D']) . gradient(0);
         *out['w'] += (*work = *in['E']) . gradient(1);
         *work = (*in['E']) . divY();
         *out['w'] += (*work *= 2.);
@@ -497,31 +497,31 @@ static void stress  (map<char, AuxField*>& in  ,
   } else {			// -- Cartesian.
     if (Geometry::nZ() == 1) {
                                 // -- 2D2C
-      (*out['u']  = *in['A']) . gradient(0);
+      (*out['u'] = *in['A']) . gradient(0);
       *out['u'] += (*work = *in['B']) . gradient(1);
 
-      (*out['v']  = *in['B']) . gradient(0);
+      (*out['v'] = *in['B']) . gradient(0);
       *out['v'] += (*work = *in['C']) . gradient(1);
 
       *out['u'] *= -1.0;
       *out['v'] *= -1.0;
       if (ncom == 3) {          // -- 2D3C
-        (*out['w']  = *in['D']) . gradient(0);
+        (*out['w'] = *in['D']) . gradient(0);
         *out['w'] += (*work = *in['E']) . gradient(1);
         *out['w'] *= -1.0;
       }
     } else {			// -- 3D
-      (*out['u']  = *in['A']) . gradient(0);
+      (*out['u'] = *in['A']) . gradient(0);
       *out['u'] += (*work = *in['B']) . gradient(1);
       *out['u'] += (*work = *in['D']) .
 	transform(FORWARD).gradient(2).transform(INVERSE);
 
-      (*out['v']  = *in['B']) . gradient(0);
+      (*out['v'] = *in['B']) . gradient(0);
       *out['v'] += (*work = *in['C']) . gradient(1);
       *out['v'] += (*work = *in['E'])
 	. transform(FORWARD).gradient(2).transform(INVERSE);
 
-      (*out['w']  = *in['D']) . gradient(0);
+      (*out['w'] = *in['D']) . gradient(0);
       *out['w'] += (*work = *in['E']) . gradient(1);
       *out['w'] += (*work = *in['F'])
 	. transform(FORWARD).gradient(2).transform(INVERSE);
