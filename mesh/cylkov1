@@ -52,10 +52,10 @@ p = (1-exp(LAMBDA*x))/2
 <D> w = -LAMBDA/(TWOPI)*exp(LAMBDA*x)*sin(TWOPI*(y*cos(z+A)+D))*sin(z+A) </D>
 <H> p </H>
 2       a       4
-<A>     u = 0.0 </A>
-<A>     v = 0.0 </A>
-<A>     w = 0.0 </A>
-<A>     p = 0   </A>
+<A>     u  </A>
+<A>     v  </A>
+<A>     w  </A>
+<A>     p   </A>
 </BCS>
 
 <NODES NUMBER=13>

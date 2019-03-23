@@ -23,8 +23,6 @@ solution variations in the third (homogeneous/periodic) direction
 accommodated via Fourier expansions (i.e. spatial discretisation is 2D
 spectral element X Fourier).
 
-
-
 Technical details
 -----------------
 
@@ -145,6 +143,9 @@ All the other resulting files are for serial execution only.
   %> ctest
 
 You should find that all test regression tests are reported as passed.
+Because these tests exercise the solvers as well as a range of
+utilities, SUCCESSFUL COMPLETION OF THE CTEST STAGE INDICATES THAT YOU
+HAVE A WORKING SET OF EXECUTABLES.
 
 You can also explicitly turn off MPI-based parts of compilation,
 and/or make executable versions for debugging if required, via
@@ -169,6 +170,8 @@ That will build libraries veclib.a, femlib.a and a few core
 executables (enumerate, compare, and dns), then run regression tests
 on dns.  If everything is fine, compilation will proceed without a
 hitch and at the end, various tests will run and report as passed.
+Again, successful conclusion of this stage that you have a working set
+of (in this case, serial-only) executables.
 
 If compilation does not complete then the likely alternatives are that
 (a) you are missing some required 3rd-party software or (b)
