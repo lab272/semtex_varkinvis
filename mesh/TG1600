@@ -1,12 +1,24 @@
+##############################################################################
+# A session file to study the evolution of the Taylor-Green vortex
+# initial condition in a periodic box with side lengths TWOPI and at
+# Reynolds number 1600.  32 x # 32 elements cover the x--y plane, 256
+# planes (128 Fourier nodes) of # data in the z direction.
+#
+# See Van Rees et al. (2011) J Comput Phys 230:2794--2805
+# and Wang et al. (2013) I J Num Meth Fluids 72:811--845
+##############################################################################
+
 <FIELDS>
     u v w p
 </FIELDS>
+
 <USER>
-    u =  (2.0/sqrt(3.0))*sin(TWOPI/3.0)*sin(x)*cos(y)*cos(z)
-    v = -(2.0/sqrt(3.0))*sin(TWOPI/3.0)*cos(x)*sin(y)*cos(z)
+    u =  sin(x)*cos(y)*cos(z)
+    v = -cos(x)*sin(y)*cos(z)
     w = 0
     p = 0
 </USER>
+
 <TOKENS>
     D_T      = 0.0025
     TOL_REL  = 1.0e-8
@@ -20,6 +32,7 @@
     IO_FLD   = 50
     CHKPOINT = 0
 </TOKENS>
+
 <NODES NUMBER=1089>
 1	0.0	0.0	0
 2	0.196349540849	0.0	0
@@ -1111,6 +1124,7 @@
 1088	6.08683576633	6.28318530718	0
 1089	6.28318530718	6.28318530718	0
 </NODES>
+
 <ELEMENTS NUMBER=1024>
 1	<Q>	1	2	35	34	</Q>
 2	<Q>	2	3	36	35	</Q>
@@ -2137,6 +2151,7 @@
 1023	<Q>	1054	1055	1088	1087	</Q>
 1024	<Q>	1055	1056	1089	1088	</Q>
 </ELEMENTS>
+
 <SURFACES NUMBER=64>
 1	1	1	<P>	993	3	</P>
 2	2	1	<P>	994	3	</P>

@@ -1,7 +1,9 @@
 ##############################################################################
 # Session file for a turbulent pipe flow of Newtonian fluid at
 # Re_tau = u*R/nu = 323, carried out in Cartesian coordinates with
-# z (Fourier) direction along pipe axis. Singh et al. 2017, 2018.
+# z (Fourier) direction along pipe axis.
+#
+# Singh et al. (2017) J Fluid Mech 822:848--879.
 #
 # Axial body force per unit mass FFZ = (2*(Re_tau*nu)^2)/(R^3).
 ##############################################################################

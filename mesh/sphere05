@@ -1,4 +1,8 @@
-# Flow (+ scalar convection) past a sphere: mesh is symmetrical about y axis.
+##############################################################################
+# Flow (+ scalar advection) past a sphere: mesh is symmetrical about y axis.
+#
+# See Blackburn (2002) Phys Fluids 14(11):3997--4001.
+##############################################################################
 
 <USER>
 u = 0.0
