@@ -422,7 +422,8 @@ extensions:
         Solution/field file.  Binary format by default,
         but with a 10-line ASCII header.\\
 \texttt{session.rst}  \>
-        Restart file. Read in to initialise solution if present.\\
+        Restart file, same format as field file.
+        Read in to initialise solution if present.\\
 \texttt{session.chk}  \>
         Intermediate solution checkpoint/restart files.\\
 \texttt{session.avg} \> Averaged results. Read back in for
@@ -441,7 +442,7 @@ simulations, since \texttt{meshpr} will catch most of the easier-to-make
 geometric anomalies.  You can also plot up the results using \SM\ or
 other utility as a visual check.
 
-NB: the 10-line ASCII header of any field file can quickly be viewed
+NB: the 10-line ASCII header of any field-type file can quickly be viewed
 using the Unix \verb|head| utility, regardless of the format of
 following field data.
 
@@ -455,9 +456,9 @@ text file with a number of sections that should each appear once, but
 which can be supplied in arbitrary order.  Any line whose first
 character is \verb+#+ is taken as a comment line; these can appear in
 arbitrary locations within a session file.  It is generally safe to
-use either spaces or tabs as white space in a session file, where such
-space is permitted; within function strings to be interpreted by the
-internal function parser, it is not.  In a session file, integer
+use spaces, tabs, or new lines as white space in a session file, where
+such space is permitted; within function strings to be interpreted by
+the internal function parser, it is not.  In a session file, integer
 indices that number specific entities such as \verb|NODES| and
 \verb|ELEMENTS| are indexed starting from~1: this is also true of
 related warning or error messages that \Semtex\ codes may issue,
@@ -493,15 +494,15 @@ vertices, \ie spare/unused \verb|NODES| are allowed, but they have to
 be included in the \verb|NUMBER| count. The minimum required
 \verb|NUMBER| of \verb|NODES| is four, \ie for a single
 \verb|ELEMENT|.  Each line of the \verb|NODES| section has four
-entries: an integer numeric index, mostly used by human readers of the
-file, since it is actually ignored!  followed by three numbers which
-give the location of each \verb|NODE| in $(x,y,z)$ space\,---\,despite
-the fact that only the $(x,y)$ coordinates are currently used by
-\Semtex.  Different \verb|NODES| can take the same position in $(x,y)$
-space, and in fact, if you want to make a zero-width slit boundary
-within a mesh, differently-indexed \verb|NODES| at identical locations
-will be required.  Example, with just enough \verb|NODES| for a single
-\verb|ELEMENT|:
+entries: an integer numeric index\,---\,mostly used by human readers
+of the file, since it is ignored by the code\,---\,followed by three
+numbers which give the location of each \verb|NODE| in $(x,y,z)$ space
+(despite the fact that only the $(x,y)$ coordinates are currently used
+by \Semtex).  Different \verb|NODES| can take the same position in
+$(x,y)$ space, and in fact, if you want to make a zero-width slit
+boundary within a mesh, differently-indexed \verb|NODES| at identical
+locations will be required.  Example, with just enough \verb|NODES|
+for a single \verb|ELEMENT|:
 %
 {\small
 \begin{verbatim}
@@ -848,21 +849,27 @@ While mesh nodal locations may be scaled and shifted using tokens
 \section{Utilities}
 \label{sec.utilities}
 
-Source code for these is found in the \texttt{utility} directory.
-Here is a summary of the most-used utilities:
+(See also the more extensive discourse of chapter~\ref{ch.utilities}.)
+Source code for these tools is found in the \texttt{utility}
+directory.  Here is a summary of the most-used utilities:
 \begin{tabbing}
 \texttt{enumeratexx}  \= \kill
-\texttt{addfield} \>   
-        Add vorticity vector components, divergence, etc., to a field
-	file.\\
+\texttt{addfield} \> 
+        Compute and add vorticity vector components, divergence, etc., to
+        a field file.\\
+\texttt{addquick} \> 
+        An example shell script for adding arbitrary but simple fields
+        of your choice using\\
+        \> UNIX \verb|sed| and \verb|awk| utilities together with
+        \verb|chop| and \verb|convert|. (Quick \emph{and dirty}!)\\
 \texttt{calc} \>      
         A simple calculator that calls \verb+femlib+'s function
-        parser. The default functions\\\>and \texttt{TOKENS} can be seen
-        if you run \texttt{calc -h}.\\
+        parser. The inbuilt parser functions\\ \>and default \texttt{TOKENS}
+        can be seen if you run \texttt{calc -h}.\\
 \texttt{compare} \>   
         Generate restart files, compare solutions to a function.\\
 \texttt{convert} \>   
-        Convert field file formats (IEEE-big/little, ASCII).\\
+        Convert field file formats (IEEE-big/little, to/from ASCII).\\
 \texttt{eneq} \>   
         Compute terms in the energy transport equation.\\
 \texttt{enumerate}  \>
@@ -891,7 +898,8 @@ Here is a summary of the most-used utilities:
 %\texttt{save} \> Shell utility for automatic job resubmission.\\
 \texttt{sem2tec} \>   
         Convert field files to AMTEC \Tecplot\ format.\\
-        \> Note that by default, \verb|sem2tec| interpolates the original GLL-        mesh-based data onto \\
+        \> Note that by default, \verb|sem2tec| interpolates the
+        original GLL-mesh-based data onto \\
         \> a (isoparametrically mapped) uniform mesh for improved visual 
         appearance.  Sometimes\\ \>  it is useful to see the original data 
         (and mesh); for this use the \verb+-n 0+ command-line \\ 
@@ -905,7 +913,7 @@ Here is a summary of the most-used utilities:
         Extract the mesh nodes corresponding to surfaces with the
 	\verb+wall+ group.
 \end{tabbing}
-See also chapter~\ref{ch.utilities}.
+
 
 
 
@@ -3366,8 +3374,8 @@ workflow model. At present, all utility programs support serial
 operation only.  Below we describe the purpose and use of compiled
 utility programs whose source code resides in the \verb|utility|
 directory (you will also find there a few shell scripts such as
-\verb|rayavg|, \verb|pline|, \verb|restart|, \verb|run_job| and
-\verb|save|).
+\verb|addquick|, \verb|rayavg|, \verb|pline|, \verb|restart|,
+\verb|run_job| and \verb|save|, which are not documented below).
 
 %=============================================================================
 \section{\texttt{addfield}}
