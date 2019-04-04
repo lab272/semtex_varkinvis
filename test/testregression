@@ -14,10 +14,10 @@ case $# in
 esac
 
 EXEC=$1
-CODE=$2
-TEST=$3
+BINDIR=$2
+CODE=$3
+TEST=$4
 MESHDIR=../mesh
-PATH=.:$PATH
 
 if test ! -f $TEST
 then
@@ -27,10 +27,10 @@ if test -f $TEST.num
 then
   rm -f $TEST.num
 fi
-../build/enumerate -O3 $TEST > $TEST.num 2> /dev/null
-../build/compare $TEST > $TEST.rst
+$BINDIR/enumerate -O3 $TEST > $TEST.num 2> /dev/null
+$BINDIR/compare $TEST > $TEST.rst
 $EXEC $CODE $TEST > /dev/null 2>&1
-../build/compare -n $TEST $TEST.fld > /dev/null 2> $TEST.new
+$BINDIR/compare -n $TEST $TEST.fld > /dev/null 2> $TEST.new
 cmp -s $TEST.new ../regress/$TEST.ok
 rv=$?
 rm $TEST*
