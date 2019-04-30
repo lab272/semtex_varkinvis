@@ -93,7 +93,7 @@
 //
 // 10. NB: With simple scaling it may look like the eventual scaling
 // of the eigenmode component is twice what you expected. That is
-// because the outcome, finally produced in physical space, if created
+// because the outcome, finally produced in physical space, is created
 // by inverse DFT of the combination which is scaled in Fourier
 // space. Since the mode added is notionally one of a pair of
 // conjugate-symmetric modes, the value recovered in physical space

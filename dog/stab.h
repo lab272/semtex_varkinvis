@@ -35,9 +35,9 @@ void linAdvectT (Domain*, BCmgr*, AuxField**, AuxField**);
 // -- Fortran interfaces to things not included in semtex.
 
 extern "C" {
-#if defined (ARPACK)
-
-// -- Nonsymmetric eigensystem.
+  //  -- Fortran77 linear systems routines from ARPACK and Templates.
+  
+  // -- ARPACK Nonsymmetric eigensystem.
 
   void F77NAME(dnaupd) 		// -- ARPACK reverse-communications interface.
     (int_t&         ido   ,
@@ -56,6 +56,7 @@ extern "C" {
      real_t*        workl ,
      const int_t&   lworkl,
      int_t&         info  );
+
   void F77NAME(dneupd)		// -- Postprocessing.
     (const int_t&   rvec  ,
      const char*    howmny,
@@ -83,7 +84,7 @@ extern "C" {
      const int_t&   lworkl,
      int_t&         info  );
 
-// -- Symmetric eigensystem.
+  // -- ARPACK Symmetric eigensystem.
 
   void F77NAME(dsaupd) 		// -- ARPACK reverse-communications interface.
     (int_t&         ido   ,
@@ -102,6 +103,7 @@ extern "C" {
      real_t*        workl ,
      const int_t&   lworkl,
      int_t&         info  );
+
   void F77NAME(dseupd)		// -- Postprocessing.
     (const int_t&   rvec  ,
      const char*    howmny,
@@ -124,9 +126,36 @@ extern "C" {
      real_t*        workd ,
      real_t*        workl ,
      const int_t&   lworkl,
-     int_t&         info  );     
-#endif
-}
+     int_t&         info  );
 
+  // -- Templates iterative linear systems solvers.
+  
+  void F77NAME(bicgstab)	// -- Templates Bi-Conj-Grad-Stab solver.
+    (const int_t&   N    ,
+     const real_t*  B    ,
+     real_t*        X    ,
+     real_t*        WORK ,
+     const int_t&   LDW  ,
+     int_t&         ITER ,
+     real_t&        RESID,
+     void (*MATVEC) (const real_t&, const real_t*, const real_t&, real_t*),
+     void (*PSOLVE) (real_t*, const real_t*),
+     int_t&         INFO );
+
+  void F77NAME(gmres)	        // -- Templates GMRES solver.
+    (const int_t&   N    ,
+     const real_t*  B    ,
+     real_t*        X    ,
+     const int_t&   RESTRT,
+     real_t*        WORK ,
+     const int_t&   LDW  ,
+     real_t*        WORK2,
+     const int_t&   LDW2 ,
+     int_t&         ITER ,
+     real_t&        RESID,
+     void (*MATVEC) (const real_t&, const real_t*, const real_t&, real_t*),
+     void (*PSOLVE) (real_t*, const real_t*),
+     int_t&         INFO );
+}
 
 #endif

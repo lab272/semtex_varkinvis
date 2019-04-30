@@ -16,11 +16,6 @@ else
   KPROG = dog
 endif
 
-ifdef TBCS		# -- Recompute mode 0 velocity BCs every time step.
-  DEFINES += -DTBCS
-  KPROG := $(KPROG)_tbcs
-endif
-
 ifdef ARPACK
   DEFINES += -DARPACK
   KPROG   := $(KPROG)-AR
@@ -43,6 +38,16 @@ FL_OBJ   = $(addsuffix .o,$(FL_FILES))
 
 $(KPROG): sem $(FL_OBJ) $(SEMOBJ) stab.h
 	$(LD) -o $@ $(FL_OBJ) $(SEMOBJ) $(LDFLAGS)
+
+# ----------------------------------------------------------------------------
+# Build real-shift-invert eigensolver code.
+
+SI_FILES = drive-rsi integrate stabanalysis templated
+SI_OBJ   = $(addsuffix .o,$(SI_FILES))
+
+dog-rsi: sem $(SI_OBJ) $(SEMOBJ) stab.h
+	$(LD) -o $@ $(SI_OBJ) $(SEMOBJ) -L/usr/local/lib -larpack $(LDFLAGS)
+
 
 # ----------------------------------------------------------------------------
 # Build linearised Navier-Stokes solver.
@@ -105,7 +110,7 @@ $(SEMOBJ): $(SEMHDR)
 include $(VPATH)/Makefile
 
 ifdef ARPACK
-  F77LIBS := -larpack $(F77LIBS)
+  F77LIBS := -L/usr/local/lib -larpack $(F77LIBS)
 endif
 
 #-----------------------------------------------------------------------------

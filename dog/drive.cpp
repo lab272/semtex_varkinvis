@@ -298,11 +298,11 @@ int main (int    argc,
     re_Aev = log (abs_ev) / period;
     im_Aev = ang_ev       / period;
     runinfo << setw(2)  << j
-         << setw(12) << abs_ev
-      	 << setw(12) << ang_ev
-	 << setw(12) << re_Aev
-	 << setw(12) << im_Aev
-	 << endl;
+	    << setw(12) << abs_ev
+	    << setw(12) << ang_ev
+	    << setw(12) << re_Aev
+	    << setw(12) << im_Aev
+	    << endl;
   }
 
   // -- Print up eigenvectors.
