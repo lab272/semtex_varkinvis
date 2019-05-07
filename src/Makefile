@@ -68,12 +68,13 @@ else
 endif
 CFLAGS   = $(DEFINES) $(OPT) -ansi
 # -- Use the next line with fink
-CPPFLAGS += -I/sw/include
+#CPPFLAGS += -I/sw/include
 CXXFLAGS = $(DEFINES) $(OPT) -ansi \
 	-Wno-unused-value -Wno-parentheses -Wno-switch
 FFLAGS   = $(DEFINES) $(OPT)
 # -- Use the next line with fink
 #LIBDIR   += -L/sw/lib -L/sw/lib/gcc7/lib
+#LIBDIR    += -L/usr/local/Cellar/gcc/8.3.0/lib/gcc/8
 LDFLAGS  = $(OPT) $(LIBDIR) -lfem -lvec $(F77LIBS)
 F77LIBS  = -framework Accelerate -lgfortran
 CLDFLAGS = $(LDFLAGS)

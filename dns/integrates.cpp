@@ -1,12 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // integrates.cpp: (unsteady) linear scalar advection-diffusion in a
-// prescribed/fixed velocity field. Essentially the same as scat but
-// with no evolution of velocity. Restart and session files need to
-// have velocity and pressure (and optionally, scalar).
-//
-// No provision for Boussinesq buoyancy.
-//
-// A single forcing term, FFC, is allowed to drive the scalar equation.
+// prescribed/fixed velocity field: No evolution of velocity. Restart
+// and session files need to have velocity and pressure (and
+// optionally, scalar).
 //
 // Copyright (C) 2010 <--> $Date$, Hugh Blackburn.
 ///////////////////////////////////////////////////////////////////////////////
@@ -121,9 +117,6 @@ static void advect (Domain*   D ,
 //                                                      ~
 // This seems to be efficient and about as robust as full skew-symmetric.
 //
-// If constant FFC is declared, this is taken as a constant production
-// rate term on RHS of scalar equation.
-//
 // Scalar field data area of D Us are swapped, then the next stage of
 // nonlinear forcing terms N(u) are computed from velocity and scalar
 // fields and left in Uf.
@@ -137,11 +130,10 @@ static void advect (Domain*   D ,
 // ---------------------------------------------------------------------------
 {
   int_t        i, j;
-  const real_t forcing = Femlib::value ("FFC");
 
 #if defined(STOKES)
 
-  *Uf = (fabs(forcing) > EPSDP) ? -forcing : 0.0;
+  *Uf = 0.0;
   AuxField::swapData (D -> u[NCOM], Us);
 
 #else
@@ -277,7 +269,6 @@ static void advect (Domain*   D ,
       
   N -> transform32 (FORWARD, n32);
   master -> smooth (N);
-  if (fabs (forcing) > EPSDP) *N -= forcing;
 
   toggle = 1 - toggle;
 
