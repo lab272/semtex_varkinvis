@@ -81,6 +81,13 @@ meshpr:	feml.o mesh.o meshpr.o $(SEMHDR)
 	$(LD) -o $@ $@.o feml.o mesh.o $(LDFLAGS)
 
 # ----------------------------------------------------------------------------
+# Build meshplot, 2D mesh PostScript file plotter.
+#
+
+meshplot: meshplot.o
+	$(LD) $(CPPFLAGS) -o $@ $@.o $(LDFLAGS)
+
+# ----------------------------------------------------------------------------
 # Build wallmesh, 2D mesh filter utility for use with meshpr.
 #
 WALOBJ = wallmesh.o bsys.o bcmgr.o condition.o edge.o	\
