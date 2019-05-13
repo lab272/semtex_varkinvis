@@ -36,6 +36,7 @@ add_executable (rectmesh  ${CMAKE_SOURCE_DIR}/utility/rectmesh.cpp )
 add_executable (mapmesh   ${CMAKE_SOURCE_DIR}/utility/mapmesh.cpp  )
 add_executable (repmesh   ${CMAKE_SOURCE_DIR}/utility/repmesh.cpp  )
 add_executable (nonlin    ${CMAKE_SOURCE_DIR}/utility/nonlin.cpp   )
+add_executable (meshplot  ${CMAKE_SOURCE_DIR}/utility/meshplot.cpp )
 
 add_custom_command (TARGET probe POST_BUILD
 			  COMMAND bash -c "ln -sf probe probeline"
@@ -116,6 +117,8 @@ target_link_libraries (repmesh    src fem vec
 		      ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 target_link_libraries (nonlin     src fem vec
 		      ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+target_link_libraries (meshplot   src fem vec
+		      ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})		      
 
 target_include_directories (enumerate PUBLIC veclib femlib src)
 target_include_directories (compare   PUBLIC veclib femlib src)
@@ -152,6 +155,7 @@ target_include_directories (rectmesh  PUBLIC veclib femlib src)
 target_include_directories (mapmesh   PUBLIC veclib femlib src)
 target_include_directories (repmesh   PUBLIC veclib femlib src)
 target_include_directories (nonlin    PUBLIC veclib femlib src)
+target_include_directories (meshplot  PUBLIC veclib femlib)
 
 # -- Copy (non-compiled) shell scripts.
 
