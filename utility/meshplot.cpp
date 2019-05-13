@@ -41,6 +41,7 @@
 #include <cstdio>
 #include <cmath>
 #include <cfloat>
+#include <cstring>
 
 #include <vector>		// C++ standard headers.
 #include <iostream>
