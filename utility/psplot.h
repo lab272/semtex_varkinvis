@@ -23,9 +23,8 @@ struct PSpage {
   char         fontname[128];
   double       fontsize;
 
-  PSpage(char *filnam) {
+  PSpage(char* filnam) {
     // Constructor. Argument is name of PostScript file to be created.
-    
     file = new char[128];
     strcpy(file,filnam);
     PLT = fopen(file,"wb");
@@ -37,6 +36,18 @@ struct PSpage {
     setfont("Times-Roman",12.);
     setlinewidth(0.5);
   }
+
+  PSpage(FILE* fp)
+  // Constructor that takes an (already-initialised/open) FILE*.
+  {
+    PLT = fp;
+    fprintf(PLT,"%%!\n/mt{moveto}def /lt{lineto}def /np{newpath}def\n");
+    fprintf(PLT,"/st{stroke}def /cp{closepath}def /fi{fill}def\n");
+    fprintf(PLT,"/zp {gsave /ZapfDingbats findfont exch ");
+    fprintf(PLT,"scalefont setfont moveto show grestore} def\n");
+    setfont("Times-Roman",12.);
+    setlinewidth(0.5);
+  }  
   PSpage() {}
   // Alternative contructor used internally, binds a PSplot to a PSpage.
   ~PSpage() {if (PLT) close();}
@@ -82,9 +93,25 @@ struct PSpage {
   }
 
   void putctext(char *text, double x, double y, double rot=0.0) {
-    // Plot centred text at page location x, y (in pts) at angle rot.
+    // Plot horizontally-centred text at page location
+    // x, y (in pts) at angle rot.
     fprintf(PLT,"gsave %g %g translate %g rotate 0 0 mt (%s) ",x,y,rot,text);
     fprintf(PLT,"dup stringwidth pop 2 div neg 0 rmoveto show grestore\n");
+  }
+
+  void putCtext(char *text, double x, double y, double rot=0.0) {
+    // Plot horizontally and vertically centred text at page location
+    // x, y (in pts) at angle rot.
+    fprintf(PLT,"gsave %g %g translate %g rotate 0 0 mt (%-s) ",x,y,rot,text);
+#if 0    // -- Don't know why this won't work well:
+    fprintf(PLT,"dup true charpath pathbbox "
+	        "3 -1 roll sub 2 div neg "
+	        "3  1 roll sub 2 div exch "
+	        "rmoveto show grestore\n");
+#else    // -- This is also imperfect, but better:
+    fprintf(PLT,"dup stringwidth 2 div neg exch 2 div neg exch "
+	        "rmoveto show grestore\n");
+#endif    
   }
 
   void putrtext(char *text, double x, double y, double rot=0.0) {
@@ -114,6 +141,17 @@ struct PSpage {
     strcpy(cmd, prog);
     strcat(cmd," ");
     strcat(cmd,file);
+    system(cmd);
+  }
+  
+  void display(char* prog, char* fname) {
+    // Start external process to display the plot file,
+    // assuming prog (e.g. gv) is in your path.
+    // It is also assumed you already closed file fname.
+    char cmd[128];
+    strcpy(cmd, prog);
+    strcat(cmd," ");
+    strcat(cmd,fname);
     system(cmd);
   }
 
@@ -179,7 +217,7 @@ struct PSplot : PSpage {
     }
 
   double p (double x) { return pll + (pur-pll)*(x-xll)/(xur-xll); }
-  double q (double y)  {return qll + (qur-qll)*(y-yll)/(yur-yll); }
+  double q (double y) { return qll + (qur-qll)*(y-yll)/(yur-yll); }
   // Functions returning page coordinates p, q (in pts) from
   // user plot coordinates x, y.
 	
@@ -279,6 +317,16 @@ struct PSplot : PSpage {
   void label(char* text, double x, double y, double rot=0.)
   // Put text label at arbitrary location and rotation.
   { puttext(text,p(x),q(y),rot); }
+	
+  void clabel(char* text, double x, double y, double rot=0.)
+  // Put text label horizontally centred
+  // at arbitrary location and rotation.
+  { putctext(text,p(x),q(y),rot); }
+	
+  void Clabel(char* text, double x, double y, double rot=0.)
+  // Put text label horizontally and vertically centred
+  // at arbitrary location and rotation.
+  { putCtext(text,p(x),q(y),rot); }
 	
   void scalestr(char *str, double x)
   // Format a string for the axis labels.  Used internally.
