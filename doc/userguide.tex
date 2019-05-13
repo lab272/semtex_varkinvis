@@ -877,11 +877,13 @@ directory.  Here is a summary of the most-used utilities:
 \texttt{integral} \> Obtain the 2D integral of fields over the
         domain area.\\
 \texttt{interp} \>   
-        Interpolate a field file onto a (2D) set of points.\\
+       Interpolate a field file onto a (2D) set of points.\\
+\texttt{meshplot} \>
+        Generate a PostScript plot of mesh from \texttt{meshpr} output.\\
 \texttt{meshpr} \>    
         Generate 2D mesh locations for plotting or checking.\\
 \texttt{noiz} \>      
-        Add a random perturbation to a field file.\\
+        Add a Guassian-distributed random perturbation to a field file.\\
 \texttt{probe} \>   
         Probe a field file at a set of 2D/3D points. Different
         interfaces to \texttt{probe}\\ \> are obtained through the names
@@ -897,13 +899,14 @@ directory.  Here is a summary of the most-used utilities:
         time-averaged variables.\\
 %\texttt{save} \> Shell utility for automatic job resubmission.\\
 \texttt{sem2tec} \>   
-        Convert field files to AMTEC \Tecplot\ format.\\
-        \> Note that by default, \verb|sem2tec| interpolates the
-        original GLL-mesh-based data onto \\
-        \> a (isoparametrically mapped) uniform mesh for improved visual 
-        appearance.  Sometimes\\ \>  it is useful to see the original data 
-        (and mesh); for this use the \verb+-n 0+ command-line \\ 
-         \> argument to \verb+sem2tec+.\\
+        Convert field files to AMTEC \Tecplot\ format.
+        Note that by default, \verb|sem2tec| \\
+        \> interpolates the
+        original GLL-mesh-based data onto 
+        a (isoparametrically mapped) \\ \> uniform mesh for improved visual 
+        appearance.  Sometimes it is useful  to see the \\ \> original data 
+        (and mesh); for this use the \verb+-n 0+ command-line
+        argument to \verb+sem2tec+.\\
 \texttt{sem2vtk} \>   
         Convert field files to VTK format (\emph{VisIt, ParaView}).\\
 \texttt{transform} \>      
@@ -1040,7 +1043,7 @@ that the default values of the two tokens are respectively \verb|1e-8|
 and \verb|500|, as may be established by running \verb|calc -h|.
 
 %----------------------------------------------------------------------------
-\subsection{Curved element edges}
+\subsection{Curved element edges (and plotting the mesh)}
 \label{sec.curves}
 
 The mesh for this problem consists of a set of four elements, one of
@@ -1053,20 +1056,34 @@ value implies a concave side.  Note that where elements mate along a
 curved side, the curve must be defined twice, once for each element,
 and with radii of different signs on each side.  The mesh for this
 problem can be seen in figure~\ref{lapcurve}; mesh output is generated
-by running the \verb|meshpr| utility and in this case visualised using
-Supermongo macros distributed with \Semtex.
-
+by running the \verb|meshpr| utility, from which a PostScript file may
+be generated and visualised using the \verb|meshplot| utility.
+%
+{\small
+\begin{verbatim}
+$ meshpr laplace6 | meshplot -i -n -o mesh.ps -d gv
+\end{verbatim}
+} \noindent If you have the \verb|gv| utility installed (for X11
+display of PostScript) you should see a plot like
+figure~\ref{lapcurve}.  Alternatively you could (again, assuming you
+have an appropriate utility installed) convert the output to PDF, \eg
+%
+{\small
+\begin{verbatim}
+$ meshpr laplace6 | meshplot -i -n | ps2pdf - > laplace6.pdf
+\end{verbatim}
+}
 \begin{figure}
 \begin{center}
-\includegraphics[width=0.5\textwidth]{laplace6mesh}
+\includegraphics[width=0.5\textwidth]{laplace6}
 \end{center}
 \caption{
 \label{lapcurve}
   The mesh corresponding to the \texttt{laplace6} session file.  Note
   that the number of points along the edge of every element is
   \texttt{N\_P = 11} as declared in the \texttt{TOKENS} section and
-  that internal points are placed inside non-rectangular elements
-  using isoparametric mapping. }
+  that internal points are placed inside non-rectangular elements, \eg
+  element 4, using isoparametric mapping. }
 \end{figure}
 
 For the \texttt{SPLINE} type, the parameter supplies the name of an
@@ -1080,7 +1097,7 @@ the straight line joining the original vertex position and its
 neighbouring `curve-normal' vertex, and the cubic spline joining the
 points in the file. On the other hand, it is good practise to ensure
 that the declared vertex locations lie close to the spline, and to
-check the mesh that is produced: use \texttt{meshpr} to do this.
+visually check the mesh that is produced.
 
 %----------------------------------------------------------------------------
 \subsection{Boundary conditions}
@@ -1400,7 +1417,10 @@ $ cp ../mesh/taylor2 .
 \end{verbatim}
 }
 
-First we'll examine the mesh, using \SM\ macros.
+First we'll examine the mesh, in this case using \SM\ macros supplied with the
+\Semtex\ distribution as an alternative to using the \verb|meshplot|
+utility.
+%
 {\small
 \begin{verbatim}
 $ meshpr taylor2 > taylor2.msh
@@ -2426,13 +2446,13 @@ the header of associated source files, especially of the utilities.
 \section{Execution speed}
 \label{sec.speed}
 
-\Semtex\ relies heavily on the BLAS, so it can be worth seeking fast
-implementations. Especially, performance of matrix--matrix
-multiplication routine \verb+dgemm+ is critical. Consistently of late,
-Kazushige Goto's implementation of the BLAS gives best performance and
-is worth seeking out, although I understand his \verb+dgemm+ has also
-now been licenced to various vendors (Intel, AMD, Apple, \ldots) and
-is what you'll get if you link their extended math libraries.
+\Semtex\ makes good use of the BLAS, so it can be worth seeking fast
+implementations. Especially, performance of the matrix--matrix
+multiplication routine \verb+dgemm+ is critical. Many math libraries,
+\eg \verb|openblas| and vendor-supplied math libraries such as AMD's
+\verb|acml|, Intel's \verb|mkl| or Apple's \verb|Accelerate|
+framework, now include some version of Kazushige Goto's fast
+implementation of \verb|dgemm|.
 
 As Reynolds numbers increase (\ie \verb+KINVIS+ decreases), the
 viscous Helmholtz matrices in the operator splitting become more
@@ -3759,6 +3779,33 @@ Usage: mapmesh [options] session
 \end{verbatim}
 }
 %
+
+%=============================================================================
+\section{\texttt{meshplot}}
+\label{sec.meshpr}
+
+\verb|Meshplot| generates a PostScript description of the 2D mesh
+information generated by \verb|meshpr|.  This output can be converted
+to PDF or displayed on a screen using external utilites such as
+\verb|ps2pdf| and \verb|gv|.  Optionally, if an appropriate viewer is
+installed, \verb|meshplot| can directly call for display of a named
+output file.  It can read from standard input (\eg output of
+\verb|meshpr|) and write to standard output.
+%
+{\small
+\begin{verbatim}
+$ meshplot -h
+Usage: meshplot [options] [file]
+  options:
+  -h        ... display this message
+  -a        ... do not show axes
+  -i        ... show element-internal mesh
+  -n        ... show element numbers
+  -o <file> ... write output to named file [Default: stdout]
+  -d <prog> ... call prog to display named PostScript output file
+  -b 'xmin,xmax,ymin,ymax' ... limit view to region defined by string
+\end{verbatim}
+}
 
 %=============================================================================
 \section{\texttt{meshpr}}
