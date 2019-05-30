@@ -442,12 +442,13 @@ void Analyser::estimateCFL () const
 //               appendix D.2.2
 // ---------------------------------------------------------------------------
 {
-  const int_t    pid     = Geometry::procID();
-  const int_t    nProc   = Geometry::nProc();
-  const real_t   dt      = Femlib::value ("D_T");
-  vector<real_t> maxProc (nProc);
-  vector<real_t> maxElmt (nProc);
-  vector<real_t> maxCmpt (nProc);
+  const int_t           pid     = Geometry::procID();
+  const int_t           nProc   = Geometry::nProc();
+  static vector<real_t> maxProc (nProc);
+  static vector<real_t> maxElmt (nProc);
+  static vector<real_t> maxCmpt (nProc);
+
+  const real_t   dt = Femlib::value ("D_T");  
   real_t         CFL_dt, dt_max;
   int_t          i, percent;
   char           vcmpt;
@@ -456,11 +457,11 @@ void Analyser::estimateCFL () const
   int_t          elmt_i, elmt_j, elmt_k;
 
   _src -> u[0] -> transform (INVERSE);
-  CFL_i[0] = _src -> u[0] -> CFL(0, elmt_i);
+  CFL_i[0] = _src -> u[0] -> CFL (0, elmt_i);
   _src -> u[0] -> transform (FORWARD);
 
   _src -> u[1] -> transform (INVERSE);
-  CFL_i[1] = _src -> u[1] -> CFL(1, elmt_j);
+  CFL_i[1] = _src -> u[1] -> CFL (1, elmt_j);
   _src -> u[1] -> transform (FORWARD);
 
   CFL_dt = max(CFL_i[0], CFL_i[1]);
@@ -469,7 +470,7 @@ void Analyser::estimateCFL () const
 
   if (_src -> nField() > 3) {
     _src -> u[2] -> transform (INVERSE);
-    CFL_i[2] = _src -> u[2] -> CFL(2, elmt_k);
+    CFL_i[2] = _src -> u[2] -> CFL (2, elmt_k);
     _src -> u[2] -> transform (FORWARD);
 
     if (CFL_i[2] > CFL_dt) {
@@ -484,15 +485,24 @@ void Analyser::estimateCFL () const
   maxProc[pid] = CFL_dt;
   maxElmt[pid] = elmt_i;
   maxCmpt[pid] = cmpt_i;
-  Femlib::send (&maxProc[pid], 1, 0);
-  Femlib::send (&maxElmt[pid], 1, 0);
-  Femlib::send (&maxCmpt[pid], 1, 0);
-  ROOTONLY {
-    for (i = 0; i < nProc; i++) {
-      Femlib::recv(&maxProc[i], 1, i);
-      Femlib::recv(&maxElmt[i], 1, i);
-      Femlib::recv(&maxCmpt[i], 1, i);
+
+  if (nProc > 1) {
+    ROOTONLY {
+      for (i = 1; i < nProc; i++) {
+	Femlib::recv (&maxProc[i], 1, i);
+	Femlib::recv (&maxElmt[i], 1, i);
+	Femlib::recv (&maxCmpt[i], 1, i);
+      }      
+    } else {
+        Femlib::send (&maxProc[pid], 1, 0);
+	Femlib::send (&maxElmt[pid], 1, 0);
+	Femlib::send (&maxCmpt[pid], 1, 0);
     }
+  }
+
+  // -- Find the worst case and print up.
+
+  ROOTONLY {
     CFL_dt = -FLT_MAX;
     for (i = 0; i < nProc; i++)
       if (maxProc[i] > CFL_dt) {
