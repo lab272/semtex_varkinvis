@@ -31,6 +31,7 @@ static char RCS[] = "$Id$";
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 
 #include "cfemdef.h"
 #include "cveclib.h"
@@ -469,8 +470,10 @@ static void write_tec (FILE *fp)
 		  y[k*nrns + i] * sin(z[m%nzp]));
 	else
 	  fprintf(fp, "%#14.7g %#14.7g ", x[k*nrns + i],y[k*nrns + i]);
-	//fprintf (fp, "%#14.7g %#14.7g ", x[k*nrns + i], y[k*nrns + i]);
-	//if (z) fprintf (fp, "%#14.7g ",  z[m]);
+#if 0
+	fprintf (fp, "%#14.7g %#14.7g ", x[k*nrns + i], y[k*nrns + i]);
+	if (z) fprintf (fp, "%#14.7g ",  z[m]);
+#endif
 	if (z) {
 	if (cylindrical)
 	    fprintf(fp, "%#14.7g ", y[k*nrns+i]*cos(z[m%nzp]));

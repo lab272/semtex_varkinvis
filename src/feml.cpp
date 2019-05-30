@@ -107,7 +107,7 @@ FEML::FEML (const char* session) :
 
   for (i = 0; reserved[i] && i < FEML_KEYWORD_MAX; i++) {
     _keyWord[i] = strcpy ((new char [strlen (reserved[i]) + 1]), reserved[i]);
-    _keyPosn[i] = NULL;
+    _keyPosn[i] = 0;
   }
   _keyWord[i] = NULL;
 

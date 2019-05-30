@@ -7,6 +7,12 @@
 project (semtex C CXX Fortran)
 cmake_minimum_required (VERSION 2.8)
 
+# -- Static linkage (comment out for dynamic linkage/default).
+
+#SET (CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+#SET (BUILD_SHARED_LIBS OFF)
+#SET (CMAKE_EXE_LINKER_FLAGS "-static")
+
 # -- Pull in the pre-processor flags, which can optionally be set on
 #    the comamnd line (if not enabled here).  E.g. cmake -DDEBUG=ON ..
 #
@@ -23,6 +29,12 @@ else ()
   set (CMAKE_BUILD_TYPE "Release")
   message (STATUS "Building code with standard release optimizations.")
 endif ()
+
+# -- Ask to use Apple's Accelerate framework BLAS and LAPACK if on OS X system.
+
+if (APPLE)
+   set (BLA_VENDOR "Generic")
+endif()	   
 
 # -- External package dependencies.
 

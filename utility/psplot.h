@@ -52,7 +52,7 @@ struct PSpage {
   // Alternative contructor used internally, binds a PSplot to a PSpage.
   ~PSpage() {if (PLT) close();}
 
-  void setfont(char *fontnam, double size) {
+  void setfont(const char *fontnam, double size) {
     // Change font from default (12pt Times-Roman)
     strcpy(fontname,fontnam);
     fontsize = size;

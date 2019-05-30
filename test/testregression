@@ -29,9 +29,8 @@ then
 fi
 $BINDIR/enumerate -O3 $TEST > $TEST.num 2> /dev/null
 $BINDIR/compare $TEST > $TEST.rst
-$EXEC $CODE $TEST > /dev/null 2>&1
+$EXEC $BINDIR/$CODE $TEST > /dev/null 2>&1
 $BINDIR/compare -n $TEST $TEST.fld > /dev/null 2> $TEST.new
 cmp -s $TEST.new ../regress/$TEST.ok
 rv=$?
-rm $TEST*
 exit $rv

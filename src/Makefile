@@ -74,13 +74,16 @@ CXXFLAGS = $(DEFINES) $(OPT) -ansi \
 FFLAGS   = $(DEFINES) $(OPT)
 # -- Use the next line with fink
 #LIBDIR   += -L/sw/lib -L/sw/lib/gcc7/lib
+# -- Use the next line with homebrew
 #LIBDIR    += -L/usr/local/Cellar/gcc/8.3.0/lib/gcc/8
 LDFLAGS  = $(OPT) $(LIBDIR) -lfem -lvec $(F77LIBS)
 F77LIBS  = -framework Accelerate -lgfortran
 CLDFLAGS = $(LDFLAGS)
 ifdef MPI
-# -- use the next line with fink
+# -- Use the next line with fink
 #  LIBDIR   += -L/sw/lib/openmpi
+# -- Use the next line with macports
+  LIBDIR   += -L/opt/local/lib/openmpi-mp
   LDFLAGS   =  $(OPT) $(LIBDIR) -lfem_mp -lvec $(F77LIBS) -lmpi
 else
   LDFLAGS   =  $(OPT) $(LIBDIR) -lfem -lvec $(F77LIBS)
