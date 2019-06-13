@@ -18,9 +18,12 @@ BINDIR=$2
 CODE=$3
 TEST=$4
 MESHDIR=../mesh
+RUNDIR=Testing
+mkdir $RUNDIR
 
 if test ! -f $TEST
 then
+  mkdir $RUNDIR/$TEST
   cp $MESHDIR/$TEST .
 fi
 if test -f $TEST.num
@@ -33,4 +36,5 @@ $EXEC $BINDIR/$CODE $TEST > /dev/null 2>&1
 $BINDIR/compare -n $TEST $TEST.fld > /dev/null 2> $TEST.new
 cmp -s $TEST.new ../regress/$TEST.ok
 rv=$?
+mv $TEST* $RUNDIR/$TEST > /dev/null
 exit $rv
