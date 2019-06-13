@@ -211,6 +211,10 @@ void Field::evaluateBoundaries (const Field* P      ,
 // that must be re-evaluated at every step, such as high-order
 // pressure BCs or velocity and scalar fields that explicitly vary in
 // time.
+//
+// Note that Field* P is eventually not used by Condition::evaluate()
+// if Fourier is false, so we could alternatively use a test on
+// existence (non-NULLness) of P to detect intention.
 // ---------------------------------------------------------------------------
 {
   const int_t  np    = Geometry::nP();
