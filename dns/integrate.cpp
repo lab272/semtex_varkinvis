@@ -36,7 +36,9 @@
 // [4] Dong, Karniakadis & Chryssostomides (2014) "A robust and
 //     accurate outflow boundary condition for incompressible flow
 //     simulations on severely-truncated unbounded domains", JCP 261:83-105.
-//
+// [5] Blackburn, Lee, Albrecht & Singh (2019) "Semtex: a spectral
+//     element–Fourier solver for the incompressible Navier–Stokes
+//     equations in cylindrical or Cartesian coordinates", CPC.
 // --
 // This file is part of Semtex.
 //
@@ -149,6 +151,8 @@ void integrate (void (*advection) (Domain*    ,
       *Uf[i][j] = 0.0;
     }
 
+  // -- The following timestepping loop implements equations (15--18) in [5].
+  
   while (D -> step < nStep) {
 
     // -- Compute nonlinear terms from previous velocity field.
