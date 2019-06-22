@@ -46,6 +46,7 @@
 
 	IO_HIS      = 32
 	IO_CFL      = 3200
+	IO_CFL      = 32
 	IO_FLD      = STEPS_P/20.
 
 	AVERAGE     = 0

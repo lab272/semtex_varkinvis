@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 // matrix.C: routines that generate solvers for Helmholtz problems.
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
@@ -254,7 +254,7 @@ MatrixSys::MatrixSys (const real_t            lambda2,
 
       // -- Cholesky factor global banded-symmetric Helmholtz matrix.
     
-      Lapack::pbtrf ("U",_nsolve,_nband-1,_H,_nband,info);
+      Lapack::pbtrf ("U", _nsolve, _nband-1, _H, _nband, info);
 
       if (info) message (routine, "failed to factor Helmholtz matrix", ERROR);
 

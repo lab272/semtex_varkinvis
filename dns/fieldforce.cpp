@@ -790,7 +790,7 @@ SFDForce::SFDForce (Domain* D   ,
   _enabled = false;
   _SFD_DELTA = _SFD_CHI = 0.0;
 
-  if (!(file -> valueFromSection (&_SFD_DELTA, "FORCE", "SFD_DELTA") ||
+  if (!(file -> valueFromSection (&_SFD_DELTA, "FORCE", "SFD_DELTA") &&
 	file -> valueFromSection (&_SFD_CHI,   "FORCE", "SFD_CHI"))) return;
 
   if ((_SFD_DELTA < EPSDP) || (_SFD_CHI < EPSDP))

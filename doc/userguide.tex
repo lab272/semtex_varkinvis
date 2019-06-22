@@ -120,7 +120,7 @@ orthogonal direction.  Algorithmically the code is similar to Ron
 Henderson's \emph{Prism} \citep{hk95,kh98,hen99b}, but with some
 differences in design, and lacks mortar element capability. A notable
 extension is that \Semtex\ can solve problems in cylindrical as well
-as Cartesian coordinate systems \citep{blsh04}.
+as Cartesian coordinate systems \citep{blsh04,blas19}.
 
 %-----------------------------------------------------------------------------
 \section{Numerical method}
@@ -277,16 +277,18 @@ called `Working \Dog'.
 %-----------------------------------------------------------------------------
 \section{Further reading}
 
-A good introduction to (low-order) finite element methods is provided
-by \citet{hughes87}.  The most comprehensive references on spectral
-methods in general are \citet{gs77}, \citet{chqz88,chqz06}.  The first
-papers by \citet{pat84} and \citet{kp86} provide a good introduction
-to spectral elements, although some implementation details changed
-with time and \citet{mt89} is more reflective of the methods used in
-\Semtex.  The adoption of Fourier expansions to extend the method to
-three spatial dimensions is discussed by \citet{ap89}, \citet{kar89}
-and \citet{kar90}.  The use of spectral element techniques in
-cylindrical coordinates is dealt with in \citet{blsh04}.  The book by
+The numerical techniques used by \Semtex\ are summarised in
+\citet{blas19}.  A good introduction to (low-order) finite element
+methods is provided by \citet{hughes87}.  The most comprehensive
+references on spectral methods in general are \citet{gs77},
+\citet{chqz88,chqz06}.  The first papers by \citet{pat84} and
+\citet{kp86} provide a good introduction to spectral elements,
+although some implementation details changed with time and
+\citet{mt89} is more reflective of the methods used in \Semtex.  The
+adoption of Fourier expansions to extend the method to three spatial
+dimensions is discussed by \citet{ap89}, \citet{kar89} and
+\citet{kar90}.  The use of spectral element techniques in cylindrical
+coordinates is dealt with in \citet{blsh04}.  The book by
 \citet{fun97} provides useful information and further references.
 Recent overviews and some applications appear in \citet{kh98,hen99b}.
 The definitive reference is now the book by \citet{kars05}, but you
@@ -3689,9 +3691,9 @@ the Galerkin solution, nodes which correspond to Dirichlet BCs are
 partitioned to the end of the numbering and are not considered in
 bandwidth minimisation.  Another point is that if the corresponding
 elliptic problem is singular, \eg a pressure field with all-Neumann
-BCs, enumerate will partition out one element-edge node to be assigned
-a homogeneous Dirichlet value (\ie the solution is pinned to zero at
-an arbitrary location) to make the problem non-singular.
+BCs, the solver will select the highest-numbered pressure node to be
+assigned a homogeneous Dirichlet value (\ie the solution is pinned to
+zero at an arbitrary location) in order to make the problem non-singular.
 
 %=============================================================================
 \section{\texttt{integral}}
