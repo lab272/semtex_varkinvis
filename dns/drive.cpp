@@ -56,10 +56,15 @@ static char RCS[] = "$Id$";
 
 #include <dns.h>
 
-static char prog[] = "dns";
+#ifdef MPI
+  static char prog[] = "dns";
+#else
+  static char prog[] = "dns_mp";
+#endif
+
 static void getargs    (int, char**, bool&, char*&);
 static void preprocess (const char*, FEML*&, Mesh*&, vector<Element*>&,
-			BCmgr*&, Domain*&, FieldForce*&);
+			BCmgr*&, Domain*&);
 
 void integrate (void (*)
 		(Domain*, BCmgr*, AuxField**, AuxField**, FieldForce*),
@@ -90,7 +95,7 @@ int main (int    argc,
   Femlib::initialize (&argc, &argv);
   getargs (argc, argv, freeze, session);
 
-  preprocess (session, file, mesh, elmt, bman, domain, FF);
+  preprocess (session, file, mesh, elmt, bman, domain);
 
   if ((!domain -> hasScalar()) && freeze)
     message (prog, "need scalar declared if velocity is frozen", ERROR);
@@ -99,6 +104,8 @@ int main (int    argc,
 
   domain -> restart ();
 
+  FF = new FieldForce (domain, file);
+  
   ROOTONLY domain -> report ();
   
   if (freeze) 
@@ -183,14 +190,12 @@ static void preprocess (const char*       session,
 			Mesh*&            mesh   ,
 			vector<Element*>& elmt   ,
 			BCmgr*&           bman   ,
-			Domain*&          domain ,
-			FieldForce*&      FF     )
+			Domain*&          domain )
 // ---------------------------------------------------------------------------
 // Create objects needed for execution, given the session file name.
 // They are listed above in order of creation.
 // ---------------------------------------------------------------------------
 {
-
   const char routine[] = "preprocess";
   const int_t        verbose = Femlib::ivalue ("VERBOSE");
   Geometry::CoordSys space;
@@ -252,14 +257,6 @@ static void preprocess (const char*       session,
   VERBOSE cout << "Building domain ..." << endl;
 
   domain = new Domain (file, elmt, bman);
-
-  VERBOSE cout << "done" << endl;
-
-  // -- Build field force.
-
-  VERBOSE cout << "Building field force ..." << endl;
-
-  FF = new FieldForce (domain, file);
 
   VERBOSE cout << "done" << endl;
 

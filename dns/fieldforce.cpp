@@ -791,10 +791,14 @@ SFDForce::SFDForce (Domain* D   ,
   _SFD_DELTA = _SFD_CHI = 0.0;
 
   if (!(file -> valueFromSection (&_SFD_DELTA, "FORCE", "SFD_DELTA") &&
-	file -> valueFromSection (&_SFD_CHI,   "FORCE", "SFD_CHI"))) return;
+	file -> valueFromSection (&_SFD_CHI,   "FORCE", "SFD_CHI"  ))) return;
 
-  if ((_SFD_DELTA < EPSDP) || (_SFD_CHI < EPSDP))
-    message (routine, "SFD_DELTA and SFD_CHI must both be positive.", ERROR);
+  if ((_SFD_DELTA < EPSDP) || (_SFD_CHI < EPSDP)) {
+    VERBOSE message (routine,
+		     "SFD_DELTA & SFD_CHI must both be positive to set SFD",
+		     REMARK);
+    return;
+  }
 
   _D = D;
   _enabled = true;
