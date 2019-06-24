@@ -2820,8 +2820,8 @@ This type of forcing must not be time or space dependent. It is suitable
 for periodic channel flow, where you have a uniform and steady force
 driving the flow, see \verb+channel-FX+ for an example session.
 
-Except for the constant force, all forcing terms are applied in
-physical space.
+Except for a constant force (as in the example above) which is applied
+in Fourier mode zero, all forcing terms are applied in physical space.
 
 Unless otherwise noted, any skipped keyword defaults to 0. Any line
 starting with a hash \verb+#+ is ignored.
@@ -2975,6 +2975,12 @@ alternating skew symmetric form: this can be achieved by setting token
         SFD_DELTA = 0.75
 </FORCE>
 \end{verbatim}
+
+A final point to note is that the values of the two parameters are
+parsed once, at the beginning of runtime, after any restart file (if
+present) is read.  Thus, their definitions can contain the temporal
+variable \verb|t|, but the value used is whatever holds at the start
+of runtime.
 
 %----------------------------------------------------------------------------
 \subsection{Rotating frame of reference: Coriolis and centrifugal force}
