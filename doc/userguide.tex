@@ -4835,7 +4835,7 @@ project -z1 chan.avg > /tmp/chan.avg.xy
 rstress /tmp/chan.avg.xy > $FTRS
 
 # new input file with NZ=1
-LNZ=$(cat cube | grep N_Z -n | awk -F: '{print $1}')
+LNZ=$(cat chan | grep N_Z -n | awk -F: '{print $1}')
 sed '$LNZs/.*/  N_Z    = 1/' <chan >$FTNZ
 
 # average reynolds-stresses in x
