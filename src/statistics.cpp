@@ -34,10 +34,10 @@
 //
 //                 / uu uv uc \        /  A  B  G \
 //                 | .  vv vc |     =  |  .  C  H |
-//                 \ .  .  cc /        \  .  .  K /
+//                 \ .  .  cc /        \  .  .  J /
 //
 //                 / uu uv uw uc \     /  A  B  D  G \
-//                 | .  vv vw vu |  =  |  .  C  E  H |
+//                 | .  vv vw vc |  =  |  .  C  E  H |
 //                 | .  .  ww wc |     |  .  .  F  I |
 //                 \ .  .  .  cc /     \  .  .  .  J /
 //
