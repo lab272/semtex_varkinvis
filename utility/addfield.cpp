@@ -79,8 +79,6 @@
 // [2] Jeong & Hussain (1995) On the identification of a vortex, JFM
 // 285:69--94
 //
-//
-//
 // --
 // This file is part of Semtex.
 // 
@@ -190,7 +188,7 @@ int main (int    argc,
 
   // -- Check if we just have the (first two) cases not requiring derivatives.
 
-  for (p = 0, i = 0; i < FLAG_MAX; i++) p += (add[i]) ? (i + 1) : 0;
+  for (p = 0, i = 0; i < FLAG_MAX; i++) p += (add[i]) ? (1 << i) : 0;
   if (p <= 3) gradient = false; else gradient = true;
 
   for (i = 0; i < FLAG_MAX; i++) need[i] = add[i];  
@@ -320,11 +318,7 @@ int main (int    argc,
 	work = new AuxField (new real_t[allocSize],  nz, elmt);
 	if (NDIM == 3) for (j = 0; j < NCOM; j++) Vij[2][j] -> divY();
 	(*work = *velocity[1]) . divY(); *Vij[2][2] += *work;
-#if 1
-	if (NCOM == 3) { (*work = *velocity[2]) . divY(); *Vij[1][2] += *work; }
-#else
-	if (NCOM == 3) { (*work = *velocity[2]) . divY(); *Vij[1][2] -= *work; }
-#endif
+	if (NCOM == 3) { (*work = *velocity[2]) . divY(); *Vij[2][1] -= *work; }
       }
   
       // -- Loop over every point in the mesh and compute everything
