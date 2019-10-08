@@ -412,9 +412,9 @@ an introduction only.
 Since it employs high-order finite element methods, \Semtex\ offers
 the choice of element-size-based refinement (so-called $h$-refinement)
 or polynomial-order-based refinement (so-called $p$-refinement) in
-attempting to converge a solution (it is a $hp$-type method).  Since
-the basis polynomials share convergence properties with (orthogonal)
-Legendre polynomials, the underlying goal of mesh refinement is to
+attempting to converge a solution (it is a $hp$-type method).  The
+basis polynomials share convergence properties with (orthogonal)
+Legendre polynomials and the underlying goal of mesh refinement is to
 achieve exponential (`spectral') convergence of solutions with respect
 to polynomial order; this typically commences when there are of order
 $\pi$ polynomials per 'wavelength' of solution variation \citep{gs77}.
@@ -441,11 +441,9 @@ resistance is generally to produce a session file which one guesses is
 quite well resolved as far as element sizes go, then rely on
 converging the solution by starting on the low end of the $p$ range
 and then increasing $p$ to higher, yet moderate, values in order to
-commence exponential convergence.  Perhaps obviously, when tackling a
-new problem, it pays to be prepared to carry out a few iterations of
-mesh design.
+commence exponential convergence.  A few iterations of mesh design may
+be required when tackling a new problem.
 %
-
 
 %============================================================================
 \section{Files}
