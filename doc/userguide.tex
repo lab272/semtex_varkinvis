@@ -403,46 +403,55 @@ $\bm{C}$ are dealt with explicitly, so that stable time integration
 generally requires a time-step restriction of CFL type.
 
 %============================================================================
-\section{Mesh resolution\,---\,and design}
+\section{Two-dimensional mesh resolution\,---\,and design}
 
 This is such a large area of discourse that we can't hope to
 adequately cover it here; the following brief remarks are intended as
 an introduction only.
 %
-Since it employs high-order finite element methods, \Semtex\ offers
-the choice of element-size-based refinement (so-called $h$-refinement)
-or polynomial-order-based refinement (so-called $p$-refinement) in
-attempting to converge a solution (it is a $hp$-type method).  The
-basis polynomials share convergence properties with (orthogonal)
-Legendre polynomials and the underlying goal of mesh refinement is to
-achieve exponential (`spectral') convergence of solutions with respect
-to polynomial order; this typically commences when there are of order
-$\pi$ polynomials per 'wavelength' of solution variation \citep{gs77}.
-
-\Semtex\ tends to be most efficient at moderate polynomial orders (\eg
-4 to 13); it is not a good idea to use either very low, or very high,
-values of $p$.
-%
-A rule-of-thumb for mesh design based on the remarks above is to aim
-to have any `significant' rapid variation in solution behaviour
-covered by one or two elements (the goal of $h$-refinement), and then
-carry out whatever $p$-refinement is desired to get well-converged
-results.
+Since it employs high-order finite element methods in the $(x,y)$
+plane, \Semtex\ offers the choice of element-size-based refinement
+(so-called $h$-refinement) or polynomial-order-based refinement
+(so-called $p$-refinement) in attempting to converge a solution (it is
+an $hp$-type method).  The basis polynomials share convergence
+properties with (orthogonal) Legendre polynomials and the underlying
+goal of mesh refinement is to achieve exponential (`spectral')
+convergence of solutions with respect to polynomial order; this
+typically commences when there are of order $\pi$ polynomials per
+'wavelength' of solution variation \citep{gs77}.
 
 We should point out that $p$-refinement is very straightforward in
 \Semtex; different polynomial orders can be selected simply by varying
 the token \verb|N_P|, the number of mesh points along the edge of
 every element in the problem session file (see \eg
 \S\,\ref{sec.tokens}): the \oned\ polynomial order
-$p=\texttt{N\_P}-1$.  On the other hand, carrying out $h$-refinement
-will require a completely new session file to be produced, which may
-imply quite a bit more work.  Consequently, the path of least
-resistance is generally to produce a session file which one guesses is
-quite well resolved as far as element sizes go, then rely on
-converging the solution by starting on the low end of the $p$ range
-and then increasing $p$ to higher, yet moderate, values in order to
-commence exponential convergence.  A few iterations of mesh design may
-be required when tackling a new problem.
+$p=\texttt{N\_P}-1$.
+%
+On the other hand, carrying out $h$-refinement will require a
+completely new session file to be produced, which may imply quite a
+bit more work.
+%
+We also note that computational work per timestep,
+typically dominated by forming the nonlinear terms of the
+\NavSto\ equations, tends to scale like $\texttt{N\_P}^2$.
+%
+Finally, \Semtex\ tends to be most efficient at moderate polynomial
+orders (\eg 4 to 13); it is generally not a good idea to choose either
+very low, or very high, values of $p$.
+
+A rule-of-thumb for mesh design based on the remarks above is to aim
+to have any `significant' rapid variation in solution behaviour
+covered by one or two elements (the goal of $h$-refinement), and then
+carry out whatever $p$-refinement is desired to get well-converged
+results.
+%
+The path of least resistance for \twod\ mesh design is
+generally to produce a session file which one guesses is quite well
+resolved as far as element sizes go, then rely on converging the
+solution by starting on the low end of the $p$ range and then
+increasing $p$ to higher, yet moderate, values in order to commence
+exponential convergence.  A few iterations of mesh design may be
+required when tackling a new problem.
 %
 
 %============================================================================
