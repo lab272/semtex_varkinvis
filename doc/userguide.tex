@@ -403,12 +403,12 @@ $\bm{C}$ are dealt with explicitly, so that stable time integration
 generally requires a time-step restriction of CFL type.
 
 %============================================================================
-\section{Two-dimensional mesh resolution\,---\,and design}
+\section{Mesh resolution\,---\,and design}
 
 This is such a large area of discourse that we can't hope to
 adequately cover it here; the following brief remarks are intended as
 an introduction only.
-%
+
 Since it employs high-order finite element methods in the $(x,y)$
 plane, \Semtex\ offers the choice of element-size-based refinement
 (so-called $h$-refinement) or polynomial-order-based refinement
@@ -453,6 +453,16 @@ increasing $p$ to higher, yet moderate, values in order to commence
 exponential convergence.  A few iterations of mesh design may be
 required when tackling a new problem.
 %
+
+In the $z$-direction, \Semtex\ assumes the solution is periodic and
+uses Fourier expansions (and a 2--3--5-prime-factor FFT).  Choice of
+spanwise length scale $L_z$ is controlled by the token \verb|BETA|,
+where $\beta=2\pi/L_z$, while resolution is controlled by token
+\verb|N_Z|, the number of planes of real data in the $z$ direction
+(the number of complex Fourier modes is then $\texttt{N\_Z}/2$).
+Convergence follows standard rules for Fourier-spectral methods.  See
+\S\,\ref{sec.nz} for discussion regarding possible values for
+\verb|N_Z|.
 
 %============================================================================
 \section{Files}
@@ -1241,7 +1251,7 @@ running the \verb|enumerate| utility; for the next problem we tackle
 we will elaborate on the contents of such a file.  Often we will run
 the utility `by hand' in the following examples.
 
-For post-processing we can prepare an \Tecplot\ input file (which can
+For post-processing we can prepare a \Tecplot\ input file (which can
 also be read by \emph{VisIt} and \emph{Paraview})
 %
 {\small
