@@ -53,7 +53,7 @@ endif
 # Compiler options for specific machines.
 #
 
-ifeq ($(ARCH),Darwin)               # -- Mac OSX, 10.6+ (has openmpi)
+ifeq ($(ARCH),Darwin)               # -- Mac OSX, 10.6+, macports
 CXX      = g++
 LD       = g++
 CC       = gcc
@@ -61,28 +61,19 @@ FC	 = gfortran
 AR	 = libtool
 ARFLAGS  = -static -o
 RANLIB   = ranlib
-ifdef DEBUG			# -- gcc is really clang, use -g for debug
-  OPT    = -m64 -O0 -g
+ifdef DEBUG
+  OPT    = -O0 -g
 else
-  OPT    = -m64 -O2
+  OPT    = -O3
 endif
-CFLAGS   = $(DEFINES) $(OPT) -ansi
-# -- Use the next line with fink
-#CPPFLAGS += -I/sw/include
-CXXFLAGS = $(DEFINES) $(OPT) -ansi \
+CFLAGS   = $(DEFINES) $(OPT)
+CXXFLAGS = $(DEFINES) $(OPT)  \
 	-Wno-unused-value -Wno-parentheses -Wno-switch
 FFLAGS   = $(DEFINES) $(OPT)
-# -- Use the next line with fink
-#LIBDIR   += -L/sw/lib -L/sw/lib/gcc7/lib
-# -- Use the next line with homebrew
-#LIBDIR    += -L/usr/local/Cellar/gcc/8.3.0/lib/gcc/8
 LDFLAGS  = $(OPT) $(LIBDIR) -lfem -lvec $(F77LIBS)
 F77LIBS  = -framework Accelerate -lgfortran
 CLDFLAGS = $(LDFLAGS)
 ifdef MPI
-# -- Use the next line with fink
-#  LIBDIR   += -L/sw/lib/openmpi
-# -- Use the next line with macports
   LIBDIR   += -L/opt/local/lib/openmpi-mp
   LDFLAGS   =  $(OPT) $(LIBDIR) -lfem_mp -lvec $(F77LIBS) -lmpi
 else

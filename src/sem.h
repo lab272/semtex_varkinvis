@@ -13,19 +13,17 @@
 // $Id$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cstdarg>		/* System C(++) headers.  */
-#include <cstdlib>
+#include <cstdlib>		/* System C(++) headers.  */
 #include <cstdio>
 #include <cmath>
+#include <cstdarg>
 #include <cctype>
 #include <cstring>
 #include <climits>
 #include <cfloat>
 #include <cassert>
 #include <ctime>
-
-#include <fenv.h>		/* Std C floating-point error handling. */
-
+#include <fenv.h>
 
 #include <iostream>		/* System C++ headers. */
 #include <fstream>

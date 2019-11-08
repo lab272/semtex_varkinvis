@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////
-// matrix.C: routines that generate solvers for Helmholtz problems.
+// matrix.cpp: routines that generate solvers for Helmholtz problems.
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
 //
@@ -125,6 +125,8 @@ ModalMatrixSys::~ModalMatrixSys ()
     for (p = MS.begin(); p != MS.end(); p++)
       if (*p == _Msys[N]) { delete (_Msys[N]); MS.erase(p); break; }
   }
+
+  delete[] _fields;
 }
 
 

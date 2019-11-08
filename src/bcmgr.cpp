@@ -1629,7 +1629,7 @@ void BCmgr::evaluateCNBCu (const Field* P    ,
 
     Veclib::smul    (_nP, 1.0, dv, 1, fb, 1);
     Veclib::vadd    (_nP, tgt, 1, fb, 1, tgt, 1);
-
+    
 #endif
   }
 }
