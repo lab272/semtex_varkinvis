@@ -6,7 +6,6 @@
 // Copyright (c) 1998 <--> $Date$, 
 //   Hugh Blackburn, Murray Rudman, Jagmohan Singh
 //
-//
 // Usage:
 // -----
 // addfield [options] -s session session.fld
@@ -23,6 +22,7 @@
 //   -J        ... add vortex core measure of Jeong & Hussain. (3D only)
 //   -a        ... add all fields derived from velocity (above)
 //   -f <func> ... add a computed function <func> of x, y, z, t, etc.
+//   -n        ... do not perform mass-matrix smoothing of added fields
 //
 // Reserved field names used/assumed:
 // ---------------------------------
@@ -119,7 +119,7 @@ enum {
 static char  prog[] = "addfield";
 
 
-static void  getargs  (int, char**, char*&, char*&, char*&, bool[]);
+static void  getargs  (int, char**, char*&, char*&, char*&, bool[], bool&);
 static void  getMesh (const char*,vector<Element*>&);
 static bool  getDump (ifstream&,map<char, AuxField*>&,vector<Element*>&,char*&);
 static bool  doSwap  (const char*);
@@ -140,7 +140,7 @@ int main (int    argc,
   vector<AuxField*>          addbuf, outbuf;
   int_t                      i , j, k, p, q, nComponent, nFields;
   int_t                      np, nz, nel, allocSize, NCOM, NDIM, outbuf_len;
-  bool                       add[FLAG_MAX], need[FLAG_MAX], gradient;
+  bool                       add[FLAG_MAX], need[FLAG_MAX], gradient, smooth;
   FEML*                      F;
   Mesh*                      M;
   BCmgr*                     B;
@@ -158,8 +158,9 @@ int main (int    argc,
 
   Femlib::initialize (&argc, &argv);
   for (i = 0; i < FLAG_MAX; i++) add [i] = need [i] = false;
+  smooth = true;
 
-  getargs (argc, argv, session, dump, func, add);
+  getargs (argc, argv, session, dump, func, add, smooth);
 
   file.open (dump, ios::in);
   if (!file) message (prog, "no field file", ERROR);
@@ -365,11 +366,12 @@ int main (int    argc,
 	}
       }
     }
-  
-    for (map<char,AuxField*>::iterator k = addfield.begin();
-         k != addfield.end(); k++, i++)
-      D -> u[0] -> smooth(addfield[k-> first]);
-  
+    
+    if (smooth)
+      for (map<char,AuxField*>::iterator k = addfield.begin();
+	   k != addfield.end(); k++, i++)
+	D -> u[0] -> smooth(addfield[k-> first]);
+    
     outbuf_len = input.size()+addfield.size();
 
     // -- Find if input already contains some of the variables that are
@@ -413,7 +415,8 @@ static void getargs (int    argc   ,
 		     char*& session,
 		     char*& dump   ,
 		     char*& func   ,
-		     bool*  flag   )
+		     bool*  flag   ,
+		     bool&  smooth )
 // ---------------------------------------------------------------------------
 // Deal with command-line arguments.
 // ---------------------------------------------------------------------------
@@ -432,7 +435,8 @@ static void getargs (int    argc   ,
     "                NB: divergence is assumed to be zero. \n"
     "  -J        ... add vortex core measure of Jeong & Hussain (3D only)\n"
     "  -a        ... add all fields derived from velocity (above)\n"
-    "  -f <func> ... add a computed function <func> of x, y, z, t, etc.\n";
+    "  -f <func> ... add a computed function <func> of x, y, z, t, etc.\n"
+    "  -n        ... do not perform mass-matrix smoothing on added fields\n";
               
   int_t i, sum = 0;
   char  buf[StrMax];
@@ -462,6 +466,7 @@ static void getargs (int    argc   ,
       if (*++argv[0]) func = *argv; else { --argc; func = *++argv; }
       flag[FUNCTION] = true;
       break;
+    case 'n': smooth = false; break;
     default: sprintf (buf, usage, prog); cout<<buf; exit(EXIT_FAILURE); break;
     }
 
