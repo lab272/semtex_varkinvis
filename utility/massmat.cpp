@@ -1,19 +1,22 @@
-///////////////////////////////////////////////////////////////////////////////
-// massmat.cpp: print out the system mass matrix value for all (2D)
-// points in the mesh, element-by-element.  Ordering is the same as
-// the mesh locations printed out by meshpr. If CYLINDRICAL = 1 in
-// session file, mass matrix values include weighting by radius
-// (y). Printout in ASCII.
-//
+/*****************************************************************************
+ * massmat: utility to print out the system mass matrix value for all (2D)
+ * points in the mesh, element-by-element.
+ *
+ * Usage
+ * -----
+ * massmat [-h] session
+ *
+ * Synopsis
+ * --------
+ * Ordering is the same as
+ * the mesh locations printed out by meshpr. If CYLINDRICAL = 1 in
+ * session file, mass matrix values include weighting by radius
+ * (y). Printout in ASCII.
+ *
+ * @file utility/massmat.cpp
+ * @ingroup group_utility
+ *****************************************************************************/
 // Copyright (c) 2013 <--> $Date$, Hugh Blackburn
-//
-// Synopsis:
-// --------
-// massmat [-h] session
-//
-// Description: 
-// ----------- 
-//
 // --
 // This file is part of Semtex.
 // 

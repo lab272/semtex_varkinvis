@@ -1,38 +1,62 @@
-///////////////////////////////////////////////////////////////////////////////
-// meshplot.cpp: make a PostScript plot of a semtex/prism mesh from
-// data in a file produced by the meshpr utility or similar.  Graphics
-// are based on the PSplot package introduced in Numerical Recipes 3e
-// Ch. 22 and described in webnote 26, http://wwww.nr.com/webnotes?26.
-//
+/*****************************************************************************
+ * meshplot: utility to make a PostScript plot of a semtex mesh from
+ * data in a file produced by the meshpr utility or similar.
+ *
+ * Usage
+ * -----
+ * meshplot [options] [file]
+ * options:
+ *   -h        ... display this message
+ *   -a        ... do not show axes
+ *   -i        ... show element-internal structure
+ *   -n        ... show element numbers
+ *   -o 'file' ... write output to named file [Default: stdout]
+ *   -d 'prog' ... call prog to display named PostScript output file
+ *   -b 'xmin,xmax,ymin,ymax' ... limit view to region defined by string
+
+ * Synopsis
+ * --------
+ * Graphics are based on the PSplot package introduced in Numerical
+ * Recipes 3e Ch. 22 and described in webnote 26,
+ * http://www.nr.com/webnotes?26.
+ *
+ * Files
+ * -----
+ * Input consists of mesh information in ASCII format (produced by
+ * meshpr), with a single-line header followed by (x,y) mesh locations
+ * and optionally by z location list (which is ignored). File may be
+ * read on stdin.
+ *
+ * Mesh header is of form:
+ *
+ * 9 9 32 206 NR NS NZ NEL
+ *
+ * then follows (x,y) locations of each element's 2D mesh points in
+ * row-major order, ASCII format.  In all local implementations,
+ * NR=NS=np.  Finally the (NZ + 1) z-locations of the 3D mesh are
+ * supplied, if NZ>1 -- these are ignored here.
+ *
+ * @file utility/meshplot.cpp
+ * @ingroup group_utility
+ *****************************************************************************/ 
 // Copyright (c) 2019 <--> $Date$, Hugh Blackburn
-//
-// Usage:
-// ------
-// meshplot [options] [file]
-// options:
-//   -h        ... display this message
-//   -a        ... do not show axes
-//   -i        ... show element-internal structure
-//   -n        ... show element numbers
-//   -o 'file' ... write output to named file [Default: stdout]
-//   -d 'prog' ... call prog to display named PostScript output file
-//   -b 'xmin,xmax,ymin,ymax' ... limit view to region defined by string
-//
-// Files:
-// ------
-// Input consists of mesh information in ASCII format (produced by
-// meshpr), with a single-line header followed by (x,y) mesh locations
-// and optionally by z location list (which is ignored). File may be
-// read on stdin.
-//
-// Mesh header is of form:
-//
-// 9 9 32 206 NR NS NZ NEL
-//
-// then follows (x,y) locations of each element's 2D mesh points in
-// row-major order, ASCII format.  In all local implementations,
-// NR=NS=np.  Finally the NZ + 1 z locations of the 3D mesh are
-// supplied, if NZ>1 -- these are ignored here.  
+// --
+// This file is part of Semtex.
+// 
+// Semtex is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the
+// Free Software Foundation; either version 2 of the License, or (at your
+// option) any later version.
+// 
+// Semtex is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+// for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with Semtex (see the file COPYING); if not, write to the Free
+// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+// 02110-1301 USA
 //
 // $Id$
 ///////////////////////////////////////////////////////////////////////////////

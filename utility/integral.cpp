@@ -1,25 +1,31 @@
-///////////////////////////////////////////////////////////////////////////////
-// integral.cpp: return the domain integral of all fields in dump file.
-//
+/*****************************************************************************
+ * integral: utility which returns the domain integral of all 
+ * fields in dump file.
+ *
+ * Usage
+ * -----
+ * integral [-h] [-v] [-c] session [file]
+ *
+ * Synopsis 
+ * --------
+ * Read in file, first print up area of domain.  If 3D perform Fourier
+ * transform to get mean value into plane zero for each field.  Then
+ * return integral (and centroidal x,y locations) for each scalar
+ * field.  For 3D, values are multiplied by domain length, to produce
+ * volume integrals of each scalar.
+ *
+ * If the coordinate system is cylindrical, then the integrals
+ * (including the area) are weighted by the radius (hence domain
+ * volume = "area" * TWOPI/BETA: "area" is the true area * centroidal
+ * radius). Use -c switch to turn this off.
+ *
+ * Integrals are approximated by GLL quadrature at order supplied in
+ * session file.
+ *
+ * @file utility/integral.cpp
+ * @ingroup group_utility
+ *****************************************************************************/
 // Copyright (c) 1999 <--> $Date$, Hugh Blackburn
-//
-// Synopsis:
-// --------
-// integral [-h] [-v] [-c] session [file]
-//
-// Description: 
-// ----------- 
-// Read in file, first print up area of domain.  If 3D perform Fourier
-// transform to get mean value into plane zero for each field.  Then
-// return integral (and centroidal x,y locations) for each scalar
-// field.  For 3D, values are multiplied by domain length, to produce
-// volume integrals of each scalar.
-//
-// If the coordinate system is cylindrical, then the integrals
-// (including the area) are weighted by the radius (hence domain
-// volume = "area" * TWOPI/BETA: "area" is the true area * centroidal
-// radius). Use -c switch to turn this off.
-//
 // --
 // This file is part of Semtex.
 // 

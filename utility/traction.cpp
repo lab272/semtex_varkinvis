@@ -1,15 +1,19 @@
-//////////////////////////////////////////////////////////////////////////////
-// traction.cpp: Compute tractions on wall boundaries from field file.
-//
+/*****************************************************************************
+ * traction: utility to compute tractions on wall boundaries from field file.
+ *
+ * Usage
+ * -----
+ * traction session [file]
+ *
+ * Synopsis
+ * --------
+ * Essentially this carries out the same computation as is done during
+ * execution of dns, but as a standalone utility.
+ *
+ * @file utility/traction.cpp
+ * @ingroup group_utility
+ *****************************************************************************/
 // Copyright (c) 2006 <--> $Date$, Hugh Blackburn
-//
-// USAGE:
-// -----
-// traction session [file]
-//
-// Essentially this carries out the same computation as is done during
-// execution of dns, but as a standalone utility.
-//
 // --
 // This file is part of Semtex.
 // 

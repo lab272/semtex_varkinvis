@@ -1,20 +1,23 @@
-///////////////////////////////////////////////////////////////////////////////
-// transform.cpp: carry out Fourier and/or 2D polynomial transform of data.
-//
+/*****************************************************************************
+ * transform: utility to carry out Fourier and/or 2D polynomial
+ * transform of data.
+ *
+ * Usage
+ * -----
+ * transform [options] [file]
+ * options:
+ * -h       ... print this message.
+ * -i       ... invert transform.
+ * -l       ... polynomial transform is Legendre       [Default: modal]
+ * -P||F||B ... Carry out DPT (P), DFT (F) or both (B) [Default: both]
+ * 
+ * If file is not present, read from standard input.  Write to
+ * standard output.
+ *
+ * @file utility/transform.cpp
+ * @ingroup group_utility
+ *****************************************************************************/
 // Copyright (c) 1999 <--> $Date$, Hugh Blackburn
-//
-// USAGE
-// -----
-// transform [options] [file]
-// options:
-// -h       ... print this message.
-// -i       ... invert transform.
-// -l       ... polynomial transform is Legendre       [Default: modal]
-// -P||F||B ... Carry out DPT (P), DFT (F) or both (B) [Default: both]
-// 
-// If file is not present, read from standard input.  Write to
-// standard output.
-//
 // --
 // This file is part of Semtex.
 // 

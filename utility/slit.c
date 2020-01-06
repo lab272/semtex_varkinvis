@@ -1,11 +1,16 @@
 /******************************************************************************
- * slit.c: reproduce specified columns of input on output.
+ * slit: utility to reproduce specified columns of ASCII input file
+ * on output.
  *
- * Copyright (c) 1990 <--> $Date$, Hugh Blackburn
- *
- * Usage: slit [-c <colstr>] [file], where <colstr> is a
+ * Usage
+ * -----
+ * slit [-c <colstr>] [file], where <colstr> is a
  * comma-separated list of column numbers.
  *
+ * @file utility/slit.c
+ * @ingroup group_utility
+ *****************************************************************************/
+/* Copyright (c) 1990 <--> $Date$, Hugh Blackburn
  * --
  * This file is part of Semtex.
  * 

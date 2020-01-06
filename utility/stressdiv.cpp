@@ -1,83 +1,88 @@
-//////////////////////////////////////////////////////////////////////////////
-// stressdiv.cpp: from a field file containing Reynolds stresses,
-// compute their NEGATIVE divergence to give mean-flow forcing terms.
+/*****************************************************************************
+ * stressdiv: from a field file containing Reynolds stresses, utility
+ * computes their NEGATIVE divergence to give mean-flow forcing terms.
+ *
+ * Usage
+ * -----
+ * stressdiv [options] session session.rey
+ *   options:
+ *   -h        ... print this message
+ *
+ * Output to standard output.
+ *
+ * Synopsis
+ * --------
+ * NB: the input field file is assumed to contain only velocity and
+ * appropriate Reynolds stress data (and so is an AVERAGE=2 .avg file
+ * that has already been passed through rstress).  The naming
+ * conventions employed for example in addfield.cpp are broken (names
+ * are here used for different variables).
+ *
+ * Input field names
+ * -----------------
+ *
+ * u -- x velocity component (cylindrical: axial)
+ * v -- y velocity component (cylindrical: radial)
+ * w -- z velocity component (cylindrical: azimuthal)
+ * p -- pressure/density
+ *
+ * Names for components of the symmetric Reynolds stresses:
+ *
+ *                      / uu uv uw \     /  A  B  D \
+ *                      | .  vv vw |  =  |  .  C  E |
+ *                      \ .  .  ww /     \  .  .  F /
+ *
+ * Output field names
+ * ------------------
+ *
+ * u -- x momentum equation forcing
+ * v -- y momentum equation forcing
+ * w -- z momentum equation forcing
+ *
+ * Cartesian coordinates/3D
+ * ------------------------
+ *
+ * u = -[d(A)/dx + d(B)/dy + d(D)/dz]
+ * v = -[d(B)/dx + d(C)/dy + d(E)/dz]
+ * w = -[d(D)/dx + d(E)/dy + d(F)/dz]
+ *
+ * Cartesian coordinates/2D
+ * ------------------------
+ *
+ * u = -[d(A)/dx + d(B)/dy]
+ * v = -[d(B)/dx + d(C)/dy]
+ *
+ * Cylindrical coordinates/3D
+ * --------------------------
+ *
+ * u = -[d(A)/dx + 1/y*d(y*B)/dy + 1/y*d(D)/dz]
+ *   = -[d(A)/dx + d(B)/dy + B/y + 1/y*d(D)/dz]
+ * v = -[d(B)/dx + 1/y*d(y*C)/dy + 1/y*d(E)/dz - F/y]
+ *   = -[d(B)/dx + d(C)/dy + C/y + 1/y*d(E)/dz - F/y]
+ * w = -[d(D)/dx + d(E)/dy       + 1/y*d(F)/dz + 2*E/y]
+ *
+ * Cylindrical coordinates/2D
+ * --------------------------
+ *
+ * u = -[d(A)/dx + 1/y*d(y*B)/dy = d(A)/dx + d(B)/dy + B/y]
+ * v = -[d(B)/dx + 1/y*d(y*C)/dy = d(B)/dx + d(C)/dy + C/y]
+ *
+ * The dimensionality of the problem is determined from
+ *
+ * 1. The number of z planes in the input data file (not the
+ * session file). If this is 1 then only A, B, C are considered.
+ *
+ * 2. If nz > 1 then also the input must contain the terms D, E, F. In
+ * this case, the value of BETA in the session file is used in
+ * computing z-derivatives.
+ *
+ * NB. The output fields are smoothed (made C_0 across element boundaries).
+ *
+ * @file utility/stressdiv.cpp
+ * @ingroup group_utility
+ *****************************************************************************/
 //
 // Copyright (c) 2010 <--> $Date$, Hugh Blackburn
-//
-// NB: the input field file is assumed to contain only velocity and
-// appropriate Reynolds stress data (and so is an AVERAGE=2 .avg file
-// that has already been passed through rstress).  The naming
-// conventions employed for example in addfield.cpp are broken (names
-// are here used for different variables).
-//
-// Usage:
-// -----
-// stressdiv [options] session session.rey
-//   options:
-//   -h        ... print this message
-//
-// Output to standard output.
-//
-// Input field names:
-// ------------------
-//
-// u -- x velocity component (cylindrical: axial)
-// v -- y velocity component (cylindrical: radial)
-// w -- z velocity component (cylindrical: azimuthal)
-// p -- pressure/density
-//
-// Names for components of the symmetric Reynolds stresses:
-//
-//                      / uu uv uw \     /  A  B  D \
-//                      | .  vv vw |  =  |  .  C  E |
-//                      \ .  .  ww /     \  .  .  F /
-//
-// Output field names:
-// -------------------
-//
-// u -- x momentum equation forcing
-// v -- y momentum equation forcing
-// w -- z momentum equation forcing
-//
-// Cartesian coordinates/3D:
-// ---------------------------
-//
-// u = -[d(A)/dx + d(B)/dy + d(D)/dz]
-// v = -[d(B)/dx + d(C)/dy + d(E)/dz]
-// w = -[d(D)/dx + d(E)/dy + d(F)/dz]
-//
-// Cartesian coordinates/2D:
-// ---------------------------
-//
-// u = -[d(A)/dx + d(B)/dy]
-// v = -[d(B)/dx + d(C)/dy]
-//
-// Cylindrical coordinates/3D:
-// ---------------------------
-//
-// u = -[d(A)/dx + 1/y*d(y*B)/dy + 1/y*d(D)/dz]
-//   = -[d(A)/dx + d(B)/dy + B/y + 1/y*d(D)/dz]
-// v = -[d(B)/dx + 1/y*d(y*C)/dy + 1/y*d(E)/dz - F/y]
-//   = -[d(B)/dx + d(C)/dy + C/y + 1/y*d(E)/dz - F/y]
-// w = -[d(D)/dx + d(E)/dy       + 1/y*d(F)/dz + 2*E/y]
-//
-// Cylindrical coordinates/2D:
-// ---------------------------
-//
-// u = -[d(A)/dx + 1/y*d(y*B)/dy = d(A)/dx + d(B)/dy + B/y]
-// v = -[d(B)/dx + 1/y*d(y*C)/dy = d(B)/dx + d(C)/dy + C/y]
-//
-// The dimensionality of the problem is determined from
-//
-// 1. The number of z planes in the input data file (not the
-// session file). If this is 1 then only A, B, C are considered.
-//
-// 2. If nz > 1 then also the input must contain the terms D, E, F. In
-// this case, the value of BETA in the session file is used in
-// computing z-derivatives.
-//
-// NB. The output fields are smoothed (made C_0 across element boundaries).
-//
 // --
 // This file is part of Semtex.
 // 

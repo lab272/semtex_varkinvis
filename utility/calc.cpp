@@ -1,10 +1,14 @@
-///////////////////////////////////////////////////////////////////////////////
-// calc.cpp: a basic calculator using the function parser.
-//
+/*****************************************************************************
+ * calc: a simple calculator based on the femlib function parser.
+ *
+ * Usage
+ * -----
+ * calc [-h] [file]
+ *
+ * @file utility/calc.cpp
+ * @ingroup group_utility
+ *****************************************************************************/
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
-//
-// Usage: calc [-h] [file]
-//
 // --
 // This file is part of Semtex.
 // 

@@ -1,9 +1,15 @@
 /*****************************************************************************
- * avgdump.c:  Compute (running) averages of field files.
+ * avgdump: utility which computes (running) averages of field files.
  *
- * Copyright (c) 1999 <--> $Date$, Hugh Blackburn
+ * Usage
+ * -----
+ * avgdump [options] old.file new.file
+ * options:
+ * -h       ... print this message
+ * -i       ... initialise averaging
+ * -r <eps> ... weight new file by eps and old file by (1-eps)
  *
- * SYNOPSIS
+ * Synopsis
  * --------
  * Input is two field files.  The first ("old.file") is assumed to
  * contain a running average of previous dumps, while the second
@@ -30,14 +36,10 @@
  * used although it gets updated and stored.  For this mode, the
  * command-line initialization flag "-i" is not needed (is ignored).
  *
- * USAGE
- * -----
- * avgdump [options] old.file new.file
- * options:
- * -h       ... print this message
- * -i       ... initialise averaging
- * -r <eps> ... weight new file by eps and old file by (1-eps)
- *
+ * @file utility/avgdump.c
+ * @ingroup group_utility
+ *****************************************************************************/
+/* Copyright (c) 1999 <--> $Date$, Hugh Blackburn
  * --
  * This file is part of Semtex.
  * 

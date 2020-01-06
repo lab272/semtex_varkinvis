@@ -1,20 +1,24 @@
 /*****************************************************************************
- * xplane.c: from a 3D data file, extract a 2D plane of data on named
- * plane and output 2D data file.  Field must be binary format.  By
- * default, output plane 1 (i.e. the first plane). Optionally (-2)
- * output two consecutive planes, i.e. a Fourier mode (presuming the
- * input has first been Fourier transformed); in this case the
- * requested plane number is the first of the two desired plane
- * indices.  Plane indexing used for command line is 1-based.
+ * xplane: from a 3D data file, extract a 2D plane of data on named
+ * plane and output 2D data file.  
  *
- * Copyright (c) 2000 <--> $Date$, Hugh Blackburn
- *
- * USAGE
+ * Usage
  * -----
  * xplane [-h] [-n plane] [-2] [input[.fld]
  *
-
+ * Synopsis
+ * --------
+ * Field must be binary format.  By default, output plane 1 (i.e. the
+ * first plane). Optionally (-2) output two consecutive planes, i.e. a
+ * Fourier mode (presuming the input has first been Fourier
+ * transformed); in this case the requested plane number is the first
+ * of the two desired plane indices.  Plane indexing used for command
+ * line is 1-based.
  *
+ * @file utility/xplane.c
+ * @ingroup group_utility
+ *****************************************************************************/
+/* Copyright (c) 2000 <--> $Date$, Hugh Blackburn
  * --
  * This file is part of Semtex.
  * 

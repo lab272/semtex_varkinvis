@@ -1,19 +1,25 @@
-///////////////////////////////////////////////////////////////////////////////
-// data2df_template.cpp: Read in a data file header and its data (no
-// geometric information) and output.  This is a template file that
-// can be a starting point for further data processing.
-//
+/*****************************************************************************
+ * data2df_template: a boilerplate utility file that could be a starting
+ * point for further limited data processing.
+ *
+ * Usage
+ * -----
+ * data2df_template [options] [file]
+ * options:
+ * -h       ... print this message.
+ *
+ * Synopsis
+ * --------
+ * Read in a data file header and its data (no geometric information)
+ * and output.  If file is not present, read from standard input.
+ * Write to standard output. In this boilerplate file, no other action
+ * is taken. The main intention is to show how to get data in and out.
+ * Actions available in src/data2df.cpp (2D x Fourier) may be used.
+ * 
+ * @file utility/data2df_template.cpp
+ * @ingroup group_utility
+ *****************************************************************************/
 // Copyright (c) 2008 <--> $Date$, Hugh Blackburn
-//
-// USAGE
-// -----
-// data2df_template [options] [file]
-// options:
-// -h       ... print this message.
-//
-// If file is not present, read from standard input.  Write to
-// standard output.
-///////////////////////////////////////////////////////////////////////////////
 
 static char RCS[] = "$Id$";
 

@@ -1,17 +1,21 @@
 /*****************************************************************************
- * repeatxy.c: read a field file, and output the number of repetitions
- * in x-y planes indicated on the command line.  Field must be
- * binary format.  By default, output the original file, no repeats.
- * Adust Nel in header as appropriate.
+ * repeatxy: utility to read a field file, and output the number of
+ * repetitions in x-y planes indicated on the command line.
  *
- * This is the planar equivalent of repeatz.c
- *
- * Copyright (c) 2002 <--> $Date$, Hugh Blackburn.
- *
- * USAGE
+ * Usage
  * -----
  * repeatxy [-h] [-n <rep>] [input[.fld]
  *
+ * Synopsis
+ * --------
+ * This is the planar equivalent of repeatz.c.  Field must be binary
+ * format.  By default, output the original file, no repeats.  Adust
+ * Nel in header as appropriate.
+ *
+ * @file utility/repeatxy.c
+ * @ingroup group_utility
+ *****************************************************************************/
+/* Copyright (c) 2002 <--> $Date$, Hugh Blackburn.
  * --
  * This file is part of Semtex.
  * 

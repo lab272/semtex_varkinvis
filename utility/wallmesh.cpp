@@ -1,21 +1,23 @@
-///////////////////////////////////////////////////////////////////////////////
-// wallmesh.cpp
-//
+/****************************************************************************
+ * wallmesh: utility to extract wall nodes of a mesh file.
+ *
+ * Usage
+ * -----
+ * wallmesh [options] session [mesh.file]
+ * options:
+ * -h ... print this message
+ *
+ * Synopsis
+ * --------
+ * This is a filter for the mesh output of meshpr: reproduce on cout
+ * only the points that are fall on "wall" surfaces, as defined in the
+ * session file.  Read from stdin or optionally from a named file.
+ * "Obviously" the session file used should match that used by meshpr.
+ *
+ * @file utility/wallmesh.cpp
+ * @ingroup group_utility
+ *****************************************************************************/
 // Copyright (c) 2004 <--> $Date$, Hugh Blackburn
-//
-// SYNOPSIS
-// --------
-// This is a filter for the mesh output of meshpr: reproduce on cout
-// only the points that are fall on "wall" surfaces, as defined in the
-// session file.  Read from stdin or optionally from a named file.
-// "Obviously" the session file used should match that used by meshpr.
-//
-// USAGE
-// -----
-// wallmesh [options] session [mesh.file]
-// options:
-// -h ... print this message
-//
 // --
 // This file is part of Semtex.
 // 

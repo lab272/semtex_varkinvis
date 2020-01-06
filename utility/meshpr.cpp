@@ -1,28 +1,34 @@
-///////////////////////////////////////////////////////////////////////////////
-// meshpr.cpp: utility to generate mesh nodes from mesh description file.
-//
+/*****************************************************************************
+ * meshpr: utility to generate mesh nodes from mesh description file.
+ *
+ * Usage
+ * -----
+ * meshpr [options] file
+ *   options:
+ *   -h       ... display this message
+ *   -c       ... disable checking of mesh connectivity
+ *   -s       ... list surfaces not determined by mesh connectivity (only)
+ *   -v       ... set verbose output
+ *   -u       ... set uniform spacing [Default: GLL]
+ *   -3       ... produce 3D mesh output: Np*Np*Nz*Nel*(x y z)
+ *   -n <num> ... override element order to be num
+ *   -z <num> ... override number of planes to be num
+ *   -b <num> ... override wavenumber beta to be <num> (3D)
+ *
+ * Prism-compatible output.
+ *
+ * Synopsis
+ * --------
+ * Note that option 's' does not print mesh node locations but instead
+ * lists element sides that are free from internal element
+ * connectivity. This option could be used to provide a default list
+ * of surfaces as a starting point for editing if this information is
+ * not yet determined. -s ==> -c.
+ *
+ * @file utility/meshpr.cpp
+ * @ingroup group_utility
+ *****************************************************************************/
 // Copyright (c) 1995 <--> $Date$, Hugh Blackburn
-//
-// Usage: meshpr [options] file
-//   options:
-//   -h       ... display this message
-//   -c       ... disable checking of mesh connectivity
-//   -s       ... list surfaces not determined by mesh connectivity (only)
-//   -v       ... set verbose output
-//   -u       ... set uniform spacing [Default: GLL]
-//   -3       ... produce 3D mesh output: Np*Np*Nz*Nel*(x y z)
-//   -n <num> ... override element order to be num
-//   -z <num> ... override number of planes to be num
-//   -b <num> ... override wavenumber beta to be <num> (3D)
-//
-// Prism-compatible output.
-//
-// Note that option 's' does not print mesh node locations but instead
-// lists element sides that are free from internal element
-// connectivity. This option could be used to provide a default list
-// of surfaces as a starting point for editing if this information is
-// not yet determined. -s ==> -c.
-//
 // --
 // This file is part of Semtex.
 //

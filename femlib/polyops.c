@@ -22,7 +22,6 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
- *
  * Summary of routines:
  * --------------------
  * dermat_g: Derivative operator for Lagrange interpolant, arbitrary points.
@@ -42,7 +41,7 @@
  * uniknot : Points uniformly distributed on [-1, 1].
  *
  * Many routines that deal specifically with orthogonal polynomials come from
- * a library of spectral routines written in FORTRAN by Einar Ronquist, MIT.
+ * a library of spectral routines written in Fortran by Einar Ronquist, MIT.
  * Many of the formulae used may be found in Canuto, Hussaini, Quarteroni &
  * Zang, "Spectral Methods in Fluid Dynamics", Springer, 1988.
  * The JACOBF routine comes from Funaro, as that has been verified to work

@@ -1,8 +1,8 @@
 /*****************************************************************************
- * TOPRE.C: make a NEKTON preprocessor input file. (See NEK5000 site.)
+ * topre: utility to make a NEKTON preprocessor input file. (See NEK5000 site.)
  *
- * Copyright (c) 1994 <--> $Date$, Hugh Blackburn
- *
+ * Synopsis
+ * --------
  * Generate, from an indexed list of 2D points and a list of index
  * quadruplets, the element-description part of a text file to be used as
  * input for the NEKTON preprocessor, PRE.  The quadruplets give the indices
@@ -31,6 +31,10 @@
  * an ASCII file called "sm.dat" is generated, so that sm can be used for a
  * quick visual check of the mesh (using Ron's "meshplot" macro set).
  *
+ * @file utility/topre.c
+ * @ingroup group_utility
+ *****************************************************************************/
+/* Copyright (c) 1994 <--> $Date$, Hugh Blackburn
  * --
  * This file is part of Semtex.
  * 

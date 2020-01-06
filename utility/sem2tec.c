@@ -1,11 +1,15 @@
 /*****************************************************************************
- * sem2tec: convert a semtex field file to AMTEC Tecplot format.
+ * sem2tec: utility to convert a semtex field file to AMTEC Tecplot format.
  *
- * Copyright (c) 1990 <--> $Date$, 
+ * Usage
+ * -----
+ * sem2tec [-h] [-o output] [-m mesh] [-n #] [-d #] [-w] input[.fld]
+ *
+ * @file utility/sem2tec.c
+ * @ingroup group_utility
+ * **************************************************************************/
+/* Copyright (c) 1990 <--> $Date$, 
  *   Ron Henderson, Hugh Blackburn
- *
- * Usage: sem2tec [-h] [-o output] [-m mesh] [-n #] [-d #] [-w] input[.fld]
- *
  * --
  * This file is part of Semtex.
  * 

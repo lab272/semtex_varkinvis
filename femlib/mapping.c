@@ -64,7 +64,7 @@ void edgemaps (const int_t nk ,
  * NULL input pointers are not assigned a value.
  * ------------------------------------------------------------------------- */
 {
-  char              routine[] = "edgemaps";
+  char            routine[] = "edgemaps";
   const int_t     len = (dim == 2) ? nk * nk : nk;
   register int_t  found = 0;
   register Mapping* p;

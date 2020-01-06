@@ -1,38 +1,43 @@
-///////////////////////////////////////////////////////////////////////////////
-// mapmesh.cpp: a filter to map the NODES in a session file according to
-// formulae supplied on the command line. Can be used e.g. to map a
-// rectangular domain to a boundary-fitted shape.  It is the user's
-// responsiblity to ensure that the mapping does not produce Jacobians
-// that are not positive-definite (for example a reflection would
-// violate this requirement).
-//
+/*****************************************************************************
+ * mapmesh: a utility to map the NODES in a session file according to
+ * formulae supplied on the command line.
+ *
+ * Usage:
+ * -----
+ * mapmesh [-x <string>] [-y <string>] session
+ *   -x <string> ... x <-- f(x, y), f is supplied by string
+ *   -y <string> ... y <-- g(x, y), g is supplied by string
+ *   session     ... name of a semtex session file
+ *
+ * Strings are STR_MAX (see cfemdef.h) maximum length, and acceptable to
+ * the semtex parser (or calc).
+
+ * Synopsis
+ * --------
+ * Can be used e.g. to map a rectangular domain to a boundary-fitted
+ * shape.  It is the user's responsiblity to ensure that the mapping
+ * does not produce Jacobians that are not positive-definite (for
+ * example a reflection would violate this requirement).
+ *
+ * Examples
+ * --------
+ * mapmesh -y acos(PI*y/2.0) session
+ * maps the y locations of nodes: y = cos^(-1)(PI/2*y)
+ *
+ * mapmesh -x x*cos(PI/4)-y*sin(PI/4) -y x*sin(PI/4)+y*cos(PI/4) session
+ * rotates the mesh by 45 degrees.
+ *
+ * Files
+ * -----
+ * Input file "session" is assumed to be a valid session file. Only
+ * the x, y locations of the NODES section are operated on, the
+ * remainder is repeated verbatim (so that any plain text file passes
+ * through unmodified).
+ *
+ * @file utility/mapmesh.cpp
+ * @ingroup group_utility
+ *****************************************************************************/
 // Copyright (c) 2010 <--> $Date$, Hugh Blackburn
-//
-// Usage:
-// -----
-// mapmesh [-x <string>] [-y <string>] session
-//   -x <string> ... x <-- f(x, y), f is supplied by string
-//   -y <string> ... y <-- g(x, y), g is supplied by string
-//   session     ... name of a semtex session file
-//
-// Strings are STR_MAX (see cfemdef.h) maximum length, and acceptable to
-// the semtex parser (or calc).
-//
-// Examples:
-// --------
-// mapmesh -y acos(PI*y/2.0) session
-// maps the y locations of nodes: y = cos^(-1)(PI/2*y)
-//
-// mapmesh -x x*cos(PI/4)-y*sin(PI/4) -y x*sin(PI/4)+y*cos(PI/4) session
-// rotates the mesh by 45 degrees.
-//
-// Files:
-// -----
-// Input file "session" is assumed to be a valid session file. Only
-// the x, y locations of the NODES section are operated on, the
-// remainder is repeated verbatim (so that any plain text file passes
-// through unmodified).
-//
 // --
 // This file is part of Semtex.
 // 
