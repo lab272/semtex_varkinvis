@@ -3,13 +3,18 @@
 # Interactive field file composition utility to combine two field
 # files, with field selection.  Alternatively, given a single field
 # file, choose (and perhaps rename) selected fields.  Write binary
-# file.
+# file (asked for name).
 #
 # 1. compose.py file.fld
 # 2. compose.py file1.fld file2.fld
 #
 # Input files are assumed to be in a machine-compatible binary format.
 # In the second case, the field files must conform (nr, ns, nel, nz).
+#
+# This utility cannot reorder output fields, and unless you rename/choose
+# output field names appropriately, it possible to repeat field names.
+#
+# $Id$
 # ----------------------------------------------------------------------------
 
 import numpy as np
@@ -36,39 +41,63 @@ else:
     sys.exit(1)
 
 if (mode == 1):
-    print 'Input file contains these fields: indicate the ones you want:' 
+    print 'Input has these fields, supply a string below to',
+    print 'indicate/rename ones you want:'
     print file1.hdr.fields
     required_fields = raw_input()
-    print required_fields
     wanted = re.findall(r'\S+', required_fields)
-    print wanted
     
-outfile = raw_input("type in an output file name: ")
+    outfile = raw_input("type in an output file name: ")
+    newhdr = file1.hdr
+    newhdr.fields = wanted[0]
+    ofile = fieldfile.Fieldfile(outfile, "w", newhdr)
 
-ofile = fieldfile.Fieldfile(outfile, "w", file1.hdr)
-ofile.hdr.fields = wanted[0]
-print ofile.hdr
-print ofile.ntot
+    ofile.data = np.zeros((len(ofile.hdr.fields),ofile.ntot))
 
-data_dict = {} 
-for i, field in enumerate(ff.fields):
-    data_dict[field] = data[i]
+    j = 0
+    for i, field in enumerate(file1.fields):
+        buf = file1.f.read(file1.ntot*8)
+        if (required_fields[i].isspace()) == False:
+            ofile.data[j] = np.fromstring(buf, np.float64, -1)
+            j += 1
 
-    # -- Expect uvcp.
-    
-    if ff.hdr.fields != 'uvcp':
-        sys.exit ("c2w.py: expected fields uvcp, found something else")
-    
-    # -- Zero everything but c.
-    
-    data_dict['u'].fill(0.0)
-    data_dict['v'].fill(0.0)
-    data_dict['p'].fill(0.0)
-    
-    # -- Write output.
+    ofile.write(ofile.data)
+    file1.close()
+    ofile.close()
 
-    ff.hdr.fields = 'uvwp'
-    ff.hdr.time   = 0.0
-    ff.hdr.step   = 0
-    ff_out = fieldfile.Fieldfile('/dev/stdout', 'w', ff.hdr)
-    ff_out.write(data)
+else:
+    print 'Input1 has these fields, supply a string below to',
+    print 'indicate/rename ones you want:'
+    print file1.hdr.fields
+    required_fields1 = raw_input()
+    wanted1 = re.findall(r'\S+', required_fields1)
+    
+    print 'Input2 has these fields, supply a string below to',
+    print 'indicate/rename ones you want:'
+    print file2.hdr.fields
+    required_fields2 = raw_input()
+    wanted2 = re.findall(r'\S+', required_fields2)
+
+    outfile = raw_input("type in an output file name: ")
+    newhdr  = file1.hdr
+    newhdr.fields = wanted1[0] + wanted2[0]
+    ofile = fieldfile.Fieldfile(outfile, 'w', newhdr)
+
+    ofile.data = np.zeros((len(ofile.hdr.fields),ofile.ntot))
+
+    j = 0
+    for i, field in enumerate(file1.fields):
+        buf = file1.f.read(file1.ntot*8)
+        if (required_fields1[i].isspace()) == False:
+            ofile.data[j] = np.fromstring(buf, np.float64, -1)
+            j += 1
+    for i, field in enumerate(file2.fields):
+        buf = file2.f.read(file2.ntot*8)
+        if (required_fields2[i].isspace()) == False:
+            ofile.data[j] = np.fromstring(buf, np.float64, -1)
+            j += 1
+
+    ofile.write(ofile.data)            
+    file1.close()
+    file2.close()
+    ofile.close()
