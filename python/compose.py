@@ -45,11 +45,14 @@ if (mode == 1):
     print 'indicate/rename ones you want:'
     print file1.hdr.fields
     required_fields = raw_input()
-    wanted = re.findall(r'\S+', required_fields)
+    if (len(required_fields) < len(file1.hdr.fields)):
+        print required_fields, ': cannot shorter than :', file1.hdr.fields
+        sys.exit(1)
+    wanted = ''.join(re.findall(r'\S+', required_fields))
     
     outfile = raw_input("type in an output file name: ")
     newhdr = file1.hdr
-    newhdr.fields = wanted[0]
+    newhdr.fields = wanted
     ofile = fieldfile.Fieldfile(outfile, "w", newhdr)
 
     ofile.data = np.zeros((len(ofile.hdr.fields),ofile.ntot))
@@ -70,17 +73,24 @@ else:
     print 'indicate/rename ones you want:'
     print file1.hdr.fields
     required_fields1 = raw_input()
-    wanted1 = re.findall(r'\S+', required_fields1)
+    if (len(required_fields1) < len(file1.hdr.fields)):
+        print required_fields1, ': cannot be shorter than :', file1.hdr.fields
+        sys.exit(1)
+    wanted1 = ''.join(re.findall(r'\S+', required_fields1))
     
     print 'Input2 has these fields, supply a string below to',
     print 'indicate/rename ones you want:'
     print file2.hdr.fields
     required_fields2 = raw_input()
-    wanted2 = re.findall(r'\S+', required_fields2)
+    if (len(required_fields2) < len(file2.hdr.fields)):
+        print required_fields2, ': cannot be shorter than :', file2.hdr.fields
+        sys.exit(1)    
+    wanted2 = ''.join(re.findall(r'\S+', required_fields2))
 
     outfile = raw_input("type in an output file name: ")
     newhdr  = file1.hdr
-    newhdr.fields = wanted1[0] + wanted2[0]
+    newhdr.fields = wanted1 + wanted2
+    print 'new file will have fields: ', newhdr.fields
     ofile = fieldfile.Fieldfile(outfile, 'w', newhdr)
 
     ofile.data = np.zeros((len(ofile.hdr.fields),ofile.ntot))
