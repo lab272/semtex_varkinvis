@@ -675,10 +675,11 @@ static int_t EV_test (const int_t  itrn   ,
 
   // -- Print diagnostic information.
 
-  runinfo << "-- Iteration = " << itrn << ", H(k+1, k) = " << resnorm << endl;
-
   runinfo.precision(4);
   runinfo.setf(ios::scientific, ios::floatfield);
+
+  runinfo << "-- Iteration = " << itrn << ", H(k+1, k) = ";
+  runinfo << resnorm << endl;
 
   runinfo << "EV  Magnitude   Angle       Growth      Frequency   Residual"
        << endl;

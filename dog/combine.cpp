@@ -1,5 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
-// combine.C: add a perturbation mode to a base flow, output in physical space.
+// combine.cpp: add a perturbation/mode to a base flow, output in
+// physical space.
 //
 // Copyright (c) 2002 <--> $Date$, Hugh Blackburn
 //

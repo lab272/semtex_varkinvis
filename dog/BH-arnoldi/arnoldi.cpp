@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////////
-// arnoldi.C: compute leading eigenvalues and eigenvectors of (real)
+// arnoldi.cpp: compute leading eigenvalues and eigenvectors of (real)
 // arbitrary sparse matrix using Arnoldi iteration.  Sparse matrices
 // are read and stored internally using Harwell--Boeing (HB) format.
 // 
-// Based on code floK by Dwight Barkley
+// Based on code floK by Dwight Barkley, but now allows ARPACK solution too.
 //
 // USAGE
 // -----
