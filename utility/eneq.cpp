@@ -1,6 +1,6 @@
 /*****************************************************************************
  * eneq: utility to compute terms in either the mean or fluctutating kinetic
- * energy.
+ * energy equation.
  *
  * Usage
  * -----

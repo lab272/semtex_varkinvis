@@ -74,6 +74,7 @@ LDFLAGS  = $(OPT) $(LIBDIR) -lfem -lvec $(F77LIBS)
 F77LIBS  = -framework Accelerate -lgfortran
 CLDFLAGS = $(LDFLAGS)
 ifdef MPI
+  CPPFLAGS += -I/opt/local/include/openmpi-mp
   LIBDIR   += -L/opt/local/lib/openmpi-mp
   LDFLAGS   =  $(OPT) $(LIBDIR) -lfem_mp -lvec $(F77LIBS) -lmpi
 else

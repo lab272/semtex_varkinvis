@@ -1,5 +1,5 @@
 /*****************************************************************************
- * lowpass: utility to carry lowpass filtering of data in polynomial
+ * lowpass: utility to carry out lowpass filtering of data in polynomial
  * and/or Fourier space.
  *
  * Usage
