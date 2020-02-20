@@ -1735,7 +1735,7 @@ real_t AuxField::CFL (const int_t dir, int_t& el) const
       for (p = _plane[k], i = 0; i < nel; i++, p += npnp) {
         cfl = _elmt[i] -> CFL (p, 0, &work[0]);
         if (cfl > CFL) {
-           el = i;
+           el  = i;
            CFL = cfl;
         }
       }
@@ -1746,7 +1746,7 @@ real_t AuxField::CFL (const int_t dir, int_t& el) const
       for (p = _plane[k], i = 0; i < nel; i++, p += npnp) {
         cfl = _elmt[i] -> CFL (0, p, &work[0]);
         if (cfl > CFL) {
-           el = i;
+           el  = i;
            CFL = cfl;
         }
       }
@@ -1754,8 +1754,8 @@ real_t AuxField::CFL (const int_t dir, int_t& el) const
     break;
   case 2: {
     for (k = 0; k < nZ; k++)
-      for (i = 0; i < nP; i++) {
-        cfl = fabs (_plane[k][i]);
+      for (p = _plane[k], i = 0; i < nP; i++) {
+        cfl = fabs (p[i]);
         if (cfl > CFL) {
           el  = i % npnp;
           CFL = cfl;
