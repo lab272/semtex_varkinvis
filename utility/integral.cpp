@@ -103,6 +103,7 @@ int main (int    argc,
   Geometry::set (NP, NZ, NEL, space);
   Esys.resize   (NEL);
 
+  // -- Note: for cylindrical coords, this "Area" is radius-weighted.
   for (i = 0; i < NEL; i++) {
     Esys[i] = new Element (i, NP, M);
     Area   += Esys[i] -> area();

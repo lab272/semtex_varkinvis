@@ -9,6 +9,10 @@
 
  * 2. Alternatively, when two input files are supplied, compute a
  * single outcome file via elementary arithmetic operations (+,-,*,/).
+ * In this case the names (and orderings) of supplied fields are
+ * arbitrary, provided that the second file contains (at least) the
+ * fields contained in the first file: the operations are only done on
+ * matching fields.
  *
  * Usage
  * -----
@@ -27,7 +31,8 @@
  * For arithmetic operations, there can be more fields in the first
  * (typically the average field file) than in the second (typically an
  * instantaneous file).  The operation is only performed on the
- * variables present in both files.
+ * variables present in both files, and likewise, output is confined
+ * to those variables.
  *
  * Synopsis
  * --------
