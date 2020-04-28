@@ -27,9 +27,9 @@
 //
 // References
 // ----------
-// [1] Blackburn & Sherwin (2004) "Formulation of a Galerkin spectral
-//     element--Fourier method for three-dimensional incompressible flows
-//     in cylindrical geometries", JCP 179:759-778
+// Blackburn, Lee, Albrecht & Singh (2019) "Semtex: a spectral
+// element-Fourier solver for the incompressible Navier-Stokes
+// equations in cylindrical or Cartesian coordinates", CPC 245:106804
 //
 // --
 // This file is part of Semtex.
