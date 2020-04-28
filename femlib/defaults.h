@@ -56,7 +56,8 @@ static struct {
   "SVV_MZ"      ,  -1      ,    /* -- SVV Fourier mode start, < (N_Z/2).  */
   "SVV_EPSZ"    ,   0.0    ,    /* -- SVV Fourier Eps, as for SEM.        */
   
-  "UODelta"     ,   0.05   ,    /* -- Outflow boundary velocity scale.    */
+  "DONG_UODELTA",   0.05   ,    /* -- Open boundary velocity scale.       */
+  "DONG_DO"     ,   1.0    ,    /* -- Open boundary convection scale.     */
 
   /* -- Option switches. */
 
@@ -83,6 +84,7 @@ static struct {
   "N_P"         ,   5   ,	/* -- No. of points along element edge.  */
   "N_TIME"      ,   2   ,	/* -- Order of timestepping scheme.      */
   "N_STEP"      ,   1   ,	/* -- Number of timesteps to integrate.  */
+  "STEP"        ,   0   ,	/* -- Index of current time step.        */
   "N_Z"         ,   1   ,	/* -- Number of planes of data.          */
   "I_PROC"      ,   0   ,	/* -- Process index for parallel soln.   */
   "N_PROC"      ,   1   ,	/* -- Number of processes for parallel.  */

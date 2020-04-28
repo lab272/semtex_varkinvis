@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// svv.C: provide SVV-stabilized differentiation operator matrices/constants.
+// svv.cpp: provide SVV-stabilized differentiation operator matrices/constants.
 //
 // The operating convention is similar to what the equivalent femlib
 // routines provide: we only return pointers if the input pointers are
@@ -187,7 +187,7 @@ void operators (const int_t    np ,
 
 #if 0
 // -- Self-contained testing.
-//g++ svv.C -I. -I../semtex/include -L../semtex/lib/Darwin -L/sw/lib -lfem -lvec -framework Accelerate -lg2c
+//g++ svv.cpp -I. -I../semtex/include -L../semtex/lib/Darwin -L/sw/lib -lfem -lvec -framework Accelerate -lg2c
 int main (int    argc,
 	  char** argv)
 {

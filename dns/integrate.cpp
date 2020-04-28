@@ -33,12 +33,11 @@
 // [3] Blackburn & Sherwin (2004) "Formulation of a Galerkin spectral
 //     element--Fourier method for three-dimensional incompressible flows
 //     in cylindrical geometries", JCP 179:759-778
-// [4] Dong, Karniakadis & Chryssostomides (2014) "A robust and
-//     accurate outflow boundary condition for incompressible flow
-//     simulations on severely-truncated unbounded domains", JCP 261:83-105.
+// [4] Dong (2015) "A convective-like energy-stable open boundary condition
+//     for simulations of incompressible flows.  JCP 302:300-328.
 // [5] Blackburn, Lee, Albrecht & Singh (2019) "Semtex: a spectral
 //     element–Fourier solver for the incompressible Navier–Stokes
-//     equations in cylindrical or Cartesian coordinates", CPC.
+//     equations in cylindrical or Cartesian coordinates", CPC 245:106804.
 // --
 // This file is part of Semtex.
 //
@@ -160,17 +159,17 @@ void integrate (void (*advection) (Domain*    ,
 
     advection (D, B, Us[0], Uf[0], FF);
     
-    // -- Now update the time (remainder including BCs at new time level).
-
     D -> step += 1;
     D -> time += dt;
-    Femlib::value ("t", D -> time);
+    Femlib::ivalue ("STEP", D -> step);
+    Femlib::value  ("t",    D -> time);
 
     // -- Update high-order pressure BC storage.
 
     B -> maintainFourier (D -> step, Pressure,
 			  const_cast<const AuxField**>(Us[0]),
-			  const_cast<const AuxField**>(Uf[0]));
+			  const_cast<const AuxField**>(Uf[0]),
+			  NCOM);
     Pressure -> evaluateBoundaries (Pressure, D -> step);
 
     // -- Complete unconstrained advective substep and compute pressure.

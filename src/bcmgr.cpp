@@ -18,10 +18,10 @@
 //
 // <GROUPS NUMBER=6>
 // #	tag	name	descriptor
-// #    Note that names "outflow" and "axis" are reserved and must 
+// #    Note that names "open" and "axis" are reserved and must 
 // #    be associated with the BC character tags 'O' and 'A' respectively.
 // #    The one-character names should be unique.
-// 	1	o	outflow
+// 	1	o	open
 //      2       a       axis
 // 	3	v	velocity
 // 	4	w	wall
@@ -32,7 +32,7 @@
 // <BCS NUMBER=6>
 // #	tag	group	number, followed by BCs.
 //
-// #    BCs for the "outflow" group are internally computed according
+// #    BCs for the "open" group are internally computed Robin BCs according
 // #    to field name, as outlined in ref [3].
 // 	1	o	4
 // 			<O>	u                       </O>
@@ -80,34 +80,46 @@
 //         5       3       4       <B>     v       </B>
 //         6       1       4       <B>     v       </B>
 // </SURFACES>
-// 
+//
 // GROUPS
 // ------
-// Groups provide the capability of associating a string description
-// with a character tag, so that user routines can gain additional
-// information about the tag.  Descriptions cannot contain whitespace.
+
+// Groups provide a way of associating sets of boundary conditions for
+// different field variables via a single character tag (as used in
+// the SURFACES section), and also provide the capability of
+// associating a string description with a character tag, so that
+// internal routines can gain additional information about the tag if
+// required.  Description strings cannot contain whitespace.  The
+// character tag for each group must be unique, but is arbitrary.
 //
-// Typical (recognized) strings are "wall", "axis" and "outflow".
-// Type "wall" denotes that all velocity components are zero: this
-// means e.g. that one Condition can gain information about behaviour
-// of another Condition which shares the character tag (i.e. that it
-// is also a zero-valued essential boundary).
+// Three special group strings are "wall", "axis" and "open".
+// E.g. "wall" denotes that all velocity components are zero: this
+// means that one Condition can gain information about behaviour of
+// another Condition which shares the character tag (i.e. that it is
+// also a zero-valued essential boundary for velocity components).
+// For the "axis" and "open" groups, note that no BC value information
+// is required (values are either set or computed internally) and that
+// every BC in these groups must be of the same type.  Other than
+// these three special instances, the string used for any group is an
+// arbitrary choice of the analyst, and the mixture of types of BCs
+// for each field variable is also arbitrary.
 //
-// Each group which is used for specification of boundary conditions
-// should have an associated descriptor set in the GROUPS section.
-// This allows user routines to access boundary value storage areas by
-// using the "addForGroup" and "zeroForGroup" routines.
+// The string associated with each group also allows user routines to
+// access boundary value storage areas by using the "addForGroup" and
+// "zeroForGroup" routines, which use this string as a specifier.
+// These capabilities are rarely used, but are provided to give direct
+// access to encapsulated storage if required.
 //
 // BCS
 // ---
 // BCs associate specific BC types and values with a particular group.
 // Available types are:
-//   <D> Dirichlet/essential,
-//   <N> Neumann/natural,
-//   <M> Mixed
-//   <H> Natural pressure BC (no value specified, since it gets computed).
-//   <A> Axis BCs for cylindrical coords.  Also, must belong to "axis" group.
-//   <O> Computed outflow BCs, see [3]. Must belong to the "outflow" group.
+//   <D> Dirichlet/essential;
+//   <N> Neumann/natural;
+//   <M> Mixed/Robin;
+//   <H> Natural pressure BC (no value specified, since it gets computed);
+//   <A> Axis BCs for cylindrical coords.  Also, must belong to "axis" group;
+//   <O> Computed open BCs, see [3]. Must belong to the "open" group;
 //
 // The character tags for variables as shown match those used
 // internally as Field names, so that the order in which the BCs are
@@ -117,7 +129,8 @@
 // but not vice-versa).
 //
 // For boundary value types where a function is supplied after the
-// "=", it is necessary that no spaces appear in the function string.
+// "=", it is necessary that no spaces appear within the function
+// string.
 //
 // VARIABLE NAMES
 // --------------
@@ -129,6 +142,9 @@
 // w:  Third velocity component.            (Cylindrical: azimuthal velocity.)
 // p:  Pressure divided by density.
 // c:  Scalar for transport or elliptic problems.
+//
+// In semtex, the velocity component w is always associated with the
+// Fourier direction.
 //
 // CYLINDRICAL COORDINATE SYSTEM AND BCS, see ref [2]
 // --------------------------------------------------
@@ -187,7 +203,11 @@
 // ----------
 // [1] Karniadakis, Israeli & Orszag, JCP 97:414-443 (1991)
 // [2] Blackburn & Sherwin, JCP 197:759-778 (2004)
-// [3] Dong, Karniadakis & Chryssostomides JCP 261:83-105, (2014)
+// [3] Dong, JCP 302:300-328 (2015)
+// [4] Dong, Karniadakis & Chryssostomidis, JCP 261:83-105 (2014)
+//
+// N.B. Typo in eq. (37) of [3], confirmed by author: the term n x
+// \omega should be n . \nabla x \omega.
 //
 // --
 // This file is part of Semtex.
@@ -223,8 +243,9 @@ BCmgr::BCmgr (FEML*             file,
 // In addition, it reads in prebuilt numbering schemes from file
 // session.num for later retrieval.
 // ---------------------------------------------------------------------------
-  _axis    (false),
-  _outflow (false)
+  _axis   (false),
+  _open   (false),
+  _toggle (false)     // -- Can only ever become true if _open is too.
 {
   const char  routine[] = "BCmgr::BCmgr";
   char        buf[StrMax], err[StrMax], tag[StrMax], gat[StrMax];
@@ -283,8 +304,8 @@ BCmgr::BCmgr (FEML*             file,
     file -> stream() >> id >> groupc >> buf;
     _group[i] = groupc;
     strcpy ((_descript[i] = new char [strlen (buf) + 1]), buf);
-    if (!strcmp (_descript[i], "axis"))    _axis    = true;
-    if (!strcmp (_descript[i], "outflow")) _outflow = true;
+    if (!strcmp (_descript[i], "axis")) _axis = true;
+    if (!strcmp (_descript[i], "open")) _open = true;
   }
   
   VERBOSE cout << "done" << endl;
@@ -342,12 +363,11 @@ BCmgr::BCmgr (FEML*             file,
       // -- High-order pressure (H) is an internally-computed Neumann BC,
       //    explained in [1].
 
-      // -- Outflow boundaries (O) comprise a set of computed Neumann
-      //    (for velocity) or computed Dirichlet (for pressure) as
-      //    outlined in [3], supplemented by homogeneous Neumann (for
-      //    scalar). Since they appear together, the code allocates
-      //    all of them and decides which one to apply for a given
-      //    field variable.
+      // -- Open boundaries (O) comprise a set of computed Mixed/Robin
+      //    conditions for velocity and pressure, outlined in [3],
+      //    supplemented by homogeneous Neumann (for scalar). Since
+      //    they appear together, the code allocates all of them and
+      //    decides which one to apply for a given field variable.
 
       switch (tagc) {
 
@@ -413,20 +433,18 @@ BCmgr::BCmgr (FEML*             file,
 	C = new NaturalCBCp (this);
 	break;
 
-      case 'O':			// -- Outflow BC.
+      case 'O':			// -- Open BC.
 
-	if (!strstr (groupInfo (groupc), "outflow"))
-	  message(routine,"type 'O' BC must belong to group \"outflow\"",ERROR);
+	if (!strstr (groupInfo (groupc), "open"))
+	  message(routine,"type 'O' BC must belong to group \"open\"",ERROR);
 
-
-	if      (fieldc == 'u') C = new NaturalCBCu   (this);
-	else if (fieldc == 'v') C = new NaturalCBCv   (this);
-        else if (fieldc == 'p') C = new EssentialCBCp (this);
-
-	else if (fieldc == 'w' || fieldc == 'c') {
-	  strcpy (buf, "0.0"); C = new Natural (buf);
-	} else {
-	  sprintf (err,"field name '%c'for outflow BC not in 'uvwpc'", fieldc);
+	if      (fieldc == 'u') C = new MixedCBCu (this);
+	else if (fieldc == 'v') C = new MixedCBCv (this);
+	else if (fieldc == 'w') C = new MixedCBCw (this);
+        else if (fieldc == 'p') C = new MixedCBCp (this);
+	else if (fieldc == 'c') { strcpy (buf, "0.0"); C = new Natural (buf); }
+	else {
+	  sprintf (err,"field name '%c'for open BC not in 'uvwpc'", fieldc);
 	  message (routine, err, ERROR);
 	}
 	break;
@@ -480,7 +498,7 @@ Condition* BCmgr::getCondition (const char  group,
 //
 // Have to get into more extended search to locate axis BCs.  Input
 // variable 'mode' is only used for cylindrical coordinates: it is the
-// Fourier mode number.  See file header above and ref [2] for more
+// Fourier mode number.  See file header above and Ref [2] for more
 // information.
 // ---------------------------------------------------------------------------
 { 
@@ -935,61 +953,88 @@ void BCmgr::buildComputedBCs (const Field* master)
   _nTime = Femlib::ivalue ("N_TIME");
 
   _work = new real_t [static_cast<size_t>
-		      (5*sqr(_nP) + 7*_nP + Integration::OrderMax+1 + _nLine)];
+		      (5*sqr(_nP)                  +
+		       7*_nP                       +
+		       Integration::OrderMax+1     +
+		       _nLine                      )];
+  
   _fbuf = new real_t [static_cast<size_t>(_nLine * _nZ)];
-  _ke   = new real_t [static_cast<size_t>(_nLine * _nZ)];
-  _unp  = new real_t [static_cast<size_t>(_nLine * _nZ)];
+  _u2   = new real_t [static_cast<size_t>(_nLine * _nZ)]; // Ref [3]
+  _unp  = new real_t [static_cast<size_t>(_nLine * _nZ)]; // Ref [3]
+  _Enux = new real_t [static_cast<size_t>(_nLine * _nZ)]; // Ref [3]
+  _Enuy = new real_t [static_cast<size_t>(_nLine * _nZ)]; // Ref [3]
 
   // -- The structure of each of the following arrays is
   //    _xx[time_level][z_plane] which evaluates to a real_t* that is
   //    a pointer to _nline real_t storage.  Thus _xx[0] is an
   //    equivalent pointer to Field->_line.
 
-  // -- Consult references [1] and [3] in particular regarding the uses
-  //    of the following storage used for computed BCs.
+  // -- Consult references regarding the uses of the following storage
+  //    used for computed BCs.
 
   _u     = new real_t** [static_cast<size_t>(_nTime)]; // -- Velocity component.
   _v     = new real_t** [static_cast<size_t>(_nTime)];
   _w     = new real_t** [static_cast<size_t>(_nTime)];
 
-  _un    = new real_t** [static_cast<size_t>(_nTime)]; // -- u dot n.
+  _uhat  = new real_t** [static_cast<size_t>(_nTime)]; // -- in Fourier.
+  _vhat  = new real_t** [static_cast<size_t>(_nTime)];
+  _what  = new real_t** [static_cast<size_t>(_nTime)];
+  
+  _un    = new real_t** [static_cast<size_t>(_nTime)]; // -- u.n.
   _divu  = new real_t** [static_cast<size_t>(_nTime)]; // -- div(u).
-  _gradu = new real_t** [static_cast<size_t>(_nTime)]; // -- grad(u) dot n.
-  _hopbc = new real_t** [static_cast<size_t>(_nTime)]; // -- grad(p) dot n.
-
+  _gradu = new real_t** [static_cast<size_t>(_nTime)]; // -- n.grad(u).n.
+  _hopbc = new real_t** [static_cast<size_t>(_nTime)]; // -- grad(p).n.
+  _ndudt = new real_t** [static_cast<size_t>(_nTime)]; // -- (du/dt).n.
+  
   for (i = 0; i < _nTime; i++) {
     _u    [i] = new real_t* [static_cast<size_t>(_nZ)];
     _v    [i] = new real_t* [static_cast<size_t>(_nZ)];
-    _w    [i] = new real_t* [static_cast<size_t>(_nZ)];
+    _w    [i] = new real_t* [static_cast<size_t>(_nZ)]; 
+    _uhat [i] = new real_t* [static_cast<size_t>(_nZ)];
+    _vhat [i] = new real_t* [static_cast<size_t>(_nZ)];
+    _what [i] = new real_t* [static_cast<size_t>(_nZ)];       
     _un   [i] = new real_t* [static_cast<size_t>(_nZ)];
     _divu [i] = new real_t* [static_cast<size_t>(_nZ)];
     _gradu[i] = new real_t* [static_cast<size_t>(_nZ)];
     _hopbc[i] = new real_t* [static_cast<size_t>(_nZ)];
+    _ndudt[i] = new real_t* [static_cast<size_t>(_nZ)];    
     
     _u    [i][0] = new real_t [static_cast<size_t>(_nLine * _nZ)];
     _v    [i][0] = new real_t [static_cast<size_t>(_nLine * _nZ)];
     _w    [i][0] = new real_t [static_cast<size_t>(_nLine * _nZ)];
+    _uhat [i][0] = new real_t [static_cast<size_t>(_nLine * _nZ)];
+    _vhat [i][0] = new real_t [static_cast<size_t>(_nLine * _nZ)];
+    _what [i][0] = new real_t [static_cast<size_t>(_nLine * _nZ)];    
     _un   [i][0] = new real_t [static_cast<size_t>(_nLine * _nZ)];
     _divu [i][0] = new real_t [static_cast<size_t>(_nLine * _nZ)];
     _gradu[i][0] = new real_t [static_cast<size_t>(_nLine * _nZ)];
     _hopbc[i][0] = new real_t [static_cast<size_t>(_nLine * _nZ)];
+    _ndudt[i][0] = new real_t [static_cast<size_t>(_nLine * _nZ)];    
     
     Veclib::zero (_nLine * _nZ, _u    [i][0], 1);
     Veclib::zero (_nLine * _nZ, _v    [i][0], 1);
     Veclib::zero (_nLine * _nZ, _w    [i][0], 1);
+    Veclib::zero (_nLine * _nZ, _uhat [i][0], 1);
+    Veclib::zero (_nLine * _nZ, _vhat [i][0], 1);
+    Veclib::zero (_nLine * _nZ, _what [i][0], 1);    
     Veclib::zero (_nLine * _nZ, _un   [i][0], 1);
     Veclib::zero (_nLine * _nZ, _divu [i][0], 1);
     Veclib::zero (_nLine * _nZ, _gradu[i][0], 1);
     Veclib::zero (_nLine * _nZ, _hopbc[i][0], 1);
+    Veclib::zero (_nLine * _nZ, _ndudt[i][0], 1);    
 
     for (j = 1; j < _nZ; j++) {
       _u    [i][j] = _u    [i][0] + j * _nLine;
       _v    [i][j] = _v    [i][0] + j * _nLine;
       _w    [i][j] = _w    [i][0] + j * _nLine;
+      _uhat [i][j] = _uhat [i][0] + j * _nLine;
+      _vhat [i][j] = _vhat [i][0] + j * _nLine;
+      _what [i][j] = _what [i][0] + j * _nLine;      
       _un   [i][j] = _un   [i][0] + j * _nLine;
       _divu [i][j] = _divu [i][0] + j * _nLine;
       _gradu[i][j] = _gradu[i][0] + j * _nLine;
       _hopbc[i][j] = _hopbc[i][0] + j * _nLine;
+      _ndudt[i][j] = _ndudt[i][0] + j * _nLine;      
     }
   }
 }
@@ -1002,9 +1047,13 @@ void BCmgr::maintainPhysical (const Field*             master,
 // Update storage that (on account of requiring products of terms)
 // must be computed from data which are currently in physical space.
 //
-// nCom is the number of velocity components.  
+// nCom is the number of velocity components.
+//
+// Note that we only need to use this function if we have open BCs.  
 // ---------------------------------------------------------------------------
 {
+  if (!_open) return;		   // -- Hence _toggle remains false always.
+  
   const vector<Boundary*>& BC = master -> _bsys -> BCs (0);
   Boundary*                B;
   int_t                    i, j, k, offset, skip;
@@ -1040,11 +1089,12 @@ void BCmgr::maintainFourier (const int_t      step   ,
 			     const Field*     master ,
 			     const AuxField** Us     ,
 			     const AuxField** Uf     ,
+			     const int_t      nCom   ,
 			     const bool       timedep)
 // ---------------------------------------------------------------------------
-// Update storage for evaluation of internally computed pressure
-// boundary conditions, see ref [1].  Storage order for each edge
-// represents a CCW traverse of element boundaries.
+// Update storage for evaluation of internally computed boundary
+// conditions, see Refs [1-3].  Storage order for each edge represents
+// a CCW traverse of element boundaries.
 //
 // If the velocity field varies in time on HOPBC field boundaries
 // (e.g. due to time-varying BCs) the local fluid acceleration will be
@@ -1062,6 +1112,17 @@ void BCmgr::maintainFourier (const int_t      step   ,
 // areas (note this assumes equal-order interpolations).
 //
 // No smoothing is done to high-order spatial derivatives computed here.
+//
+// In order to be able to deal with both the original computed-Neumann
+// HOPBC BCs appropriate for solid walls (as described e.g. in Refs
+// [1,2]) and the computed-mixed pressure open BCs described in Ref
+// [3], eq. (37), we separately compute n.d(u)/dt and n.[N(u)+ f - \nu
+// curl(curl(u))] where N(u) = -u.grad(u), i.e. the nonlinear terms
+// tranposed to RHS of Navier-Stokes.  N(u)+f is supplied by input Uf.
+// When required for HOPBC comuputation (elsewhere) we subtract off
+// n.d(u)/dt.
+//
+// If in doubt about the signs of terms: make up dp/dn from NSE.
 // ---------------------------------------------------------------------------
 {
   const int_t              base  = Geometry::baseMode();
@@ -1076,7 +1137,7 @@ void BCmgr::maintainFourier (const int_t      step   ,
 
   const AuxField*          Ux    = Us[0];
   const AuxField*          Uy    = Us[1];
-  const AuxField*          Uz    = (_nZ > 1) ? Us[2] : 0;
+  const AuxField*          Uz    = (nCom == 3) ? Us[2] : 0;
   const AuxField*          Nx    = Uf[0];
   const AuxField*          Ny    = Uf[1];
 
@@ -1098,19 +1159,24 @@ void BCmgr::maintainFourier (const int_t      step   ,
   // -- Roll up time-ordered internal storage stacks (except _un),
   //    initialise storage.
 
+  rollv (_uhat,  _nTime);
+  rollv (_vhat,  _nTime);
+  rollv (_what,  _nTime);  
   rollv (_divu,  _nTime);
   rollv (_gradu, _nTime);
   rollv (_hopbc, _nTime);
-
+  rollv (_ndudt, _nTime);
+  
   Veclib::zero (_nLine*_nZ, _divu [0][0], 1);  
   Veclib::zero (_nLine*_nZ, _gradu[0][0], 1);  
   Veclib::zero (_nLine*_nZ, _hopbc[0][0], 1);
+  Veclib::zero (_nLine*_nZ, _ndudt[0][0], 1);  
 
   // -- First (while we still have all the previous time levels of u.n
   //    available), make the most recent u.n and compute the
-  //    time-derivative contribution -n.dot.d(u)/dt to the high order
+  //    time-derivative contribution n.dot.d(u)/dt to the high order
   //    pressure BCs.  We use the top level of _divu as temporary
-  //    storage of u.n.  Also add in the n.[N+f] terms to _hopbc.
+  //    storage of u.n.  Then add in the n.[N+f] terms to _hopbc.
 
   for (i = 0; i < _nEdge; i++) {
     B      = BC[i];
@@ -1120,16 +1186,22 @@ void BCmgr::maintainFourier (const int_t      step   ,
 
     for (k = 0; k < _nZ; k++) {
       ROOTONLY if (k == 1) continue;
-      Veclib::vvtvp (_nP, Ux -> _plane[k] + offset, skip, B -> nx(), 1, 
-		     _divu[0][k] + j, 1, _divu[0][k] + j, 1);	
-      Veclib::vvtvp (_nP, Uy -> _plane[k] + offset, skip, B -> ny(), 1,
-		     _divu[0][k] + j, 1, _divu[0][k] + j, 1);
 
-      if (Je && timedep) {	// -- Make -d(u.n)/dt.
-	Veclib::smul (_nP, alpha[0], _divu[0][k] +j , 1, _work, 1);
+      Veclib::copy  (_nP, Ux -> _plane[k] + offset, skip, _uhat[0][k] + j, 1);	
+      Veclib::copy  (_nP, Uy -> _plane[k] + offset, skip, _vhat[0][k] + j, 1);
+      if (nCom == 3)
+	Veclib::copy  (_nP, Uz -> _plane[k] + offset, skip, _what[0][k] + j, 1);
+      
+      Veclib::vvtvvtp (_nP, _uhat[0][k] + j, 1, B->nx(), 1,
+		            _vhat[0][k] + j, 1, B->ny(), 1,
+		            _divu[0][k] + j, 1);
+
+      if (Je && timedep) {
+	// -- Make estimate of d(u.n)/dt at end of last time step.
+	Veclib::smul (_nP, alpha[0], _divu[0][k] + j , 1, _work, 1);
 	for (q = 0; q < Je; q++)
-	  Blas::axpy (_nP, alpha[q + 1], _un[0][k] + j, 1, _work, 1);
-	Veclib::smul (_nP, -invDt, _work, 1, _hopbc[0][k] + j, 1);
+	  Blas::axpy (_nP, alpha[q + 1], _un[q][k] + j, 1, _work, 1);
+	Veclib::smul (_nP, invDt, _work, 1, _ndudt[0][k] + j, 1);
       }
 
       // -- Deal with nonlinear terms + forcing.
@@ -1148,7 +1220,7 @@ void BCmgr::maintainFourier (const int_t      step   ,
     }
   }
 
-  // -- NOW we can roll _un and load its info from _divu.
+  // -- NOW we can roll _un, load it from _divu, and clear _divu.
 
   rollv (_un, _nTime);
   Veclib::copy (_nLine*_nZ, _divu[0][0], 1, _un[0][0], 1);
@@ -1158,7 +1230,7 @@ void BCmgr::maintainFourier (const int_t      step   ,
   //    element which has a boundary edge. These make contributions to
   //    _divu, _gradu and _hopbc.
 
-  // -- First, deal with HOPBC curlCurl(u) terms.  Although this
+  // -- First, deal with HOPBC -\nu*curlCurl(u) terms.  Although this
   //    produces some redundant gradient operations, any later
   //    gradients will be element-edge-only, hence cheap.  And the
   //    Edge:curlCurl() method is well tested.
@@ -1201,7 +1273,9 @@ void BCmgr::maintainFourier (const int_t      step   ,
     }
   }
 
-  // -- Remaining gradient-based terms (ones from ref [3]).
+  if (!_open) return;		   // -- Nothing else to do in this case.
+
+  // -- Remaining gradient-based terms (ones from Ref [3]).
 
   for (i = 0; i < _nEdge; i++) {
     B      = BC[i];
@@ -1214,15 +1288,15 @@ void BCmgr::maintainFourier (const int_t      step   ,
       UyRe = Uy -> _plane[0];
 
       B -> sideGrad   (UxRe, xr, yr, wrk);
-      Veclib::vadd    (_nP, xr, 1, _divu[0][0]+j, 1, _divu[0][0]+j, 1);
+      Veclib::vadd    (_nP,  xr, 1, _divu[0][0]+j, 1, _divu[0][0]+j, 1);
 
-      Veclib::vvtvvtp (_nP, xr,1, B->nx(),1, yr,1, B->ny(),1, wrk,1);
+      Veclib::vvtvvtp (_nP, xr,1,B->nx(),1, yr,1, B->ny(),1, wrk,1);
       Veclib::vvtvp   (_nP,wrk,1,B->nx(),1,_gradu[0][0]+j,1,_gradu[0][0]+j,1);
 
       B -> sideGrad   (UyRe, xr, yr, wrk);
-      Veclib::vadd    (_nP, yr, 1, _divu[0][0]+j, 1, _divu[0][0]+j, 1);
+      Veclib::vadd    (_nP,  yr, 1, _divu[0][0]+j, 1, _divu[0][0]+j, 1);
 
-      Veclib::vvtvvtp (_nP, xr,1, B->nx(),1, yr,1, B->ny(),1, wrk,1);
+      Veclib::vvtvvtp (_nP, xr,1,B->nx(),1, yr,1, B->ny(),1, wrk,1);
       Veclib::vvtvp   (_nP,wrk,1,B->ny(),1,_gradu[0][0]+j,1,_gradu[0][0]+j,1);
 
       if (Geometry::cylindrical()) {
@@ -1303,27 +1377,35 @@ void BCmgr::evaluateCNBCp (const int_t id   ,
 			   const int_t step ,
 			   real_t*     tgt  )
 // ---------------------------------------------------------------------------
-//  Refer KIO91.  Load pressure (p) BC value (tgt) with values
-//  obtained from HOBC multi-level storage. Evaluation is confined to
+// "CNBCp" is an acronym for "Computed Natural BC pressure".  A.k.a.
+// "high-order" pressure BC.  
+//  
+//  Refer Ref [1].  Load pressure (p) BC value (tgt) with values
+//  obtained from HOPBC multi-level storage. Evaluation is confined to
 //  a single element edge: parameter id tells us which this
 //  corresponds to in our internal storage.
 //
-// The boundary condition for evaluation is
+// The boundary condition for evaluation is (obtained by
+// re-arrangement of n.NSE):
 //
-//   dP       /                                  du  \
-//   -- = n . | N(u) - a + f + \nu*curlCurl(u) - --  |  =  n . grad P.
-//   dn   ~   \ ~ ~    ~   ~                ~    dt  /     ~
+//   dP       /                              du  \
+//   -- = n . | N(u) + f - \nu*curlCurl(u) - --  |  =  n . grad P.
+//   dn   ~   \ ~ ~    ~                ~    dt  /     ~
 //
 // Grad P.n is estimated at the end of the current timestep using
 // explicit extrapolation.  All the terms for this gradient were
 // already stored, here we do the extrapolation only.
+//
+// Note: the storage for d(u.n)/dt is held separately from the other
+// terms (which may also be used in computed mixed pressure BC from
+// Ref [3], see following).
 // ---------------------------------------------------------------------------
 {
   if (step < 1) return;		// -- No evaluation during Field creation.
 
   Veclib::zero (_nP, tgt, 1);
 
-  ROOTONLY if (plane == 1) return;
+  ROOTONLY if (plane == 1) return;    // -- Skip Nyquist.
 
   const int_t Je     = min (step, _nTime);
   const int_t offset = id * _nP;
@@ -1332,8 +1414,10 @@ void BCmgr::evaluateCNBCp (const int_t id   ,
 
   Integration::Extrapolation (Je, beta);
   
-  for (q = 0; q < Je; q++)
-    Blas::axpy (_nP, beta[q], _hopbc[q][plane] + offset, 1, tgt, 1);
+  for (q = 0; q < Je; q++) {
+    Blas::axpy (_nP,  beta[q], _hopbc[q][plane] + offset, 1, tgt, 1);
+    Blas::axpy (_nP, -beta[q], _ndudt[q][plane] + offset, 1, tgt, 1);
+  }
 }
 
 
@@ -1346,290 +1430,258 @@ void BCmgr::accelerate (const Vector& a,
 // updated pressure gradient storage.  Work only takes place on zeroth
 // Fourier mode.
 //
-// Yes, this is a HACK!
+// Yes, this is a HACK! To be used if the linear frame acceleration is
+// externally available from elsehere, e.g. in fluid-structure
+// interaction.  Nowadays we'd probably deal with that in FieldForce
+// routines (and let it come in via Uf in maintainFourier).
 // ---------------------------------------------------------------------------
 {
   const vector<Boundary*>& BC = u -> _bsys -> BCs (0);
   Boundary*                B;
   int_t                    i;
 
-  for (i = 0; i < u->_nbound; i++) {
+  for (i = 0; i < u -> _nbound; i++) {
     B = BC[i];
     B -> dotInForGroup ("velocity", a, _hopbc[0][0] + i*_nP);
   }
 }
 
 
-void BCmgr::evaluateCEBCp (const Field* master,
-			   const int_t  id    ,
-			   const int_t  plane ,
-			   const int_t  step  ,
+void BCmgr::evaluateCMBCp (const Field* master, // Used for list of boundaries.
+			   const int_t  id    , // Index of this boundary edge.
+			   const int_t  plane , // Index of Fourier plane.
+			   const int_t  step  , // Time step.
 			   real_t*      tgt   )
 // ---------------------------------------------------------------------------
-// Refer DKC14 (7d).  Load essential/Dirichlet pressure (p) BC value
+// "CMBCp" is an acronym for "Computed Mixed BC pressure".
+//  
+// Refer Ref [3] eq. (37).  Load mixed/Robin pressure (p) BC value
 // (tgt) with values obtained from multi-level storage. Evaluation is
 // confined to a single element edge: parameter id tells us which this
 // corresponds to in our internal storage.
+//
+// But also, we use a call to this method to trigger computation of
+// E(n,u*) terms which rely on products made in physical space (and
+// subsequently Fourier transformed), which will also later be used
+// by the associated mixed velocity BC.  These computations are
+// toggled on the first call to this method in the current timestep.
 // ---------------------------------------------------------------------------
 {
   const int_t Je = min (step, _nTime);
 
   if (Je < 1) return;		// -- No evaluation during Field creation.
 
+  Veclib::zero (_nP, tgt, 1);
+
+  static const real_t      iUZD   = 1.0 / Femlib::value ("DONG_UODELTA");
+  static const real_t      iNUD   = 1.0 / Femlib::value ("KINVIS*DONG_DO");
   const vector<Boundary*>& BC     = master -> _bsys -> BCs (0);
-  const real_t             iUZD   = 1.0 / Femlib::value ("U0Delta");
   const int_t              offset = id * _nP;
   const Boundary*          B;
-  real_t*                  tmpa = _work;
-  real_t*                  beta = tmpa + _nP;
+  real_t*                  beta = _work;
   int_t                    i, j, k, q;
 
   Integration::Extrapolation (Je, beta);
 
   if (_toggle) {
 		
-    // -- First call to this routine in current timestep. Deal with
-    //    things that rely on (extrapolated) velocity at the end of
-    //    the timestep in physical space.
+    // -- First call to this routine in current timestep.  Make
+    //    E(n,u*) i.e. Ref [3], eq. (18).  In our system, it is a 2C
+    //    (x,y) vector at each point along the boundary.  Its
+    //    computation relies on products of fields, which, as usual,
+    //    will be evaluated in physical space, then finally Fourier
+    //    transformed.  The velocity fields involved, u*, are values
+    //    obtained by extrapolation to the end of the timestep.
 
     const int_t nTot  = _nLine * _nZ;  
     const int_t nZtot = Geometry::nZ();
     const int_t nPR   = Geometry::nProc();
     const int_t nLP   = _nLine / nPR;
     
-    Veclib::zero (nTot, _ke,   1);
+    Veclib::zero (nTot, _u2,   1);
     Veclib::zero (nTot, _fbuf, 1);
     Veclib::zero (nTot, _unp,  1);
 
     for (q = 0; q < Je; q++) {
-      Blas::axpy (nTot, beta[q], _u[q][0], 1, _ke,   1); // -- u*.
+      Blas::axpy (nTot, beta[q], _u[q][0], 1, _u2,   1); // -- u*.
       Blas::axpy (nTot, beta[q], _v[q][0], 1, _fbuf, 1); // -- v*.
     }
 
     for (i = 0; i < _nEdge; i++) { // -- Make u*.n, leave in _unp.
       B = BC[i];
       j = i * _nP;
-      for (k = 0; k < _nZ; k++) {
+      for (k = 0; k < _nZ; k++)
 	Veclib::vvtvvtp (_nP,
-			 B -> nx(), 1, _ke   + k*_nLine + j, 1,
+			 B -> nx(), 1, _u2   + k*_nLine + j, 1,
 			 B -> ny(), 1, _fbuf + k*_nLine + j, 1,
 			               _unp  + k*_nLine + j, 1);
-      }
     }
 
-    // -- Make ke*.
+    // -- Use u*.n to start construction of E(n,u*), x,y components
+    //    (what follows is (n.u*)u*). Ref. [3] eq. (18).
 
-    Veclib::vmul  (nTot, _ke,   1, _ke,   1, _ke, 1);
-    Veclib::vvtvp (nTot, _fbuf, 1, _fbuf, 1, _ke, 1, _ke, 1);
+    Veclib::vmul (nTot, _unp, 1, _u2,   1, _Enux, 1);
+    Veclib::vmul (nTot, _unp, 1, _fbuf, 1, _Enuy, 1);
+    
+    // -- Complete making u^2*.  Dealing with w* is potentially wasteful, but.
+
+    Veclib::vmul  (nTot, _u2,   1, _u2,   1, _u2, 1);
+    Veclib::vvtvp (nTot, _fbuf, 1, _fbuf, 1, _u2, 1, _u2, 1);
 
     Veclib::zero (nTot, _fbuf, 1);
     for (q = 0; q < Je; q++)
       Blas::axpy (nTot, beta[q], _w[q][0], 1, _fbuf, 1); // -- w*.
 
-    Veclib::vvtvp (nTot, _fbuf, 1, _fbuf, 1, _ke, 1, _ke, 1);
-    Blas::scal    (nTot, 0.5, _ke, 1);                    // -- ke*.
+    Veclib::vvtvp (nTot, _fbuf, 1, _fbuf, 1, _u2, 1, _u2, 1);
 
-    // -- Save switch function S0 = 0.5(1-tanh(u*.n/U0Delta)) in _unp.
+    // -- Save switch function Theta0=0.25(1-tanh(u*.n/DONG_UODELTA)) in _fbuf.
+    //    N.B. Extra factor of 0.5 incorporated here (0.25 = 0.5*0.5).
 
-    Blas::scal    (nTot, iUZD,    _unp, 1);
-    Veclib::vtanh (nTot, _unp, 1, _unp, 1);
-    Veclib::ssub  (nTot,  1.0,    _unp, 1, _unp, 1);
-    Blas::scal    (nTot,  0.5,    _unp, 1);
+    Veclib::smul  (nTot, iUZD, _unp,  1, _fbuf, 1);
+    Veclib::vtanh (nTot, _fbuf, 1,       _fbuf, 1);
+    Veclib::ssub  (nTot,  1.0, _fbuf, 1, _fbuf, 1);
+    Blas::scal    (nTot,  0.25,          _fbuf, 1);
 
-    // -- Multiply togther to make KE * S0 in physical space.
+    // -- Finish making E(n,u*).
 
-    Veclib::vmul (nTot, _ke, 1, _unp, 1, _fbuf, 1);
+    for (i = 0; i < _nEdge; i++) {
+      B = BC[i];
+      j = i * _nP;
+      for (k = 0; k < _nZ; k++) {
+	Veclib::vvtvp (_nP, B -> nx(), 1, _u2   + k*_nLine + j, 1,
+		       _Enux + k*_nLine + j, 1, _Enux + k*_nLine + j, 1);
+	Veclib::vvtvp (_nP, B -> ny(), 1, _u2   + k*_nLine + j, 1,
+		       _Enuy + k*_nLine + j, 1, _Enuy + k*_nLine + j, 1);
+      }
+    }
 
-    // -- Forward Fourier transform.
+    // -- Multiply with Theta0 to make E(n,u*) in physical space.
+
+    Veclib::vmul (nTot, _Enux, 1, _fbuf, 1, _Enux, 1);
+    Veclib::vmul (nTot, _Enuy, 1, _fbuf, 1, _Enuy, 1);    
+
+    // -- Forward Fourier transform the outcome.
 
     if (nPR == 1) {
       if (nZtot > 1)
-	if (nZtot == 2)
-	  Veclib::zero (_nLine, _fbuf + _nLine, 1);
-	else
-	  Femlib::DFTr (_fbuf,  nZtot, _nLine, FORWARD);
+	if (nZtot == 2) {
+	  Veclib::zero (_nLine, _Enux + _nLine, 1);
+	  Veclib::zero (_nLine, _Enuy + _nLine, 1);
+	} else {
+	  Femlib::DFTr (_Enux,  nZtot, _nLine, FORWARD);
+	  Femlib::DFTr (_Enuy,  nZtot, _nLine, FORWARD);
+	}
     } else {
-      Femlib::exchange (_fbuf, _nZ,    _nLine, FORWARD);
-      Femlib::DFTr     (_fbuf,  nZtot,  nLP,   FORWARD);
-      Femlib::exchange (_fbuf, _nZ,    _nLine, INVERSE);
+      Femlib::exchange (_Enux, _nZ,    _nLine, FORWARD);
+      Femlib::DFTr     (_Enux,  nZtot,  nLP,   FORWARD);
+      Femlib::exchange (_Enux, _nZ,    _nLine, INVERSE);
+      
+      Femlib::exchange (_Enuy, _nZ,    _nLine, FORWARD);
+      Femlib::DFTr     (_Enuy,  nZtot,  nLP,   FORWARD);
+      Femlib::exchange (_Enuy, _nZ,    _nLine, INVERSE);
     }
 
     _toggle = false;		// -- Turn off extrapolation/Fourier.
   }
 
-  Veclib::zero (_nP, tgt, 1);
+  ROOTONLY if (plane == 1) return; // -- Skip Nyquist plane.
 
-  ROOTONLY if (plane == 1) return;
-
-  Veclib::zero (_nP, tmpa, 1);
-  
-  for (q = 0; q < Je; q++)
-    Blas::axpy (_nP, beta[q], _gradu[q][plane] + offset, 1, tmpa, 1);
-
-  Veclib::vsub (_nP, tmpa, 1, _fbuf + plane*_nLine + offset, 1, tgt, 1);
-
-#if 0
-  // -- Add in Cartesian traction terms for Kovasznay flow, see DKC14.
-
-  vector<real_t>  debug(7*_nP);
-  real_t*         u  = &debug[0];
-  real_t*         v  = u  + _nP;
-  real_t*         p  = v  + _nP;
-  real_t*         Q  = p  + _nP;
-  real_t*         S0 = Q  + _nP;
-  real_t*         du = S0 + _nP;
-  real_t*         fb = du + _nP;
+  // -- Assemble RHS of Ref [3] eq. (37) in tgt (already set to zero).
 
   B = BC[id];
+  Veclib::vvtvvtp (_nP,
+		   B -> nx(), 1, _Enux + plane*_nLine + offset, 1,
+		   B -> ny(), 1, _Enuy + plane*_nLine + offset, 1,
+		   tgt, 1);
   
-  B -> sideEvaluate 
-    ("1.0-exp(LAMBDA*x)*cos(TWOPI*y)",                           u );
-  B -> sideEvaluate 
-    ("LAMBDA/TWOPI*exp(LAMBDA*x)*sin(TWOPI*y)",                  v );
-  B -> sideEvaluate 
-    ("0.5*(1.0-exp(2.0*LAMBDA*x))",                              p );
-  B -> sideEvaluate 
-    ("0.5*(1.0-tanh((1.0-exp(LAMBDA*x)*cos(TWOPI*y))/U0Delta))", S0);
-  B -> sideEvaluate 
-    ("-LAMBDA*exp(LAMBDA*x)*cos(TWOPI*y)",                       du);
-
-  Veclib::vvtvvtp (_nP, u, 1, u, 1, v, 1, v, 1, Q, 1);
-  Blas::scal      (_nP, 0.5, Q, 1);
-
-  Blas::scal      (_nP, Femlib::value ("KINVIS"), du, 1);
-
-  Veclib::vneg    (_nP, p,  1, fb, 1);
-  Veclib::vadd    (_nP, du, 1, fb, 1, fb, 1);
-  Veclib::vvvtm   (_nP, fb, 1, Q,  1, S0, 1, fb, 1);
+  for (q = 0; q < Je; q++)
+    Blas::axpy (_nP, -beta[q], _gradu[q][plane] + offset, 1, tgt, 1);
   
-  Veclib::vsub    (_nP, tgt, 1, fb, 1, tgt, 1);
-#endif
+  Blas::scal (_nP, -iNUD, tgt, 1);
+  
+  for (q = 0; q < Je; q++)
+    Blas::axpy (_nP,  beta[q], _hopbc[q][plane] + offset, 1, tgt, 1);
 }
 
 
-void BCmgr::evaluateCNBCu (const Field* P    ,
-			   const int_t  id   ,
-			   const int_t  k    ,
-			   const int_t  step ,
-			   const char   cmpt ,
+void BCmgr::evaluateCMBCu (const Field* P    , // Pressure field.
+			   const int_t  id   , // Index of this boundary.
+			   const int_t  k    , // Index of Fourier plane.
+			   const int_t  step , // Time step.
+			   const char   cmpt , // Name of velocity component.
 			   real_t*      tgt  )
 // ---------------------------------------------------------------------------
-// Refer DKC14 (8c).  Load natural/Neumann velocity BC value (tgt)
-// with values obtained from multi-level storage. Evaluation is
-// confined to a single element edge: parameter id tells us which this
+// "CMBCu" is an acronym for "Computed Mixed BC velocity".  Refer Ref [3].
+//  
+// Load mixed velocity BC value (tgt) with values obtained from
+// multi-level storage to make RHS of eq. (38). Evaluation is confined
+// to a single element edge: parameter id tells us which this
 // corresponds to in our internal storage.  Input parameter cmpt can
-// be 'u', 'v', or 'w' - if 'w' then just set zero Neumann, if 'u' or
-// 'v' we use DKC14 (8c).  Operations are almost exactly the same for
+// be 'u', 'v', or 'w'.  Operations are almost exactly the same for
 // 'u' and 'v'; the only distinction is whether we post-multiply the
 // outcomes by unit outward normal components n_x (for 'u') or n_y
-// ('v').
+// ('v').  But for 'w' , n_z = 0, and we only have to deal with the
+// extrapolative terms.
 //
 // Input parameter field P is the pressure at the end of the current timestep.
 // 
-// Note that storage area for Fourier transform of KE, _fbuf, has
-// already been evaluated earlier in the timestep by the time we get
-// here.
+// Note that storage areas for Fourier transform of KE fluxes _Enux
+// and _Enuy have already been evaluated earlier in the timestep by
+// the time we get here.
 // ---------------------------------------------------------------------------
 {
   const int_t Je = min (step, _nTime);
 
   if (Je < 1) return;		// -- No evaluation during Field creation.
 
-  if (!strchr ("uv", cmpt))
-    message ("BCmgr::evaluateCNBCu", 
+  if (!strchr ("uvw", cmpt))
+    message ("BCmgr::evaluateCMBCu", 
 	     "called with unknown velocity component", ERROR);
-
-  real_t* beta = _work + _nP;
-  int_t   q;
-
-  Integration::Extrapolation (Je, beta);
 
   Veclib::zero (_nP, tgt, 1);
 
-  ROOTONLY if (k == 1) return;
+  ROOTONLY if (k == 1) return;	   // -- Skip Nyquist plane.
 
-  const real_t    iMu    = 1.0 / Femlib::value ("KINVIS");
-  const int_t     offset = id * _nP;
-  const Boundary* B      = P -> _bsys -> BCs (0)[id];
-
-  Veclib::zero (_nP, _work, 1);
+  static const real_t  iMu    = Femlib::value ("1.0/KINVIS");
+  static const real_t  DOdt   = Femlib::value ("DONG_DO/D_T");
+  const int_t          offset = id * _nP;
+  const Boundary*      B      = P -> _bsys -> BCs (0)[id];
   
-  for (q = 0; q < Je; q++)
-    Blas::axpy (_nP, beta[q], _divu[q][k] + offset, 1, _work, 1);
+  real_t* alpha = _work;
+  real_t* beta  = alpha + Je + 1;
+  int_t   q;
 
-  Veclib::vsub  (_nP, P->_plane[k]+B->dOff(), B->dSkip(), _work, 1, tgt, 1);
-  Veclib::svvpt (_nP, iMu, _fbuf + k*_nLine + offset, 1, tgt, 1, tgt, 1);
-
-  if      (cmpt == 'u') {
-    Veclib::vmul (_nP, tgt, 1, B->nx(), 1, tgt, 1);
-
-#if 0
-  // -- Add in Cartesian traction terms for Kovasznay flow, see DKC14.
+  Integration::StifflyStable (Je, alpha);
+  Integration::Extrapolation (Je, beta);
   
-    vector<real_t>  debug(7*_nP);
-    real_t*         u  = &debug[0];
-    real_t*         v  = u  + _nP;
-    real_t*         p  = v  + _nP;
-    real_t*         Q  = p  + _nP;
-    real_t*         S0 = Q  + _nP;
-    real_t*         du = S0 + _nP;
-    real_t*         fb = du + _nP;
-  
-    B -> sideEvaluate 
-      ("1.0-exp(LAMBDA*x)*cos(TWOPI*y)",                           u );
-    B -> sideEvaluate 
-      ("LAMBDA/TWOPI*exp(LAMBDA*x)*sin(TWOPI*y)",                  v );
-    B -> sideEvaluate 
-      ("0.5*(1.0-exp(2.0*LAMBDA*x))",                              p );
-    B -> sideEvaluate 
-      ("0.5*(1.0-tanh((1.0-exp(LAMBDA*x)*cos(TWOPI*y))/U0Delta))", S0);
-    B -> sideEvaluate 
-      ("-LAMBDA*exp(LAMBDA*x)*cos(TWOPI*y)",                       du);
-
-    Veclib::vvtvvtp (_nP, u, 1, u, 1, v, 1, v, 1, Q, 1);
-    Blas::scal      (_nP, 0.5, Q, 1);
-
-    Blas::scal      (_nP, Femlib::value ("KINVIS"), du, 1);
-
-    Veclib::vneg    (_nP, p,  1, fb, 1);
-    Veclib::vadd    (_nP, du, 1, fb, 1, fb, 1);
-    Veclib::vvvtm   (_nP, fb, 1, Q,  1, S0, 1, fb, 1);
-
-    Blas::scal      (_nP, 1.0/Femlib::value ("KINVIS"), fb, 1);
-  
-    Veclib::vadd    (_nP, tgt, 1, fb, 1, tgt, 1);
-
-#endif
+  if (cmpt == 'u') {
+    Veclib::copy (_nP, P -> _plane[k] + B -> dOff(), B -> dSkip(), tgt, 1);
+    
+    for (q = 0; q < Je; q++)
+      Blas::axpy (_nP, -beta[q], _divu[q][k] + offset, 1, tgt, 1);
+    
+    Veclib::vmul  (_nP, B -> nx(), 1, tgt, 1, tgt, 1);
+    Veclib::svvpt (_nP, iMu, _Enux + k*_nLine + offset, 1, tgt, 1, tgt, 1);
+    
+    for (q = 1; q <= Je; q++)
+      Blas::axpy (_nP, -DOdt * alpha[q], _uhat[q-1][k] + offset, 1, tgt, 1);
 
   } else if (cmpt == 'v') {
-    Veclib::vmul (_nP, tgt, 1, B->ny(), 1, tgt, 1);
-
-#if 0
-  // -- Add in Cartesian traction terms for Kovasznay flow, see DKC14.
-  
-    vector<real_t>  debug(7*_nP);
-    real_t*         u  = &debug[0];
-    real_t*         v  = u  + _nP;
-    real_t*         p  = v  + _nP;
-    real_t*         Q  = p  + _nP;
-    real_t*         S0 = Q  + _nP;
-    real_t*         dv = S0 + _nP;
-    real_t*         fb = dv + _nP;
-  
-    B -> sideEvaluate 
-      ("1.0-exp(LAMBDA*x)*cos(TWOPI*y)",                           u );
-    B -> sideEvaluate 
-      ("LAMBDA/TWOPI*exp(LAMBDA*x)*sin(TWOPI*y)",                  v );
-    B -> sideEvaluate 
-      ("0.5*(1.0-exp(2.0*LAMBDA*x))",                              p );
-    B -> sideEvaluate 
-      ("0.5*(1.0-tanh((1.0-exp(LAMBDA*x)*cos(TWOPI*y))/U0Delta))", S0);
-    B -> sideEvaluate 
-      ("LAMBDA*LAMBDA*exp(LAMBDA*x)*sin(TWOPI*y)/TWOPI",           dv);
-
-    Veclib::smul    (_nP, 1.0, dv, 1, fb, 1);
-    Veclib::vadd    (_nP, tgt, 1, fb, 1, tgt, 1);
+    Veclib::copy (_nP, P -> _plane[k] + B -> dOff(), B -> dSkip(), tgt, 1);
     
-#endif
+    for (q = 0; q < Je; q++)
+      Blas::axpy (_nP, -beta[q], _divu[q][k] + offset, 1, tgt, 1);
+    
+    Veclib::vmul  (_nP, B -> ny(), 1, tgt, 1, tgt, 1);
+    Veclib::svvpt (_nP, iMu, _Enuy + k*_nLine + offset, 1, tgt, 1, tgt, 1);
+
+    for (q = 1; q <= Je; q++)
+      Blas::axpy (_nP, -DOdt * alpha[q], _vhat[q-1][k] + offset, 1, tgt, 1);
+    
+  } else {			// -- 'w'.
+    Veclib::zero (_nP, tgt, 1);
+
+    for (q = 1; q <= Je; q++)
+      Blas::axpy (_nP, -DOdt * alpha[q], _what[q-1][k] + offset, 1, tgt, 1);
   }
 }

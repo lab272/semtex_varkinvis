@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// geometry.C: define geometrical properties for 2D quad X Fourier spaces.
+// geometry.cpp: define geometrical properties for 2D quad X Fourier spaces.
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
 //

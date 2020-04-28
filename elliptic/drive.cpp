@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////
-// drive.C: compute solution to elliptic problem, optionally compare to
+// drive.cpp: compute solution to elliptic problem, optionally compare to
 // exact solution (see getoptions(), below).
 //
 // Copyright (c) 1994<-->$Date$, Hugh Blackburn

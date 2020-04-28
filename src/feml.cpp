@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// feml.C:  Finite Element Markup Language (FEML) routines.
+// feml.cpp:  Finite Element Markup Language (FEML) routines.
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
 //

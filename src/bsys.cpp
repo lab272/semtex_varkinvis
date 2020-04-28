@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// bsys.C: BoundarySys class functions.
+// bsys.cpp: BoundarySys class functions.
 //
 // Copyright (c) 1999 <--> $Date$, Hugh Blackburn
 //
@@ -13,7 +13,7 @@
 // variable.  In the case where the number of space dimensions is also
 // 3, the number of boundary frames and numbering systems is set to 3,
 // for the 0th, 1st and 2nd (and higher) modes, irrespective of the
-// number of Fourier modes actually used.  See bcmgr.C.
+// number of Fourier modes actually used.  See bcmgr.cpp.
 //
 // --
 // This file is part of Semtex.
@@ -81,7 +81,7 @@ BoundarySys::BoundarySys (BCmgr*                  bcmgr,
     C     = bcmgr -> getCondition (group, _field_name, 0);
     
     C -> describe (buf);
-    if (strstr (buf, "mixed") || strstr (buf, "convective")) _mixed = true;
+    if (strstr (buf, "mixed")) _mixed = true;
     
     _boundary[0][i] =
     _boundary[1][i] =

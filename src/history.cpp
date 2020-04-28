@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// history.C
+// history.cpp: deal with history point (probe) data.
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
 //

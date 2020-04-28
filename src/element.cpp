@@ -94,7 +94,7 @@ Element::Element (const int_t id,
 
 #if defined (DAMPING)
   // -- Compile-in hack for LES.
-#include "damping.C"
+#include "damping.cpp"
   // -- Van Driest damping.
   // An ad-hoc modification to mesh length scale to account for wall
   // effects in LES.  This example is for a pipe flow, radius 0.5.

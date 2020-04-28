@@ -3,7 +3,7 @@
 
 class Domain
 // ===========================================================================
-// Physical domain storage class.
+// Physical domain storage class for Navier--Stokes type problems.
 //
 // Since users are expected to program with entities kept at the
 // Domain level, all internal storage is exposed to view (like a C

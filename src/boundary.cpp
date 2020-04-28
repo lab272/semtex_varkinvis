@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////
-// boundary.C: implement Boundary class functions.
+// boundary.cpp: implement Boundary class functions.
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
 //

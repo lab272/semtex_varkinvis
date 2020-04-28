@@ -30,7 +30,7 @@ public:
 
   static void set (const int_t, const int_t, const int_t, const CoordSys);
 
-  static CoordSys system    () { return _csys;                 }  
+  static CoordSys system      () { return _csys;                 }  
   static bool     cylindrical () { return _csys == Geometry::Cylindrical; }
 
   static int_t  nP        () { return _np;                   }

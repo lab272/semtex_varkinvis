@@ -4,8 +4,9 @@
 // Compute nonlinear (forcing) terms in Navier--Stokes equations: N(u) + f.
 //
 // Here N(u) represents the nonlinear advection terms in the N--S
-// equations transposed to the RHS and f is a vector of body force
-// per unit mass (with possible space-time dependency).
+// equations transposed to the RHS i.e. -div.grad(u), and f is a
+// vector of body force per unit mass (with possible space-time
+// dependency).
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
 //

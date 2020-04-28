@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////
-// analysis.C: implement Analyser class for NS-type solvers.
+// analysis.cpp: implement Analyser class for NS-type solvers.
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
 //

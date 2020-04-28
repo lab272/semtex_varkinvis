@@ -9,7 +9,6 @@
 //   options:
 //   -h       ... print usage prompt
 //   -i       ... use iterative solver for viscous [and pressure] steps
-//   -t[t]    ... select time-varying BCs for mode 0 [or all modes]
 //   -v[v...] ... increase verbosity level
 //   -chk     ... turn off checkpoint field dumps [default: selected]
 //   -S|C|N   ... regular skew-symm || convective || Stokes advection

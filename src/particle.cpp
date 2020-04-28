@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// particle.C: functions for integrating positions of particles.
+// particle.cpp: functions for integrating positions of particles.
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
 //
@@ -22,7 +22,7 @@
 // 02110-1301 USA.
 // --
 //
-// See also analysis.C
+// See also analysis.cpp
 ///////////////////////////////////////////////////////////////////////////////
 
 static char RCS[] = "$Id$";

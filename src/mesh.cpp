@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// mesh.C: read information from a FEML stream, provide
+// mesh.cpp: read information from a FEML stream, provide
 // facilities for generation of mesh knots and initial connectivity.
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
@@ -125,6 +125,7 @@ static inline int_t rma (int_t i, int_t j, int_t n)
 { return j + i * n; }
 
 #define VERBOSE if (verbose)
+
 
 Mesh::Mesh (FEML*      f    ,
 	    const bool check) :
@@ -1128,7 +1129,7 @@ void Mesh::printNek () const
 	       << setw (14) << 0.0
 	       << setw (14) << 0.0
 	       << endl;
-	} else if (strstr (buf, "outflow")) {
+	} else if (strstr (buf, "open")) {
 	  cout << "O  "
 	       << setw (5)  << E -> ID + 1
 	       << setw (3)  << S -> ID + 1
@@ -1243,8 +1244,9 @@ void Mesh::buildMask (const int_t np  ,
 // corresponding node for lifting out of the field solution, since the
 // field value will be set, rather than solved as part of the system
 // of equations (i.e. it forms part of the RHS of a matrix system
-// equation, rather than the LHS).  All other locations will be 0
-// (i.e., unmasked).
+// equation, rather than the LHS).  All other domain locations will be
+// 0 (i.e., unmasked) --- as appropriate for Natural or Mixed BCs ---
+// as for all domain-internal element boundaries.
 //
 // For quads, mask is 4 * nel * (np - 1) long, same as input for buildMap.
 // Use is made of the fact that on BCs, there are no mating sides, hence
@@ -1255,8 +1257,6 @@ void Mesh::buildMask (const int_t np  ,
 //
 // If fld is 'U', 'v, 'w', 'P' or 'C', set mask for essential BCs on
 // symmetry axis.
-//
-// If fld is 'p' or 'P', set mask for BC of type <O> (outflow).
 // ---------------------------------------------------------------------------
 {
   const char routine[] = "Mesh::buildMask";
@@ -1293,9 +1293,7 @@ void Mesh::buildMask (const int_t np  ,
       if (!(S -> mateElmt)) {
 	if (
 	                   matchBC (S -> group, tolower (fld), 'D')  ||
-	    (axisE      && matchBC (S -> group, tolower (fld), 'A')) ||
- 	    ((fld == 'p' || fld == 'P') 
-                        && matchBC (S -> group, tolower (fld), 'O'))
+	    (axisE      && matchBC (S -> group, tolower (fld), 'A'))
 	    ) {
 	  S -> startNode -> gID = 1;
 	  S -> endNode   -> gID = 1;
@@ -1350,9 +1348,9 @@ bool Mesh::matchBC (const char grp,
 //   D <==> Dirichlet/Essential.
 //   N <==> Neumann/Natural.
 //   M <==> Mixed/Robin BC.
-//   H <==> "High-order" (computed, natural) pressure BC.        See KIO91.
-//   A <==> "Axis" (selected, natural/essential) BC.             See BS04.
-//   O <==> "Outflow": computed essential BC for pressure only.  See DKC14.
+//   H <==> "High-order" (computed, natural) pressure BC.       See KIO91.
+//   A <==> "Axis" (selected, natural/essential) BC.            See BS04.
+//   O <==> "Open": computed mixed BCs for pressure & velocity. See Dong (2015).
 // ---------------------------------------------------------------------------
 {
   const int_t N = _feml.attribute ("BCS", "NUMBER");

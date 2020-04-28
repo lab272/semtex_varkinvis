@@ -56,12 +56,12 @@ public:
   void buildComputedBCs (const Field*);
 
   void maintainFourier  (const int_t, const Field*, const AuxField**,
-			 const AuxField**, const bool = true);  
+			 const AuxField**, const int_t, const bool = true);  
   void maintainPhysical (const Field*, const vector<AuxField*>&, const int_t);
   void evaluateCNBCp    (const int_t, const int_t, const int_t, real_t*);
-  void evaluateCEBCp    (const Field*, const int_t, const int_t, 
+  void evaluateCMBCp    (const Field*, const int_t, const int_t, 
 			 const int_t, real_t*);
-  void evaluateCNBCu    (const Field*, const int_t, const int_t, 
+  void evaluateCMBCu    (const Field*, const int_t, const int_t, 
 			 const int_t, const char, real_t*);
   void accelerate       (const Vector&, const Field*);
 
@@ -73,32 +73,39 @@ private:
   vector<BCtriple*>  _elmtbc  ; // Group tags for each element-side BC.
   vector<NumberSys*> _numsys  ; // Numbering schemes in storage.
   bool               _axis    ; // Session file declared an axis BC group.
-  bool               _outflow ; // Session file declared an outflow BC group.
+  bool               _open    ; // Session file declared an open BC group.
 
   void buildnum  (const char*, vector<Element*>&);
   void buildsurf (FEML*, vector<Element*>&);
 
   // -- Storage of past-time values needed for computed BCs:
 
-  int_t     _nLine;	// Same as for Field storage.
+  int_t     _nLine;     // Same as for Field storage.
   int_t     _nEdge;     // Number of edges with BCs attached.
   int_t     _nZ;        // Same as for Field storage.
-  int_t     _nP;
-  int_t     _nTime;
+  int_t     _nP;        // Geometry::nP(), number of points on element edge.
+  int_t     _nTime;     // N_TIME, time stepping order.
 
-  real_t*** _u;          // (Physical) x velocity component.
-  real_t*** _v;          // (Physical) y velocity component.
-  real_t*** _w;          // (Physical) z velocity component.
+  real_t*** _u;         // (Physical) x velocity component.
+  real_t*** _v;         // (Physical) y velocity component.
+  real_t*** _w;         // (Physical) z velocity component.
 
-  real_t*** _un;	// (Fourier)  normal velocity u . n
-  real_t*** _divu;	// (Fourier)  KINVIS * div(u)
-  real_t*** _gradu;	// (Fourier)  KINVIS * normal gradient of velocity 
-  real_t*** _hopbc;	// (Fourier)  normal component of [N(u)+f+curlCurl(u)]
+  real_t*** _uhat;      // (Fourier)  x velocity component.
+  real_t*** _vhat;      // (Fourier)  y velocity component.
+  real_t*** _what;      // (Fourier)  z velocity component.  
 
-  real_t*   _work;      // Computational workspace (scratch).
+  real_t*** _un;	// (Fourier)  normal velocity u.n for d(u.n)/dt.
+  real_t*** _divu;	// (Fourier)  KINVIS * div(u).
+  real_t*** _gradu;	// (Fourier)  KINVIS * (normal gradient of velocity).n.
+  real_t*** _hopbc;	// (Fourier)  normal component of [N(u)+f-curlCurl(u)].
+  real_t*** _ndudt;     // (Fourier)  normal component of (partial) du/dt.
+
+  real_t*   _work;      // Computational workspace (scratch), smaller than:
   real_t*   _fbuf;      // Fourier transform buffer for KE terms.
-  real_t*   _ke;	// (Physical) kinetic energy 0.5*(u^2+v^2+w^2)*.
+  real_t*   _u2;	// (Physical) 2 * kinetic energy (u^2+v^2+w^2)*.
   real_t*   _unp;       // (Physical) u*.n.
+  real_t*   _Enux;	// Energy flux traction, x component. See Ref [3].
+  real_t*   _Enuy;	// Energy flux traction, y component.
 
   bool      _toggle;    // Toggle switch for Fourier transform of KE.
 };
