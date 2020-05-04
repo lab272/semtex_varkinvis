@@ -206,10 +206,11 @@ robust operation at high Reynolds numbers, `spectral vanishing
 viscosity' \citep{xupa04} can easily be enabled by setting appropriate
 control tokens.
 %
-A significant additional novelty of \Semtex~V8 is the option of robust
-outflow boundary conditions \citep{dkc14}, which alleviate much of the
-numerical stability problem associated with inflows that occur at the
-outflow boundary.
+A significant additional novelty of \Semtex~V9.3 is the option of
+robust energy-stable open boundary conditions \citep{dong15}, which
+alleviate much of the numerical stability problem associated with
+inflows that occur at the outflow boundary.  These also allow
+ingestion of flow without causing blow-ups.
 %
 As of \Semtex~V9, DNS variables may optionally contain a scalar
 variable in addition to velocity components and pressure.  If
@@ -772,9 +773,9 @@ involved may differ.
 As will be elaborated in chapter~\ref{ch.examples}, the string
 \verb|axis| is also significant to the solver if cylindrical
 coordinates are chosen by setting \verb|CYLINDRICAL = 1| in
-\verb|TOKENS|, while the string \verb|outflow| is required for a
-\verb|GROUP| associated with a set of boundary conditions of robust
-outflow type \citep{dkc14}.
+\verb|TOKENS|, while the string \verb|open| is required for a
+\verb|GROUP| associated with a set of boundary conditions of
+energy-stable open type \citep{dong15}.
 
 %----------------------------------------------------------------------------
 \subsection{\texttt{BCS}}
@@ -1183,19 +1184,19 @@ which will be applied for each group.  For each group, after the
 numeric tag (ignored) appears the character for that group, then the
 number of BCs that will be applied: this corresponds to the number of
 fields in the problem, in this case~1 (\verb+c+).  BCs are typically
-of Dirichlet, Neumann, or mixed type (note that domain periodicity can
-be employed but that this does not constitute a boundary condition).
-So in this case we will declare the BC types to be \verb+D+ ({\texttt
-  D}irichlet) for group \verb+d+ and \verb+N+ ({\texttt N}eumann) for
-groups \verb+a+, \verb+b+ and \verb+c+.  On Neumann boundaries, the
-value which must be supplied is the slope of the solution along the
-outward normal to the solution domain.  Note the fact that the BCs can
-be set using the function parser, using the built-in functions and
-variables, also any symbols defined in the \texttt{TOKENS} section, as
-well as the spatial variables \verb+x+, \verb+y+ and \verb+z+.  The
-BCs can also be functions of time, \verb+t+, and for time-varying
-problems, which this is not, the boundary conditions are re-evaluated
-every time step.
+of Dirichlet, Neumann, or Robin/mixed type (note that domain
+periodicity can be employed but that this does not constitute a
+boundary condition).  So in this case we will declare the BC types to
+be \verb+D+ ({\texttt D}irichlet) for group \verb+d+ and \verb+N+
+({\texttt N}eumann) for groups \verb+a+, \verb+b+ and \verb+c+.  On
+Neumann boundaries, the value which must be supplied is the slope of
+the solution along the outward normal to the solution domain.  Note
+the fact that the BCs can be set using the function parser, using the
+built-in functions and variables, also any symbols defined in the
+\texttt{TOKENS} section, as well as the spatial variables \verb+x+,
+\verb+y+ and \verb+z+.  The BCs can also be functions of time,
+\verb+t+, and for time-varying problems, which this is not, the
+boundary conditions are re-evaluated every time step.
 
 The BC groups are associated with element edges in the
 \texttt{SURFACES} section.  Periodic edges, Dirichlet, Neumann and
@@ -2371,7 +2372,7 @@ stress-free but achieves the condition by ensuring that the viscous
 and pressure tractions are individually zero, rather than their sum.
 
 %-----------------------------------------------------------------------------
-\subsection{`Robust' outflow boundary}
+\subsection{Energy-stable open boundary}
 \label{sec.robust}
 
 {\small
@@ -2382,18 +2383,20 @@ and pressure tractions are individually zero, rather than their sum.
 \end{verbatim}
 }
 \noindent This is a set of computed boundary conditions (computed
-Neumann for velocity and computed Dirichlet for pressure).  (In fact
-if \verb+w+ is included, its boundary condition is set as $\partial
-w/\partial n=0$ rather than being computed.) This boundary condition
-was originally described in \citet{dkc14}, and is based on maintaining
-boundedness of kinetic energy within the domain.  It is excellent for
-maintaining stability for flows in short open domains, where the use
-of the 'stress-free' condition described in \S\,\ref{sec.stressfree}
-can lead to catastrophe if significant inflow occurs over an outflow
-boundary.  Type \verb|O| boundaries must set the string \verb|outflow|
-in their associated \verb|GROUP|.  In addition one must set the token
-\verb+U0Delta+ \citep[see eq.\ 4 of][this is $U_o\delta$]{dkc14}
-which is typically of order 0.1 or less.
+Robin/mixed for velocity and pressure).  These boundary conditions
+were originally described in \citet{dong15} (see equations 37 and 38
+there) , and are based on maintaining boundedness of kinetic energy
+within the domain.  It is an excellent combination for maintaining
+stability for flows in short open domains, where the use of the
+'stress-free' condition described in \S\,\ref{sec.stressfree} can lead
+to catastrophe if significant inflow occurs over an outflow boundary,
+or for allowing inflows on ingestion boundaries (such as outboard of a
+jet issing from a wall).  Type \verb|O| boundaries must set the string
+\verb|open| in their associated \verb|GROUP|.  In addition one may set
+the tokens \verb+DONG_UODELTA+ and \verb+DONG_DO+ \citep[see][these
+  are $U_o\delta$ and $D_o$]{dong15}, with default values 0.05 and 1.0
+respectively.  For a scalar variable ($c$), a zero Neumann condition
+is set on these boundaries.
 
 %-----------------------------------------------------------------------------
 \subsection{Axis boundary}
@@ -2457,21 +2460,19 @@ may be present without causing difficulty). To check if this is the
 cause, you could put some history points near the outflow (see
 \S\,\ref{sec.history}), but the best method of diagnosis is to run the
 solution up to a time when divergence starts to increase markedly,
-then use \Tecplot\ or some other postprocessor to examine the
-solution near the outflow.  This problem has been largely circumvented
-in \Semtex~V8 using the robust outflow BC set described by
-\citet{dkc14}, see \S\,\ref{sec.robust} above, though it cannot
-overcome all problems (\eg an `outflow' boundary with completely
-dominant inflow).  In pathological cases of this sort, fixing the
-problem will generally require the mesh to be altered: sometimes the
-mesh is badly structured near the outflow (\eg element sizes have been
-varied too rapidly); sometimes the problem can be overcome by
-extending the domain downstream; sometimes the domain needs to be
-reshaped (\eg by contracting it in the cross-flow direction) so that
-there will be no outflow over the inflow boundary. If all else fails,
-consider the methods of \S\,\ref{sec.sponge} to force the velocity
-near the outflow to be something more computationally tractable (if
-unphysical).
+then use \Tecplot\ or some other postprocessor to examine the solution
+near the outflow.  This problem has been largely circumvented in
+\Semtex~V8 using the open BC set described by \citet{dong15}, see
+\S\,\ref{sec.robust} above, though it cannot overcome all problems.
+In pathological cases, fixing the problem will generally require the
+mesh to be altered: sometimes the mesh is badly structured near the
+outflow (\eg element sizes have been varied too rapidly); sometimes
+the problem can be overcome by extending the domain downstream;
+sometimes the domain needs to be reshaped (\eg by contracting it in
+the cross-flow direction) so that there will be no outflow over the
+inflow boundary. If all else fails, consider the methods of
+\S\,\ref{sec.sponge} to force the velocity near the outflow to be
+something more computationally tractable (if unphysical).
 
 Any time you change the element polynomial order by changing
 \verb+N_P+, or alter the structure of the boundary conditions, you
