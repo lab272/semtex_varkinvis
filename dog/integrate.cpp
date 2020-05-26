@@ -135,7 +135,7 @@ void integrate (void      (*Advection)(Domain*, BCmgr*, AuxField**, AuxField**),
 
     B -> maintainFourier (D -> step, Pressure, 
 			  const_cast<const AuxField**>(Us[0]),
-			  const_cast<const AuxField**>(Uf[0]));
+			  const_cast<const AuxField**>(Uf[0]), NPERT);
     Pressure -> evaluateBoundaries (Pressure, D -> step);
 
     if (Geometry::cylindrical()) { Us[0][0] -> mulY(); Us[0][1] -> mulY(); }

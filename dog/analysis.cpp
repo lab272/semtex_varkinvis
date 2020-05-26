@@ -108,7 +108,7 @@ void Analyser::analyse (AuxField** work,
 
   if (cflstep && !(_src -> step % cflstep)) {
     modalEnergy ();
-    //    estimateCFL ();  // -- No real point in doing this.
+    //    estimateCFL (work[0]);  // -- No real point in doing this.
     divergence  (work);
   }
 
@@ -203,7 +203,7 @@ void Analyser::divergence (AuxField** Us) const
 }
 
 
-void Analyser::estimateCFL () const
+void Analyser::estimateCFL (AuxField* work) const
 // ---------------------------------------------------------------------------
 // Estimate and print the peak CFL number, based on zero-mode velocities.
 // ---------------------------------------------------------------------------
@@ -218,15 +218,15 @@ void Analyser::estimateCFL () const
   real_t         cmpt_i;
   int_t          elmt_i, elmt_j, elmt_k;
 
-  CFL_i[0] = _src -> u[0] -> CFL(0, elmt_i);
-  CFL_i[1] = _src -> u[1] -> CFL(1, elmt_j);
+  CFL_i[0] = (*work = *_src -> u[0]) . CFL(0, elmt_i);
+  CFL_i[1] = (*work = *_src -> u[1]) . CFL(1, elmt_j);
 
   CFL_dt = max(CFL_i[0], CFL_i[1]);
   cmpt_i = (CFL_i[0] > CFL_i[1]) ? 0.0 : 1.0;
   elmt_i = (CFL_i[0] > CFL_i[1]) ? elmt_i : elmt_j;
 
   if (_src -> nField() > 3) {
-    CFL_i[2] = _src -> u[2] -> CFL(2, elmt_k);
+    CFL_i[2] = (*work = *_src -> u[2]) . CFL(2, elmt_k);
 
     if (CFL_i[2] > CFL_dt) {
       CFL_dt = CFL_i[2];

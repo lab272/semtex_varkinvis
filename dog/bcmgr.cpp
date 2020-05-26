@@ -958,6 +958,7 @@ void BCmgr::maintainFourier (const int_t      step   ,
 			     const Field*     master ,
 			     const AuxField** Us     ,
 			     const AuxField** Uf     ,
+			     const int_t      ncom   , // Unused in dog.
 			     const bool       timedep)
 // ---------------------------------------------------------------------------
 // Update storage for evaluation of internally computed pressure boundary
@@ -1185,7 +1186,7 @@ void BCmgr::accelerate (const Vector& a,
 }
 
 
-void BCmgr::evaluateCEBCp (const Field* master,
+void BCmgr::evaluateCMBCp (const Field* master,
 			   const int_t  id    ,
 			   const int_t  plane ,
 			   const int_t  step  ,
@@ -1196,7 +1197,7 @@ void BCmgr::evaluateCEBCp (const Field* master,
 { }
 
 
-void BCmgr::evaluateCNBCu (const Field* P    ,
+void BCmgr::evaluateCMBCu (const Field* P    ,
 			   const int_t  id   ,
 			   const int_t  k    ,
 			   const int_t  step ,
