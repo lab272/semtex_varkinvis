@@ -27,7 +27,7 @@ protected:
 
   void modalEnergy ();
   void divergence  (AuxField**) const;
-  void estimateCFL ()           const;
+  void estimateCFL (AuxField*)  const;
 };
 
 #endif

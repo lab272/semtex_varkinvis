@@ -198,8 +198,8 @@ Analyser::Analyser (Domain* D   ,
 }
 
 
-void Analyser::analyse (AuxField** work0,
-			AuxField** work1)
+void Analyser::analyse (AuxField** work0, // -- Us[0].
+			AuxField** work1) // -- Uf[0].
 // ---------------------------------------------------------------------------
 // Step-by-step processing.  If SPAWN was set, add more particles at
 // original absolute positions.
@@ -242,8 +242,10 @@ void Analyser::analyse (AuxField** work0,
 
   // -- CFL, divergence information.
 
-  if (cflstep && !(_src -> step % cflstep)) this -> estimateCFL();
-  if (cflstep && !(_src -> step % cflstep)) ROOTONLY this -> divergence(work0);
+  if (cflstep && !(_src -> step % cflstep)) {
+    ROOTONLY this -> divergence (work0);
+    this -> estimateCFL (work0[0]);
+  }    
 
   // -- Phase averaging.
 
@@ -389,10 +391,9 @@ void Analyser::modalEnergy ()
 }
 
 
-void Analyser::divergence (AuxField** Us) const
+void Analyser::divergence (AuxField** work) const
 // ---------------------------------------------------------------------------
-// Print out the velocity field's divergence energy per unit area.  Us
-// is used as work area.
+// Print out the velocity field's divergence energy per unit area.
 // ---------------------------------------------------------------------------
 {
   const char routine[] = "Analyser::divergence";
@@ -405,21 +406,21 @@ void Analyser::divergence (AuxField** Us) const
   real_t       L2 = 0.0;
 
   if (Geometry::cylindrical()) {
-    for (i = 0; i < DIM; i++) *Us[i] = *_src -> u[i];
-    Us[1] -> mulY();
-    for (i = 0; i < DIM; i++)  Us[i] -> gradient (i);
-    Us[1] -> divY();
-    if (DIM == 3) Us[2] -> divY();
+    for (i = 0; i < DIM; i++) *work[i] = *_src -> u[i];
+    work[1] -> mulY();
+    for (i = 0; i < DIM; i++)  work[i] -> gradient (i);
+    work[1] -> divY();
+    if (DIM == 3) work[2] -> divY();
   } else {
     for (i = 0; i < DIM; i++) {
-      *Us[i] = *_src -> u[i];
-      Us[i] -> gradient (i);
+      *work[i] = *_src -> u[i];
+      work[i] -> gradient (i);
     }
   }
 
-  for (i = 1; i < DIM; i++) *Us[0] += *Us[i];
+  for (i = 1; i < DIM; i++) *work[0] += *work[i];
 
-  for (m = 0; m < N; m++) L2 += Us[0] -> mode_L2 (m);
+  for (m = 0; m < N; m++) L2 += work[0] -> mode_L2 (m);
 
   L2 /= Lz;
 
@@ -433,56 +434,49 @@ void Analyser::divergence (AuxField** Us) const
 }
 
 
-void Analyser::estimateCFL () const
+void Analyser::estimateCFL (AuxField* work) const
 // ---------------------------------------------------------------------------
 // Estimate and print the peak CFL number.
 // References:
 //     SEM:     Karniadakis and Sherwin (2005), section 6.3.1
 //     Fourier: Canuto, Hussaini, Quarteroni and Zhang, vol. 1 (2006), 
 //              appendix D.2.2
-//
-// The calls which zero Nyquist data ensure that velocity fields are
-// always clean in Fourier space.
 // ---------------------------------------------------------------------------
 {
-  const int_t           pid     = Geometry::procID();
-  const int_t           nProc   = Geometry::nProc();
+  const  int_t          pid     = Geometry::procID();
+  const  int_t          nProc   = Geometry::nProc();
   static vector<real_t> maxProc (nProc);
-  static vector<real_t> maxElmt (nProc);
-  static vector<real_t> maxCmpt (nProc);
+  static vector<int_t>  maxElmt (nProc);
+  static vector<int_t>  maxCmpt (nProc);
 
   const real_t dt = Femlib::value ("D_T");  
   real_t       CFL_dt, dt_max;
-  int_t        i, percent, elmt_i, elmt_j, elmt_k;
-  char         vcmpt;
-  real_t       CFL_i[3], cmpt_i;
+  int_t        i, percent, elmt_i, elmt_j, cmpt_i;
+  real_t       CFL_i[3];
 
-  _src -> u[0] -> zeroNyquist() . transform (INVERSE);
-  CFL_i[0] = _src -> u[0] -> CFL (0, elmt_i);
-  _src -> u[0] -> transform (FORWARD);
+  (*work = *_src -> u[0]) . transform (INVERSE);
+  CFL_i[0] = work -> CFL (0, elmt_i);
 
-  _src -> u[1] -> zeroNyquist() . transform (INVERSE);
-  CFL_i[1] = _src -> u[1] -> CFL (1, elmt_j);
-  _src -> u[1] -> transform (FORWARD);
-  
+  (*work = *_src -> u[1]) . transform (INVERSE);
+  CFL_i[1] = work -> CFL (1, elmt_j);
+
   CFL_dt = max(CFL_i[0], CFL_i[1]);
-  cmpt_i = (CFL_i[0] > CFL_i[1]) ? 0.0 : 1.0;
+  cmpt_i = (CFL_i[0] > CFL_i[1]) ? 0      : 1;
   elmt_i = (CFL_i[0] > CFL_i[1]) ? elmt_i : elmt_j;
 
   if (_src -> nField() > 3) {
-    _src -> u[2] -> zeroNyquist() . transform (INVERSE);
-    CFL_i[2] = _src -> u[2] -> CFL (2, elmt_k);
-    _src -> u[2] -> transform (FORWARD);
+    (*work = *_src -> u[2]) . transform (INVERSE);
+    CFL_i[2] = work -> CFL (2, elmt_j);
 
     if (CFL_i[2] > CFL_dt) {
       CFL_dt = CFL_i[2];
-      cmpt_i = 2.0;
-      elmt_i = elmt_k;
+      cmpt_i = 2;
+      elmt_i = elmt_j;
     }
   }
 
   // -- Send maximum CFL number from each process back to root process.
-  
+
   maxProc[pid] = CFL_dt;
   maxElmt[pid] = elmt_i;
   maxCmpt[pid] = cmpt_i;
@@ -495,9 +489,9 @@ void Analyser::estimateCFL () const
 	Femlib::recv (&maxCmpt[i], 1, i);
       }      
     } else {
-        Femlib::send (&maxProc[pid], 1, 0);
-	Femlib::send (&maxElmt[pid], 1, 0);
-	Femlib::send (&maxCmpt[pid], 1, 0);
+      Femlib::send (&maxProc[pid], 1, 0);
+      Femlib::send (&maxElmt[pid], 1, 0);
+      Femlib::send (&maxCmpt[pid], 1, 0);
     }
   }
 
@@ -514,16 +508,13 @@ void Analyser::estimateCFL () const
 
     dt_max  = 1.0 / CFL_dt;
     percent = static_cast<int_t>(100.0 * dt / dt_max);
-    if      (cmpt_i > 1.5) vcmpt = 'w';
-    else if (cmpt_i > 0.5) vcmpt = 'v';
-    else                   vcmpt = 'u';
 
     cout << setprecision (3)
 	 << "# CFL: "     << CFL_dt * dt
 	 << ", dt (max): " << dt_max
 	 << ", dt (set): " << dt
 	 << " ("           << percent
-	 << "%), field: "  << vcmpt 
+	 << "%), field: "  << char('u' + cmpt_i)
          << ", elmt: "     << elmt_i + 1 << endl;
          // -- 1-based indexing as in session file.
   }

@@ -66,9 +66,9 @@
 //                 | qv | = | s | = \ s /  -- if 2C
 //                 \ qw /   \ t /
 //
-//   iii) Sij u_j  / SxxU + SxyV + SxzW \   / a \   / a \
-//                 | SyxU + SyyV + SyzW | = | b | = \ b /  -- if 2C
-//                 \ SzxU + SzyV + SzzW /   \ c /
+//   iii) Sij u_j  / SxxU + SxyV + SxzW \   / R \   / R \
+//                 | SyxU + SyyV + SyzW | = | S | = \ S /  -- if 2C  
+//                 \ SzxU + SzyV + SzzW /   \ T /                       
 // 
 // c) Tensor: symmetric rate-of-strain tensor S_ij. Naming:
 //
@@ -170,10 +170,10 @@ Statistics::Statistics (Domain* D) :
       _avg['t'] = new AuxField (new real_t[ntot],nz,_base->elmt,'t'); ++_neng;
     }
 
-    _avg['a'] = new AuxField (new real_t[ntot],nz,_base->elmt,'a'); ++_neng;
-    _avg['b'] = new AuxField (new real_t[ntot],nz,_base->elmt,'b'); ++_neng;
+    _avg['R'] = new AuxField (new real_t[ntot],nz,_base->elmt,'R'); ++_neng;
+    _avg['S'] = new AuxField (new real_t[ntot],nz,_base->elmt,'S'); ++_neng;
     if (_nvel == 3) {
-      _avg['c'] = new AuxField (new real_t[ntot],nz,_base->elmt,'c'); ++_neng;
+      _avg['T'] = new AuxField (new real_t[ntot],nz,_base->elmt,'T'); ++_neng;
     }
       
     // -- Tensor.
@@ -405,20 +405,20 @@ void Statistics::update (AuxField** wrka,
     if (_nvel == 3)
       _raw['w'] -> transform (INVERSE);
 
-    _avg['a'] -> timesPlus (*wrka[0], *_raw['u']);
-    _avg['a'] -> timesPlus (*wrkb[0], *_raw['v']);
+    _avg['R'] -> timesPlus (*wrka[0], *_raw['u']);
+    _avg['R'] -> timesPlus (*wrkb[0], *_raw['v']);
     if (_nvel == 3)
-      _avg['a'] -> timesPlus (*wrkb[1], *_raw['w']);
+      _avg['R'] -> timesPlus (*wrkb[1], *_raw['w']);
 
-    _avg['b'] -> timesPlus (*wrkb[0], *_raw['u']);
-    _avg['b'] -> timesPlus (*wrka[1], *_raw['v']);
+    _avg['S'] -> timesPlus (*wrkb[0], *_raw['u']);
+    _avg['S'] -> timesPlus (*wrka[1], *_raw['v']);
     if (_nvel == 3)
-      _avg['b'] -> timesPlus (*wrkb[2], *_raw['w']);
+      _avg['S'] -> timesPlus (*wrkb[2], *_raw['w']);
 
     if (_nvel == 3) {
-      _avg['c'] -> timesPlus (*wrkb[1], *_raw['u']);
-      _avg['c'] -> timesPlus (*wrkb[2], *_raw['v']);
-      _avg['c'] -> timesPlus (*wrka[2], *_raw['w']);
+      _avg['T'] -> timesPlus (*wrkb[1], *_raw['u']);
+      _avg['T'] -> timesPlus (*wrkb[2], *_raw['v']);
+      _avg['T'] -> timesPlus (*wrka[2], *_raw['w']);
     }
 
     _raw['u'] -> transform (FORWARD);

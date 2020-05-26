@@ -882,8 +882,9 @@ void Field::buildRHS (real_t*                  force ,
 //
 //                          - M f - H g
 //
-//  in element (row-major) form, and bc contains the line of BC data values
-//  for this plane of data: only natural BCs are used in formation of <h, w>.
+//  in element (row-major) form, and bc contains the line of BC data
+//  values for this plane of data: only natural/mixed (Neumann/Robin)
+//  BCs are used in formation of <h, w>.
 //
 /// Input vector work should be Geometry::nTotElmt() long.
 // ---------------------------------------------------------------------------

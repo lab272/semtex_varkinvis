@@ -61,15 +61,15 @@
  *                      | qv | = | s |  =  \ s /  -- if 2C
  *                      \ qw /   \ t /
  *
- *   iii) Sij u_j       / SxxU + SxyV + SxzW \   / a \   / a \
- *                      | SyxU + SyyV + SxzW | = | b | = \ b /  -- if 2C
- *                      \ SzxU + SzyV + SzzW /   \ c /
- * 
- * c) Tensor: symmetric rate-of-strain tensor sij:
+ *   iii) Sij u_j       / SxxU + SxyV + SxzW \   / R \   / R \
+ *                      | SyxU + SyyV + SxzW | = | S | = \ S /  -- if 2C
+ *                      \ SzxU + SzyV + SzzW /   \ T /
  *
- *                      / xx xy xz \     /  G  H  J \     /  G  H \
- *                      | .  yy yz |  =  |  .  I  K |  =  \  .  I /  -- if 2C
- *                      \ .  .  zz /     \  .  .  L /
+ * c) Tensor: symmetric rate-of-strain tensor S_ij. Naming:
+ *
+ *                 / xx xy xz \     /  K  L  N \     /  K  L \
+ *                 | .  yy yz |  =  |  .  M  O |  =  \  .  M /  -- if 2C
+ *                \ .  .  zz /     \  .  .  P /
  *
  * Names for (output) terms in the fluctutating energy equation (TKE):
  * -------------------------------------------------------------------
@@ -144,6 +144,7 @@
 static char RCS[] = "$Id$";
 
 #include <sem.h>
+
 
 static char prog[] = "eneq";
 static void getargs (int,char**, bool&, const char*&, const char*&);
@@ -396,13 +397,27 @@ static void meanflo (map<char, AuxField*>& in  ,
 // This does the actual work of building MKE equation terms.
 // ---------------------------------------------------------------------------
 {
-  const char   list2d[] = "ABCGHIabdmnpqrsuv";
-  const char   list3d[] = "ABCDEFGHIJKLabcdmnopqrstuvw";
+  const char   list2d[] = "ABCKLMRSdmnpqrsuv";
+  const char   list3d[] = "ABCDEFKLMNOPRSTdmnopqrstuvw";
+   const char  list2dc[] = "ABCGHJKLMRScdmnpqrsuv";
+  const char   list3dc[] = "ABCDEFGHIJKLMNOPRSTcdmnopqrstuvw";
   const char*  names    = fieldNames (in);
   const int_t  nvel     = (strchr (names, 'w')) ? 3 : 2;
+  const int_t  scalar     = (strchr (names, 'c')) ? 1 : 0;
   const real_t kinvis   = Femlib::value ("KINVIS");
   char         err[StrMax];
 
+  if (scalar){
+    if (nvel == 2) {
+        if (strcmp (names, list2dc) != 0) {
+          sprintf (err,"list of names should match %s: have %s", list2dc, names);
+          message (prog, err, ERROR);
+        } 
+      } else if (strcmp (names, list3dc) != 0) {
+        sprintf (err,"list of names should match %s: have %s", list3dc, names);
+        message (prog, err, ERROR);
+      }
+  }else{
   if (nvel == 2) {
     if (strcmp (names, list2d) != 0) {
       sprintf (err,"list of names should match %s: have %s", list2d, names);
@@ -412,7 +427,7 @@ static void meanflo (map<char, AuxField*>& in  ,
     sprintf (err,"list of names should match %s: have %s", list3d, names);
     message (prog, err, ERROR);
   }
-
+  }
   // -- Turn ABC... into Reynolds stresses.
 
   in['A'] -> timesMinus (*in['u'], *in['u']);
@@ -465,33 +480,33 @@ static void meanflo (map<char, AuxField*>& in  ,
   }
 
   // -- Term '2' (turbulent transport, zero for steady flow). 
-  //    Destroy 'a', 'b', 'c' along the way:
+  //    Destroy 'R', 'S', 'T' along the way:
 
-  in['a'] -> times     (*in['A'], *in['u']);
-  in['a'] -> timesPlus (*in['B'], *in['v']);
-  in['b'] -> times     (*in['B'], *in['u']);
-  in['b'] -> timesPlus (*in['C'], *in['v']);
+  in['R'] -> times     (*in['A'], *in['u']);
+  in['R'] -> timesPlus (*in['B'], *in['v']);
+  in['S'] -> times     (*in['B'], *in['u']);
+  in['S'] -> timesPlus (*in['C'], *in['v']);
   if (nvel == 3) {
-    in['a'] -> timesPlus (*in['D'], *in['w']);
-    in['b'] -> timesPlus (*in['E'], *in['w']);
-    in['c'] -> times     (*in['D'], *in['u']);
-    in['c'] -> timesPlus (*in['E'], *in['v']);
-    in['c'] -> timesPlus (*in['F'], *in['w']);
+    in['R'] -> timesPlus (*in['D'], *in['w']);
+    in['S'] -> timesPlus (*in['E'], *in['w']);
+    in['T'] -> times     (*in['D'], *in['u']);
+    in['T'] -> timesPlus (*in['E'], *in['v']);
+    in['T'] -> timesPlus (*in['F'], *in['w']);
   }
 
-  in['a'] -> gradient (0); *out['2']  = *in['a'];
-  in['b'] -> gradient (1); *out['2'] += *in['b'];
+  in['R'] -> gradient (0); *out['2']  = *in['R'];
+  in['S'] -> gradient (1); *out['2'] += *in['S'];
   if (nvel == 3) {
-    (in['c']  -> transform (FORWARD)) . gradient (2) . transform (INVERSE);
-    *out['2'] += *in['c'];
+    (in['T']  -> transform (FORWARD)) . gradient (2) . transform (INVERSE);
+    *out['2'] += *in['T'];
   }
 
 #if 0
   *out['0'] = *in['A'];
   *out['1'] = *in['B'];
   *out['2'] = *in['C'];
-  *out['3'] = *in['a'];
-  *out['4'] = *in['b'];
+  *out['3'] = *in['R'];
+  *out['4'] = *in['S'];
 #else
 
   // -- Term '3' (pressure work).
@@ -508,23 +523,23 @@ static void meanflo (map<char, AuxField*>& in  ,
 
   // -- Compute term '4' (viscous transport), somewhat like term '2'.
 
-  in['a'] -> times     (*in['m'], *in['u']);
-  in['a'] -> timesPlus (*in['n'], *in['v']);
-  in['b'] -> times     (*in['n'], *in['u']);
-  in['b'] -> timesPlus (*in['r'], *in['v']);
+  in['R'] -> times     (*in['m'], *in['u']);
+  in['R'] -> timesPlus (*in['n'], *in['v']);
+  in['S'] -> times     (*in['n'], *in['u']);
+  in['S'] -> timesPlus (*in['r'], *in['v']);
   if (nvel == 3) {
-    in['a'] -> timesPlus (*in['o'], *in['w']);
-    in['b'] -> timesPlus (*in['s'], *in['w']);
-    in['c'] -> times     (*in['o'], *in['u']);
-    in['c'] -> timesPlus (*in['s'], *in['v']);
-    in['c'] -> timesPlus (*in['t'], *in['w']);
+    in['R'] -> timesPlus (*in['o'], *in['w']);
+    in['S'] -> timesPlus (*in['s'], *in['w']);
+    in['T'] -> times     (*in['o'], *in['u']);
+    in['T'] -> timesPlus (*in['s'], *in['v']);
+    in['T'] -> timesPlus (*in['t'], *in['w']);
   }
 
-  in['a'] -> gradient (0); *out['4']  = *in['a'];
-  in['b'] -> gradient (1); *out['4'] += *in['b'];
+  in['R'] -> gradient (0); *out['4']  = *in['R'];
+  in['S'] -> gradient (1); *out['4'] += *in['S'];
   if (nvel == 3) {
-    (in['c']  -> transform (FORWARD)) . gradient (2) . transform (INVERSE);
-    *out['4'] += *in['c'];
+    (in['T']  -> transform (FORWARD)) . gradient (2) . transform (INVERSE);
+    *out['4'] += *in['T'];
   }
   
   *out['4'] *= -2.0 * kinvis;
@@ -586,13 +601,27 @@ static void covary  (map<char, AuxField*>& in  ,
 // Build TKE equation terms.
 // ---------------------------------------------------------------------------
 {
-  const char   list2d[] = "ABCGHIabdmnpqrsuv";
-  const char   list3d[] = "ABCDEFGHIJKLabcdmnopqrstuvw";
+  const char   list2d[] = "ABCKLMRSdmnpqrsuv";
+  const char   list3d[] = "ABCDEFKLMNOPRSTdmnopqrstuvw";
+     const char  list2dc[] = "ABCGHJKLMRScdmnpqrsuv";
+  const char   list3dc[] = "ABCDEFGHIJKLMNOPRSTcdmnopqrstuvw";
   const char*  names    = fieldNames (in);
   const int_t  nvel     = (strchr (names, 'w')) ? 3 : 2;
+  const int_t  scalar     = (strchr (names, 'c')) ? 1 : 0;
   const real_t kinvis   = Femlib::value ("KINVIS");
   char         err[StrMax];
-
+  
+  if (scalar){
+    if (nvel == 2) {
+        if (strcmp (names, list2dc) != 0) {
+          sprintf (err,"list of names should match %s: have %s", list2dc, names);
+          message (prog, err, ERROR);
+        } 
+      } else if (strcmp (names, list3dc) != 0) {
+        sprintf (err,"list of names should match %s: have %s", list3dc, names);
+        message (prog, err, ERROR);
+      }
+  }else{
   if (nvel == 2) {
     if (strcmp (names, list2d) != 0) {
       sprintf (err,"list of names should match %s: have %s", list2d, names);
@@ -602,7 +631,17 @@ static void covary  (map<char, AuxField*>& in  ,
     sprintf (err,"list of names should match %s: have %s", list3d, names);
     message (prog, err, ERROR);
   }
-
+  }
+ /* if (nvel == 2) {
+    if (strcmp (names, list2d) != 0) {
+      sprintf (err,"list of names should match %s: have %s", list2d, names);
+      message (prog, err, ERROR);
+    } 
+  } else if (strcmp (names, list3d) != 0) {
+    sprintf (err,"list of names should match %s: have %s", list3d, names);
+    message (prog, err, ERROR);
+  }
+*/
   // -- Deal with all the correlations first, before any differentiation.
 
   // -- Turn ABC... into Reynolds stresses.
@@ -698,14 +737,14 @@ static void covary  (map<char, AuxField*>& in  ,
 
   // -- Reduce the rate-of-strain correlations to covariances.
 
-  *in['G'] -= *in['m'];
-  *in['H'] -= *in['n'];
-  *in['I'] -= *in['r'];
+  *in['K'] -= *in['m'];
+  *in['L'] -= *in['n'];
+  *in['M'] -= *in['r'];
 
   if (nvel == 3) {
-    *in['J'] -= *in['o'];
-    *in['K'] -= *in['s'];
-    *in['L'] -= *in['t'];
+    *in['N'] -= *in['o'];
+    *in['O'] -= *in['s'];
+    *in['P'] -= *in['t'];
   }
 
   // -- Compute term '4' (viscous transport):
@@ -717,8 +756,8 @@ static void covary  (map<char, AuxField*>& in  ,
     work[1] -> times (*in['o'], *in['w']);
     *work[0] += *work[1];
   }
-  (*in['a'] -= *work[0]) . gradient (0);
-  *out['4']  = *in['a'];
+  (*in['R'] -= *work[0]) . gradient (0);
+  *out['4']  = *in['R'];
 
   work[0] -> times (*in['n'], *in['u']);
   work[1] -> times (*in['r'], *in['v']);
@@ -727,8 +766,8 @@ static void covary  (map<char, AuxField*>& in  ,
     work[1] -> times (*in['s'], *in['w']);
     *work[0] += *work[1];
   }
-  (*in['b'] -= *work[0]) . gradient (1);
-  *out['4'] += *in['b'];
+  (*in['S'] -= *work[0]) . gradient (1);
+  *out['4'] += *in['S'];
 
   if (nvel == 3) {
     work[0] -> times (*in['o'], *in['u']);
@@ -736,8 +775,8 @@ static void covary  (map<char, AuxField*>& in  ,
     *work[0] += *work[1];
     work[1] -> times (*in['t'], *in['w']);
     *work[0] += *work[1];
-    (*in['c'] -= *work[0]).transform(FORWARD).gradient(2).transform(INVERSE);
-    *out['4'] += *in['c'];
+    (*in['T'] -= *work[0]).transform(FORWARD).gradient(2).transform(INVERSE);
+    *out['4'] += *in['T'];
   }
   
   *out['4'] *= -2.0 * kinvis;

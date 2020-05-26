@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// This version of analysis.C is specialized so that it computes and
+// This version of analysis.cpp is specialized so that it computes and
 // prints out forces exerted on "wall" boundary group.
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
@@ -35,13 +35,16 @@ DNSAnalyser::DNSAnalyser (Domain* D   ,
 // Extensions to Analyser class.
 // ---------------------------------------------------------------------------
   Analyser (D, feml),
-  _wss (Femlib::ivalue ("IO_WSS") && B -> nWall())
+  _wss  (Femlib::ivalue ("IO_WSS") && B -> nWall()),
+  _wall (B -> nWall() > 0)
 {
+  if (!_wall) return;		// -- No need to set up anything here.
+  
   const char routine[] = "DNSAnalyser::DNSAnalyser";
   char       str[StrMax];
 
   ROOTONLY {
-    // -- Open state-variable file.
+    // -- Open state-variable file for integrals of wall tractions.
 
     _flx_strm.open (strcat (strcpy (str, _src -> name), ".flx"));
     if (!_flx_strm) message (routine, "can't open flux file", ERROR);
@@ -96,7 +99,7 @@ void DNSAnalyser::analyse (AuxField** work0,
 
   Analyser::analyse (work0, work1);
 
-  if (state) ROOTONLY {
+  if (_wall && state) ROOTONLY {
     Vector pfor, vfor, tfor;
     char   s[StrMax];
 

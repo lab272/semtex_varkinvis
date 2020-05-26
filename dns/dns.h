@@ -23,15 +23,14 @@ public:
 private:
   ofstream       _flx_strm;
 
-  bool           _wss; // -- Shorthand for Wall Shear Stress/traction.
+  bool           _wall; 	// -- True if "wall" boundary group exists.
+  bool           _wss;          // -- True if wall shear stress requested.
   ofstream       _wss_strm;
   int_t          _nline;
   int_t          _nwall;
   int_t          _npad;
 
   vector<real_t> _work;
-
-  void extract_wall ();
 };
 
 void skewSymmetric    (Domain*,BCmgr*,AuxField**,AuxField**,FieldForce*);
