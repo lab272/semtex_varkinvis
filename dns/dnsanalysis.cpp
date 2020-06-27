@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
-// This version of analysis.C is specialized so that it computes and
-// prints out forces exerted on "wall" boundary group.
+// This version of analysis.cpp is specialized so that it computes and
+// prints out forces (and if appropriate, integrated scalar flux)
+// exerted on "wall" boundary group.
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
 //
