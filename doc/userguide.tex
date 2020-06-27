@@ -2615,6 +2615,10 @@ in that direction.  For cylindrical geometries, the output values are
 forces per radian (in the $x$ and $y$ directions) and torque per
 radian (in the $z$ direction) rather than forces per unit length.
 
+If a scalar (\verb+c+) is present in the simulation, then its integral
+flux is also computed over the \verb+wall+ group boundaries and output
+in the \verb+session.flx+ file, preceding the wall tractions.
+
 %=============================================================================
 \section{Wall tractions}
 \label{sec.traction}

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// This version of analysis.cpp is specialized so that it computes and
+// This version of analysis.C is specialized so that it computes and
 // prints out forces exerted on "wall" boundary group.
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
@@ -35,23 +35,26 @@ DNSAnalyser::DNSAnalyser (Domain* D   ,
 // Extensions to Analyser class.
 // ---------------------------------------------------------------------------
   Analyser (D, feml),
-  _wss  (Femlib::ivalue ("IO_WSS") && B -> nWall()),
-  _wall (B -> nWall() > 0)
+  _wss (Femlib::ivalue ("IO_WSS") && B -> nWall())
 {
-  if (!_wall) return;		// -- No need to set up anything here.
-  
   const char routine[] = "DNSAnalyser::DNSAnalyser";
   char       str[StrMax];
 
   ROOTONLY {
-    // -- Open state-variable file for integrals of wall tractions.
+    // -- Open state-variable file.
 
     _flx_strm.open (strcat (strcpy (str, _src -> name), ".flx"));
     if (!_flx_strm) message (routine, "can't open flux file", ERROR);
 
     _flx_strm << "# DNS state information file"      << endl;
-    _flx_strm << "# Step Time [Fpre Fvis Ftot]-axis" << endl;
-    _flx_strm << "# -------------------------------" << endl;
+    if (_src -> hasScalar()) {
+      _flx_strm << "# Step Time Flux [Fpre Fvis Ftot]-axis" << endl;
+      _flx_strm << "# ------------------------------------" << endl;
+
+    } else {
+      _flx_strm << "# Step Time [Fpre Fvis Ftot]-axis" << endl;
+      _flx_strm << "# -------------------------------" << endl;
+    }
   }
 
   if (_wss) {
@@ -87,11 +90,14 @@ DNSAnalyser::DNSAnalyser (Domain* D   ,
 void DNSAnalyser::analyse (AuxField** work0,
 			   AuxField** work1)
 // ---------------------------------------------------------------------------
-// Step-by-step processing.
+// Step-by-step processing.  "Fluxes" represent momentum fluxes
+// (tractions) integrated over boundaries in "wall" group; if there is
+// a scalar, its integrated flux is also reported.
 // ---------------------------------------------------------------------------
 {
   const char  routine[] = "DNSAnalyser::analyse";
-  const int_t DIM = Geometry::nDim();
+  const int_t NVEL = _src -> nVelCmpt();
+  const int_t NADV = _src -> nAdvect();
   bool        periodic = !(_src->step %  Femlib::ivalue ("IO_HIS")) ||
                          !(_src->step %  Femlib::ivalue ("IO_FLD"));
   bool        final    =   _src->step == Femlib::ivalue ("N_STEP");
@@ -99,33 +105,47 @@ void DNSAnalyser::analyse (AuxField** work0,
 
   Analyser::analyse (work0, work1);
 
-  if (_wall && state) ROOTONLY {
+  if (state) ROOTONLY {
+    real_t flux;
     Vector pfor, vfor, tfor;
     char   s[StrMax];
 
-    if (DIM == 3) {
-      pfor   = Field::normTraction (_src -> u[3]);
+    if (NVEL == 3) {
+      pfor   = Field::normTraction (_src -> u[NADV]);
       vfor   = Field::tangTraction (_src -> u[0], _src -> u[1], _src->u[2]);
       tfor.x = pfor.x + vfor.x;
       tfor.y = pfor.y + vfor.y;
       tfor.z = pfor.z + vfor.z;
     } else {
-      pfor   = Field::normTraction (_src -> u[2]);
+      pfor   = Field::normTraction (_src -> u[NADV]);
       vfor   = Field::tangTraction (_src -> u[0], _src -> u[1]);
       tfor.x = pfor.x + vfor.x;
       tfor.y = pfor.y + vfor.y;
       tfor.z = pfor.z = vfor.z = 0.0;
     }
 
-    sprintf (s,
-	     "%6d %#10.6g "
-	     "%#10.6g %#10.6g %#10.6g "
-	     "%#10.6g %#10.6g %#10.6g "
-	     "%#10.6g %#10.6g %#10.6g",
-	     _src -> step, _src -> time,
-	     pfor.x,   vfor.x,   tfor.x,
-	     pfor.y,   vfor.y,   tfor.y,
-	     pfor.z,   vfor.z,   tfor.z);
+    if (_src -> hasScalar()) {
+      flux = Field::scalarFlux (_src -> u[NVEL]);
+      sprintf (s,
+	       "%6d %#10.6g %10.6g "
+	       "%#10.6g %#10.6g %#10.6g "
+	       "%#10.6g %#10.6g %#10.6g "
+	       "%#10.6g %#10.6g %#10.6g",
+	       _src -> step, _src -> time, flux,
+	       pfor.x,   vfor.x,   tfor.x,
+	       pfor.y,   vfor.y,   tfor.y,
+	       pfor.z,   vfor.z,   tfor.z);
+    } else {
+      sprintf (s,
+	       "%6d %#10.6g "
+	       "%#10.6g %#10.6g %#10.6g "
+	       "%#10.6g %#10.6g %#10.6g "
+	       "%#10.6g %#10.6g %#10.6g",
+	       _src -> step, _src -> time,
+	       pfor.x,   vfor.x,   tfor.x,
+	       pfor.y,   vfor.y,   tfor.y,
+	       pfor.z,   vfor.z,   tfor.z);
+    }
 
     _flx_strm << s << endl;
   }
@@ -149,12 +169,12 @@ void DNSAnalyser::analyse (AuxField** work0,
 
       Veclib::zero (_work.size(), &_work[0], 1);
 
-      if (DIM == 3 || _src -> nField() == 4)
+      if (NVEL == 3)
 	Field::traction (&_work[0], &_work[_nline], &_work[2*_nline], _nwall,
-			 _npad, _src->u[3],_src->u[0],_src->u[1],_src->u[2]);
+			 _npad, _src->u[NADV],_src->u[0],_src->u[1],_src->u[2]);
       else
 	Field::traction (&_work[0], &_work[_nline], &_work[2*_nline], _nwall,
-			 _npad, _src->u[2],_src->u[0],_src->u[1]);
+			 _npad, _src->u[NADV],_src->u[0],_src->u[1]);
 
       // -- Inverse Fourier transform (like Field::bTransform).
 

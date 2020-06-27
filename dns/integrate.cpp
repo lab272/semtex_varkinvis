@@ -151,14 +151,14 @@ void integrate (void (*advection) (Domain*    ,
     }
 
   // -- The following timestepping loop implements equations (15--18) in [5].
-  
+
   while (D -> step < nStep) {
 
     // -- Compute nonlinear terms from previous velocity field.
     //    Add physical space forcing, again at old time level.
 
     advection (D, B, Us[0], Uf[0], FF);
-    
+
     D -> step += 1;
     D -> time += dt;
     Femlib::ivalue ("STEP", D -> step);
@@ -214,7 +214,7 @@ void integrate (void (*advection) (Domain*    ,
       AuxField::couple (D -> u[1], D -> u[2], INVERSE);
 
     // -- Process results of this step.
-    
+
     A -> analyse (Us[0], Uf[0]);
   }
 }
