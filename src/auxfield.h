@@ -59,13 +59,17 @@ public:
   AuxField& axpy        (const real_t, const AuxField&);
 
   AuxField& extractMode  (const AuxField&, const int_t);
-  AuxField& innerProduct (const vector<AuxField*>&, const vector<AuxField*>&);
+  AuxField& innerProduct     (const vector<AuxField*>&,
+			      const vector<AuxField*>&,
+			      const int_t = 0);
   AuxField& innerProductMode (const vector<AuxField*>&,
-			      const vector<AuxField*>&);
+			      const vector<AuxField*>&,
+			      const int_t = 0);
+  
   AuxField& times        (const AuxField&, const AuxField&);
+  AuxField& divide       (const AuxField&, const AuxField&);  
   AuxField& timesPlus    (const AuxField&, const AuxField&);
   AuxField& timesMinus   (const AuxField&, const AuxField&);
-  AuxField& divide       (const AuxField&, const AuxField&);
   AuxField& crossProductPlus (const int_t, const vector<real_t>&,
                               const vector<AuxField*>&);
   AuxField& crossXPlus  (const int_t, const vector<real_t>&);

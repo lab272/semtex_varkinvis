@@ -187,7 +187,8 @@ public:
   void physical         (AuxField*, const int, vector<AuxField*>);
 protected:
   real_t                _TREF, _BETAT, _g[3];
-  
+  int_t                 _centrifugal, _kineticgrad;
+  real_t                _omega;
 };
 
 #endif

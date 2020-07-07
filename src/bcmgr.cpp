@@ -560,7 +560,7 @@ const char* BCmgr::groupInfo (const char name) const
   for (i = 0; i < N; i++) if (name == _group[i]) return _descript[i];
 
   sprintf (err, "unknown group: %c", name);
-  message (routine, err, WARNING);
+  message (routine, err, ERROR);
   return 0;
 }
 

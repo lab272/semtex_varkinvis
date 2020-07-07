@@ -228,15 +228,22 @@ AuxField& AuxField::extractMode (const AuxField& src ,
 }
 
 
-AuxField& AuxField::innerProduct (const vector <AuxField*>& a,
-                                  const vector <AuxField*>& b)
+AuxField& AuxField::innerProduct (const vector <AuxField*>& a   ,
+                                  const vector <AuxField*>& b   ,
+				  const int_t               ncom)
 /// --------------------------------------------------------------------------
 /// Set this AuxField's value as the inner product of a & b
 /// in physical space --- don't worry about dealiasing.
+///
+/// If input ncom = 0 (the default) then the inner product is taken
+/// over all components of input vector a.  Otherwise, the inner
+/// product is taken over ncom components.  (For example, the input
+/// vectors might hold a scalar as their final components, but this is
+/// NOT a component of a physical space velocity vector.)
 //  --------------------------------------------------------------------------
 {
   const char  routine[] = "AuxField::innerProduct";
-  const int_t ndim      = a.size();
+  const int_t NCOM      = (ncom) ? ncom : a.size();
   int_t       i;
 
   if (_size != a[0]->_size || _size != b[0]->_size)
@@ -244,23 +251,28 @@ AuxField& AuxField::innerProduct (const vector <AuxField*>& a,
   
   Veclib::zero (_size, _data, 1);
 
-  for (i = 0; i < ndim; i++)
+  for (i = 0; i < NCOM; i++)
     Veclib::vvtvp (_size, a[i]->_data, 1, b[i]->_data, 1, _data, 1, _data, 1);
 
   return *this;
 }
 
 
-AuxField& AuxField::innerProductMode (const vector <AuxField*>& a,
-				      const vector <AuxField*>& b)
+AuxField& AuxField::innerProductMode (const vector <AuxField*>& a   ,
+				      const vector <AuxField*>& b   ,
+				      const int_t               ncom)
 /// --------------------------------------------------------------------------
 /// Set this AuxField's value as the inner product of a & b in Fourier
 /// space -- but where both a and b are assumed to each be a complex
 /// Fourier mode with just 2 data planes.
+///
+/// If input ncom = 0 (the default) then the inner product is taken over
+/// all components of input a.  Otherwise, the inner product is taken over
+/// ncom components.  
 //  --------------------------------------------------------------------------
 {
   const char  routine[] = "AuxField::innerProduct";
-  const int_t ndim      = a.size();
+  const int_t NCOM      = (ncom) ? ncom : a.size();
   const int_t nP        = Geometry::nPlane();
   int_t       i, k;
 
@@ -272,7 +284,7 @@ AuxField& AuxField::innerProductMode (const vector <AuxField*>& a,
   Veclib::zero (_size, _data, 1);
 
 #if 1 // -- old version.
-  for (i = 0; i < ndim; i++) {
+  for (i = 0; i < NCOM; i++) {
     Veclib::vvtvp (nP, a[i]->_plane[0], 1, b[i]->_plane[0], 1,
 		   _plane[0], 1, _plane[0], 1);
     Veclib::vvtvp (nP, a[i]->_plane[1], 1, b[i]->_plane[1], 1,
@@ -284,7 +296,7 @@ AuxField& AuxField::innerProductMode (const vector <AuxField*>& a,
 		   _plane[1], 1);
   }
 #else
-  for (i = 0; i < ndim; i++) {
+  for (i = 0; i < NCOM; i++) {
 
     // -- Project onto the supplied mode.
     //    Re(this) = Re(a)*Re(b) + Im(a)*Im(b).
