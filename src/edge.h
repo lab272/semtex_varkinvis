@@ -38,6 +38,7 @@ public:
 
   real_t vectorFlux (const char*,const real_t*,const real_t*,real_t*)    const;
   real_t scalarFlux (const char*,const real_t*,real_t*)                  const;
+  real_t torqueFlux (const char*,const real_t*,real_t*)                  const;
 
   Vector normTraction (const char*,const real_t*,real_t*)                const;
   Vector tangTraction (const char*,const real_t*,const real_t*,real_t*)  const;

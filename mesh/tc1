@@ -17,11 +17,8 @@ q# -- Cylindrical Couette flow, solved in cylindrical coordinates.
 
 <TOKENS>
 	CYLINDRICAL = 1
-	N_Z         = 2
-	BETA        = 6.0
-	N_TIME      = 1
-	N_P      = 4
-	N_STEP      = 200
+	N_P         = 7
+	N_STEP      = 5000
 	D_T         = 0.01
 	KINVIS      = 1.0
 	OMEGA       = 1.0
@@ -29,20 +26,24 @@ q# -- Cylindrical Couette flow, solved in cylindrical coordinates.
 	Ro          = 1.0
 	A           = -OMEGA*(Ri*Ri)/(Ro*Ro-Ri*Ri)
 	B           = -A*Ro*Ro
-	TOL_REL     = 1e-15
-	TOL_ABS     = TOL_REL
 </TOKENS>
 
-<GROUPS NUMBER=1>
-	1	v	velocity
+<GROUPS NUMBER=2>
+	1	i	notwall
+	2	o	wall	
 </GROUPS>
 
-<BCS NUMBER=1>
-	1	v	4
+<BCS NUMBER=2>
+	1	i	4
 			<D>	u = 0		</D>
 			<D>	v = 0		</D>
 			<D>     w = A*y+B/y	</D>
-			<H>	p = 0		</H>
+			<H>	p		</H>
+	1	o	4
+			<D>	u = 0		</D>
+			<D>	v = 0		</D>
+			<D>     w = A*y+B/y	</D>
+			<H>	p		</H>			
 </BCS>
 
 <NODES NUMBER=9>
@@ -64,13 +65,11 @@ q# -- Cylindrical Couette flow, solved in cylindrical coordinates.
 	4	<Q>	5 6 9 8		</Q>
 </ELEMENTS>
 
-<SURFACES NUMBER=8>
-	1	1	1	<B>	v	</B>
-	2	2	1	<B>	v	</B>
-	3	2	2	<B>	v	</B>
-	4	4	2	<B>	v	</B>
-	5	4	3	<B>	v	</B>
-	6	3	3	<B>	v	</B>
-	7	3	4	<B>	v	</B>
-	8	1	4	<B>	v	</B>
+<SURFACES NUMBER=6>
+	1	1	1	<B>	i	</B>
+	2	2	1	<B>	i	</B>
+	3	2	2	<P>	1	4	</P>
+	4	4	2	<P>	3	4	</P>
+	5	4	3	<B>	o	</B>
+	6	3	3	<B>	o	</B>
 </SURFACES>

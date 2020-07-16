@@ -1122,7 +1122,7 @@ void BCmgr::maintainFourier (const int_t      step   ,
 // When required for HOPBC comuputation (elsewhere) we subtract off
 // n.d(u)/dt.
 //
-// If in doubt about the signs of terms: make up dp/dn from NSE.
+// If in doubt about (checking) the signs of terms: make up dp/dn from NSE.
 // ---------------------------------------------------------------------------
 {
   const int_t              base  = Geometry::baseMode();

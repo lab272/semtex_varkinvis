@@ -306,6 +306,10 @@ Vector Field::normTraction (const Field* P)
 /// be the pressure field.
 ///
 /// This only has to be done on the zero (mean) Fourier mode.
+///
+/// Note that the z component of this traction is always zero since
+/// no component of the unit outward normal points in the z direction in
+/// 2.5D geometries.  
 // ---------------------------------------------------------------------------
 {
   const vector<Boundary*>& BC = P -> _bsys -> BCs (0);
@@ -361,7 +365,7 @@ Vector Field::tangTraction (const Field* U,
     secF = UBC[i] -> tangTraction ("wall", U->_data, V->_data, &work[0]);
     F.x        -= mu * secF.x;
     F.y        -= mu * secF.y;
-    if (W) F.z -= mu * WBC[i] -> scalarFlux ("wall", W->_data, &work[0]);
+    if (W) F.z -= mu * WBC[i] -> torqueFlux ("wall", W->_data, &work[0]);
   }
 
   return F;

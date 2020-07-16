@@ -293,12 +293,13 @@ Vector Edge::tangTraction (const char*   grp,
 			   const real_t* v  ,
 			   real_t*       wrk) const
 // ---------------------------------------------------------------------------
-// Compute viscous force on this boundary segment, if it lies in group grp.
-// u is data area for first velocity component field, v is for second.
+// Compute (x,y) compnents of viscous force on this boundary segment,
+// if it lies in group grp.  u is data area for first velocity
+// component field, v is for second.
 //
 // Work is a work vector, 4 * _np long.
 //
-// NB NB NB!!! This should be called viscous traction.
+// NB NB NB!!! This should really be called viscous traction.
 // ---------------------------------------------------------------------------
 {
   Vector Force = {0.0, 0.0, 0.0};
@@ -353,6 +354,41 @@ real_t Edge::vectorFlux (const char*   grp,
 }
 
 
+real_t Edge::torqueFlux (const char*   grp,
+			 const real_t* src,
+			 real_t*       wrk) const
+// ---------------------------------------------------------------------------
+// Compute wall-normal gradient flux of field src on this boundary
+// segment, if it lies in group grp.  Wrk is a work vector, 4 *
+// elmt_np_max long.  NB: n is a unit outward normal, with no
+// component in Fourier direction. 
+// ---------------------------------------------------------------------------
+{
+  real_t dcdn = 0.0;
+  
+  if (strcmp (grp, _group) == 0) {
+    int_t  i;
+    real_t *cx = wrk, *cy = wrk + _np, *r = wrk + _np + _np;
+
+    _elmt -> sideGrad (_side, src + _eoffset, cx, cy, r);
+
+    if (Geometry::cylindrical()) {
+      this -> mulY (cx);
+      this -> mulY (cy);
+      
+      for (i = 0; i < _np; i++)
+	dcdn += ( cx[i]                           * _nx[i]  +
+		 (cy[i] - src[_doffset+_dskip*i]) * _ny[i]) * _area[i];      
+    } else
+      
+      for (i = 0; i < _np; i++)
+	dcdn += (cx[i]*_nx[i] + cy[i]*_ny[i])               * _area[i];
+  }
+
+  return dcdn;
+}
+
+
 real_t Edge::scalarFlux (const char*   grp,
 			 const real_t* src,
 			 real_t*       wrk) const
@@ -363,13 +399,14 @@ real_t Edge::scalarFlux (const char*   grp,
 // component in Fourier direction. 
 // ---------------------------------------------------------------------------
 {
-  register real_t dcdn = 0.0;
+  real_t dcdn = 0.0;
   
   if (strcmp (grp, _group) == 0) {
-    register int_t  i;
-    register real_t *cx = wrk, *cy = wrk + _np, *r = wrk + _np + _np;
+    int_t  i;
+    real_t *cx = wrk, *cy = wrk + _np, *r = wrk + _np + _np;
 
     _elmt -> sideGrad (_side, src + _eoffset, cx, cy, r);
+      
     for (i = 0; i < _np; i++)
       dcdn += (cx[i]*_nx[i] + cy[i]*_ny[i]) * _area[i];
   }
