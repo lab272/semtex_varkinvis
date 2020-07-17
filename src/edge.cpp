@@ -361,28 +361,33 @@ real_t Edge::torqueFlux (const char*   grp,
 // Compute wall-normal gradient flux of field src on this boundary
 // segment, if it lies in group grp.  Wrk is a work vector, 4 *
 // elmt_np_max long.  NB: n is a unit outward normal, with no
-// component in Fourier direction. 
+// component in Fourier direction. Also note the BLAS-conformant
+// treatment if skips are negative.
 // ---------------------------------------------------------------------------
 {
   real_t dcdn = 0.0;
   
   if (strcmp (grp, _group) == 0) {
-    int_t  i;
+    int_t  i, start;
     real_t *cx = wrk, *cy = wrk + _np, *r = wrk + _np + _np;
 
     _elmt -> sideGrad (_side, src + _eoffset, cx, cy, r);
 
     if (Geometry::cylindrical()) {
+      
+      // -- Patch up for BLAS conformity with negative skips.
+      start = (_dskip < 0) ? _doffset + (1 - _np) * _dskip : _doffset;
+      
       this -> mulY (cx);
       this -> mulY (cy);
       
       for (i = 0; i < _np; i++)
-	dcdn += ( cx[i]                           * _nx[i]  +
-		 (cy[i] - src[_doffset+_dskip*i]) * _ny[i]) * _area[i];      
+	dcdn += ( cx[i]                        * _nx[i]  +
+		 (cy[i] - src[start+_dskip*i]) * _ny[i]) * _area[i];      
     } else
       
       for (i = 0; i < _np; i++)
-	dcdn += (cx[i]*_nx[i] + cy[i]*_ny[i])               * _area[i];
+	dcdn += (cx[i]*_nx[i] + cy[i]*_ny[i])            * _area[i];
   }
 
   return dcdn;
