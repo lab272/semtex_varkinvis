@@ -1,0 +1,77 @@
+# -- Cylindrical Couette flow, solved in cylindrical coordinates.
+##############################################################################
+# 4 element Taylor--Couette flow, @2D, inner cylinder spinning at rate OMEGA.
+# A = -4.2631578947368434, B = -A.  Net torque (see last entry of .flx file)
+# is zero.
+
+<FIELDS>
+	u v w p
+</FIELDS>
+
+<USER>
+	u = 0
+	v = 0
+	w = A*y+B/y
+	p = 0
+</USER>
+
+<TOKENS>
+	CYLINDRICAL = 1
+	N_P         = 7
+	T_FINAL     = 50
+	D_T         = 0.001
+	N_STEP      = int(T_FINAL/D_T)
+	N_TIME      = 1
+	KINVIS      = 1.0
+	OMEGA       = 1.0
+	Ri          = 0.9
+	Ro          = 1.0
+	A           = -OMEGA*(Ri*Ri)/(Ro*Ro-Ri*Ri)
+	B           = -A*Ro*Ro
+</TOKENS>
+
+<GROUPS NUMBER=2>
+	1	i	wall
+	2	o	wall	
+</GROUPS>
+
+<BCS NUMBER=2>
+	1	i	4
+			<D>	u = 0		</D>
+			<D>	v = 0		</D>
+			<D>     w = A*y+B/y	</D>
+			<H>	p		</H>
+	1	o	4
+			<D>	u = 0		</D>
+			<D>	v = 0		</D>
+			<D>     w = A*y+B/y	</D>
+			<D>	p = 0		</D>
+</BCS>
+
+<NODES NUMBER=9>
+	1	0.0	0.9	0.0
+	2	0.5	0.9	0.0
+	3	1.0	0.9	0.0
+	4	0.0	0.95	0.0
+	5	0.5	0.95	0.0
+	6	1.0	0.95	0.0
+	7	0.0	1.0	0.0
+	8	0.5	1.0	0.0
+	9	1.0	1.0	0.0
+</NODES>
+
+<ELEMENTS NUMBER=4>
+	1	<Q>	1 2 5 4		</Q>
+	2	<Q>	2 3 6 5		</Q>
+	3	<Q>	4 5 8 7		</Q>
+	4	<Q>	5 6 9 8		</Q>
+</ELEMENTS>
+
+<SURFACES NUMBER=6>
+	1	1	1	<B>	i	</B>
+	2	2	1	<B>	i	</B>
+	3	2	2	<P>	1	4	</P>
+	4	4	2	<P>	3	4	</P>
+	5	4	3	<B>	o	</B>
+	6	3	3	<B>	o	</B>
+</SURFACES>
