@@ -115,6 +115,7 @@ int main (int    argc,
     case 1: integrate (altSkewSymmetric,domain,bman,analyst,FF); break;
     case 2: integrate (      convective,domain,bman,analyst,FF); break;
     case 3: integrate (          Stokes,domain,bman,analyst,FF); break;
+    case 4: integrate (      rotational,domain,bman,analyst,FF); break;      
     }
   }
 
