@@ -238,7 +238,7 @@ AuxField& AuxField::innerProduct (const vector <AuxField*>& a   ,
 /// If input ncom = 0 (the default) then the inner product is taken
 /// over all components of input vector a.  Otherwise, the inner
 /// product is taken over ncom components.  (For example, the input
-/// vectors might hold a scalar as their final components, but this is
+/// vectors might hold a scalar as their final component, but this is
 /// NOT a component of a physical space velocity vector.)
 //  --------------------------------------------------------------------------
 {

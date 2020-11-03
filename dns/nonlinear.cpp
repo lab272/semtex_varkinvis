@@ -526,11 +526,11 @@ void convective (Domain*     D ,
 }
 
 
-void rotational (Domain*     D ,
-		 BCmgr*      B ,
-		 AuxField**  Us,
-		 AuxField**  Uf,
-		 FieldForce* FF)
+void rotational1 (Domain*     D ,
+		  BCmgr*      B ,
+		  AuxField**  Us,
+		  AuxField**  Uf,
+		  FieldForce* FF)
 // ---------------------------------------------------------------------------
 // Nonlinear terms N(u) in rotational form are
 //                 ~ ~
@@ -555,7 +555,7 @@ void rotational (Domain*     D ,
 //
 // ---------------------------------------------------------------------------
 {
-  const char routine[] = "rotational";
+  const char routine[] = "rotational1";
   
   const int_t NDIM = Geometry::nDim();
   const int_t NADV = D -> nAdvect();
@@ -724,6 +724,274 @@ void rotational (Domain*     D ,
       N[2] -> timesMinus (*Uphys[1], *tmp);
       
     } else if (D2C2) {
+
+      (*tmp = *Uphys[0]) . gradient (1);
+      N[0] -> timesMinus (*Uphys[1], *tmp);
+      N[1] -> timesPlus  (*Uphys[0], *tmp);
+
+      (*tmp = *Uphys[1]) . gradient (0);
+      N[0] -> timesPlus  (*Uphys[1], *tmp);
+      N[1] -> timesMinus (*Uphys[0], *tmp);
+
+    } else
+      message (routine, "Never get here", ERROR);
+
+    for (i = 0; i < NCOM; i++) {
+      FF     -> addPhysical (N[i], tmp, i, Uphys);
+      N[i]   -> transform   (FORWARD);
+      FF     -> addFourier  (N[i], tmp, i, U);
+      master -> smooth      (N[i]);
+    }
+
+    if (scalar) {
+      (*tmp = *Uphys[NCOM]) . gradient (0);
+      N[NCOM] -> timesMinus (*Uphys[0], *tmp);
+      (*tmp = *Uphys[NCOM]) . gradient (1);
+      N[NCOM] -> timesMinus (*Uphys[1], *tmp);
+      if (D3C3) {
+	(*tmp = *U[NCOM]) . gradient (2) . transform (INVERSE);
+	N[NCOM] -> timesMinus (*Uphys[2], *tmp);
+      }
+      N[NCOM] -> transform (FORWARD);
+      master  -> smooth    (N[NCOM]);
+    }
+  }
+}
+
+
+void rotational2 (Domain*     D ,
+		  BCmgr*      B ,
+		  AuxField**  Us,
+		  AuxField**  Uf,
+		  FieldForce* FF)
+// ---------------------------------------------------------------------------
+// Nonlinear terms N(u) in rotational2 form are
+//                 ~ ~
+//           N  = u x omega - grad(q) = u x curl(u) - grad (q)
+//           ~    ~   ~                 ~        ~
+// where omega is vorticity x is cross-product and q = KE = 0.5 u.u.
+// We will deal with scalar (c) as for convective form.         ~ ~
+//
+// This is a fairly straightforward modification of rotational1 to include
+// terms related to gradient of KE.  
+// 
+// In Cartesian component form
+//
+//           Nx = v[d(v)/dx - d(u)/dy] + w[d(w)/dx - d(u)/dz] - d(q)/dx
+//           Ny = w[d(w)/dy - d(v)/dz] + u[d(u)/dy - d(v)/dx] - d(q)/dy
+//           Nz = u[d(u)/dz - d(w)/dx] + v[d(v)/dz - d(w)/dy] - d(q)/dz
+//           Nc = -ud(c)/dx - vd(c)/dy - wd(c)/dz  
+//
+// in cylindrical coordinates (premultiplied by y on Nx, Ny, terms, see BS04)
+//
+//           Nx = y{v[d(v)/dx - d(u)/dy] + wd(w)/dx - d(q)/dx} - wd(u)/dx
+//           Ny = y{u[d(u)/dy - d(v)/dx] + wd(w)/dy - d(q)/dy} - wd(v)/dz + ww
+//           Nz = -ud(w)/dx - vd(w)/dy + 1/y {vd(v)/dz + ud(u)/dz -vw -d(q)/dz}
+//           Nc = -ud(c)/dx - vd(c)/dy  - 1/y {wd(c)/dz}
+//
+// ---------------------------------------------------------------------------
+{
+  const char routine[] = "rotational2";
+  
+  const int_t NDIM = Geometry::nDim();
+  const int_t NADV = D -> nAdvect();
+  const int_t NCOM = D -> nVelCmpt();
+  const bool  D3C3 = (NDIM == 3) && (NCOM == 3);
+  const bool  D2C3 = (NDIM == 2) && (NCOM == 3);
+  const bool  D2C2 = (NDIM == 2) && (NCOM == 2);
+  const bool  scalar = NADV > NCOM;
+
+  vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
+  AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
+  Field*            master = D -> u[0];	   // -- For smoothing operations.
+  int_t             i, j;
+
+  for (i = 0; i < NADV; i++) {
+    Uphys[i] = D -> u[i];
+    N[i]     = Uf[i];
+    U[i]     = Us[i];
+    *N[i]    = 0.0;
+    *U[i]    = *Uphys[i];
+    Uphys[i] -> transform (INVERSE);
+  }
+
+  B -> maintainPhysical (master, Uphys, NCOM);
+
+  if (Geometry::cylindrical()) {
+
+    if (D3C3) {		      // -- Two z-derivatives have to be made twice.
+
+      (tmp -> innerProduct (Uphys, Uphys, 3)) *= -0.5;
+
+      (*N[0] = *tmp) . gradient (0);
+      (*N[1] = *tmp) . gradient (1);
+      (*N[2] = *tmp) . transform (FORWARD) . gradient (2) . transform (INVERSE);
+
+      N[2] -> timesMinus (*Uphys[1], *Uphys[2]);
+      (*tmp = *U[0]) . gradient (2) . transform (INVERSE);
+      N[2] -> timesPlus (*Uphys[0], *tmp);
+      (*tmp = *U[1]) . gradient (2) . transform (INVERSE);
+      N[2] -> timesPlus (*Uphys[1], *tmp);
+      N[2] -> divY();
+ 
+      (*tmp = *Uphys[0]) . gradient (1);
+      N[0] -> timesMinus (*Uphys[1], *tmp);
+      N[1] -> timesPlus  (*Uphys[0], *tmp);
+
+      (*tmp = *Uphys[1]) . gradient (0);
+      N[0] -> timesPlus  (*Uphys[1], *tmp);
+      N[1] -> timesMinus (*Uphys[0], *tmp);
+
+      (*tmp = *Uphys[2]) . gradient (0);
+      N[0] -> timesPlus  (*Uphys[2], *tmp) . mulY();
+      N[2] -> timesMinus (*Uphys[0], *tmp);
+
+      (*tmp = *Uphys[2]) . gradient (1);
+      N[1] -> timesPlus  (*Uphys[2], *tmp) . mulY();
+      N[2] -> timesMinus (*Uphys[1], *tmp);
+
+      (*tmp = *U[0]) . gradient (2) . transform (INVERSE);
+      N[0] -> timesMinus (*Uphys[2], *tmp);
+      (*tmp = *U[1]) . gradient (2) . transform (INVERSE);      
+      N[1] -> timesMinus (*Uphys[2], *tmp);
+
+      N[1] -> timesPlus (*Uphys[2], *Uphys[2]);
+      
+    } else if (D2C3) {
+
+      (tmp -> innerProduct (Uphys, Uphys, 3)) *= -0.5;
+
+      (*N[0] = *tmp) . gradient (0);
+      (*N[1] = *tmp) . gradient (1);
+
+      N[2] -> timesMinus (*Uphys[1], *Uphys[2]);
+      N[2] -> divY();
+ 
+      (*tmp = *Uphys[0]) . gradient (1);
+      N[0] -> timesMinus (*Uphys[1], *tmp);
+      N[1] -> timesPlus  (*Uphys[0], *tmp);
+
+      (*tmp = *Uphys[1]) . gradient (0);
+      N[0] -> timesPlus  (*Uphys[1], *tmp);
+      N[1] -> timesMinus (*Uphys[0], *tmp);
+
+      (*tmp = *Uphys[2]) . gradient (0);
+      N[0] -> timesPlus  (*Uphys[2], *tmp) . mulY();
+      N[2] -> timesMinus (*Uphys[0], *tmp);
+
+      (*tmp = *Uphys[2]) . gradient (1);
+      N[1] -> timesPlus  (*Uphys[2], *tmp) . mulY();
+      N[2] -> timesMinus (*Uphys[1], *tmp);
+
+      N[1] -> timesPlus (*Uphys[2], *Uphys[2]);
+      
+    } else if (D2C2) {
+
+      (tmp -> innerProduct (Uphys, Uphys, 2)) *= -0.5;
+
+      (*N[0] = *tmp) . gradient (0);
+      (*N[1] = *tmp) . gradient (1);
+
+      (*tmp = *Uphys[0]) . gradient (1);
+      N[0] -> timesMinus (*Uphys[1], *tmp);
+      N[1] -> timesPlus  (*Uphys[0], *tmp);
+
+      (*tmp = *Uphys[1]) . gradient (0);
+      N[0] -> timesPlus  (*Uphys[1], *tmp);
+      N[1] -> timesMinus (*Uphys[0], *tmp);
+
+      N[0] -> mulY();
+      N[1] -> mulY();
+
+      N[1] -> timesPlus (*Uphys[2], *Uphys[2]);
+
+    } else
+      message (routine, "Never get here", ERROR);
+
+    for (i = 0; i < NCOM; i++) {
+      FF     -> addPhysical (N[i], tmp, i, Uphys);
+      N[i]   -> transform   (FORWARD);
+      FF     -> addFourier  (N[i], tmp, i, U);
+      master -> smooth      (N[i]);
+    }
+
+    if (scalar) {
+      if (D3C3) {
+	(*tmp = *U[NCOM]) . gradient (2) . transform (INVERSE);
+	N[NCOM] -> timesMinus (*Uphys[2], *tmp) . divY();
+      }      
+      (*tmp = *Uphys[NCOM]) . gradient (0);
+      N[NCOM] -> timesMinus (*Uphys[0], *tmp);
+      (*tmp = *Uphys[NCOM]) . gradient (1);
+      N[NCOM] -> timesMinus (*Uphys[1], *tmp);
+      
+      N[NCOM] -> transform (FORWARD);
+      master  -> smooth    (N[NCOM]);
+    }	
+
+  } else {			// -- Cartesian coordinates.
+
+    if (D3C3) {
+
+      (tmp -> innerProduct (Uphys, Uphys, 3)) *= -0.5;
+
+      (*N[0] = *tmp) . gradient (0);
+      (*N[1] = *tmp) . gradient (1);
+      (*N[2] = *tmp) . transform (FORWARD) . gradient (2) . transform (INVERSE);
+
+      (*tmp = *Uphys[0]) . gradient (1);
+      N[0] -> timesMinus (*Uphys[1], *tmp);
+      N[1] -> timesPlus  (*Uphys[0], *tmp);
+
+      (*tmp = *U[0]) . gradient (2) . transform (INVERSE);
+      N[0] -> timesMinus (*Uphys[2], *tmp);
+      N[2] -> timesPlus  (*Uphys[0], *tmp);
+
+      (*tmp = *Uphys[1]) . gradient (0);
+      N[0] -> timesPlus  (*Uphys[1], *tmp);
+      N[1] -> timesMinus (*Uphys[0], *tmp);
+
+      (*tmp = *U[1]) . gradient (2) . transform (INVERSE);
+      N[1] -> timesMinus (*Uphys[2], *tmp);
+      N[2] -> timesPlus  (*Uphys[1], *tmp);
+
+      (*tmp = *Uphys[2]) . gradient (0);
+      N[0] -> timesPlus  (*Uphys[2], *tmp);
+      N[2] -> timesMinus (*Uphys[0], *tmp);
+
+      (*tmp = *Uphys[2]) . gradient (1);
+      N[1] -> timesPlus  (*Uphys[2], *tmp);
+      N[2] -> timesMinus (*Uphys[1], *tmp);
+      
+    } else if (D2C3) {
+
+      (tmp -> innerProduct (Uphys, Uphys, 3)) *= -0.5;
+
+      (*N[0] = *tmp) . gradient (0);
+      (*N[1] = *tmp) . gradient (1);
+
+      (*tmp = *Uphys[0]) . gradient (1);
+      N[0] -> timesMinus (*Uphys[1], *tmp);
+      N[1] -> timesPlus  (*Uphys[0], *tmp);
+
+      (*tmp = *Uphys[1]) . gradient (0);
+      N[0] -> timesPlus  (*Uphys[1], *tmp);
+      N[1] -> timesMinus (*Uphys[0], *tmp);
+
+      (*tmp = *Uphys[2]) . gradient (0);
+      N[0] -> timesPlus  (*Uphys[2], *tmp);
+      N[2] -> timesMinus (*Uphys[0], *tmp);
+
+      (*tmp = *Uphys[2]) . gradient (1);
+      N[1] -> timesPlus  (*Uphys[2], *tmp);
+      N[2] -> timesMinus (*Uphys[1], *tmp);
+      
+    } else if (D2C2) {
+
+      (tmp -> innerProduct (Uphys, Uphys, 2)) *= -0.5;
+
+      (*N[0] = *tmp) . gradient (0);
+      (*N[1] = *tmp) . gradient (1);
 
       (*tmp = *Uphys[0]) . gradient (1);
       N[0] -> timesMinus (*Uphys[1], *tmp);

@@ -36,7 +36,8 @@ private:
 void skewSymmetric    (Domain*,BCmgr*,AuxField**,AuxField**,FieldForce*);
 void altSkewSymmetric (Domain*,BCmgr*,AuxField**,AuxField**,FieldForce*);
 void convective       (Domain*,BCmgr*,AuxField**,AuxField**,FieldForce*);
-void rotational       (Domain*,BCmgr*,AuxField**,AuxField**,FieldForce*);
+void rotational1      (Domain*,BCmgr*,AuxField**,AuxField**,FieldForce*);
+void rotational2      (Domain*,BCmgr*,AuxField**,AuxField**,FieldForce*);
 void Stokes           (Domain*,BCmgr*,AuxField**,AuxField**,FieldForce*);
 
 #endif
