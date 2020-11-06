@@ -891,16 +891,15 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
  
   _TREF = _BETAT = _g[0] = _g[1] = _g[2] = 0.0;
 
-  if (!file -> valueFromSection (&gravMag, "FORCE", "BOUSSINESQ_GRAVITY"))
-    return;
-  VERBOSE cout << "    BOUSSINESQ_GRAVITY = " << gravMag << endl;
+  if (file -> valueFromSection (&gravMag, "FORCE", "BOUSSINESQ_GRAVITY"))
+    VERBOSE cout << "    BOUSSINESQ_GRAVITY = " << gravMag << endl;
   if (file -> valueFromSection (&_TREF,   "FORCE", "BOUSSINESQ_TREF"))
     VERBOSE cout << "    BOUSSINESQ_TREF = "    << _TREF << endl;
   if (file -> valueFromSection (&_BETAT,  "FORCE", "BOUSSINESQ_BETAT"))
     VERBOSE cout << "    BOUSSINESQ_BETAT = "   << _BETAT << endl;
   
-  if ((gravMag < EPSDP) || (fabs(_BETAT) < EPSDP))
-    message (routine, "gravity and/or expansion coeff. magnitudes <=0", ERROR);
+  if ((gravMag < -EPSDP) || (fabs(_BETAT) < -EPSDP))
+    message (routine, "gravity and/or expansion coeff. magnitudes <0", ERROR);
 
   for (i = 0; i < 3; i++)
     if (file -> valueFromSection (_g+i, "FORCE", vecGrav[i]))
@@ -914,7 +913,6 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
     
   if (file -> valueFromSection (&_kineticgrad, "FORCE", "BOUSSINESQ_KINETIC"))
     VERBOSE cout << "    Boussinesq buoyancy will include grad(KE)" << endl;
-  
 
   // -- Check for extension 3, centrifugal buoyancy.
   //    Only works in cylindrical coords. We use Omega_x and assume it's steady.
@@ -952,10 +950,10 @@ void BuoyancyForce::physical (AuxField*               ff ,
 // timestep.
 //
 // Cylindrical:
-// rho'/rho_0 [ g_x - 0.5 grad (|u|^2) + 0.5 Omega_x^2 y ]
+// -(rho'/rho_0) [ g_x + 0.5 grad (|u|^2) + 0.5 Omega_x^2 y ]
 //
 // Cartesian:
-// rho'/rho_0 [ g   - 0.5 grad (|u|^2) ]    
+// -(rho'/rho_0) [ g   + 0.5 grad (|u|^2) ]    
 // ---------------------------------------------------------------------------
 {
   if (!_enabled) return;
@@ -972,7 +970,7 @@ void BuoyancyForce::physical (AuxField*               ff ,
     }		// -- _a[1] now has scalar for subsequent gradient computations.
     *_a[0]  = _TREF;
     *_a[0] -= *U[NCOM];  // -- U[NCOM] contains temperature.
-    *_a[0] *= _BETAT;    // -- _a[0] now has relative density variation.
+    *_a[0] *= _BETAT;    // -- _a[0] = minus the relative density variation.
   }
 
   switch (com) {		// -- Here we deal with _a[1] & _a[2].

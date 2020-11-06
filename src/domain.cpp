@@ -116,6 +116,7 @@ void Domain::report ()
 // Print a run-time summary of domain & timestep information on cout.
 // ---------------------------------------------------------------------------
 {
+  const char routine[] = "Domain::report";
   const real_t t   = time;
   const real_t dt  = Femlib:: value ("D_T");
   const real_t lz  = Femlib:: value ("TWOPI / BETA");
@@ -145,6 +146,17 @@ void Domain::report ()
   cout << "   Number of steps         : " << ns                 << endl;
   cout << "   Dump interval (steps)   : " << per;
   if (chk) cout << " (checkpoint)";  
+  cout << endl;
+  cout << "   Nonlinear terms of type : ";
+  switch (Femlib::ivalue ("ADVECTION")) {
+  case 0: cout << "0 (Skew symmetric)"; break;
+  case 1: cout << "1 (Alternating skew symmetric)"; break;
+  case 2: cout << "2 (Convective/nonconservative)"; break;
+  case 3: cout << "3 (Rotational-1)"; break;
+  case 4: cout << "4 (Rotational-2)"; break;
+  case 5: cout << "5 (Stokes/none)"; break;
+  default: message (routine, "Unknown advection scheme number", ERROR);
+  }
   cout << endl;
 }
 

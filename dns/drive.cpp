@@ -114,9 +114,9 @@ int main (int    argc,
     case 0: integrate (   skewSymmetric,domain,bman,analyst,FF); break;
     case 1: integrate (altSkewSymmetric,domain,bman,analyst,FF); break;
     case 2: integrate (      convective,domain,bman,analyst,FF); break;
-    case 3: integrate (          Stokes,domain,bman,analyst,FF); break;
-    case 4: integrate (     rotational1,domain,bman,analyst,FF); break;
-    case 5: integrate (     rotational2,domain,bman,analyst,FF); break;            
+    case 3: integrate (     rotational1,domain,bman,analyst,FF); break;
+    case 4: integrate (     rotational2,domain,bman,analyst,FF); break;
+    case 5: integrate (          Stokes,domain,bman,analyst,FF); break;
     }
   }
 
@@ -156,7 +156,7 @@ static void getargs (int    argc   ,
       break;
     case 'S': Femlib::ivalue ("ADVECTION", 0); break;
     case 'C': Femlib::ivalue ("ADVECTION", 2); break;
-    case 'N': Femlib::ivalue ("ADVECTION", 3); break;
+    case 'N': Femlib::ivalue ("ADVECTION", 5); break;
     case 'f':
       freeze = true;
       break;

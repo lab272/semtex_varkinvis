@@ -821,7 +821,7 @@ void rotational2 (Domain*     D ,
 
     if (D3C3) {		      // -- Two z-derivatives have to be made twice.
 
-      (tmp -> innerProduct (Uphys, Uphys, 3)) *= -0.5;
+      tmp -> innerProduct (Uphys, Uphys, 3) *= -0.5;
 
       (*N[0] = *tmp) . gradient (0);
       (*N[1] = *tmp) . gradient (1);
@@ -859,7 +859,7 @@ void rotational2 (Domain*     D ,
       
     } else if (D2C3) {
 
-      (tmp -> innerProduct (Uphys, Uphys, 3)) *= -0.5;
+      tmp -> innerProduct (Uphys, Uphys, 3) *= -0.5;
 
       (*N[0] = *tmp) . gradient (0);
       (*N[1] = *tmp) . gradient (1);
@@ -887,7 +887,7 @@ void rotational2 (Domain*     D ,
       
     } else if (D2C2) {
 
-      (tmp -> innerProduct (Uphys, Uphys, 2)) *= -0.5;
+      tmp -> innerProduct (Uphys, Uphys, 2) *= -0.5;
 
       (*N[0] = *tmp) . gradient (0);
       (*N[1] = *tmp) . gradient (1);
@@ -933,7 +933,7 @@ void rotational2 (Domain*     D ,
 
     if (D3C3) {
 
-      (tmp -> innerProduct (Uphys, Uphys, 3)) *= -0.5;
+      tmp -> innerProduct (Uphys, Uphys, 3) *= -0.5;
 
       (*N[0] = *tmp) . gradient (0);
       (*N[1] = *tmp) . gradient (1);
@@ -965,7 +965,7 @@ void rotational2 (Domain*     D ,
       
     } else if (D2C3) {
 
-      (tmp -> innerProduct (Uphys, Uphys, 3)) *= -0.5;
+      tmp -> innerProduct (Uphys, Uphys, 3) *= -0.5;
 
       (*N[0] = *tmp) . gradient (0);
       (*N[1] = *tmp) . gradient (1);
@@ -988,7 +988,7 @@ void rotational2 (Domain*     D ,
       
     } else if (D2C2) {
 
-      (tmp -> innerProduct (Uphys, Uphys, 2)) *= -0.5;
+      tmp -> innerProduct (Uphys, Uphys, 2) *= -0.5;
 
       (*N[0] = *tmp) . gradient (0);
       (*N[1] = *tmp) . gradient (1);
