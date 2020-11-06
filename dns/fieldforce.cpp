@@ -891,13 +891,16 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
  
   _TREF = _BETAT = _g[0] = _g[1] = _g[2] = 0.0;
 
-  if (file -> valueFromSection (&gravMag, "FORCE", "BOUSSINESQ_GRAVITY"))
-    VERBOSE cout << "    BOUSSINESQ_GRAVITY = " << gravMag << endl;
-  if (file -> valueFromSection (&_TREF,   "FORCE", "BOUSSINESQ_TREF"))
+  // --Return immediately if mininum data for Boussinesq aren't present.
+  
+  if (!file -> valueFromSection (&_TREF,   "FORCE", "BOUSSINESQ_TREF"))
+    return;
     VERBOSE cout << "    BOUSSINESQ_TREF = "    << _TREF << endl;
+
   if (file -> valueFromSection (&_BETAT,  "FORCE", "BOUSSINESQ_BETAT"))
     VERBOSE cout << "    BOUSSINESQ_BETAT = "   << _BETAT << endl;
-  
+  if (file -> valueFromSection (&gravMag, "FORCE", "BOUSSINESQ_GRAVITY"))
+    VERBOSE cout << "    BOUSSINESQ_GRAVITY = " << gravMag << endl;
   if ((gravMag < -EPSDP) || (fabs(_BETAT) < -EPSDP))
     message (routine, "gravity and/or expansion coeff. magnitudes <0", ERROR);
 
