@@ -446,10 +446,7 @@ bool FEML::valueFromSection (real_t     *value  ,
     stream().ignore (StrMax, '\n');
     while (!stream().eof()) {
       stream().getline(s, StrMax);
-      if (s[0] == '#') {
-        stream().ignore (StrMax, '\n');
-        continue;
-      }
+      if (s[0] == '#') continue;
       if (strstr (s, endsection)) break;
       char *tok;
       if ((tok = strtok (s, "=")) == NULL) continue;
@@ -473,7 +470,7 @@ bool FEML::valueFromSection (int_t      *value  ,
 			     const char *section,
 			     const char *token  )
 // ---------------------------------------------------------------------------
-// As above, integer version
+// As above, integer version.  Note that zero values, if present, return true.
 // ---------------------------------------------------------------------------
 {
   char routine[] = "FEML::valueFromSection";
@@ -485,10 +482,7 @@ bool FEML::valueFromSection (int_t      *value  ,
     stream().ignore (StrMax, '\n');
     while (!stream().eof()) {
       stream().getline(s, StrMax);
-      if (s[0] == '#') {
-        stream().ignore (StrMax, '\n');
-        continue;
-      }
+      if (s[0] == '#') continue;
       if (strstr (s, endsection)) break;
       char *tok;
       if ((tok = strtok (s, "=")) == NULL) continue;
@@ -515,7 +509,7 @@ bool FEML::valueFromSection (char       *buf    ,
 // As above, string version.
 // ---------------------------------------------------------------------------
 {
-  char routine[]   = "FEML::valueFromSection";
+  char routine[] = "FEML::valueFromSection";
   char endsection[StrMax], s[StrMax];
 
   sprintf (endsection, "</%s>", section);
@@ -524,10 +518,7 @@ bool FEML::valueFromSection (char       *buf    ,
     stream().ignore (StrMax, '\n');
     while (!stream().eof()) {
       stream().getline (s, StrMax);
-      if (s[0] == '#') {
-        stream().ignore (StrMax, '\n');
-        continue;
-      }
+      if (s[0] == '#') continue;
       if (strstr (s, endsection)) break;
       char *tok;
       if ((tok = strtok (s, "=")) == NULL) continue;

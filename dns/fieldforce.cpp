@@ -863,7 +863,7 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
 //
 // The body forces per unit mass are then
 //
-// rho'/rho_0 [ g - 0.5 grad (|u|^2) + 0.5 grad (|Omega x r|^2) ]
+// rho'/rho_0 [ g + 0.5 grad (|u|^2) + 0.5 grad (|Omega x r|^2) ]
 //  
 // For now, we will only deal with centrifugal force if the coordinate
 // system is cylindrical, and with the further restriction that only
@@ -872,10 +872,10 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
 // gravitational component aligned with the x axis.
 //
 // Cylindrical:
-// rho'/rho_0 [ g_x - 0.5 grad (|u|^2) + 0.5 Omega_x^2 y ]
+// rho'/rho_0 [ g_x + 0.5 grad (|u|^2) + 0.5 Omega_x^2 y ]
 //
 // Cartesian:
-// rho'/rho_0 [ g   - 0.5 grad (|u|^2) ]  
+// rho'/rho_0 [ g   +  0.5 grad (|u|^2) ]  
 // ---------------------------------------------------------------------------
 {
   const char  routine[] = "BuoyancyForce::BuoyancyForce";
@@ -889,7 +889,8 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
   VERBOSE cout << "  " << routine << endl;
   _enabled = false;
  
-  _TREF = _BETAT = _g[0] = _g[1] = _g[2] = 0.0;
+  _TREF = _BETAT = _omega = _g[0] = _g[1] = _g[2] = 0.0;
+  _centrifugal = _kineticgrad = 0;
 
   // --Return immediately if mininum data for Boussinesq aren't present.
   
@@ -915,17 +916,21 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
   // -- Check for extension 2, kinetic energy gradient buoyancy.
     
   if (file -> valueFromSection (&_kineticgrad, "FORCE", "BOUSSINESQ_KINETIC"))
-    VERBOSE cout << "    Boussinesq buoyancy will include grad(KE)" << endl;
+    if (_kineticgrad == 1)
+      VERBOSE cout << "    Boussinesq buoyancy will include grad(KE)" << endl;
+    else _kineticgrad = 0;	// -- Only allowed values are 0 and 1.
 
   // -- Check for extension 3, centrifugal buoyancy.
   //    Only works in cylindrical coords. We use Omega_x and assume it's steady.
 
   if (Geometry::cylindrical()) {
     if (file -> valueFromSection (&_centrifugal, "FORCE", "BOUSSINESQ_CENTRIF"))
-      if (!file -> valueFromSection (&_omega, "FORCE", "CORIOLIS_OMEGA_X"))
-	message (routine, "could not find (expected) CORIOLIS_OMEGA_X", ERROR);
-      else
-	VERBOSE cout << "    Boussinesq buoyancy centrifugal enabled" << endl;
+      if (_centrifugal == 1) {
+	if (!file -> valueFromSection (&_omega, "FORCE", "CORIOLIS_OMEGA_X"))
+	  message(routine, "could not find (expected) CORIOLIS_OMEGA_X", ERROR);
+	else
+	  VERBOSE cout << "    Boussinesq buoyancy centrifugal enabled" << endl;
+      } else _centrifugal = 0;	// -- Only allowed values are 0 and 1.
   }
 
   // -- If we got this far, everything should be OK.
@@ -938,7 +943,6 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
     _a.resize (3);
     _a[1] = allocAuxField (_D);   // -- Storage for quadratic scalar.    
     _a[2] = allocAuxField (_D);   // -- Workspace.
-
   }
 }
 
@@ -952,11 +956,9 @@ void BuoyancyForce::physical (AuxField*               ff ,
 // velocity and scalar data in U remain the same for each call in a
 // timestep.
 //
-// Cylindrical:
-// -(rho'/rho_0) [ g_x + 0.5 grad (|u|^2) + 0.5 Omega_x^2 y ]
+// Cylindrical: (rho'/rho_0) [ g_x + 0.5 grad (|u|^2) + 0.5 Omega_x^2 y ]
 //
-// Cartesian:
-// -(rho'/rho_0) [ g   + 0.5 grad (|u|^2) ]    
+// Cartesian:   (rho'/rho_0) [ g   + 0.5 grad (|u|^2) ]    
 // ---------------------------------------------------------------------------
 {
   if (!_enabled) return;
