@@ -921,15 +921,15 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
     else _kineticgrad = 0;	// -- Only allowed values are 0 and 1.
 
   // -- Check for extension 3, centrifugal buoyancy.
-  //    Only works in cylindrical coords. We use Omega_x and assume it's steady.
+  //    Only works in cylindrical coords. We use Omega_x, assume it's steady.
 
   if (Geometry::cylindrical()) {
-    if (file -> valueFromSection (&_centrifugal, "FORCE", "BOUSSINESQ_CENTRIF"))
+    if (file -> valueFromSection (&_centrifugal,"FORCE","BOUSSINESQ_CENTRIF"))
       if (_centrifugal == 1) {
 	if (!file -> valueFromSection (&_omega, "FORCE", "CORIOLIS_OMEGA_X"))
-	  message(routine, "could not find (expected) CORIOLIS_OMEGA_X", ERROR);
+	  message(routine,"could not find (expected) CORIOLIS_OMEGA_X",ERROR);
 	else
-	  VERBOSE cout << "    Boussinesq buoyancy centrifugal enabled" << endl;
+	  VERBOSE cout << "    Boussinesq buoyancy centrifugal enabled" <<endl;
       } else _centrifugal = 0;	// -- Only allowed values are 0 and 1.
   }
 
@@ -972,7 +972,7 @@ void BuoyancyForce::physical (AuxField*               ff ,
       *_a[0] = _omega / sqrt (2.0);
       _a[0] -> mulY();
       _a[1] -> timesPlus (*_a[0], *_a[0]);
-    }		// -- _a[1] now has scalar for subsequent gradient computations.
+    } // -- _a[1] now has scalar for subsequent gradient computations.
     *_a[0]  = _TREF;
     *_a[0] -= *U[NCOM];  // -- U[NCOM] contains temperature.
     *_a[0] *= _BETAT;    // -- _a[0] = minus the relative density variation.
