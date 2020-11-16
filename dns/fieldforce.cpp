@@ -896,6 +896,7 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
   
   if (!file -> valueFromSection (&_TREF,   "FORCE", "BOUSSINESQ_TREF"))
     return;
+  else
     VERBOSE cout << "    BOUSSINESQ_TREF = "    << _TREF << endl;
 
   if (file -> valueFromSection (&_BETAT,  "FORCE", "BOUSSINESQ_BETAT"))
@@ -905,44 +906,58 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
   if ((gravMag < -EPSDP) || (fabs(_BETAT) < -EPSDP))
     message (routine, "gravity and/or expansion coeff. magnitudes <0", ERROR);
 
-  for (i = 0; i < 3; i++)
-    if (file -> valueFromSection (_g+i, "FORCE", vecGrav[i]))
+  for (i = 0; i < 3; i++) {
+    if (file -> valueFromSection (_g+i, "FORCE", vecGrav[i])) {
       VERBOSE cout << "    " << vecGrav[i] << " = " << _g[i] << endl;
+    }
+  }
+
   if (Geometry::cylindrical()) _g[1] = _g[2] = 0.0;
+  
   if ((norm = sqrt(_g[0]*_g[0] + _g[1]*_g[1] + _g[2]*_g[2])) < EPSDP)
     message (routine, "no active gravity vector component", WARNING);
   for (i = 0; i < 3; i++) _g[i] *= gravMag / norm;
 
   // -- Check for extension 2, kinetic energy gradient buoyancy.
     
-  if (file -> valueFromSection (&_kineticgrad, "FORCE", "BOUSSINESQ_KINETIC"))
-    if (_kineticgrad == 1)
+  if (file -> valueFromSection (&_kineticgrad, "FORCE", "BOUSSINESQ_KINETIC")) {
+    if (_kineticgrad == 1) {
       VERBOSE cout << "    Boussinesq buoyancy will include grad(KE)" << endl;
-    else _kineticgrad = 0;	// -- Only allowed values are 0 and 1.
+    } else {
+      _kineticgrad = 0;	// -- Only allowed values are 0 and 1.
+    }
+  }
 
   // -- Check for extension 3, centrifugal buoyancy.
   //    Only works in cylindrical coords. We use Omega_x, assume it's steady.
 
   if (Geometry::cylindrical()) {
-    if (file -> valueFromSection (&_centrifugal,"FORCE","BOUSSINESQ_CENTRIF"))
+    if (file -> valueFromSection (&_centrifugal,"FORCE","BOUSSINESQ_CENTRIF")) {
       if (_centrifugal == 1) {
-	if (!file -> valueFromSection (&_omega, "FORCE", "CORIOLIS_OMEGA_X"))
-	  message(routine,"could not find (expected) CORIOLIS_OMEGA_X",ERROR);
-	else
-	  VERBOSE cout << "    Boussinesq buoyancy centrifugal enabled" <<endl;
-      } else _centrifugal = 0;	// -- Only allowed values are 0 and 1.
+	if (!file -> valueFromSection (&_omega, "FORCE", "CORIOLIS_OMEGA_X")) {
+	  message (routine,"could not find (expected) CORIOLIS_OMEGA_X",ERROR);
+	} else {
+	  VERBOSE cout << "    Boussinesq buoyancy centrifugal enabled" << endl;
+	}
+      } else {
+	_centrifugal = 0;	// -- Only allowed values are 0 and 1.
+      }
+    }
   }
 
   // -- If we got this far, everything should be OK.
   
   _enabled = true;
   _D = D;
-  _a.resize (1);
-  _a[0] = allocAuxField (_D);   // -- Storage for relative density variation.
+ 
   if (_centrifugal || _kineticgrad) {
     _a.resize (3);
+    _a[0] = allocAuxField (_D);   // -- Storage for relative density variation.
     _a[1] = allocAuxField (_D);   // -- Storage for quadratic scalar.    
     _a[2] = allocAuxField (_D);   // -- Workspace.
+  } else {
+    _a.resize (1);
+    _a[0] = allocAuxField (_D);   // -- Storage for relative density variation.
   }
 }
 
