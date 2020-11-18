@@ -30,11 +30,19 @@ else ()
   message (STATUS "Building code with standard release optimizations.")
 endif ()
 
-# -- Ask to use Apple's Accelerate framework BLAS and LAPACK if on OS X system.
+# -- Vendor-specific switches:
 
 if (APPLE)
    set (BLA_VENDOR "Generic")
    message (STATUS "Building with Apple Accelerate BLAS and LAPACK.")
+   add_compile_options (
+     -Wno-parentheses
+     -Wno-unused-value
+     -Wno-implicit-function-declaration
+     -Wno-format
+     -Wno-format-security  
+     -Wno-switch
+   )
 elseif (DEFINED ENV{BLA_VENDOR})
    message (STATUS "Building with vendor BLAS and LAPACK: " "$ENV{BLA_VENDOR}")
 endif()	   
@@ -50,17 +58,6 @@ if (WITH_MPI)
     message (STATUS "Building codes elliptic_mp and dns_mp with MPI support.")
   endif (MPI_FOUND)
 endif (WITH_MPI)
-
-# -- Set compiler warning supressions (some of which are unknown to Fortran).
-
-add_compile_options (
-  -Wno-parentheses
-  -Wno-unused-value
-  -Wno-implicit-function-declaration
-  -Wno-format
-  -Wno-format-security  
-  -Wno-switch
-)
 
 # -- Build semtex libraries.
 
