@@ -34,6 +34,9 @@ endif ()
 
 if (APPLE)
    set (BLA_VENDOR "Generic")
+   message (STATUS "Building with Apple Accelerate BLAS and LAPACK.")
+elseif (DEFINED ENV{BLA_VENDOR})
+   message (STATUS "Building with vendor BLAS and LAPACK: " "$ENV{BLA_VENDOR}")
 endif()	   
 
 # -- External package dependencies.
