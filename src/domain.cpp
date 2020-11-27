@@ -38,7 +38,7 @@ Domain::Domain (FEML*             F,
 // of the Fields to be created are stored in the string "flds", which
 // is supplied from input class B (obtained from the names in the
 // FIELDS section of a session file).  At present, a Domain can
-// contain ordered storage for one vector field (components u v,
+// contain *ordered* storage for one vector field (components u v,
 // optionally w), an advected scalar field c, and a constraint scalar
 // field p, whose gradient keeps the vector field divergence free
 // (i.e. for an incompressible flow, p is the reduced pressure ---

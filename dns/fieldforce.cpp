@@ -859,37 +859,47 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
 //  
 // 1. (standard) a uniform acceleration/gravity field;
 // 2. (extended) gradient of kinetic energy.
-// 3. (extended) centrifugal force associated with frame rotation;
+// 3. (extended) centrifugal force associated with steady frame rotation;
 //
 // The body forces per unit mass are then
 //
 // rho'/rho_0 [ g + 0.5 grad (|u|^2) + 0.5 grad (|Omega x r|^2) ]
-//  
-// For now, we will only deal with centrifugal force if the coordinate
-// system is cylindrical, and with the further restriction that only
-// steady rotation around the x (symmetry) axis will be allowed. And
-// for cylindrical coordinates we also only allow to deal with a
+//              ~              ~                    ~     ~  
+//
+// We restrict the treatment of frame rotation centrifugal force:
+//    in Cartesian,   only allow Omega_z,
+//   in cylindrical, only allow Omega_x;
+// in other words, we only allow rotation around the coordinate system
+// symmetry axis.  Steady rotation is assumed.
+//
+// As far as gravity is concerned, that is restricted too:
+//   in Cartesian,   only allow x and/or y components,
+//   in cylindrical, only allow x component,
+// in other words, the forcing obeys the symmetry of the coordinate system.
+  
+
+// And for cylindrical coordinates we also only allow to deal with a
 // gravitational component aligned with the x axis.
 //
 // Cylindrical:
-// rho'/rho_0 [ g_x + 0.5 grad (|u|^2) + 0.5 Omega_x^2 y ]
-//
+// rho'/rho_0 [ g_x + 0.5 grad (|u|^2) + Omega_x^2 y ]
+//                               ~
 // Cartesian:
-// rho'/rho_0 [ g   +  0.5 grad (|u|^2) ]  
+// rho'/rho_0 [ g   + 0.5 grad (|u|^2) + Omega_z^2 x ]
+//              ~                ~                 ~
+// where the x component of the last term is Omega_z^2 x
+// while the y component of the last term is Omega_z^2 y
 // ---------------------------------------------------------------------------
 {
   const char  routine[] = "BuoyancyForce::BuoyancyForce";
   const int_t verbose   = Femlib::ivalue ("VERBOSE");
-  const char* vecGrav[] = {"BOUSSINESQ_GX",  // -- Gravity direction cosines
- 		           "BOUSSINESQ_GY",  //    (or scaled equivalent, since
-			   "BOUSSINESQ_GZ"}; //    normalisation is applied).
+
   real_t      gravMag = 0.0, norm = 0.0;
-  int_t       i;
 
   VERBOSE cout << "  " << routine << endl;
   _enabled = false;
  
-  _TREF = _BETAT = _omega = _g[0] = _g[1] = _g[2] = 0.0;
+  _TREF = _BETAT = _omega = _gx = _gy = 0.0;
   _centrifugal = _kineticgrad = 0;
 
   // --Return immediately if mininum data for Boussinesq aren't present.
@@ -904,19 +914,24 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
   if (file -> valueFromSection (&gravMag, "FORCE", "BOUSSINESQ_GRAVITY"))
     VERBOSE cout << "    BOUSSINESQ_GRAVITY = " << gravMag << endl;
   if ((gravMag < -EPSDP) || (fabs(_BETAT) < -EPSDP))
-    message (routine, "gravity and/or expansion coeff. magnitudes <0", ERROR);
+    message (routine, "gravity and/or expansion coeff. magnitudes < 0", ERROR);
 
-  for (i = 0; i < 3; i++) {
-    if (file -> valueFromSection (_g+i, "FORCE", vecGrav[i])) {
-      VERBOSE cout << "    " << vecGrav[i] << " = " << _g[i] << endl;
-    }
+  if (Geometry::cylindrical()) {
+    if (file -> valueFromSection (&_gx, "FORCE", "BOUSSINESQ_GX"))
+      VERBOSE cout << "    " << "BOUSSINESQ_GX = " << _gx << endl;
+  } else {
+    if (file -> valueFromSection (&_gx, "FORCE", "BOUSSINESQ_GX"))
+      VERBOSE cout << "    " << "BOUSSINESQ_GX = " << _gx << endl;
+    if (file -> valueFromSection (&_gy, "FORCE", "BOUSSINESQ_GY"))
+      VERBOSE cout << "    " << "BOUSSINESQ_GY = " << _gy << endl;
   }
-
-  if (Geometry::cylindrical()) _g[1] = _g[2] = 0.0;
   
-  if ((norm = sqrt(_g[0]*_g[0] + _g[1]*_g[1] + _g[2]*_g[2])) < EPSDP)
-    message (routine, "no active gravity vector component", WARNING);
-  for (i = 0; i < 3; i++) _g[i] *= gravMag / norm;
+  if ((norm = sqrt(_gx*_gx + _gy*_gy)) < EPSDP)
+    message (routine, "no active gravity vector component", REMARK);
+  else {
+    _gx *= gravMag/norm;
+    _gy *= gravMag/norm;
+  }
 
   // -- Check for extension 2, kinetic energy gradient buoyancy.
     
@@ -929,22 +944,24 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
   }
 
   // -- Check for extension 3, centrifugal buoyancy.
-  //    Only works in cylindrical coords. We use Omega_x, assume it's steady.
 
-  if (Geometry::cylindrical()) {
-    if (file -> valueFromSection (&_centrifugal,"FORCE","BOUSSINESQ_CENTRIF")) {
-      if (_centrifugal == 1) {
+  if (file -> valueFromSection (&_centrifugal,"FORCE","BOUSSINESQ_CENTRIF")) {
+    if (_centrifugal == 1) {
+      VERBOSE cout << "    Boussinesq centrifugal buoyancy enabled" << endl;
+      if (Geometry::cylindrical()) {
 	if (!file -> valueFromSection (&_omega, "FORCE", "CORIOLIS_OMEGA_X")) {
 	  message (routine,"could not find (expected) CORIOLIS_OMEGA_X",ERROR);
-	} else {
-	  VERBOSE cout << "    Boussinesq buoyancy centrifugal enabled" << endl;
 	}
-      } else {
-	_centrifugal = 0;	// -- Only allowed values are 0 and 1.
+      } else {			// -- Cartesian.
+	if (!file -> valueFromSection (&_omega, "FORCE", "CORIOLIS_OMEGA_Z")) {
+	  message (routine,"could not find (expected) CORIOLIS_OMEGA_Z",ERROR);
+	}
       }
+    } else {
+      _centrifugal = 0;	// -- Only allowed values are 0 and 1.
     }
   }
-
+  
   // -- If we got this far, everything should be OK.
   
   _enabled = true;
@@ -953,7 +970,7 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
   if (_centrifugal || _kineticgrad) {
     _a.resize (3);
     _a[0] = allocAuxField (_D);   // -- Storage for relative density variation.
-    _a[1] = allocAuxField (_D);   // -- Storage for quadratic scalar.    
+    _a[1] = allocAuxField (_D);   // -- Storage for quadratic scalar field.  
     _a[2] = allocAuxField (_D);   // -- Workspace.
   } else {
     _a.resize (1);
@@ -967,17 +984,70 @@ void BuoyancyForce::physical (AuxField*               ff ,
 			      const vector<AuxField*> U  )
 // ---------------------------------------------------------------------------
 // Applicator for Boussinesq buoyancy.  We exploit the fact that while
-// the velocity compoents are dealt with in order, the physical space
+// the velocity components are dealt with in order, the physical space
 // velocity and scalar data in U remain the same for each call in a
 // timestep.
 //
-// Cylindrical: (rho'/rho_0) [ g_x + 0.5 grad (|u|^2) + 0.5 Omega_x^2 y ]
+// Cylindrical: (rho'/rho_0) [ g_x + 0.5 grad (|u|^2) + Omega_x^2 y ]
 //
-// Cartesian:   (rho'/rho_0) [ g   + 0.5 grad (|u|^2) ]    
+// Cartesian:   (rho'/rho_0) [ g   + 0.5 grad (|u|^2) + Omega_z^2 x ]
+//                             ~                ~                 ~
 // ---------------------------------------------------------------------------
 {
   if (!_enabled) return;
+#if 1
+    if (com == 0) {		// -- First time through on this timestep.
+    if (_kineticgrad)
+      (_a[1] -> innerProduct (U, U, NCOM)) *= 0.5;
+    else if (_centrifugal)
+      *_a[1] = 0.0;
+    *_a[0]  = _TREF;
+    *_a[0] -= *U[NCOM];  // -- U[NCOM] contains temperature.
+    *_a[0] *= _BETAT;    // -- _a[0] = rho'/rho_0, relative density variation.
+  }
 
+  switch (com) {
+    
+  case 0:
+    if (_centrifugal || _kineticgrad) *_a[2] = 0.0;
+    if ((!(Geometry::cylindrical())) && _centrifugal) {
+      (*_a[2] = _omega / sqrt(2.0)) . mulX();
+      *_a[2] *= *_a[2];
+    }
+    if (_kineticgrad)
+      *_a[2] += *_a[1];
+    if (_centrifugal || _kineticgrad) {
+      _a[2] -> gradient(0);
+      ff -> timesPlus (*_a[0], *_a[2]);
+    }
+    if (fabs (_gx) > EPSDP) ff -> axpy (_gx, *_a[0]);
+    break;
+    
+  case 1:
+    if (_centrifugal || _kineticgrad) *_a[2] = 0.0;
+    if (_centrifugal) {
+      (*_a[2] = _omega / sqrt(2.0)) . mulY();
+      *_a[2] *= *_a[2];
+    }
+    if (_kineticgrad)
+      *_a[2] += *_a[1];
+    if (_centrifugal || _kineticgrad) {
+      _a[2] -> gradient(1);
+      ff -> timesPlus (*_a[0], *_a[2]);
+    }
+    if (fabs (_gy) > EPSDP) ff -> axpy (_gy, *_a[0]);
+
+    break;
+
+  case 2:
+    if (_kineticgrad && Geometry::nDim() > 2) {
+      (*_a[2] = *_a[1]) . transform(FORWARD).gradient(2).transform(INVERSE);
+      ff -> timesPlus (*_a[0], *_a[2]);
+    } 
+    break;
+  }
+
+#elif
   if (com == 0) {		// -- First time through on this timestep.
     if (_kineticgrad)
       (_a[1] -> innerProduct (U, U, NCOM)) *= 0.5;
@@ -990,7 +1060,7 @@ void BuoyancyForce::physical (AuxField*               ff ,
     } // -- _a[1] now has scalar for subsequent gradient computations.
     *_a[0]  = _TREF;
     *_a[0] -= *U[NCOM];  // -- U[NCOM] contains temperature.
-    *_a[0] *= _BETAT;    // -- _a[0] = minus the relative density variation.
+    *_a[0] *= _BETAT;    // -- _a[0] = rho'/rho_0, relative density variation.
   }
 
   switch (com) {		// -- Here we deal with _a[1] & _a[2].
@@ -1017,4 +1087,5 @@ void BuoyancyForce::physical (AuxField*               ff ,
   // -- And now just with _a[0].
 
   if (fabs (_g[com]) > EPSDP) ff -> axpy (_g[com], *_a[0]);
+#endif  
 }

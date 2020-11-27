@@ -186,9 +186,8 @@ public:
   BuoyancyForce         (Domain*, FEML*);
   void physical         (AuxField*, const int, vector<AuxField*>);
 protected:
-  real_t                _TREF, _BETAT, _g[3];
+  real_t                _TREF, _BETAT, _gx, _gy, _omega;
   int_t                 _centrifugal, _kineticgrad;
-  real_t                _omega;
 };
 
 #endif

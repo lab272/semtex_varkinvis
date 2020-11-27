@@ -1,0 +1,199 @@
+##############################################################################
+# Centrifugal buoyancy test case from Pitz, Marxen & Chew 
+# JFM 826, 2017.
+#
+# Rotating annulus cooled on inner radius, heated on outer radius.
+# But 2D geometry, not in cylindrical coords.  No gravity.
+##############################################################################
+
+<TOKENS>
+	ADVECTION   = 0
+
+	PRANDTL     = 0.7
+	RAYLEIGHs    = 3500.
+	RAYLEIGHu    = 3750.
+	RAYLEIGH    = 3650.
+	T_MAX       = 1.0
+	T_MIN       = -1.0
+	T_REF       = 0.0
+	BETA_T	    = 0.1/(T_MAX-T_MIN)
+	OMEGA_REF   = 1.0
+	OMEGA       = 0.5*OMEGA_REF
+	b           = 1.0
+	a           = 0.52
+	ro          = (b+a)/2.0
+	h           = b-a
+	T_GRAD      = (T_MAX-T_MIN)/h
+	KINVIS      = OMEGA_REF*sqrt((PRANDTL*BETA_T*(T_MAX-T_MIN)*ro*h^3)/RAYLEIGH)
+
+	T_FINAL     = 1500
+	D_T         = 0.0025
+	N_STEP      = int(T_FINAL/D_T)
+	n_STEP      = 2
+	N_TIME      = 3
+	N_P         = 19
+	N_Z         = 1
+	IO_CFL      = 100
+	IO_FLD      = 1000
+	CHKPOINT    = 1
+</TOKENS>
+
+<FORCE>
+	BOUSSINESQ_TREF    = T_REF
+	BOUSSINESQ_BETAT   = BETA_T
+	BOUSSINESQ_KINETIC = 1
+	BOUSSINESQ_CENTRIF = 1
+	CORIOLIS_OMEGA_Z   = OMEGA
+</FORCE>
+
+<FIELDS>
+	u	v	c	p
+</FIELDS>
+
+<GROUPS NUMBER=2>
+	1	h	hot
+	2	c	cold
+</GROUPS>
+
+<USER>
+	u = -sin(y~x)*OMEGA*sqrt(x*x+y*y)
+	v =  cos(y~x)*OMEGA*sqrt(x*x+y*y)
+	c = T_MIN+(T_MAX-T_MIN)*log((sqrt(x*x+y*y)/a))/log(b/a)
+	p = 0.0
+</USER>
+	
+#	u = 0.0
+#	v = 0.0
+#	c = T_MIN+(T_MAX-T_MIN)*log((sqrt(x*x+y*y)/a))/log(b/a)
+#	p = 0.0	
+
+
+<BCS NUMBER=2>
+	1	h	4
+		<D>	u = -sin(y~x)*OMEGA*sqrt(x*x+y*y) </D>
+		<D>	v =  cos(y~x)*OMEGA*sqrt(x*x+y*y) </D>
+		<D>	c = T_MAX			  </D>
+		<H>	p 				  </H>
+	2	c	4
+		<D>	u = -sin(y~x)*OMEGA*sqrt(x*x+y*y) </D>
+		<D>	v =  cos(y~x)*OMEGA*sqrt(x*x+y*y) </D>
+		<D>	c = T_MIN			  </D>
+		<H>	p				  </H>
+
+#	1	h	4
+#		<D>	u = 0.0 </D>
+#		<D>	v = 0.0 </D>
+#		<D>	c = T_MAX			  </D>
+#		<H>	p 				  </H>
+#	2	c	4
+#		<D>	u = 0.0 </D>
+#		<D>	v = 0.0 </D>
+#		<D>	c = T_MIN			  </D>
+#		<H>	p				  </H>
+		
+</BCS>
+
+<HISTORY NUMBER=2>
+  1	 0.76	0	0
+  2	 0.537401154	0.537401154	0
+</HISTORY>  
+
+<NODES NUMBER=24>
+    1  0.52	0	0
+    2  0.76	0	0
+    3  1.	0	0
+    4  0.367695526	0.367695526	0  
+    5  0.537401154	0.537401154	0
+    6  0.707106781	0.707106781	0
+    7  0	0.52	0
+    8  0	0.76	0
+    9  0	1.	0
+   10  -0.367695526	0.367695526	0
+   11  -0.537401154	0.537401154	0
+   12  -0.707106781	0.707106781	0
+   13  -0.52	0	0
+   14  -0.76	0	0
+   15  -1.	0	0
+   16  -0.367695526	-0.367695526	0
+   17  -0.537401154	-0.537401154	0
+   18  -0.707106781	-0.707106781	0
+   19  0.	-0.52		0
+   20  0.	-0.76		0
+   21  0.	-1.		0
+   22  0.367695526	-0.367695526	0
+   23  0.537401154	-0.537401154	0
+   24  0.707106781	-0.707106781	0
+</NODES>
+
+<ELEMENTS NUMBER=16>
+    1	<Q>   1  2  5  4  </Q>
+    2	<Q>   2  3  6  5  </Q>
+    3	<Q>   4  5  8  7  </Q>
+    4	<Q>   5  6  9  8  </Q>
+    5	<Q>   7  8 11 10  </Q>
+    6	<Q>   8  9 12 11  </Q>
+    7	<Q>  10 11 14 13  </Q>
+    8	<Q>  11 12 15 14  </Q>
+    9	<Q>  13 14 17 16  </Q>
+   10	<Q>  14 15 18 17  </Q>
+   11	<Q>  16 17 20 19  </Q>
+   12	<Q>  17 18 21 20  </Q>
+   13	<Q>  19 20 23 22  </Q>
+   14	<Q>  20 21 24 23  </Q>
+   15	<Q>  22 23  2  1  </Q>
+   16	<Q>  23 24  3  2  </Q>
+</ELEMENTS>
+
+<SURFACES NUMBER=16>
+    1   1  4  <B> c </B>
+    2   2  2  <B> h </B>
+    3   3  4  <B> c </B>
+    4   4  2  <B> h </B>
+    5   5  4  <B> c </B>
+    6   6  2  <B> h </B>
+    7   7  4  <B> c </B>
+    8   8  2  <B> h </B>
+    9   9  4  <B> c </B>
+   10  10  2  <B> h </B>
+   11  11  4  <B> c </B>
+   12  12  2  <B> h </B>
+   13  13  4  <B> c </B>
+   14  14  2  <B> h </B>
+   15  15  4  <B> c </B>
+   16  16  2  <B> h </B>
+</SURFACES>
+
+<CURVES NUMBER=32>
+    1	1  4  <ARC> -0.52 </ARC>
+    2   1  2  <ARC>  0.76 </ARC>
+    3	2  4  <ARC> -0.76 </ARC>
+    4   2  2  <ARC>  1.   </ARC>
+    5	3  4  <ARC> -0.52 </ARC>
+    6   3  2  <ARC>  0.76 </ARC>
+    7	4  4  <ARC> -0.76 </ARC>
+    8   4  2  <ARC>  1.   </ARC>
+    9	5  4  <ARC> -0.52 </ARC>
+   10   5  2  <ARC>  0.76 </ARC>
+   11	6  4  <ARC> -0.76 </ARC>
+   12   6  2  <ARC>  1.   </ARC>
+   13	7  4  <ARC> -0.52 </ARC>
+   14   7  2  <ARC>  0.76 </ARC>
+   15	8  4  <ARC> -0.76 </ARC>
+   16   8  2  <ARC>  1.   </ARC>
+   17	9  4  <ARC> -0.52 </ARC>
+   18   9  2  <ARC>  0.76 </ARC>
+   19  10  4  <ARC> -0.76 </ARC>
+   20  10  2  <ARC>  1.   </ARC>
+   21  11  4  <ARC> -0.52 </ARC>
+   22  11  2  <ARC>  0.76 </ARC>
+   23  12  4  <ARC> -0.76 </ARC>
+   24  12  2  <ARC>  1.   </ARC>
+   25  13  4  <ARC> -0.52 </ARC>
+   26  13  2  <ARC>  0.76 </ARC>
+   27  14  4  <ARC> -0.76 </ARC>
+   28  14  2  <ARC>  1.   </ARC>
+   29  15  4  <ARC> -0.52 </ARC>
+   30  15  2  <ARC>  0.76 </ARC>
+   31  16  4  <ARC> -0.76 </ARC>
+   32  16  2  <ARC>  1.   </ARC>
+</CURVES>    

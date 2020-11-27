@@ -28,13 +28,13 @@ void message (const char *routine, const char *text, int level)
 {
   switch (level) {
   case WARNING:
-    fprintf (stderr, "WARNING: %s: %s\n", routine, text); 
+    fprintf (stderr, "-- WARNING: %s: %s\n", routine, text); 
     break;
   case ERROR:
-    fprintf (stderr, "ERROR: %s: %s\n", routine, text); 
+    fprintf (stderr, "-- ERROR: %s: %s\n", routine, text); 
     break;
   case REMARK:
-    fprintf (stderr, "%s: %s\n", routine, text);
+    fprintf (stderr, "-- REMARK: %s: %s\n", routine, text);
     break;
   default:
     fprintf (stderr, "bad error level in message: %d\n", level);
