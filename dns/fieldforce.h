@@ -48,7 +48,11 @@ class ConstForce : public VirtualForce
 {
 public:
   ConstForce            (Domain*, FEML*);
+#if 1
+  void physical         (AuxField*, const int, vector<AuxField*>);  
+#else
   void fourier          (AuxField*, const int, vector<AuxField*>);
+#endif
 protected:
   real_t                _v[3];	// Force components
 };
@@ -73,7 +77,9 @@ class WhiteNoiseForce : virtual public VirtualForce
 {
 public:
   WhiteNoiseForce       (Domain*, FEML*);
+#if 0
   void fourier		(AuxField*, const int, vector<AuxField*>);
+#endif
 protected:
   real_t                _eps[3];
   int_t                 _mode;

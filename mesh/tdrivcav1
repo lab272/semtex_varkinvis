@@ -1,5 +1,7 @@
-# Thermal driven cavity problem for buoyancy-driven flow.
-# Left edge is hot, right edge is cool, top and bottom are insulated.
+# Thermal driven cavity problem for buoyancy-driven flow.  Left edge
+# is hot, right edge is cool, top and bottom are insulated.
+#
+# This is De Vahl Davis test case (b), IJNMF V3: 249--264 (1983).
 
 <FIELDS>
 	u v c p

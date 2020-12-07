@@ -59,6 +59,9 @@ static struct {
   "DONG_UODELTA",   0.05   ,    /* -- Open boundary velocity scale.       */
   "DONG_DO"     ,   1.0    ,    /* -- Open boundary convection scale.     */
 
+  "LMA_BETA_T"  ,   0.0    ,	/* -- Thermal exp for Lopez Marques Avila.*/
+  "LMA_T_REF"   ,   0.0    ,    /* -- Reference temp for LMA13 buoyancy.  */
+
   /* -- Option switches. */
 
   "ITERATIVE"   ,   0   ,	/* -- Select PCG solver for velocities.   */

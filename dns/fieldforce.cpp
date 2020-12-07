@@ -276,8 +276,13 @@ void VirtualForce::readSteadyFromFile(char*             fname,
 ConstForce::ConstForce (Domain* D   ,
 			FEML*   file)
 // ---------------------------------------------------------------------------
-// Constructor.  A force constant in both space in time, applied in
-// Fourier space.  (These replace tokens FFX, FFY, FFZ.)
+// Constructor.  A force per unit mass that is constant in both space
+// in time.  (These replace old tokens FFX, FFY, FFZ.)
+//
+// Note that these forces are equivalant to a steady reference frame
+// acceleration (or actually, its negation, since a positive body
+// force per unit mass on the RHS of the NSE is the same as a negative
+// frame acceleration on the LHS of the NSE).
 // ---------------------------------------------------------------------------
 {
   const char  routine[] = "ConstForce::ConstForce";
@@ -299,6 +304,21 @@ ConstForce::ConstForce (Domain* D   ,
   }
 }
 
+#if 1  // -- Physical space variant.
+
+void ConstForce::physical (AuxField*         ff ,
+			   const int         com,
+			   vector<AuxField*> U  )
+// ---------------------------------------------------------------------------
+// Applicator.  Add in the force everywhere in physical space.
+// ---------------------------------------------------------------------------
+{
+  if (!_enabled) return;
+  
+  if (fabs (_v[com]) > EPSDP) *ff += _v[com];
+}
+
+#else  // -- Fourier space variant.
 
 void ConstForce::fourier (AuxField*         ff ,
 			  const int         com,
@@ -311,12 +331,15 @@ void ConstForce::fourier (AuxField*         ff ,
   ROOTONLY if (fabs (_v[com]) > EPSDP) ff -> addToPlane (0, _v[com]);
 }
 
+#endif
+
 
 SteadyForce::SteadyForce (Domain* D   ,
 			  FEML*   file)
 // ---------------------------------------------------------------------------
-// Constructor.  A steady, spatially varying force, computed during
-// pre-processing.  To be applied in physical space.
+// Constructor.  A steady, (possibly spatially varying) force per unit
+// mass, computed or read in during pre-processing.  To be applied in
+// physical space.
 // ---------------------------------------------------------------------------
 {
   const char  routine[] = "SteadyForce::SteadyForce";
@@ -397,6 +420,7 @@ WhiteNoiseForce::WhiteNoiseForce (Domain* D   ,
     VERBOSE cout <<  "  Applied every " << _apply_step << ". step." << endl;
 }
 
+#if 0  // -- Disable this, pending deletion.
 
 void WhiteNoiseForce::fourier (AuxField*         ff ,
 			       const int         com, 
@@ -409,6 +433,7 @@ void WhiteNoiseForce::fourier (AuxField*         ff ,
     ff -> perturb(_mode, _eps[com]);
 }
 
+#endif
 
 ModulatedForce::ModulatedForce (Domain* D   ,
 				FEML*   file)

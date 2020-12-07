@@ -164,15 +164,7 @@ void skewSymmetric (Domain*     D ,
 
       *N[i] *= 0.5;      // -- Average the two forms to get skew-symmetric.
 
-      if (i < NCOM) {
-        FF     -> addPhysical (N[i], tmp, i, Uphys);
-        N[i]   -> transform   (FORWARD);
-        FF     -> addFourier  (N[i], tmp, i, U);
-        master -> smooth      (N[i]);
-      } else {
-        master -> smooth    (N[i]);
-        N[i]   -> transform (FORWARD);
-      }
+      if (i < NCOM) FF -> addPhysical (N[i], tmp, i, Uphys);
     }
 
   } else {			// -- Cartesian coordinates.
@@ -197,17 +189,24 @@ void skewSymmetric (Domain*     D ,
       }
 
       *N[i] *= 0.5;      // -- Average the two forms to get skew-symmetric.
-      
-      if (i < NCOM) {    // -- Body forces act only on momentum equations.
-        FF     -> addPhysical (N[i], tmp, i, Uphys);
-        N[i]   -> transform   (FORWARD);
-        FF     -> addFourier  (N[i], tmp, i, U);
-        master -> smooth     (N[i]);
-      } else {
-        master -> smooth    (N[i]);
-        N[i]   -> transform (FORWARD);
-      }
+
+      if (i < NCOM) FF -> addPhysical (N[i], tmp, i, Uphys);
     }
+  }
+
+  // -- Multiply in density variation (1 + rho'/rho_0) for LMA buoyancy.
+
+  if (D -> hasScalar() && (Femlib::value ("LMA_BETA_T") > EPSDP)) {
+    *tmp  = Femlib::value ("LMA_T_REF");
+    *tmp -= *Uphys[NCOM];
+    *tmp *= Femlib::value ("LMA_BETA_T");
+    *tmp += 1.0;
+    for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
+  }
+
+  for (i = 0; i < NADV; i++) {
+    N[i]   -> transform (FORWARD);
+    master -> smooth    (N[i]);
   }
 }
 
@@ -304,15 +303,7 @@ void altSkewSymmetric (Domain*     D ,
           N[i] -> timesMinus (*Uphys[j], *tmp);
         }
 
-        if (i < NCOM) {     // -- Body forces act only on momentum equations.
-          FF     -> addPhysical (N[i], tmp, i, Uphys);
-          N[i]   -> transform   (FORWARD);
-          FF     -> addFourier  (N[i], tmp, i, U);
-          master -> smooth      (N[i]);
-        } else {
-          N[i]   -> transform   (FORWARD);
-          master -> smooth      (N[i]);
-        }
+        if (i < NCOM) FF -> addPhysical (N[i], tmp, i, Uphys);
       }
 
     } else { // -- Conservative component div(uu).
@@ -348,15 +339,8 @@ void altSkewSymmetric (Domain*     D ,
           *N[i] -= *tmp;
         }
 
-        if (i < NCOM) {     // -- Body forces act only on momentum equations.
-          FF     -> addPhysical (N[i], tmp, i, Uphys);
-          N[i]   -> transform   (FORWARD);
-          FF     -> addFourier  (N[i], tmp, i, U);
-          master -> smooth      (N[i]);
-        } else {
-          N[i]   -> transform   (FORWARD);
-          master -> smooth      (N[i]);
-        }
+        if (i < NCOM) FF -> addPhysical (N[i], tmp, i, Uphys);
+
       }
     }
 
@@ -372,15 +356,8 @@ void altSkewSymmetric (Domain*     D ,
           N[i] -> timesMinus (*Uphys[j], *tmp);
         }
 
-        if (i < NCOM) {
-          FF     -> addPhysical (N[i], tmp, i, Uphys);
-          N[i]   -> transform   (FORWARD);
-          FF     -> addFourier  (N[i], tmp, i, U);
-          master -> smooth      (N[i]);
-        } else {
-          master -> smooth      (N[i]);
-          N[i]   -> transform   (FORWARD);
-        }
+        if (i < NCOM) FF -> addPhysical (N[i], tmp, i, Uphys);
+
       }
 
     } else { // -- Conservative component div(uu).
@@ -395,19 +372,27 @@ void altSkewSymmetric (Domain*     D ,
           *N[i] -= *tmp;
         }
 
-        if (i < NCOM) {     // -- Body forces act only on momentum equations.
-          FF     -> addPhysical (N[i], tmp, i, Uphys);
-          N[i]   -> transform   (FORWARD);
-          FF     -> addFourier  (N[i], tmp, i, U);
-          master -> smooth      (N[i]);
-        } else {
-          N[i]   -> transform   (FORWARD);
-          master -> smooth      (N[i]);
-        }
+        if (i < NCOM) FF -> addPhysical (N[i], tmp, i, Uphys);
+
       }
     }
   }
 
+  // -- Multiply in density variation (1 + rho'/rho_0) for LMA buoyancy.
+
+  if (D -> hasScalar() && (Femlib::value ("LMA_BETA_T") > EPSDP)) {
+    *tmp  = Femlib::value ("LMA_T_REF");
+    *tmp -= *Uphys[NCOM];
+    *tmp *= Femlib::value ("LMA_BETA_T");
+    *tmp += 1.0;
+    for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
+  }
+
+  for (i = 0; i < NADV; i++) {
+    N[i]   -> transform (FORWARD);
+    master -> smooth    (N[i]);
+  }
+  
   toggle = 1 - toggle;
 }
 
@@ -491,15 +476,8 @@ void convective (Domain*     D ,
         N[i] -> timesMinus (*Uphys[j], *tmp);
       }
 
-      if (i < NCOM) {     // -- Body forces act only on momentum equations.
-        FF     -> addPhysical (N[i], tmp, i, Uphys);
-        N[i]   -> transform   (FORWARD);
-        FF     -> addFourier  (N[i], tmp, i, U);
-        master -> smooth      (N[i]);
-      } else {
-        N[i]   -> transform   (FORWARD);
-        master -> smooth      (N[i]);
-      }
+      if (i < NCOM) FF -> addPhysical (N[i], tmp, i, Uphys);
+
     }
 
   } else {			// -- Cartesian coordinates.
@@ -512,16 +490,23 @@ void convective (Domain*     D ,
         N[i] -> timesMinus (*Uphys[j], *tmp);
       }
 
-      if (i < NCOM) {     // -- Body forces act only on momentum equations.
-        FF     -> addPhysical (N[i], tmp, i, Uphys);
-        N[i]   -> transform   (FORWARD);
-        FF     -> addFourier  (N[i], tmp, i, U);
-        master -> smooth      (N[i]);
-      } else {
-        N[i]   -> transform   (FORWARD);
-        master -> smooth      (N[i]);
-      }
+      if (i < NCOM) FF -> addPhysical (N[i], tmp, i, Uphys);
     }
+  }
+  
+  // -- Multiply in density variation (1 + rho'/rho_0) for LMA buoyancy.
+
+  if (D -> hasScalar() && (Femlib::value ("LMA_BETA_T") > EPSDP)) {
+    *tmp  = Femlib::value ("LMA_T_REF");
+    *tmp -= *Uphys[NCOM];
+    *tmp *= Femlib::value ("LMA_BETA_T");
+    *tmp += 1.0;
+    for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
+  }
+
+  for (i = 0; i < NADV; i++) {
+    N[i]   -> transform (FORWARD);
+    master -> smooth    (N[i]);
   }
 }
 
@@ -656,12 +641,7 @@ void rotational1 (Domain*     D ,
     } else
       message (routine, "Never get here", ERROR);
 
-    for (i = 0; i < NCOM; i++) {
-      FF     -> addPhysical (N[i], tmp, i, Uphys);
-      N[i]   -> transform   (FORWARD);
-      FF     -> addFourier  (N[i], tmp, i, U);
-      master -> smooth      (N[i]);
-    }
+    for (i = 0; i < NCOM; i++) FF -> addPhysical (N[i], tmp, i, Uphys);
 
     if (scalar) {
       if (D3C3) {
@@ -672,9 +652,6 @@ void rotational1 (Domain*     D ,
       N[NCOM] -> timesMinus (*Uphys[0], *tmp);
       (*tmp = *Uphys[NCOM]) . gradient (1);
       N[NCOM] -> timesMinus (*Uphys[1], *tmp);
-      
-      N[NCOM] -> transform (FORWARD);
-      master  -> smooth    (N[NCOM]);
     }	
 
   } else {			// -- Cartesian coordinates.
@@ -736,12 +713,7 @@ void rotational1 (Domain*     D ,
     } else
       message (routine, "Never get here", ERROR);
 
-    for (i = 0; i < NCOM; i++) {
-      FF     -> addPhysical (N[i], tmp, i, Uphys);
-      N[i]   -> transform   (FORWARD);
-      FF     -> addFourier  (N[i], tmp, i, U);
-      master -> smooth      (N[i]);
-    }
+    for (i = 0; i < NCOM; i++) FF -> addPhysical (N[i], tmp, i, Uphys);
 
     if (scalar) {
       (*tmp = *Uphys[NCOM]) . gradient (0);
@@ -752,10 +724,24 @@ void rotational1 (Domain*     D ,
 	(*tmp = *U[NCOM]) . gradient (2) . transform (INVERSE);
 	N[NCOM] -> timesMinus (*Uphys[2], *tmp);
       }
-      N[NCOM] -> transform (FORWARD);
-      master  -> smooth    (N[NCOM]);
     }
   }
+
+
+  // -- Multiply in density variation (1 + rho'/rho_0) for LMA buoyancy.
+
+  if (D -> hasScalar() && (Femlib::value ("LMA_BETA_T") > EPSDP)) {
+    *tmp  = Femlib::value ("LMA_T_REF");
+    *tmp -= *Uphys[NCOM];
+    *tmp *= Femlib::value ("LMA_BETA_T");
+    *tmp += 1.0;
+    for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
+  }
+
+  for (i = 0; i < NADV; i++) {
+    N[i]   -> transform (FORWARD);
+    master -> smooth    (N[i]);
+  }  
 }
 
 
@@ -908,12 +894,7 @@ void rotational2 (Domain*     D ,
     } else
       message (routine, "Never get here", ERROR);
 
-    for (i = 0; i < NCOM; i++) {
-      FF     -> addPhysical (N[i], tmp, i, Uphys);
-      N[i]   -> transform   (FORWARD);
-      FF     -> addFourier  (N[i], tmp, i, U);
-      master -> smooth      (N[i]);
-    }
+    for (i = 0; i < NCOM; i++) FF -> addPhysical (N[i], tmp, i, Uphys);
 
     if (scalar) {
       if (D3C3) {
@@ -924,9 +905,6 @@ void rotational2 (Domain*     D ,
       N[NCOM] -> timesMinus (*Uphys[0], *tmp);
       (*tmp = *Uphys[NCOM]) . gradient (1);
       N[NCOM] -> timesMinus (*Uphys[1], *tmp);
-      
-      N[NCOM] -> transform (FORWARD);
-      master  -> smooth    (N[NCOM]);
     }	
 
   } else {			// -- Cartesian coordinates.
@@ -1004,12 +982,7 @@ void rotational2 (Domain*     D ,
     } else
       message (routine, "Never get here", ERROR);
 
-    for (i = 0; i < NCOM; i++) {
-      FF     -> addPhysical (N[i], tmp, i, Uphys);
-      N[i]   -> transform   (FORWARD);
-      FF     -> addFourier  (N[i], tmp, i, U);
-      master -> smooth      (N[i]);
-    }
+    for (i = 0; i < NCOM; i++) FF -> addPhysical (N[i], tmp, i, Uphys);
 
     if (scalar) {
       (*tmp = *Uphys[NCOM]) . gradient (0);
@@ -1020,10 +993,23 @@ void rotational2 (Domain*     D ,
 	(*tmp = *U[NCOM]) . gradient (2) . transform (INVERSE);
 	N[NCOM] -> timesMinus (*Uphys[2], *tmp);
       }
-      N[NCOM] -> transform (FORWARD);
-      master  -> smooth    (N[NCOM]);
     }
   }
+
+  // -- Multiply in density variation (1 + rho'/rho_0) for LMA buoyancy.
+
+  if (D -> hasScalar() && (Femlib::value ("LMA_BETA_T") > EPSDP)) {
+    *tmp  = Femlib::value ("LMA_T_REF");
+    *tmp -= *Uphys[NCOM];
+    *tmp *= Femlib::value ("LMA_BETA_T");
+    *tmp += 1.0;
+    for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
+  }
+
+  for (i = 0; i < NADV; i++) {
+    N[i]   -> transform (FORWARD);
+    master -> smooth    (N[i]);
+  }  
 }
 
 
@@ -1057,15 +1043,20 @@ void Stokes (Domain*     D ,
 
   B -> maintainPhysical (master, Uphys, NCOM);
  
-  for (i = 0; i < NCOM; i++) {
-    FF     -> addPhysical (N[i], tmp, i, Uphys);
-    N[i]   -> transform   (FORWARD);
-    FF     -> addFourier  (N[i], tmp, i, U);
-    master -> smooth      (N[i]);
+  for (i = 0; i < NCOM; i++) FF -> addPhysical (N[i], tmp, i, Uphys);
+
+  // -- Multiply in density variation (1 + rho'/rho_0) for LMA buoyancy.
+
+  if (D -> hasScalar() && (Femlib::value ("LMA_BETA_T") > EPSDP)) {
+    *tmp  = Femlib::value ("LMA_T_REF");
+    *tmp -= *Uphys[NCOM];
+    *tmp *= Femlib::value ("LMA_BETA_T");
+    *tmp += 1.0;
+    for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
   }
 
-  if (D -> hasScalar()) {
-    N[NCOM] -> transform  (FORWARD);
-    master  -> smooth     (N[NCOM]);
-  }
+  for (i = 0; i < NADV; i++) {
+    N[i]   -> transform (FORWARD);
+    master -> smooth    (N[i]);
+  }  
 }
