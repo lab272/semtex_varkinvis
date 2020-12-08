@@ -117,8 +117,6 @@ void FieldForce::addPhysical (AuxField*         Ni ,
 // U contains NADV advected fields (here, supplied in physical space).
 // ---------------------------------------------------------------------------
 {
-  const char routine[] = "FieldForce::addPhysical";
-
   if (!_enabled) return;
 
   // -- Clear summation buffer.
@@ -143,6 +141,28 @@ void FieldForce::addPhysical (AuxField*         Ni ,
 #if 0
   if (com == NCOM - 1) dump();
 #endif
+}
+
+
+void FieldForce::subPhysical (AuxField*         Ni ,
+                              AuxField*         buf,
+                              const int         com,
+                              vector<AuxField*> U  )
+// ---------------------------------------------------------------------------
+// Like addPhysical but subtracts off (a limited number) of (hydrostatic)
+// contributions.
+// ---------------------------------------------------------------------------
+{
+  if (!_enabled) return;
+
+  *buf = 0.0;
+
+  vector<VirtualForce*>::iterator p;
+  for (p = _classes.begin(); p != _classes.end(); p++)
+    (*p) -> subtract (buf, com, U);
+
+  if (Geometry::cylindrical() && (com < 2)) buf -> mulY ();
+  *Ni += *buf;
 }
 
 
@@ -318,6 +338,18 @@ void ConstForce::physical (AuxField*         ff ,
   if (fabs (_v[com]) > EPSDP) *ff += _v[com];
 }
 
+void ConstForce::subtract (AuxField*         ff ,
+			   const int         com,
+			   vector<AuxField*> U  )
+// ---------------------------------------------------------------------------
+// Applicator.  Add in the force everywhere in physical space.
+// ---------------------------------------------------------------------------
+{
+  if (!_enabled) return;
+  
+  if (fabs (_v[com]) > EPSDP) *ff -= _v[com];
+}
+
 #else  // -- Fourier space variant.
 
 void ConstForce::fourier (AuxField*         ff ,
@@ -385,6 +417,17 @@ void SteadyForce::physical (AuxField*         ff ,
 // ---------------------------------------------------------------------------
 {
   if (_a[com]) *ff += (*_a[com]);
+}
+
+
+void SteadyForce::subtract (AuxField*         ff ,
+			    const int         com,
+			    vector<AuxField*> U  )
+// ---------------------------------------------------------------------------
+// Applicator.
+// ---------------------------------------------------------------------------
+{
+  if (_a[com]) *ff -= (*_a[com]);
 }
 
 

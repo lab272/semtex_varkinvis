@@ -202,6 +202,10 @@ void skewSymmetric (Domain*     D ,
     *tmp *= Femlib::value ("LMA_BETA_T");
     *tmp += 1.0;
     for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
+
+    // -- Subtract out any hydrostatic contributions.
+
+    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
   }
 
   for (i = 0; i < NADV; i++) {
@@ -386,6 +390,10 @@ void altSkewSymmetric (Domain*     D ,
     *tmp *= Femlib::value ("LMA_BETA_T");
     *tmp += 1.0;
     for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
+
+    // -- Subtract out any hydrostatic contributions.
+
+    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);    
   }
 
   for (i = 0; i < NADV; i++) {
@@ -502,6 +510,10 @@ void convective (Domain*     D ,
     *tmp *= Femlib::value ("LMA_BETA_T");
     *tmp += 1.0;
     for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
+
+    // -- Subtract out any hydrostatic contributions.
+
+    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);    
   }
 
   for (i = 0; i < NADV; i++) {
@@ -736,6 +748,10 @@ void rotational1 (Domain*     D ,
     *tmp *= Femlib::value ("LMA_BETA_T");
     *tmp += 1.0;
     for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
+
+    // -- Subtract out any hydrostatic contributions.
+
+    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);    
   }
 
   for (i = 0; i < NADV; i++) {
@@ -1004,6 +1020,10 @@ void rotational2 (Domain*     D ,
     *tmp *= Femlib::value ("LMA_BETA_T");
     *tmp += 1.0;
     for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
+
+    // -- Subtract out any hydrostatic contributions.
+
+    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);    
   }
 
   for (i = 0; i < NADV; i++) {
@@ -1053,6 +1073,10 @@ void Stokes (Domain*     D ,
     *tmp *= Femlib::value ("LMA_BETA_T");
     *tmp += 1.0;
     for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
+
+    // -- Subtract out any hydrostatic contributions.
+
+    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);    
   }
 
   for (i = 0; i < NADV; i++) {

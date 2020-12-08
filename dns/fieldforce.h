@@ -13,6 +13,7 @@ public:
   void      readSteadyFromFile (char*, vector<AuxField*>);
 
   virtual void physical (AuxField*, const int, vector<AuxField*>) {};
+  virtual void subtract (AuxField*, const int, vector<AuxField*>) {};
   virtual void fourier  (AuxField*, const int, vector<AuxField*>) {};
 
   vector<AuxField*> _a;		// -- storage for pre-processed part
@@ -31,6 +32,7 @@ class FieldForce
 public:
   FieldForce            (Domain*, FEML*);
   void addPhysical      (AuxField*, AuxField*, const int, vector<AuxField*>);
+  void subPhysical      (AuxField*, AuxField*, const int, vector<AuxField*>);  
   void addFourier       (AuxField*, AuxField*, const int, vector<AuxField*>);
   void dump             ();
   void writeAux		(vector<AuxField*>);
@@ -49,7 +51,8 @@ class ConstForce : public VirtualForce
 public:
   ConstForce            (Domain*, FEML*);
 #if 1
-  void physical         (AuxField*, const int, vector<AuxField*>);  
+  void physical         (AuxField*, const int, vector<AuxField*>);
+  void subtract         (AuxField*, const int, vector<AuxField*>);
 #else
   void fourier          (AuxField*, const int, vector<AuxField*>);
 #endif
@@ -66,6 +69,7 @@ class SteadyForce : public VirtualForce
 public:
   SteadyForce           (Domain*, FEML*);
   void physical         (AuxField*, const int, vector<AuxField*>);
+  void subtract         (AuxField*, const int, vector<AuxField*>);
 protected:
 };
 
