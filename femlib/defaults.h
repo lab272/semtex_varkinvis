@@ -39,7 +39,7 @@ static struct {
   "RHO"         ,   1.0    ,	/* -- Density.                            */
   "GRAVITY"     ,   9.81   ,	/* -- Gravitational acceleration.         */
   "T_REF"       ,   288.15 ,	/* -- Reference temperature (15C).        */
-  "T_SLOPE"     ,   0.0    ,    /* -- Stratification slope.               */
+  "T_STRAT"     ,   0.0    ,    /* -- Stratification slope.               */
   "PRANDTL"     ,   0.72   ,	/* -- Prandtl number for air at STP.      */
 
   "C_SMAG"      ,   0.1    ,	/* -- Smagorinsky's constant (RNG value). */

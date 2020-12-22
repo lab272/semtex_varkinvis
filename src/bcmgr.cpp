@@ -462,7 +462,7 @@ BCmgr::BCmgr (FEML*             file,
 	else if (fieldc == 'w') C = new MixedCBCw (this);
         else if (fieldc == 'p') C = new MixedCBCp (this);
 	else if (fieldc == 'c') {
-	  strcpy (buf, "T_SLOPE*x"); C = new Essential (buf);
+	  strcpy (buf, "T_STRAT*x"); C = new Essential (buf);
 	}
 	else {
 	  sprintf (err,"field name '%c'for openS BC not in 'uvwpc'", fieldc);

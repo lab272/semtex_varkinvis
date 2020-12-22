@@ -1115,7 +1115,7 @@ void BuoyancyForce::physical (AuxField*               ff ,
     break;
   }
 
-#elif
+#else
   if (com == 0) {		// -- First time through on this timestep.
     if (_kineticgrad)
       (_a[1] -> innerProduct (U, U, NCOM)) *= 0.5;
