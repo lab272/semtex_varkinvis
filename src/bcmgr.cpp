@@ -365,7 +365,7 @@ BCmgr::BCmgr (FEML*             file,
 
       // -- Open boundaries (O) comprise a set of computed Mixed/Robin
       //    conditions for velocity and pressure, outlined in [3],
-      //    supplemented by homogeneous Neumann (for scalar). Since
+      //    supplemented here by homogeneous Neumann (for scalar). Since
       //    they appear together, the code allocates all of them and
       //    decides which one to apply for a given field variable.
 
@@ -442,12 +442,34 @@ BCmgr::BCmgr (FEML*             file,
 	else if (fieldc == 'v') C = new MixedCBCv (this);
 	else if (fieldc == 'w') C = new MixedCBCw (this);
         else if (fieldc == 'p') C = new MixedCBCp (this);
-	else if (fieldc == 'c') { strcpy (buf, "0.0"); C = new Natural (buf); }
+	else if (fieldc == 'c') {
+	  strcpy (buf, "0.0"); C = new Natural (buf);
+	}
 	else {
 	  sprintf (err,"field name '%c'for open BC not in 'uvwpc'", fieldc);
 	  message (routine, err, ERROR);
 	}
 	break;
+	
+#if 1
+      case 'S':			// -- Open BC with scalar stratification.
+
+	if (!strstr (groupInfo (groupc), "open"))
+	  message(routine,"type 'S' BC must belong to group \"open\"",ERROR);
+
+	if      (fieldc == 'u') C = new MixedCBCu (this);
+	else if (fieldc == 'v') C = new MixedCBCv (this);
+	else if (fieldc == 'w') C = new MixedCBCw (this);
+        else if (fieldc == 'p') C = new MixedCBCp (this);
+	else if (fieldc == 'c') {
+	  strcpy (buf, "T_SLOPE*x"); C = new Essential (buf);
+	}
+	else {
+	  sprintf (err,"field name '%c'for openS BC not in 'uvwpc'", fieldc);
+	  message (routine, err, ERROR);
+	}
+	break;
+#endif	
 
       default:
 	sprintf (err, "unrecognized BC identifier: %c", tagc);
