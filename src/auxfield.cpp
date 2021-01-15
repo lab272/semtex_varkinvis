@@ -653,7 +653,7 @@ AuxField& AuxField::gradient (const int_t dir)
 
     work.resize (nP);
 
-    if (base == 0) { // -- We have real_t & Nyquist planes, to be set zero.
+    if (base == 0) { // -- We have real & Nyquist planes, to be set zero.
       klo = 1; Veclib::zero (2 * nP, _data, 1);
     } else
       klo = 0;

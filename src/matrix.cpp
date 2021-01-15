@@ -187,6 +187,11 @@ MatrixSys::MatrixSys (const real_t            lambda2,
   const int_t*   bmap;
   register int_t i, j, k, m, n;
 
+  if (verbose && _singular)
+    cout << endl
+	 << "Unconstrained system is singular, "
+	 << "setting highest-numbered unknown to zero.";
+
   switch (_method) {
 
   case DIRECT: {
@@ -229,7 +234,6 @@ MatrixSys::MatrixSys (const real_t            lambda2,
 	Veclib::zero (_iipack[j], _hii[j], 1);
       } else
 	_hbi[j] = _hii[j] = 0;
-      
 
       elmt[j]->HelmholtzSC (lambda2,betak2,hbb,_hbi[j],_hii[j],rmat,rwrk,ipiv);
 

@@ -43,7 +43,7 @@
 // 02110-1301 USA.
 //////////////////////////////////////////////////////////////////////////////
 
-static char RCS[] = "$Id$";
+static char RCS[]="$Id$";
 
 #include <sem.h>
 #include <fieldforce.h>
@@ -221,13 +221,13 @@ void FieldForce::dump()
 // Dump internal physical and/or Fourier space storage to file.
 // ----------------------------------------------------------------------------
 {
-  const char  routine[]  = "FieldForce::dump";
-  int         i, j = 0;
-  char        s[StrMax];
-  int_t       step  = _D -> step;
-  const bool  periodic = !(step %  Femlib::ivalue ("IO_FLD"));
-  const bool  initial  =   step == Femlib::ivalue ("IO_FLD");
-  const bool  final    =   step == Femlib::ivalue ("N_STEP");
+  const char routine[]  = "FieldForce::dump";
+  int        i, j = 0;
+  char       s[StrMax];
+  int_t      step  = _D -> step;
+  const bool periodic = !(step %  Femlib::ivalue ("IO_FLD"));
+  const bool initial  =   step == Femlib::ivalue ("IO_FLD");
+  const bool final    =   step == Femlib::ivalue ("N_STEP");
 
   if (!_enabled || !(periodic || final)) return;
 
@@ -777,8 +777,8 @@ CoriolisForce::CoriolisForce (Domain* D   ,
   if (_enabled && !_unsteady) {
     VERBOSE cout << "    Steady Coriolis," 
       " ignoring possible CORIOLIS_DOMEGA_[XYZ]_DT."     << endl;
-    VERBOSE cout << "    Also, make sure" 
-      " you include centrifugal force via STEADY_[XYZ]." << endl;
+    VERBOSE cout << "    If desired," 
+      " include centrifugal force via STEADY_[XYZ]." << endl;
     // FIXME: Could we also evaluate centrifugal force during pre-processing,
     //        then add it to SteadyForce somehow?
   }
@@ -811,7 +811,7 @@ void CoriolisForce::physical (AuxField*               ff ,
   if (com >= NCOM) return; // -- No coriolis force applied to the scalar field
 
   if (NCOM == 2 && Geometry::cylindrical())
-    message (routine, "2-D, cylindrical not implemented yet.", ERROR);
+    message (routine, "2C: cylindrical not implemented yet.", ERROR);
   if (_unsteady) {
     if (com == 0) 
       for (i = 0; i < 3; i++) {

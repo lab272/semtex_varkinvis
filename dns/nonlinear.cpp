@@ -194,7 +194,7 @@ void skewSymmetric (Domain*     D ,
     }
   }
 
-  // -- Multiply in density variation (1 + rho'/rho_0) for LMA buoyancy.
+  // -- Multiply in density variation (1 + rho'/rho_0) for LMA13 buoyancy.
 
   if (D -> hasScalar() && (Femlib::value ("LMA_BETA_T") > EPSDP)) {
     *tmp  = Femlib::value ("LMA_T_REF");
@@ -203,9 +203,28 @@ void skewSymmetric (Domain*     D ,
     *tmp += 1.0;
     for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
 
-    // -- Subtract out any hydrostatic contributions.
+    // -- Subtract out background hydrostatic contributions.
 
     for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
+
+    tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
+
+    if (Geometry::cylindrical())
+      for (i = 0; i < NCOM; i++)
+        if (i == 2) {
+	  if (NDIM == 3)
+	    *N[i] -= (*Uphys[0] = *tmp) .
+	      transform (FORWARD). gradient (i) . transform (INVERSE) . divY();
+        } else
+	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i) . mulY();
+    else
+      for (i = 0; i < NCOM; i++)
+        if (i == 2) {
+	  if (NDIM == 3)
+	    *N[i] -= (*Uphys[0] = *tmp) .
+	      transform (FORWARD). gradient (i) . transform (INVERSE);
+        } else
+	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
   }
 
   for (i = 0; i < NADV; i++) {
@@ -393,7 +412,26 @@ void altSkewSymmetric (Domain*     D ,
 
     // -- Subtract out any hydrostatic contributions.
 
-    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);    
+    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
+
+    tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
+
+    if (Geometry::cylindrical())
+      for (i = 0; i < NCOM; i++)
+        if (i == 2) {
+	  if (NDIM == 3)
+	    *N[i] -= (*Uphys[0] = *tmp) .
+	      transform (FORWARD). gradient (i) . transform (INVERSE) . divY();
+        } else
+	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i) . mulY();
+    else
+      for (i = 0; i < NCOM; i++)
+        if (i == 2) {
+	  if (NDIM == 3)
+	    *N[i] -= (*Uphys[0] = *tmp) .
+	      transform (FORWARD). gradient (i) . transform (INVERSE);
+        } else
+	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
   }
 
   for (i = 0; i < NADV; i++) {
@@ -513,7 +551,27 @@ void convective (Domain*     D ,
 
     // -- Subtract out any hydrostatic contributions.
 
-    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);    
+    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
+
+    tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
+
+    if (Geometry::cylindrical())
+      for (i = 0; i < NCOM; i++)
+        if (i == 2) {
+	  if (NDIM == 3)
+	    *N[i] -= (*Uphys[0] = *tmp) .
+	      transform (FORWARD). gradient (i) . transform (INVERSE) . divY();
+        } else
+	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i) . mulY();
+    else
+      for (i = 0; i < NCOM; i++)
+        if (i == 2) {
+	  if (NDIM == 3)
+	    *N[i] -= (*Uphys[0] = *tmp) .
+	      transform (FORWARD). gradient (i) . transform (INVERSE);
+        } else
+	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
+    
   }
 
   for (i = 0; i < NADV; i++) {
@@ -751,7 +809,26 @@ void rotational1 (Domain*     D ,
 
     // -- Subtract out any hydrostatic contributions.
 
-    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);    
+    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
+
+    tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
+
+    if (Geometry::cylindrical())
+      for (i = 0; i < NCOM; i++)
+        if (i == 2) {
+	  if (NDIM == 3)
+	    *N[i] -= (*Uphys[0] = *tmp) .
+	      transform (FORWARD). gradient (i) . transform (INVERSE) . divY();
+        } else
+	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i) . mulY();
+    else
+      for (i = 0; i < NCOM; i++)
+        if (i == 2) {
+	  if (NDIM == 3)
+	    *N[i] -= (*Uphys[0] = *tmp) .
+	      transform (FORWARD). gradient (i) . transform (INVERSE);
+        } else
+	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
   }
 
   for (i = 0; i < NADV; i++) {
@@ -1076,7 +1153,26 @@ void Stokes (Domain*     D ,
 
     // -- Subtract out any hydrostatic contributions.
 
-    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);    
+    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
+    
+    tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
+
+    if (Geometry::cylindrical())
+      for (i = 0; i < NCOM; i++)
+        if (i == 2) {
+	  if (NDIM == 3)
+	    *N[i] -= (*Uphys[0] = *tmp) .
+	      transform (FORWARD). gradient (i) . transform (INVERSE) . divY();
+        } else
+	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i) . mulY();
+    else
+      for (i = 0; i < NCOM; i++)
+        if (i == 2) {
+	  if (NDIM == 3)
+	    *N[i] -= (*Uphys[0] = *tmp) .
+	      transform (FORWARD). gradient (i) . transform (INVERSE);
+        } else
+	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
   }
 
   for (i = 0; i < NADV; i++) {
