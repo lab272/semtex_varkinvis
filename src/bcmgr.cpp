@@ -1585,7 +1585,7 @@ void BCmgr::evaluateCMBCp (const Field* master, // Used for list of boundaries.
     // -- Forward Fourier transform the outcome.
 
     if (nPR == 1) {
-      if (nZtot > 1)
+      if (nZtot > 1) {
 	if (nZtot == 2) {
 	  Veclib::zero (_nLine, _Enux + _nLine, 1);
 	  Veclib::zero (_nLine, _Enuy + _nLine, 1);
@@ -1593,6 +1593,7 @@ void BCmgr::evaluateCMBCp (const Field* master, // Used for list of boundaries.
 	  Femlib::DFTr (_Enux,  nZtot, _nLine, FORWARD);
 	  Femlib::DFTr (_Enuy,  nZtot, _nLine, FORWARD);
 	}
+      }
     } else {
       Femlib::exchange (_Enux, _nZ,    _nLine, FORWARD);
       Femlib::DFTr     (_Enux,  nZtot,  nLP,   FORWARD);
