@@ -357,22 +357,22 @@ istream& operator >> (istream& strm,
 
   ROOTONLY {
     if (nfields != strlen (D.field)) {
-      sprintf (err, ": file: %1d fields, Domain: %1d",
+      sprintf (err, "  : file: %1d fields, Domain: %1d",
 	       (int) nfields, (int) strlen(D.field));
       cerr << endl;
-      message (routine, err, WARNING);
+      message (routine, err, REMARK);
     }
     for (i = 0; i < nfields; i++) 
       if (!strchr (D.field, fields[i])) {
-	sprintf (err, ": field %c not present in Domain (%s)",
+	sprintf (err, " : field %c not present in Domain (%s)",
 		 fields[i], D.field);
-	message (routine, err, WARNING);
+	message (routine, err, REMARK);
       }
     for (i = 0; i < strlen (D.field); i++) 
       if (!strchr (fields, D.field[i])) {
-	sprintf (err, ": field %c not present in restart file (%s)",
+	sprintf (err, "  : field %c not present in restart file (%s)",
 		 D.field[i], fields);
-	message (routine, err, WARNING);
+	message (routine, err, REMARK);
       }
   }
 

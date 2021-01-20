@@ -71,6 +71,9 @@ BoundarySys::BoundarySys (BCmgr*                  bcmgr,
  
   // -- Mode 0 boundaries, and default settings for other modes.
 
+  VERBOSE cout << endl;
+  VERBOSE cout<< "-- Field " << name << "; mode 0 BC information:" << endl;
+  
   edge = bcmgr -> getBCedges().begin();  
   for (offset = 0, i = 0; i < _nbound; i++, edge++, offset += np) {
     BCT   = *edge;
@@ -82,6 +85,10 @@ BoundarySys::BoundarySys (BCmgr*                  bcmgr,
     
     C -> describe (buf);
     if (strstr (buf, "mixed")) _mixed = true;
+
+    VERBOSE cout << "  Elmt: "<< setw(4) << j + 1 <<", side: " << k + 1 << ": ";
+
+    VERBOSE cout << buf << endl;
     
     _boundary[0][i] =
     _boundary[1][i] =

@@ -664,7 +664,7 @@ void MixedCBCp::describe (char* tgt) const
 // Load descriptive/diagnostic material into tgt.
 // ---------------------------------------------------------------------------
 {
-  sprintf (tgt, "computed-mixed-pressure, Dong (2015) eq. (37)");
+  sprintf (tgt, "computed-mixed-pressure, Dong15 eq. (37)");
 }
 
 
@@ -816,10 +816,10 @@ void MixedCBCu::augmentDg (const int_t   side,
 // BCs.  Add in diagonal terms <K, w> to globally-numbered tgt.
 // ---------------------------------------------------------------------------
 {
-  const int_t   np    = Geometry::nP();
-  const int_t   nm    = np - 1;
-  const int_t*  start = bmap;
-  int_t         i;
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  int_t        i;
 
   i = clamp (Femlib::ivalue("STEP"), 1, Femlib::ivalue("N_TIME"));
   
@@ -846,7 +846,7 @@ void MixedCBCu::describe (char* tgt) const
 // Load descriptive/diagnostic material into tgt.
 // ---------------------------------------------------------------------------
 {
-  sprintf (tgt, "computed-mixed-velocity (u component), Dong (2015) eq. (38)");
+  sprintf (tgt, "computed-mixed-velocity (u cmpt.), Dong15 eq. (38)");
 }
 
 
@@ -994,10 +994,10 @@ void MixedCBCv::augmentDg (const int_t   side,
 // BCs.  Add in diagonal terms <K, w> to globally-numbered tgt.
 // ---------------------------------------------------------------------------
 {
-  const int_t    np    = Geometry::nP();
-  const int_t    nm    = np - 1;
-  const int_t*   start = bmap;
-  int_t          i;
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  int_t        i;
 
   i = clamp (Femlib::ivalue("STEP"), 1, Femlib::ivalue("N_TIME"));
 
@@ -1024,7 +1024,7 @@ void MixedCBCv::describe (char* tgt) const
 // Load descriptive/diagnostic material into tgt.
 // ---------------------------------------------------------------------------
 {
-  sprintf (tgt, "computed-mixed-velocity (v component), Dong (2015) eq. (38)");
+  sprintf (tgt, "computed-mixed-velocity (v cmpt.), Dong15 eq. (38)");
 }
 
 
@@ -1172,10 +1172,10 @@ void MixedCBCw::augmentDg (const int_t   side,
 // BCs.  Add in diagonal terms <K, w> to globally-numbered tgt.
 // ---------------------------------------------------------------------------
 {
-  const int_t    np    = Geometry::nP();
-  const int_t    nm    = np - 1;
-  const int_t*   start = bmap;
-  int_t          i;
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  int_t        i;
 
   i = clamp (Femlib::ivalue("STEP"), 1, Femlib::ivalue("N_TIME"));
 
@@ -1202,5 +1202,5 @@ void MixedCBCw::describe (char* tgt) const
 // Load descriptive/diagnostic material into tgt.
 // ---------------------------------------------------------------------------
 {
-  sprintf (tgt, "computed-mixed-velocity (w component), Dong (2015) eq. (38)");
+  sprintf (tgt, "computed-mixed-velocity (w cmpt.), Dong15 eq. (38)");
 }

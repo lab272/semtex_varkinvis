@@ -236,9 +236,9 @@ static char RCS[] = "$Id$";
 BCmgr::BCmgr (FEML*             file,
 	      vector<Element*>& elmt) :
 // ---------------------------------------------------------------------------
-// This constructor deals with <GROUPS>, <BCS> and <SURFACES> sections
-// of FEML file, and loads internal tables for later use by 
-// BCmgr::getCondition.
+// This constructor deals with <FIELDS>, <GROUPS>, <BCS> and
+// <SURFACES> sections of FEML file, and loads internal tables for
+// later use by BCmgr::getCondition.
 //
 // In addition, it reads in prebuilt numbering schemes from file
 // session.num for later retrieval.

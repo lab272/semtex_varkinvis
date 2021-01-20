@@ -443,8 +443,8 @@ void Analyser::estimateCFL (AuxField* work) const
 //              appendix D.2.2
 // ---------------------------------------------------------------------------
 {
-  const  int_t          pid     = Geometry::procID();
-  const  int_t          nProc   = Geometry::nProc();
+  const  int_t          pid   = Geometry::procID();
+  const  int_t          nProc = Geometry::nProc();
   static vector<real_t> maxProc (nProc);
   static vector<int_t>  maxElmt (nProc);
   static vector<int_t>  maxCmpt (nProc);
@@ -464,7 +464,7 @@ void Analyser::estimateCFL (AuxField* work) const
   cmpt_i = (CFL_i[0] > CFL_i[1]) ? 0      : 1;
   elmt_i = (CFL_i[0] > CFL_i[1]) ? elmt_i : elmt_j;
 
-  if (_src -> nField() > 3) {
+  if (_src -> nVelCmpt() == 3) {
     (*work = *_src -> u[2]) . transform (INVERSE);
     CFL_i[2] = work -> CFL (2, elmt_j);
 

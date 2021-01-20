@@ -123,10 +123,10 @@ int main (int    argc,
 // See synopsis in file header.
 // ---------------------------------------------------------------------------
 {
-  char   *session = 0, field[StrMax], axistag;
-  FEML*  file;
-  int_t  np = 0, opt = 3;
-  bool   cyl3D = false;
+  char  *session = 0, field[StrMax], axistag;
+  FEML* file;
+  int_t np = 0, opt = 3;
+  bool  cyl3D = false;
 
   Femlib::initialize (&argc, &argv);
   getargs (argc, argv, session, verb, np, opt);
