@@ -1649,8 +1649,7 @@ void BCmgr::evaluateCMBCu (const Field* P    , // Pressure field.
 // Input parameter field P is the pressure at the end of the current timestep.
 // 
 // Note that storage areas for Fourier transform of KE fluxes _Enux
-// and _Enuy have already been evaluated earlier in the timestep by
-// the time we get here.
+// and _Enuy have already been evaluated earlier in the timestep.
 // ---------------------------------------------------------------------------
 {
   const int_t Je = min (step, _nTime);

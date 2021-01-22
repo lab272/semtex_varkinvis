@@ -120,7 +120,6 @@ void skewSymmetric (Domain*     D ,
       // -- Terms involving azimuthal derivatives and frame components.
 
       if (NCOM == 3) {
-
         if (i == 1) {
           tmp -> times (*Uphys[2], *Uphys[2]);
           N[1] -> axpy ( 2.0, *tmp);
@@ -142,7 +141,8 @@ void skewSymmetric (Domain*     D ,
           (*tmp) . transform (FORWARD). gradient (2). transform (INVERSE);
           *N[i] -= *tmp;
         }
-      }
+      } else if (i == 2 && (NADV > NCOM))
+	N[2] -> timesMinus (*Uphys[1], *Uphys[2]);
 
       if (i >= 2) N[i] -> divY ();
       
@@ -185,7 +185,6 @@ void skewSymmetric (Domain*     D ,
         tmp -> gradient (j);
         if (j == 2) tmp -> transform (INVERSE);
         *N[i] -= *tmp;
-
       }
 
       *N[i] *= 0.5;      // -- Average the two forms to get skew-symmetric.
@@ -314,9 +313,8 @@ void altSkewSymmetric (Domain*     D ,
             (*tmp = *U[i]) . gradient (2) . transform (INVERSE);
             N[i] -> timesMinus (*Uphys[2], *tmp);
           }
+	  if (i >= 2) N[i] -> divY ();	  
         }
-
-        if (i >= 2) N[i] -> divY ();
 
         // -- 2D convective derivatives.
 
@@ -350,10 +348,11 @@ void altSkewSymmetric (Domain*     D ,
             (*tmp) . transform (FORWARD). gradient (2). transform (INVERSE);
             *N[i] -= *tmp;
           }
-        }
+	} else if (i == 2 && (NADV > NCOM))
+	  N[2] -> timesMinus (*Uphys[1], *Uphys[2]);
 
-        if (i >= 2) N[i] -> divY ();
-
+	if (i >= 2) N[i] -> divY ();
+	
         // -- 2D conservative derivatives.
 
         for (j = 0; j < 2; j++) {
@@ -449,7 +448,7 @@ void convective (Domain*     D ,
 		 AuxField**  Uf,
 		 FieldForce* FF)
 // ---------------------------------------------------------------------------
-// Nonlinear terms N(u) in (non-conservative) convective form are
+// Nonlinear terms N(u) in standard (non-conservative) convective form are
 //                 ~ ~
 //           N  = - u . grad u
 //           ~      ~        ~
@@ -510,9 +509,8 @@ void convective (Domain*     D ,
           (*tmp = *U[i]) . gradient (2) . transform (INVERSE);
           N[i] -> timesMinus (*Uphys[2], *tmp);
         }
+	if (i >= 2) N[i] -> divY ();	
       }
-
-      if (i >= 2) N[i] -> divY ();
 
       // -- 2D convective derivatives.
 
@@ -638,7 +636,9 @@ void rotational1 (Domain*     D ,
 
   if (Geometry::cylindrical()) {
 
-    if (D3C3) {		      // -- Two z-derivatives have to be made twice.
+    // -- First, the momentum equations.
+
+    if (D3C3) {	          // -- 3D3C: two z-derivatives have to be made twice.
 
       N[2] -> timesMinus (*Uphys[1], *Uphys[2]);
       (*tmp = *U[0]) . gradient (2) . transform (INVERSE);
@@ -670,7 +670,7 @@ void rotational1 (Domain*     D ,
 
       N[1] -> timesPlus (*Uphys[2], *Uphys[2]);
       
-    } else if (D2C3) {
+    } else if (D2C3) { // -- 2D3C.
 
       N[2] -> timesMinus (*Uphys[1], *Uphys[2]);
       N[2] -> divY();
@@ -693,7 +693,7 @@ void rotational1 (Domain*     D ,
 
       N[1] -> timesPlus (*Uphys[2], *Uphys[2]);
       
-    } else if (D2C2) {
+    } else if (D2C2) { // -- 2D2C.
 
       (*tmp = *Uphys[0]) . gradient (1);
       N[0] -> timesMinus (*Uphys[1], *tmp);
@@ -713,11 +713,13 @@ void rotational1 (Domain*     D ,
 
     for (i = 0; i < NCOM; i++) FF -> addPhysical (N[i], tmp, i, Uphys);
 
+    // -- Address scalar advection separately.
+    
     if (scalar) {
-      if (D3C3) {
+      if (D3C3) {  // -- 3D3C.
 	(*tmp = *U[NCOM]) . gradient (2) . transform (INVERSE);
 	N[NCOM] -> timesMinus (*Uphys[2], *tmp) . divY();
-      }      
+      }           // -- 2D3C and 2D2C.     
       (*tmp = *Uphys[NCOM]) . gradient (0);
       N[NCOM] -> timesMinus (*Uphys[0], *tmp);
       (*tmp = *Uphys[NCOM]) . gradient (1);
