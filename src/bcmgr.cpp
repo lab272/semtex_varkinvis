@@ -1497,6 +1497,7 @@ void BCmgr::evaluateCMBCp (const Field* master, // Used for list of boundaries.
 
   static const real_t      iUZD   = 1.0 / Femlib::value ("DONG_UODELTA");
   static const real_t      iNUD   = 1.0 / Femlib::value ("KINVIS*DONG_DO");
+  //  static const real_t      BIAS   = Femlib::value ("DONG_BIAS");
   const vector<Boundary*>& BC     = master -> _bsys -> BCs (0);
   const int_t              offset = id * _nP;
   const Boundary*          B;
@@ -1560,6 +1561,7 @@ void BCmgr::evaluateCMBCp (const Field* master, // Used for list of boundaries.
     //    N.B. Extra factor of 0.5 incorporated here (0.25 = 0.5*0.5).
 
     Veclib::smul  (nTot, iUZD, _unp,  1, _fbuf, 1);
+    //    Veclib::sadd  (nTot, BIAS, _unp,  1, _fbuf, 1);
     Veclib::vtanh (nTot, _fbuf, 1,       _fbuf, 1);
     Veclib::ssub  (nTot,  1.0, _fbuf, 1, _fbuf, 1);
     Blas::scal    (nTot,  0.25,          _fbuf, 1);
