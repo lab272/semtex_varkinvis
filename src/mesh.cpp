@@ -1283,7 +1283,7 @@ void Mesh::buildMask (const int_t np  ,
     }
   }
 
-  // -- Switch on gID in appropriate locations, for D, A <==> Dirichlet BCs.
+  // -- Switch on gID in appropriate locations, for D, A, S <==> Dirichlet BCs.
 
   for (i = 0; i < nel; i++) {
     E  = _elmtTable[i];
@@ -1292,7 +1292,10 @@ void Mesh::buildMask (const int_t np  ,
       S = E -> side[j];
       if (!(S -> mateElmt)) {
 	if (
-	                   matchBC (S -> group, tolower (fld), 'D')  ||
+	                   matchBC (S -> group, tolower (fld), 'D')   ||
+			  (matchBC (S -> group, tolower (fld), 'S')   &&
+			                        tolower (fld) == 'c') ||
+			 
 	    (axisE      && matchBC (S -> group, tolower (fld), 'A'))
 	    ) {
 	  S -> startNode -> gID = 1;
