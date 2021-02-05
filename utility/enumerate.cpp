@@ -270,7 +270,7 @@ static void getfields (FEML*      file     ,
 //
 // <FIELDS>
 // # optional comment lines...
-//   c u v w p
+//   u v w c p
 // </FIELDS>
 //
 // Input value "axisModes" flags that this is a problem with an axis boundary

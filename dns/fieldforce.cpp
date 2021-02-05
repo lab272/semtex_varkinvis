@@ -427,7 +427,9 @@ void SteadyForce::subtract (AuxField*         ff ,
 // Applicator.
 // ---------------------------------------------------------------------------
 {
+#if 1
   if (_a[com]) *ff -= (*_a[com]);
+#endif
 }
 
 
