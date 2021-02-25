@@ -2605,10 +2605,10 @@ hundred.
 \label{sec.flux}
 
 A file called \verb+session.flx+ is used to store the integral over
-the \verb+wall+ group boundaries of viscous and pressure stresses
-(\ie lift and drag forces).  Output is done every \verb+IO_HIS+
-steps.  For each direction ($x$, $y$, $z$), the outputs are in turn
-the pressure, viscous, and total force per unit length.  In 2D the
+the \verb+wall+ group boundaries of viscous and pressure stresses (\ie
+lift and drag forces).  Output is done every \verb+IO_HIS+ steps.  For
+each direction ($x$, $y$, $z$), the outputs are in turn the pressure,
+viscous, and total force per unit length (in $z$).  In 2D the
 $z$-components are always zero, while in 3D the $z$-component pressure
 force is always zero, owing to the fact that the geometry is invariant
 in that direction.  For cylindrical geometries, the output values are
@@ -4654,8 +4654,9 @@ Once this file is built, all the above mentioned parameters can be
 changed to their desired value. Also, the boundary conditions have to
 be named and set into place.  We use wall boundary conditions on the
 upper and lower edges of the domain, and edit the \verb|<SURFACES>|
-section to obtain periodicity in the streamwise direction. Here the
-example input file for this particular case:
+section to obtain periodicity in the streamwise direction. Here is the
+example input file for this particular case (which is much the same as
+the \verb|chan3| session file in the \verb |mesh| directory):
 
 {\small
 \begin{verbatim}
@@ -4667,39 +4668,40 @@ example input file for this particular case:
 </FIELDS>
 
 <USER>
-	u = 1.0-y*y
-	v = 0.0
-	w = 0.0
-	p = 0.0
+    u = 1.0-y*y
+    v = 0.0
+    w = 0.0
+    p = 0.0
 </USER>
 
 <TOKENS>
-	N_TIME = 2
-	N_P    = 10
-	N_Z    = 80
-	BETA   = 2.0
-	N_STEP = 60000
-	D_T    = 0.002
-	KINVIS = 303e-6
-	IO_CFL = 100
-	IO_HIS = 100
-	AVERAGE = 2
+    N_TIME  = 2
+    N_P     = 10
+    N_Z     = 80
+    BETA    = 2.0
+    D_T     = 0.01
+    T_FINAL = 800
+    N_STEP  = int(T_FINAL/D_T)
+    KINVIS  = 303e-6
+    IO_CFL  = 100
+    IO_HIS  = 100
+    AVERAGE = 2
 </TOKENS>
 
 <FORCE>
-	CONST_X = 3.08e-3
+    CONST_X = 3.08e-3
 </FORCE>
 
 <GROUPS NUMBER=1>
-	1	w	wall
+    1	w	wall
 </GROUPS>
 
 <BCS NUMBER=1>
-	1	w	4
-			<D> u = 0.0 </D>
-			<D> v = 0.0 </D>
-			<D> w = 0.0 </D>
-			<H> p       </H>
+    1	w	4
+        <D> u = 0.0 </D>
+        <D> v = 0.0 </D>
+        <D> w = 0.0 </D>
+        <H> p       </H>
 </BCS>
 
 <NODES NUMBER=117>
@@ -4764,7 +4766,7 @@ laminar flow profile and add some white noise to obtain transition.
 This is done using the following single line to generate an initial
 condition: {\small
 \begin{verbatim}
-compare chan | noiz -p 0.1 chan.fld > chan.rst
+compare chan | noiz -p 0.1 > chan.rst
 \end{verbatim}
 }
 
@@ -4798,10 +4800,12 @@ figure~\ref{pic:modal_en}(b)).
 \begin{figure}
   \begin{center}
     \begin{tabular}{cccc}
-    \raisebox{27ex}{(a)}&
-      \includegraphics[height=0.22\textheight]{dns_modal_t}&
-    \raisebox{27ex}{(b)}&
-      \includegraphics[height=0.22\textheight]{dns_modal_k}
+    \raisebox{32ex}{(a)}&
+    \includegraphics[height=0.2462\textheight]{chan3mdl}&
+%   \includegraphics[height=0.22\textheight]{dns_modal_t}&    
+    \raisebox{32ex}{(b)}&
+    \includegraphics[height=0.25\textheight]{chan3modav}
+%   \includegraphics[height=0.22\textheight]{dns_modal_k}    
     \end{tabular}
   \end{center}
  \caption{Modal energies for (a) the individual wave numbers over
@@ -4825,10 +4829,26 @@ than the equilibrium turbulent flow. At $t\approx70$ the flow makes a
 transition to a turbulent state, typically signalled by the higher
 modes gaining energy fairly rapidly until a quasi-equilibrium is
 reached. Eventually the flow settles to a statistical equilibrium at
-$t\approx140$.  Figure~\ref{pic:modal_en}(b) shows the temporal
+$t\approx600$.  Figure~\ref{pic:modal_en}(b) shows the temporal
 average values of energies in the various Fourier modes.  (The
-\SM\ macros \verb|moden| and \verb|modav| were used to
-plot figure~\ref{pic:modal_en}.)
+\SM\ macros \verb|moden| and \verb|modav| were used to plot
+figure~\ref{pic:modal_en}.)
+
+At the end of this simulation, the flow should be in an approximately
+statistical stationary state.  Check the $x$-component tractive force
+given at the end of \verb|chan.flx| (which should be around 0.0388).
+This is the tractive force per unit domain width in the $z$-direction
+(see \S\,\ref{sec.flux}).  That ought to closely balance the total
+body force per unit width, which is
+$f_x\times2\times2\pi=303\times10^{-6}\times2\times2\pi=0.0387$.  Since
+the flow is turbulent and driven by a constant body force, both the
+bulk velocity (volumetric flow rate per unit area) and wall tractions
+will fluctuate somewhat in time, and we should really compare the
+time-average tractive force with the body force, but evidently the
+single-time outcome is quite close.  The agreement should also depend
+on the spatial and temporal resolution of the simulation, but the
+resolution suggested in the session file is quite good for the
+Reynolds number employed.
 
 %=============================================================================
 \section{Timestepping order, restarting}
@@ -4915,7 +4935,7 @@ rayavg npts navg y_0 x_1   y_0 x_2 dy dx $FTNZ $FTRS >> $FRSY
 ...
 rayavg npts navg y_0 x_n-1 y_0 x_n dy dx $FTNZ $FTRS >> $FRSY
 
-# PLOTTING
+# PLOTTING -- make a gnuplot script if you like:
 gnuplot ~/scripts/plot_rstress.gpl;
 \end{verbatim}
 }
@@ -4934,8 +4954,7 @@ values in friction velocity units with comparison to data from
   of the wall and data from \citet{kmm87}}
 \label{pic:u_wall}
 \end{figure}
-
-
+xs
 \begin{figure}
 \begin{center}
 \includegraphics[width=0.7\linewidth]{dns_rms_global}\\
