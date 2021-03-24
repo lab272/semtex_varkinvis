@@ -1,0 +1,21 @@
+The general introduction for semtex and its comilpation is contained
+in semtex/README.md, a human-readable MarkDown file.  If you wish to
+peruse a pretty version of that file, use a MarkDown previewer to open
+it. README.md is also part of the semtex doxygen documentation chain,
+see doc/Makefile.
+
+The source for the user guide PDF is in the semtex/doc directory - run
+"make" in semtex/doc to generate it.  Doxygen can generate a
+cross-linked set of files for the code which may be easier to peruse
+than via a text editor - run "make doxygen" in the semtex/doc
+directory and then open semtex/doc/html/index.html in a browser.
+
+Please note that there are presently (2021) two compilation systems
+for semtex: (a) one that works with cmake - ultimately this ends up
+running make with Makfiles it generates based on CmakeLists.txt
+documents - and (b) one that works directly with make and pre-existing
+Makefiles.  We suggest that you use method (a) and treat (b) as
+deprecated; it exists to allow fine-scale control over the compilation
+system and flags, and for systems that do not have cmake.
+
+$Id$
