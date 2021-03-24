@@ -7,8 +7,9 @@ see doc/Makefile.
 The source for the user guide PDF is in the semtex/doc directory - run
 "make" in semtex/doc to generate it.  Doxygen can generate a
 cross-linked set of files for the code which may be easier to peruse
-than via a text editor - run "make doxygen" in the semtex/doc
-directory and then open semtex/doc/html/index.html in a browser.
+than is possible via a text editor - run "make doxygen" in the
+semtex/doc directory and then open semtex/doc/html/index.html in a
+browser.
 
 Please note that there are presently (2021) two compilation systems
 for semtex: (a) one that works with cmake - ultimately this ends up
