@@ -1,4 +1,4 @@
-The general introduction for semtex and its comilpation is contained
+The general introduction for semtex and its compilation is contained
 in semtex/README.md, a human-readable MarkDown file.  If you wish to
 peruse a pretty version of that file, use a MarkDown previewer to open
 it. README.md is also part of the semtex doxygen documentation chain,
