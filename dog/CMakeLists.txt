@@ -130,21 +130,21 @@ set (norm_src
 )
 add_executable             (normalize ${norm_src})
 target_include_directories (normalize PUBLIC stab src)
-target_link_libraries      (normalize fem vec ${BLAS_LIBRARIES})
+target_link_libraries      (normalize fem vec ${import_serial_libs})
 
 add_executable (symmetrise
      ${CMAKE_SOURCE_DIR}/stab/symmetrise.cpp
      ${CMAKE_SOURCE_DIR}/src/data2df.cpp
 )     
 target_include_directories (symmetrise PUBLIC stab src)
-target_link_libraries      (symmetrise fem vec ${BLAS_LIBRARIES})
+target_link_libraries      (symmetrise fem vec ${import_serial_libs})
 
 add_executable (reflect
      ${CMAKE_SOURCE_DIR}/stab/reflect.cpp
      ${CMAKE_SOURCE_DIR}/src/data2df.cpp
 )     
 target_include_directories (reflect PUBLIC stab src)
-target_link_libraries      (reflect fem vec ${BLAS_LIBRARIES})
+target_link_libraries      (reflect fem vec ${import_serial_libs})
 
 add_executable (combine ${CMAKE_SOURCE_DIR}/stab/combine.cpp)     
 target_include_directories (combine PUBLIC stab)
