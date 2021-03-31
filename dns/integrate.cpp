@@ -111,7 +111,7 @@ void integrate (void (*advection) (Domain*    ,
 
   if (!MMS) {			// -- Initialise static storage.
 
-    // -- Create multi-level storage for velocities and forcing.
+    // -- Create multi-level storage for velocities (Us) and forcing (Uf).
 
     const int_t ntot  = Geometry::nTotProc();
     real_t*     alloc = new real_t [static_cast<size_t>(2 * NADV*NORD * ntot)];
@@ -156,6 +156,8 @@ void integrate (void (*advection) (Domain*    ,
 
     // -- Compute nonlinear terms from previous velocity field.
     //    Add physical space forcing, again at old time level.
+    //    Outcomes are left in Uf[0], while the velocity fields
+    //    for the last time level are left in Us[0].
 
     advection (D, B, Us[0], Uf[0], FF);
 
