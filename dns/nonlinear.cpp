@@ -204,8 +204,13 @@ void skewSymmetric (Domain*     D ,
 
     // -- Subtract out background hydrostatic contributions.
 
+    // -- 1. Frame-acceleration (incl. gravity) terms.
+    
     for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
 
+#if 0			      // -- Ignore the following terms (if 0).
+    // -- 2. Localised centrifugal buoyancy terms.
+    
     tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
 
     if (Geometry::cylindrical())
@@ -224,6 +229,7 @@ void skewSymmetric (Domain*     D ,
 	      transform (FORWARD). gradient (i) . transform (INVERSE);
         } else
 	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
+#endif    
   }
 
   for (i = 0; i < NADV; i++) {
@@ -411,8 +417,13 @@ void altSkewSymmetric (Domain*     D ,
 
     // -- Subtract out any hydrostatic contributions.
 
+    // -- 1. Frame-acceleration (incl. gravity) terms.
+
     for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
 
+#if 0				// -- Ignore the following terms (if 0).
+    // -- 2. Localised centrifugal buoyancy terms.
+    
     tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
 
     if (Geometry::cylindrical())
@@ -431,6 +442,7 @@ void altSkewSymmetric (Domain*     D ,
 	      transform (FORWARD). gradient (i) . transform (INVERSE);
         } else
 	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
+#endif
   }
 
   for (i = 0; i < NADV; i++) {
@@ -549,7 +561,12 @@ void convective (Domain*     D ,
 
     // -- Subtract out any hydrostatic contributions.
 
+    // -- 1. Frame-acceleration (incl. gravity) terms.
+    
     for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
+
+#if 0				// -- Ignore the following terms (if 0).
+    // -- 2. Localised centrifugal buoyancy terms.
 
     tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
 
@@ -569,7 +586,7 @@ void convective (Domain*     D ,
 	      transform (FORWARD). gradient (i) . transform (INVERSE);
         } else
 	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
-    
+#endif    
   }
 
   for (i = 0; i < NADV; i++) {
@@ -799,38 +816,57 @@ void rotational1 (Domain*     D ,
     }
   }
 
-
   // -- Multiply in density variation (1 + rho'/rho_0) for LMA buoyancy.
 
   if (D -> hasScalar() && (Femlib::value ("LMA_BETA_T") > EPSDP)) {
     *tmp  = Femlib::value ("LMA_T_REF");
     *tmp -= *Uphys[NCOM];
-    *tmp *= Femlib::value ("LMA_BETA_T");
+    *tmp *= Femlib::value ("LMA_BETA_T"); // -- rho'/rho_0.
     *tmp += 1.0;
     for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
 
-    // -- Subtract out any hydrostatic contributions.
-
-    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
-
+    // -- In Rot-1 form we have to explicitly add back terms
+    //    associated with non-frame centrifugal buoyancy.
+    
     tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
+
+    *Uphys[1]  = Femlib::value ("LMA_T_REF");
+    *Uphys[1] -= *Uphys[NCOM];
+    *Uphys[1] *= Femlib::value ("LMA_BETA_T"); // -- rho'/rho_0.
 
     if (Geometry::cylindrical())
       for (i = 0; i < NCOM; i++)
         if (i == 2) {
-	  if (NDIM == 3)
-	    *N[i] -= (*Uphys[0] = *tmp) .
-	      transform (FORWARD). gradient (i) . transform (INVERSE) . divY();
-        } else
-	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i) . mulY();
+	  if (NDIM == 3) {
+	    (*Uphys[0] = *tmp) .
+	      transform (FORWARD) . gradient (i) . transform (INVERSE) . divY();
+	    N[i] -> timesMinus (*Uphys[1], *Uphys[0]);
+	  }
+        } else {
+	  (*Uphys[0] = *tmp) . gradient (i) . mulY();
+	  N[i] -> timesMinus (*Uphys[1], *Uphys[0]);
+	}
     else
       for (i = 0; i < NCOM; i++)
         if (i == 2) {
-	  if (NDIM == 3)
-	    *N[i] -= (*Uphys[0] = *tmp) .
+	  if (NDIM == 3) {
+	    (*Uphys[0] = *tmp) .
 	      transform (FORWARD). gradient (i) . transform (INVERSE);
-        } else
-	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
+	    N[i] -> timesMinus (*Uphys[1], *Uphys[0]);
+	  }
+        } else {
+	  (*Uphys[0] = *tmp) . gradient (i);
+	  N[i] -> timesMinus (*Uphys[1], *Uphys[0]);
+	}
+
+    // -- Subtract out any hydrostatic contributions.
+
+    // -- 1. Frame-acceleration (incl. gravity) terms.
+    
+    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
+
+    // -- 2. Localised centrifugal buoyancy terms (none present in Rot-1 form).
+    
   }
 
   for (i = 0; i < NADV; i++) {
@@ -1102,7 +1138,32 @@ void rotational2 (Domain*     D ,
 
     // -- Subtract out any hydrostatic contributions.
 
-    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);    
+    // -- 1. Frame-acceleration (incl. gravity) terms.
+    
+    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
+
+#if 0				// -- Ignore the following terms (if 0).
+    // -- 2. Localised centrifugal buoyancy terms.
+    
+    tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
+
+    if (Geometry::cylindrical())
+      for (i = 0; i < NCOM; i++)
+        if (i == 2) {
+	  if (NDIM == 3)
+	    *N[i] -= (*Uphys[0] = *tmp) .
+	      transform (FORWARD). gradient (i) . transform (INVERSE) . divY();
+        } else
+	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i) . mulY();
+    else
+      for (i = 0; i < NCOM; i++)
+        if (i == 2) {
+	  if (NDIM == 3)
+	    *N[i] -= (*Uphys[0] = *tmp) .
+	      transform (FORWARD). gradient (i) . transform (INVERSE);
+        } else
+	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
+#endif    
   }
 
   for (i = 0; i < NADV; i++) {

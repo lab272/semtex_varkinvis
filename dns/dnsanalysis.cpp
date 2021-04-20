@@ -100,6 +100,11 @@ void DNSAnalyser::analyse (AuxField** work0,
 // Step-by-step processing.  The default action is to carry out a standard
 // analysis.  Then, if we have a SURFACE that is in a "wall" GROUP, output wall
 // momentum/scalar flux information, either in integral or pointwise form.
+//
+// Thie routine is designed to be called at the end of a time step, when
+// the domain D (or _src) has the velocity (scalar) and pressure data.
+// The AuxField storage arrays (typically, the top level of Us and Uf)
+// are available as scratch.  
 // ---------------------------------------------------------------------------
 {
 

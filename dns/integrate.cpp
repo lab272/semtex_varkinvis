@@ -150,6 +150,15 @@ void integrate (void (*advection) (Domain*    ,
       *Uf[i][j] = 0.0;
     }
 
+#if 0 // -- Process input to generate nonlinear terms and quit (if 1).
+  
+  advection (D, B, Us[0], Uf[0], FF);
+  D -> step += 1; D -> time += dt;
+  for (i = 0; i < NADV; i++) *D -> u[i] = *Uf[0][i];
+  A -> analyse (Us[0], Uf[0]);
+
+#else  // -- Normal timstepping.
+  
   // -- The following timestepping loop implements equations (15--18) in [5].
 
   while (D -> step < nStep) {
@@ -174,7 +183,8 @@ void integrate (void (*advection) (Domain*    ,
 			  NCOM);
     Pressure -> evaluateBoundaries (Pressure, D -> step);
 
-    // -- Complete unconstrained advective substep and compute pressure.
+    // -- Complete unconstrained advective substep and compute
+    //    pressure, which is left in D -> u[NADV].
 
     if (Geometry::cylindrical()) { Us[0][0] -> mulY(); Us[0][1] -> mulY(); }
 
@@ -204,7 +214,9 @@ void integrate (void (*advection) (Domain*    ,
     }
     if (C3D) Field::coupleBCs (D -> u[1], D -> u[2], FORWARD);
 
-    // -- Viscous correction substep.
+    // -- Viscous correction substep to complete computation of
+    //    velocity components (and, if relevant, scalar) for this time
+    //    step.
 
     if (C3D) {
       AuxField::couple (Uf [0][1], Uf [0][2], FORWARD);
@@ -219,6 +231,7 @@ void integrate (void (*advection) (Domain*    ,
 
     A -> analyse (Us[0], Uf[0]);
   }
+#endif  
 }
 
 
