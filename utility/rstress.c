@@ -6,7 +6,7 @@
  * 1. When one input file is supplied, compute Reynolds stresses: the
  * input is assumed to be a .avg field file produced by running DNS
  * with AVERAGE=2.
-
+ *
  * 2. Alternatively, when two input files are supplied, compute a
  * single outcome file via elementary arithmetic operations (+,-,*,/).
  * In this case the names (and orderings) of supplied fields are
@@ -21,6 +21,7 @@
  * options:
  * -h         ... print this message
  * -<s|a|m|d> ... file ops subtract, add, multiply, divide [Default: subtract]
+ *                output = second op first
  *
  * Binary arithmetic operations only have significance when two files
  * are supplied.  For subtract and divide,
