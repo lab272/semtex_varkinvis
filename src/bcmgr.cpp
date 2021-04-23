@@ -452,17 +452,21 @@ BCmgr::BCmgr (FEML*             file,
 	break;
 	
 #if 1
-      case 'S':			// -- Open BC with scalar stratification.
+      case 'S':			// -- Open BC with zero for scalar and swirl.
 
-	if (!strstr (groupInfo (groupc), "open"))
-	  message(routine,"type 'S' BC must belong to group \"open\"",ERROR);
+	if (!strstr (groupInfo (groupc), "inlet"))
+	  message(routine,"type 'S' BC must belong to group \"inlet\"",ERROR);
 
 	if      (fieldc == 'u') C = new MixedCBCu (this);
 	else if (fieldc == 'v') C = new MixedCBCv (this);
-	else if (fieldc == 'w') C = new MixedCBCw (this);
+	else if (fieldc == 'w') {
+	  strcpy (buf, "0"); C = new Essential (buf);	  
+	}
+//	else if (fieldc == 'w') C = new MixedCBCw (this);
         else if (fieldc == 'p') C = new MixedCBCp (this);
 	else if (fieldc == 'c') {
-	  strcpy (buf, "T_STRAT*x"); C = new Essential (buf);
+	  strcpy (buf, "0"); C = new Essential (buf);
+//	  strcpy (buf, "T_STRAT*x"); C = new Essential (buf);
 	}
 	else {
 	  sprintf (err,"field name '%c'for openS BC not in 'uvwpc'", fieldc);

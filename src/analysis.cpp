@@ -263,7 +263,7 @@ void Analyser::analyse (AuxField** work0, // -- Us[0].
   // -- Note that history points and particle positions are guaranteed
   //    to be available whenever a field dump is written as well as every
   //    IO_HIS steps. But note you may thereby end up with more history
-  //    data than expected.
+  //    data than expected if IO_HIS is incommensurate with IO_FLD.
 
   const bool periodic = !(_src -> step %  Femlib::ivalue ("IO_HIS")) ||
                         !(_src -> step %  Femlib::ivalue ("IO_FLD")) ;
