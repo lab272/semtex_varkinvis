@@ -459,14 +459,19 @@ BCmgr::BCmgr (FEML*             file,
 
 	if      (fieldc == 'u') C = new MixedCBCu (this);
 	else if (fieldc == 'v') C = new MixedCBCv (this);
+//	else if (fieldc == 'w') C = new MixedCBCw (this);	
 	else if (fieldc == 'w') {
-	  strcpy (buf, "0"); C = new Essential (buf);	  
+          // -- Allocate a set swirl velocity based on a magic token.
+	  strcpy (buf, "W_INLET"); C = new Essential (buf);	  
+//	  strcpy (buf, "0"); C = new Essential (buf);	  
 	}
-//	else if (fieldc == 'w') C = new MixedCBCw (this);
+
         else if (fieldc == 'p') C = new MixedCBCp (this);
 	else if (fieldc == 'c') {
-	  strcpy (buf, "0"); C = new Essential (buf);
-//	  strcpy (buf, "T_STRAT*x"); C = new Essential (buf);
+	  // -- Allocate a set scalar value based on a magic token.
+	  strcpy (buf, "T_INLET"); C = new Essential (buf);	  	  
+//	  strcpy (buf, "0"); C = new Essential (buf);
+
 	}
 	else {
 	  sprintf (err,"field name '%c'for openS BC not in 'uvwpc'", fieldc);

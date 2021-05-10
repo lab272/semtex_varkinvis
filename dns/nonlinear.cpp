@@ -33,6 +33,10 @@ static char RCS[] = "$Id$";
 
 #include <dns.h>
 
+// -- Turn on/off hydrostatic correction for grad(KE) terms. Usually off.
+
+#define _KE_HYDROSTAT 0
+
 
 void skewSymmetric (Domain*     D ,
 		    BCmgr*      B ,
@@ -208,7 +212,7 @@ void skewSymmetric (Domain*     D ,
     
     for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
 
-#if 0			      // -- Ignore the following terms (if 0).
+#if _KE_HYDROSTAT
     // -- 2. Localised centrifugal buoyancy terms.
     
     tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
@@ -421,7 +425,7 @@ void altSkewSymmetric (Domain*     D ,
 
     for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
 
-#if 0				// -- Ignore the following terms (if 0).
+#if _KE_HYDROSTAT
     // -- 2. Localised centrifugal buoyancy terms.
     
     tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
@@ -565,7 +569,7 @@ void convective (Domain*     D ,
     
     for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
 
-#if 0				// -- Ignore the following terms (if 0).
+#if _KE_HYDROSTAT
     // -- 2. Localised centrifugal buoyancy terms.
 
     tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
@@ -1142,7 +1146,7 @@ void rotational2 (Domain*     D ,
     
     for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
 
-#if 0				// -- Ignore the following terms (if 0).
+#if _KE_HYDROSTAT
     // -- 2. Localised centrifugal buoyancy terms.
     
     tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
@@ -1243,3 +1247,5 @@ void Stokes (Domain*     D ,
     master -> smooth    (N[i]);
   }  
 }
+
+#undef _KE_HYDROSTAT
