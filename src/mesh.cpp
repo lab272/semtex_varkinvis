@@ -351,6 +351,8 @@ void Mesh::assemble (const bool printVacancy)
 
 void Mesh::surfaces ()
 // ---------------------------------------------------------------------------
+// -- Private member function.
+//  
 // This section reads FEML "SURFACE" information and uses it to set up
 // corresponding element Side storage.
 //
@@ -483,6 +485,8 @@ void Mesh::surfaces ()
 void Mesh::chooseNode (Node* N1,
 		       Node* N2)
 // ---------------------------------------------------------------------------
+// -- Private member function.
+//  
 // It is possible for side-to-side periodicity to miss the fact that a
 // node is already periodic with something else, so we test for those
 // cases, and choose the lowest Node ID out of available alternatives.
@@ -543,6 +547,8 @@ void Mesh::chooseNode (Node* N1,
 
 void Mesh::fixPeriodic()
 // ---------------------------------------------------------------------------
+// -- Private member function.
+//  
 // Traverse all Nodes and fix up any Nodes whose periodic value doesn't
 // terminate self-referentially (not recursively as this is not needed).
 // ---------------------------------------------------------------------------
@@ -598,6 +604,8 @@ void Mesh::showAssembly (Mesh& m)
 
 void Mesh::checkAssembly()
 // ---------------------------------------------------------------------------
+// -- Private member function.
+//  
 // All element sides have to either mate an adjoining element or fall on
 // a boundary.  Check it out.  But surfaces() must have been called first.
 // ---------------------------------------------------------------------------
@@ -634,6 +642,8 @@ void Mesh::checkAssembly()
 
 void Mesh::curves ()
 // ---------------------------------------------------------------------------
+// -- Private member function.
+//  
 // Read in curved edge information and store in Mesh _curveTable.
 //
 // Curved edges are specified by lines like:
@@ -732,6 +742,8 @@ void Mesh::meshSide (const int_t   np     ,
 		     const real_t* spacing,
 		     Point*        knot   ) const
 // ---------------------------------------------------------------------------
+// -- Private member function.
+//  
 // If a curved side can be identified for the nominated element and side,
 // compute the points using appropriate routine.  Otherwise compute points
 // along a straight side.
@@ -1152,6 +1164,8 @@ void Mesh::printNek () const
 void Mesh::describeGrp (char  G,
 			char* S) const
 // ---------------------------------------------------------------------------
+// -- Private member function.
+//  
 // Search feml file info for string descriptor matching G, load into S.
 // ---------------------------------------------------------------------------
 {
@@ -1179,6 +1193,8 @@ void Mesh::describeBC (char  grp,
 		       char  fld, 
 		       char* tgt) const
 // ---------------------------------------------------------------------------
+// -- Private member function.
+//  
 // Find BC description string matching group 'grp' and Field 'fld',
 // load into tgt.
 // ---------------------------------------------------------------------------
@@ -1237,6 +1253,8 @@ void Mesh::buildMask (const int_t np  ,
 		      const char  fld ,
 		      int_t*      mask)
 // ---------------------------------------------------------------------------
+// -- Called by enumerate utility.
+//  
 // This routine generates an int_t mask (0/1) vector for
 // element-boundary nodes.  For any location that corresponds to a
 // domain boundary with an essential boundary condition and for field
@@ -1283,7 +1301,7 @@ void Mesh::buildMask (const int_t np  ,
     }
   }
 
-  // -- Switch on gID in appropriate locations, for D, A, S <==> Dirichlet BCs.
+  // -- Switch on gID in appropriate locations, for D, A, I <==> Dirichlet BCs.
 
   for (i = 0; i < nel; i++) {
     E  = _elmtTable[i];
@@ -1292,17 +1310,19 @@ void Mesh::buildMask (const int_t np  ,
       S = E -> side[j];
       if (!(S -> mateElmt)) {
 	if (
-	                   matchBC (S -> group, tolower (fld), 'D')   ||
-			  (matchBC (S -> group, tolower (fld), 'S')   &&
-			                        tolower (fld) == 'c') ||
+	     this -> matchBC (S -> group, tolower (fld),   'D')          ||
+	    (this -> matchBC (S -> group, tolower (fld),   'I') &&
+			                  tolower (fld) == 'c')          ||
 			 
-	    (axisE      && matchBC (S -> group, tolower (fld), 'A'))
+	    (axisE && this -> matchBC (S -> group, tolower (fld), 'A'))
 	    ) {
 	  S -> startNode -> gID = 1;
 	  S -> endNode   -> gID = 1;
 	  if (ni) Veclib::fill (ni, 1, &S -> gID[0], 1);
-	  if (S -> startNode -> periodic) S -> startNode -> periodic -> gID =1;
-	  if (S -> endNode   -> periodic) S -> endNode   -> periodic -> gID =1;
+	  if (S -> startNode -> periodic)
+	    S -> startNode -> periodic -> gID = 1;
+	  if (S -> endNode   -> periodic)
+	    S -> endNode   -> periodic -> gID = 1;
 	}
       }
     }
@@ -1340,6 +1360,8 @@ bool Mesh::matchBC (const char grp,
 		    const char fld,
 		    const char bcd)
 // ---------------------------------------------------------------------------
+// -- Private member function.
+//  
 // From FEML BC information, return true if the boundary condition
 // kind shown for group 'grp' and field 'fld' is of type 'bcd'.
 //
@@ -1354,6 +1376,7 @@ bool Mesh::matchBC (const char grp,
 //   H <==> "High-order" (computed, natural) pressure BC.       See KIO91.
 //   A <==> "Axis" (selected, natural/essential) BC.            See BS04.
 //   O <==> "Open": computed mixed BCs for pressure & velocity. See Dong (2015).
+//   I <==> "Inlet": specialised version of Open to over-ride scalar.  
 // ---------------------------------------------------------------------------
 {
   const int_t N = _feml.attribute ("BCS", "NUMBER");

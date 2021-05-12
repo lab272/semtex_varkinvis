@@ -399,4 +399,39 @@ private:
   real_t  _K_;
 };
 
+
+class MixedCBCwIn : public Condition
+// ===========================================================================
+// Computed mixed BC for velocity component 'w' on inlet boundaries.
+// This version omits adding in of boundary integral terms: evaluate and sum
+// are both stubs.
+//
+// Dong (2015), JCP 302:300-328.
+// ===========================================================================
+{
+public:
+  MixedCBCwIn            (BCmgr* B);
+  virtual void evaluate  (const Field*,   const int_t, const int_t,
+                          const Element*, const int_t, const int_t,
+			  const bool, real_t*)                           const
+    { };
+  virtual void set       (const int_t, const int_t*,
+			  const real_t*, real_t*)                        const
+    { };
+  virtual void sum       (const int_t, const int_t*,
+			  const real_t*,const real_t*,real_t*,real_t*)   const
+    { };
+  virtual void augmentSC (const int_t, const int_t, const int_t,
+			  const int_t*, const real_t*, real_t*, real_t*) const;
+  virtual void augmentDg (const int_t, const int_t*, 
+			  const real_t*, real_t*)                        const;
+  virtual void augmentOp (const int_t, const int_t*,
+			  const real_t*, const real_t*, real_t*)         const;
+  virtual void describe  (char*)                                         const;
+private:
+  BCmgr*  _BCmgr;
+  real_t* _alpha;
+  real_t  _K_;
+};
+
 #endif

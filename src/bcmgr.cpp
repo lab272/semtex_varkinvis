@@ -452,29 +452,28 @@ BCmgr::BCmgr (FEML*             file,
 	break;
 	
 #if 1
-      case 'S':			// -- Open BC with zero for scalar and swirl.
-
+      case 'I':			// -- Inlet BC, set value for scalar
+	                        //    and with dw/dn + K w = 0.
+                               
 	if (!strstr (groupInfo (groupc), "inlet"))
-	  message(routine,"type 'S' BC must belong to group \"inlet\"",ERROR);
+	  message(routine,"type 'I' BC must belong to group \"inlet\"",ERROR);
 
-	if      (fieldc == 'u') C = new MixedCBCu (this);
-	else if (fieldc == 'v') C = new MixedCBCv (this);
-//	else if (fieldc == 'w') C = new MixedCBCw (this);	
-	else if (fieldc == 'w') {
-          // -- Allocate a set swirl velocity based on a magic token.
-	  strcpy (buf, "W_INLET"); C = new Essential (buf);	  
-//	  strcpy (buf, "0"); C = new Essential (buf);	  
-	}
-
+	if      (fieldc == 'u') C = new MixedCBCu   (this);
+	else if (fieldc == 'v') C = new MixedCBCv   (this);
+	else if (fieldc == 'w') C = new MixedCBCwIn (this);
+	
+//	else if (fieldc == 'w') {
+//	  C = new Essential ("W_INLET");
+//	  strcpy (buf, "1e12;W_INLET"); C = new  Mixed (buf);	  
+//	}      
         else if (fieldc == 'p') C = new MixedCBCp (this);
-	else if (fieldc == 'c') {
+       	else if (fieldc == 'c') {
 	  // -- Allocate a set scalar value based on a magic token.
-	  strcpy (buf, "T_INLET"); C = new Essential (buf);	  	  
-//	  strcpy (buf, "0"); C = new Essential (buf);
-
+	  //C = new EssentialFunction ("T_INLET");
+	  strcpy (buf, "T_INLET"); C = new EssentialFunction (buf);
 	}
 	else {
-	  sprintf (err,"field name '%c'for openS BC not in 'uvwpc'", fieldc);
+	  sprintf (err,"field name '%c' for openS BC not in 'uvwpc'", fieldc);
 	  message (routine, err, ERROR);
 	}
 	break;
@@ -581,6 +580,8 @@ Condition* BCmgr::getCondition (const char  group,
 const char* BCmgr::groupInfo (const char name) const
 // ---------------------------------------------------------------------------
 // Given a group name, return pointer to string descriptor.
+//
+// Force a halt on failure.  
 // ---------------------------------------------------------------------------
 {
   const char  routine[] = "BCmgr::groupInfo";
@@ -639,7 +640,8 @@ void BCmgr::buildnum (const char*       session,
 //
 // Retrieve numbering schemes (btog and bmsk values) from file
 // "session.num": this is created by running the "enumerate" utility
-// on root processor, if session.num does not already exist.
+// on root processor, if session.num (made by the enumerate) does not
+// already exist.
 //
 // The names of fields and their numbering schemes are significant.
 // The convention employed is that the fields have lower-case
@@ -674,7 +676,7 @@ void BCmgr::buildnum (const char*       session,
 
   if (!num) {
     ROOTONLY {
-      sprintf (buf, "enumerate -O1 %s > %s", session, file);
+      sprintf (buf, "enumerate -O3 %s > %s", session, file);
       if (system (buf)) {
         sprintf (err, "couldn't open session file %s, or %s", session, file);
         message (routine, err, ERROR);

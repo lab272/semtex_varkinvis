@@ -343,7 +343,7 @@ static void checkVBCs (FEML*       file ,
   if (!strchr (field, 'v') || !strchr (field, 'w')) return;
 
   int_t       i, j, id, nbcs;
-  char          vtag, wtag, groupc, fieldc, tagc, tag[StrMax], err[StrMax];
+  char        vtag, wtag, groupc, fieldc, tagc, tag[StrMax], err[StrMax];
   const int_t N (file->attribute ("BCS", "NUMBER"));
 
   for (i = 0; i < N; i++) {

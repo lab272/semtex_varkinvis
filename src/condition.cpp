@@ -1070,7 +1070,7 @@ void MixedCBCw::sum (const int_t   side  ,
 		     real_t*       work  ,
 		     real_t*       tgt   ) const
 // ---------------------------------------------------------------------------
-// Add boundary-integral terms into globally-numbered tgt.
+// Add boundary-integral terms (src) into globally-numbered tgt.
 // ---------------------------------------------------------------------------
 { 
   const int_t  np    = Geometry::nP();
@@ -1203,4 +1203,138 @@ void MixedCBCw::describe (char* tgt) const
 // ---------------------------------------------------------------------------
 {
   sprintf (tgt, "computed-mixed-velocity (w cmpt.), Dong15 eq. (38)");
+}
+
+
+MixedCBCwIn::MixedCBCwIn (BCmgr* B) : _BCmgr (B)
+// ---------------------------------------------------------------------------
+// Computed mixed/Robin velocity BC for open boundaries, Dong (2015) eq. (38).
+// For the LHS, our notation is du/dn + _K_u, where _K_ is set as below.
+//
+// This is a cut-down version of MixedCBCw, which does nothing for the
+// boundary integral terms.  In effect this means that _C_ = 0 and we have
+// 
+//   dw
+//   --  +  K w = 0.
+//   dn 				      
+// ---------------------------------------------------------------------------
+{
+  _alpha = new real_t [Integration::OrderMax];
+  Integration::StifflyStable (Femlib::ivalue ("N_TIME"), _alpha);
+  
+  _K_ = _alpha[0] * Femlib::value ("DONG_DO/D_T");
+}
+
+
+void MixedCBCwIn::augmentSC (const int_t   side  ,
+			     const int_t   nband ,
+			     const int_t   nsolve,
+			     const int_t*  bmap  ,
+			     const real_t* area  ,
+			     real_t*       work  ,
+			     real_t*       tgt   )  const
+// ---------------------------------------------------------------------------
+// Add <K, w> terms to (banded LAPACK) matrix tgt.
+// ---------------------------------------------------------------------------
+{
+  const int_t    np    = Geometry::nP();
+  const int_t    nm    = np - 1;
+  const int_t*   start = bmap;
+  register int_t i, k;
+  
+  switch (side) {
+  case 1: start += nm;           break;
+  case 2: start += nm + nm;      break;
+  case 3: start += nm + nm + nm; break;
+  default: break;
+  }
+
+  Veclib::smul (np, _K_, area, 1, work, 1);
+
+  for (i = 0; i < nm; i++)
+    if ((k = start[i]) < nsolve)
+      tgt[Lapack::band_addr (k, k, nband)] += work[i];
+
+  i = (side == 3) ? bmap[0] : start[nm];
+  if (i < nsolve) tgt[Lapack::band_addr (i, i, nband)] += work[nm];
+}
+
+
+void MixedCBCwIn::augmentOp (const int_t   side, 
+			     const int_t*  bmap,
+			     const real_t* area,
+			     const real_t* src ,
+			     real_t*       tgt ) const
+// ---------------------------------------------------------------------------
+// This operation is used to augment the element-wise Helmholtz
+// operations where there are mixed BCs.  Add in diagonal terms
+// <K*src, w> to tgt.  Both src and tgt are globally-numbered vectors.
+// ---------------------------------------------------------------------------
+{
+  const int_t   np    = Geometry::nP();
+  const int_t   nm    = np - 1;
+  const int_t*  start = bmap;
+  int_t         i;
+
+  i = clamp (Femlib::ivalue("STEP"), 1, Femlib::ivalue("N_TIME"));
+
+  Integration::StifflyStable (i, _alpha);
+  real_t Kloc = _alpha[0] * Femlib::value ("DONG_DO/D_T");
+  
+  switch (side) {
+  case 1: start += nm;           break;
+  case 2: start += nm + nm;      break;
+  case 3: start += nm + nm + nm; break;
+  default: break;
+  }
+
+  for (i = 0; i < nm; i++)
+    tgt[start[i]] += Kloc * area[i] * src[start[i]];
+
+  i = (side == 3) ? bmap[0] : start[nm];
+  tgt[i] += Kloc * area[nm] * src[i];
+}
+
+
+void MixedCBCwIn::augmentDg (const int_t   side, 
+			     const int_t*  bmap,
+			     const real_t* area,
+			     real_t*       tgt ) const
+// ---------------------------------------------------------------------------
+// This operation is used to augment the element-wise construction of
+// the diagonal of the global Helmholtz matrix where there are mixed
+// BCs.  Add in diagonal terms <K, w> to globally-numbered tgt.
+// ---------------------------------------------------------------------------
+{
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  int_t        i;
+
+  i = clamp (Femlib::ivalue("STEP"), 1, Femlib::ivalue("N_TIME"));
+
+  Integration::StifflyStable (i, _alpha);
+  real_t Kloc = _alpha[0] * Femlib::value ("DONG_DO/D_T");
+  
+  switch (side) {
+  case 1: start += nm;           break;
+  case 2: start += nm + nm;      break;
+  case 3: start += nm + nm + nm; break;
+  default: break;
+  }
+
+  for (i = 0; i < nm; i++)
+    tgt[start[i]] += Kloc * area[i];
+
+  i = (side == 3) ? bmap[0] : start[nm];
+  tgt[i] += Kloc * area[nm];
+}
+
+
+void MixedCBCwIn::describe (char* tgt) const
+// ---------------------------------------------------------------------------
+// Load descriptive/diagnostic material into tgt.
+// ---------------------------------------------------------------------------
+{
+  sprintf (tgt, "computed-mixed-velocity (w cmpt.), Dong15 eq. (38), but C=0");
 }

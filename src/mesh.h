@@ -110,12 +110,12 @@ private:
   void chooseNode    (Node*, Node*);
   void fixPeriodic   ();
 
-  void describeGrp (char, char*)          const;
-  void describeBC  (char, char, char*)    const;
+  void describeGrp (char, char*)                          const;
+  void describeBC  (char, char, char*)                    const;
   bool matchBC     (const char, const char, const char);
 
   void meshSide (const int_t, const int_t, const int_t,
-		 const real_t*, Point*)                          const;
+		 const real_t*, Point*)                   const;
 };
 
 
