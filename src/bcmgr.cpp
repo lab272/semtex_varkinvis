@@ -469,8 +469,9 @@ BCmgr::BCmgr (FEML*             file,
         else if (fieldc == 'p') C = new MixedCBCp (this);
        	else if (fieldc == 'c') {
 	  // -- Allocate a set scalar value based on a magic token.
-	  //C = new EssentialFunction ("T_INLET");
-	  strcpy (buf, "T_INLET"); C = new EssentialFunction (buf);
+	  strcpy (buf, "T_INLET");
+	  //strcpy (buf, "LAPSE*((x-X_CUT)+heav(x-X_CUT)*(X_CUT-x))");
+	  C = new EssentialFunction (buf);
 	}
 	else {
 	  sprintf (err,"field name '%c' for openS BC not in 'uvwpc'", fieldc);

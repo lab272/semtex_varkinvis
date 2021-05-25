@@ -7,7 +7,7 @@
 //
 // Tokens SVV_EPSN and SVV_MN (where 0<SVV_MN<N_P)    (SEM directions) and
 //        SVV_EPSZ and SVV_MZ (where 0<SVV_MZ<N_Z/2)  (Fourier direction)
-// shold be predefined: the default values of -1 for the SVV_M* parameters
+// should be predefined: the default values of -1 for the SVV_M* parameters
 // leaves SVV switched off. Typically SVV_EPS* is defined as a multiple of
 // KINVIS (say 5*KINVIS).
 //
