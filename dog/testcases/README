@@ -53,7 +53,10 @@ swirling flow, JFM 439: 109-129.
 At Re=4000, the period of the leading mode is predicted by Lopez et al
 to be (page 16) 4000*0.007175=28.3.
 
-The steady base flow for this example was pre-computed using a Newton method, as described in Blackburn (2002) Three-dimensional instability and state selection in an oscillatory axisymmetric swirling flow, PF 14: 3983–3996.
+The steady base flow for this example was pre-computed using a Newton
+method, as described in Blackburn (2002) Three-dimensional instability
+and state selection in an oscillatory axisymmetric swirling flow, PF
+14: 3983–3996.
 
 Here is the result of running
 
@@ -73,8 +76,10 @@ dog: converged, writing 1 eigenvectors.
 
 The period of the leading mode is TWOPI/0.22185=23.322.
 
-(Which suggests their analysis may possibly be in error, although the values
-are in the same ballpark.  Another possibility is that our estimate for the steady base flow is not sufficiently resolved/converged.)
+(Which suggests their analysis may possibly be in error, although the
+values are in the same ballpark.  Another possibility is that our
+estimate for the steady base flow is not sufficiently
+resolved/converged.)
 
 backstep3D
 ----------
