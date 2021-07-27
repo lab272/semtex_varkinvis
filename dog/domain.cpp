@@ -122,6 +122,13 @@ void Domain::report (ostream& file)
   else                file << "primal "; 
   file << "problem" << endl;
 
+  file << "-- Eigensystem solver      : ";
+#ifdef ARPACK
+  file << " ARPACK (DNAUPD)" << endl;
+#else
+  file << " DB algorithm"  << endl;
+#endif
+
   file << "-- Krylov dimension        : " << kdim                 << endl;
   file << "   Convergence dimension   : " << nvec                 << endl;
   file << "   Convergence tolerance   : " << eps                  << endl;

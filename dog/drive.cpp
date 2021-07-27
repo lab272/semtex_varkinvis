@@ -21,7 +21,8 @@
 // documentation says, the MXITER flag (iparam[2] here) is only an
 // output value.  Convergence seems solely determined by tolerance
 // value (which BTW has a different meaning than for the "Barkley"
-// algorithm: TOL here is usually lower than for the Barkley algorithm.)
+// algorithm: TOL here is usually looser than for the Barkley
+// algorithm.)
 #else
 // The default eigensystem calculation is via the "Barkley" algorithm
 // described in [5].

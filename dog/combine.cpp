@@ -601,6 +601,11 @@ static void writedata (hdr_info&        header,
   char        buf[StrMax], tmp[StrMax];
   int_t       i, j;
 
+  // -- Zero time/step for a restart file.
+
+  header.step = 0;
+  header.time = 0.0;
+
   sprintf (buf, hdr_fmt[0], header.session);
   file << buf;
   sprintf (buf, hdr_fmt[1], header.created);
