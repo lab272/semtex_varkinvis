@@ -2383,6 +2383,52 @@ dog: converged, writing 1 eigenvectors.
 $\lambda_0=-5.3306\times10^{-2}$, close the value we had expected.
 
 
+%-----------------------------------------------------------------------------
+\subsection{Cross-check: growth rates via DNS}
+\label{sec.check}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.65\textwidth]{StenGrow}
+\end{center}
+\caption{DNS study of growth rate for an unstable steady stenotic flow
+  at $\Rey=750$, see \citet{shbl05} and the discussion in
+  \S\,\ref{sec.check} of the present work.  }
+\label{fig.stengrow}
+\end{figure}
+
+A good test of stability analysis is that the weakly nonlinear
+evolution of a DNS study restarted using a linear combination of the
+base flow and a small amount of the eigenmode exhibits the same
+disturbance growth rate as predicted by linear stability analysis.  The
+restart condition can be obtained using \Dog's \verb|combine| utility,
+which produces a physical-space restart file from a base flow and an
+eigenmode.  The number of $z$-planes in the restart file outcome is
+the minimal number required to contain both modes in physical space.
+Typically, for a \threed\ disturbance, this number of planes is four,
+and in order to produce something more suitable for use with
+\verb|dns| you will need to project out to a greater number using
+\Semtex's project utility.  For example:
+\begin{verbatim}
+$ combine -r 1-e4 stenosis.bse stenosis.eig.0 | project -z 64 > stenosis.rst
+\end{verbatim}
+
+One can then check the growth of energy in the disturbance as obtained
+using DNS.  Since energy is the square of velocity, this growth rate
+should be very close to twice the value of the leading eigenmode.  See
+for example the discussion in \S\,5.3 of \citet{shbl05}, and a version
+of figure~6 from that work, reproduced here as
+figure\,\ref{fig.stengrow}.  The growth rate of the disturbance can be
+estimated at early times (while the disturbance growth is still
+clearly exponential) as
+\begin{equation}
+  \sigma_\text{est} = \frac{\Delta \ln(E_{k=1})}{2\Delta t};
+\end{equation}
+if all is well, this value should be quite similar to the leading
+eigenvalue.
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Stability analysis of time-periodic flows}
 \label{ch.floquet}
