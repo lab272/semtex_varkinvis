@@ -2383,8 +2383,8 @@ dog: converged, writing 1 eigenvectors.
 $\lambda_0=-5.3306\times10^{-2}$, close the value we had expected.
 
 
-%-----------------------------------------------------------------------------
-\subsection{Cross-check: growth rates via DNS}
+%============================================================================
+\section{Cross-check: growth rates via DNS}
 \label{sec.check}
 
 \begin{figure}
@@ -2399,7 +2399,7 @@ $\lambda_0=-5.3306\times10^{-2}$, close the value we had expected.
 
 A good test of stability analysis is that the weakly nonlinear
 evolution of a DNS study restarted using a linear combination of the
-base flow and a small amount of the eigenmode exhibits the same
+base flow and a \emph{small} amount of the eigenmode exhibits the same
 disturbance growth rate as predicted by linear stability analysis.  The
 restart condition can be obtained using \Dog's \verb|combine| utility,
 which produces a physical-space restart file from a base flow and an
@@ -2410,22 +2410,24 @@ and in order to produce something more suitable for use with
 \verb|dns| you will need to project out to a greater number using
 \Semtex's project utility.  For example:
 \begin{verbatim}
-$ combine -r 1-e4 stenosis.bse stenosis.eig.0 | project -z 64 > stenosis.rst
+$ combine -r 1-e7 stenosis.bse stenosis.eig.0 | project -z 64 > stenosis.rst
 \end{verbatim}
 
-One can then check the growth of energy in the disturbance as obtained
-using DNS.  Since energy is the square of velocity, this growth rate
-should be very close to twice the value of the leading eigenmode.  See
-for example the discussion in \S\,5.3 of \citet{shbl05}, and a version
-of figure~6 from that work, reproduced here as
-figure\,\ref{fig.stengrow}.  The growth rate of the disturbance can be
-estimated at early times (while the disturbance growth is still
-clearly exponential) as
+One can then check the growth of energy in the disturbance $E'$ as
+obtained using DNS.  Since energy is the square of velocity, this
+growth rate should be very close to twice the value of the leading
+eigenmode.  See for example the discussion in \S\,5.3 of
+\citet{shbl05}, and a version of figure~6 from that work, reproduced
+here as figure\,\ref{fig.stengrow}.  The growth rate of the
+disturbance can be estimated at early times (while the disturbance
+growth is still clearly exponential) as
 \begin{equation}
-  \sigma_\text{est} = \frac{\Delta \ln(E_{k=1})}{2\Delta t};
+  \sigma_\text{est}  = \frac{1}{2E'}\frac{\cd E'}{\cd t} \equiv \frac{\Delta \ln(E')}{2\Delta t};
 \end{equation}
 if all is well, this value should be quite similar to the leading
-eigenvalue.
+eigenvalue.  In the example shown in figure~\ref{fig.stengrow}, where
+the disturbance is \threed, the disturbance energy is dominated by
+$E_{k=1}$ at early times.
 
 
 
@@ -2896,6 +2898,14 @@ dog: converged, writing 1 eigenvectors.
 \end{verbatim}
 }\noindent Again, our estimate is slightly too low, but lies within
 0.4\% of the required value.
+
+%============================================================================
+\section{Cross-check: growth rates via DNS}
+\label{sec.checkflo}
+
+More generally, similarly to the discussion in \S\,\ref{sec.check}, one
+can check that the predicted Floquet multipliers match disturbance
+growth obtained via DNS.  See \eg figure~3 of \citet{hb96}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
