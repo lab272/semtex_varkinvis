@@ -2419,15 +2419,16 @@ growth rate should be very close to twice the value of the leading
 eigenmode.  See for example the discussion in \S\,5.3 of
 \citet{shbl05}, and a version of figure~6 from that work, reproduced
 here as figure\,\ref{fig.stengrow}.  The growth rate of the
-disturbance can be estimated at early times (while the disturbance
-growth is still clearly exponential) as
+disturbance can be related to the eigenvalue through 
 \begin{equation}
-  \sigma_\text{est}  = \frac{1}{2E'}\frac{\cd E'}{\cd t} \equiv \frac{\Delta \ln(E')}{2\Delta t};
+  \sigma_\text{est}  = \frac{1}{2}\ln\frac{\cd E'}{\cd t} = \frac{1}{2E'}\frac{\cd E'}{\cd t} \approx \frac{\Delta \ln(E')}{2\Delta t}.
 \end{equation}
-if all is well, this value should be quite similar to the leading
-eigenvalue.  In the example shown in figure~\ref{fig.stengrow}, where
-the disturbance is \threed, the disturbance energy is dominated by
-$E_{k=1}$ at early times.
+At moderately early times (while the disturbance growth is still
+clearly exponential) the value obtained via the finite difference
+estimate should be quite similar to the leading eigenvalue.  In the
+example shown in figure~\ref{fig.stengrow}, where the disturbance is
+\threed, the disturbance energy $E'$ is dominated by $E_{k=1}$ at
+early times.
 
 
 
