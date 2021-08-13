@@ -37,10 +37,11 @@
 // the previous case).  If it is 3D+3C (i.e. has N_Z=2 and u,v,w,p)
 // then the velocities and pressure are each taken to have full
 // complexity, i.e. both real and imaginary parts populated.  Below we
-// will introduce a special case (with command-line mode number -1) to
-// allow combination of two half-complex perturbations in quadrature,
-// i.e. to take two half-complex perturbation fields with N_Z=1 and
-// produce a single full-complex perturbation field with N_Z=2.
+// will introduce a special case (with command-line mode number -1,
+// "-m -1") to allow combination of two half-complex perturbations in
+// quadrature, i.e. to take two half-complex perturbation fields with
+// N_Z=1 and produce a single full-complex perturbation field with
+// N_Z=2.
 //
 // 4. The original rationale for this program was to produce a restart
 // file with physical space structure that added a small perturbation
@@ -50,9 +51,9 @@
 // reference to the base flow.  This could be achieved by creating a
 // base flow with zero velocities, but the present program also allows
 // the same outcome by setting the relative size of the perturbation
-// to zero, in which case the "base" flow can be the same as the
-// perturbation, i.e. the base flow is not required, but of course may
-// be used (and does not need to be zero).
+// to zero ("-r 0"), in which case the "base" flow can be the same as
+// the perturbation, i.e. the base flow is not required, but of course
+// may be used (and does not need to be zero).
 //
 // 5. Here are the cases dealt with. The outcomes always have the same
 // field names as the perturbation. As stated above the base flow
@@ -87,7 +88,7 @@
 // should really be fixed but it means that we would need the session
 // file as well.
 //
-// 9. With -r 0 the perturbation field is not scaled - it is output
+// 9. With "-r 0" the perturbation field is not scaled - it is output
 // with the same energy it had on input, AND the base flow makes no
 // contribution, i.e. is set to zero.  This can be used to generate a
 // physical-space field from a Fourier-space mode.
@@ -110,6 +111,7 @@ static char RCS[] = "$Id$";
 #include <cstdio>
 #include <cctype>
 #include <cstring>
+#include <cmath>
 
 #include <iostream>
 #include <fstream>
