@@ -692,10 +692,6 @@ void Nsys::renumber (const int_t optlevel)
 // 3: Do not use FNROOT.  Try all unknown node numbers as trial roots for RCM.
 //    Choose root to minimize global bandwidth.
 //
-// If penalty is set, then we apply a penalty to numbering schemes
-// that have the highest-numbered pressure node on the axis.  By
-// default penalty is off.
-//
 // Reference:
 //    A. George and J. W-H. Liu
 //    Computer Solution of Large Sparse Positive Definite Systems
