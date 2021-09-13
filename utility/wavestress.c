@@ -8,18 +8,33 @@
  *
  * Input file
  * ----------
- * Contains only fields uvwp and has N_Z = 2 (Real and Imaginary
- * parts).  Input data must be binary format and contain only fields u
- * v w p.
+ * Contains only fields uvwp and has N_Z = 1 or 2 (i.e. either "half"
+ * or fully complex) Input data must be binary format and contain only
+ * fields u v w p.
  *
  * Output file
  * -----------
  * Is a standard 2D/real (N_Z = 1) Reynolds stress file containing
  * uvwpABCDEF, with
+
+ * Case N_Z = 1: (i.e. w is in quadrature with u, v, p, a la Barkley):
+ * ------------
+ * u = 0.5 * sqrt (u^2 + v^2)
+ * v = 0.5 * sqrt (u^2 + v^2 + w^2)
+ * w = 0.5 * sqrt (v^2 + w^2)
+ * p = sqrt (p^2)
+ * A = 2*(u^2)
+ * B = 2*(u*v)
+ * C = 2*(v^2)
+ * D = 0
+ * E = 0
+ * F = 2*(w^2)
  *
+ * Case N_Z = 2:
+ * ------------
  * u = 0.5 * sqrt (u.Re^2 + u.Im^2 + v.Re^2 + v.Im^2)
  * v = 0.5 * sqrt (u.Re^2 + u.Im^2 + v.Re^2 + v.Im^2 + w.Re^2 + w.Im^2)
- * w = 0 FIXME (but it's OK because this area is not used by anything else)
+ * w = 0.5 * sqrt (v.Re^2 + v.Im^2 + w.Re^2 + w.Im^2)
  * p = sqrt (p.Re^2 + p.Im^2)
  * A = 2*(u.Re^2    + u.Im^2)
  * B = 2*(u.Re*v.Re + u.Im*v.Im)
@@ -106,10 +121,6 @@ int main (int    argc,
     if (sscanf (buf, "%d%*s%d%d", &np, &nz, &nel) != 3)
       message (prog, "unable to read the file size", ERROR);
 
-    if (nz != 2) {
-      sprintf (fields, "input must have nz = 2 (here %1d)", nz);
-      message (prog, fields, ERROR);
-    }
     fprintf (fp_out, hdr_fmt[2], np, np, 1, nel);
 
     n = 6;
@@ -142,114 +153,177 @@ int main (int    argc,
 
     nplane = np * np * nel;
 
-    idata = dmatrix (0, 3, 0, nplane * 2);
+    idata = dmatrix (0, 3, 0, nplane * nz);
     odata = dmatrix (0, 9, 0, nplane); /* -- uvwpABCDEF = 10 */
 
-    dzero (4*nplane,  idata[0], 1);
-    dzero (10*nplane, odata[0], 1);
+    dzero (4*nplane*nz, idata[0], 1);
+    dzero (10*nplane,   odata[0], 1);
 
     /* -- Read in all data fields. */
 
     for (i = 0; i < nfields; i++) {
-      if (fread (idata[i], sizeof (double), nplane * 2, fp_in) != nplane * 2)
+      if (fread (idata[i], sizeof (double), nplane * nz, fp_in) != nplane * nz)
 	message (prog, "an error occured while reading", ERROR);
-      if (swab) dbrev (nplane*2, idata[i], 1, idata[i], 1);
+      if (swab) dbrev (nplane*nz, idata[i], 1, idata[i], 1);
     }
 
-    /* -- Compute A. */
+    if (nz == 2) {  // -- nz == 2 ==> full-complex mode.
+      
+      /* -- Compute A. */
 
-    vcmpt1 = idata[0];		/* -- Real part of u. */
-    vcmpt2 = idata[0] + nplane; /* -- Imag part of u. */
-    dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[4], 1, odata[4], 1);
-    dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[4], 1, odata[4], 1);
-    dscal  (nplane, 2.0, odata[4], 1);
+      vcmpt1 = idata[0];	  /* -- Real part of u. */
+      vcmpt2 = idata[0] + nplane; /* -- Imag part of u. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[4], 1, odata[4], 1);
+      dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[4], 1, odata[4], 1);
+      dscal  (nplane, 2.0, odata[4], 1);
 
-    /* -- Compute B . */
+      /* -- Compute B . */
 
-    vcmpt1 = idata[0];		/* -- Real part of u. */
-    vcmpt2 = idata[1];		/* -- Real part of v. */
-    dvvtvp (nplane, vcmpt1, 1, vcmpt2, 1, odata[5], 1, odata[5], 1);
+      vcmpt1 = idata[0];	  /* -- Real part of u. */
+      vcmpt2 = idata[1];	  /* -- Real part of v. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt2, 1, odata[5], 1, odata[5], 1);
 
-    vcmpt1 = idata[0] + nplane; /* -- Imag part of u. */
-    vcmpt2 = idata[1] + nplane;	/* -- Imag part of v. */
-    dvvtvp (nplane, vcmpt1, 1, vcmpt2, 1, odata[5], 1, odata[5], 1);
+      vcmpt1 = idata[0] + nplane; /* -- Imag part of u. */
+      vcmpt2 = idata[1] + nplane; /* -- Imag part of v. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt2, 1, odata[5], 1, odata[5], 1);
 
-    dscal  (nplane, 2.0, odata[5], 1);
+      dscal  (nplane, 2.0, odata[5], 1);
 
-    /* -- Compute C. */
+      /* -- Compute C. */
 
-    vcmpt1 = idata[1];		/* -- Real part of v. */
-    vcmpt2 = idata[1] + nplane; /* -- Imag part of v. */
-    dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[6], 1, odata[6], 1);
-    dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[6], 1, odata[6], 1);
-    dscal  (nplane, 2.0, odata[6], 1);
+      vcmpt1 = idata[1];	  /* -- Real part of v. */
+      vcmpt2 = idata[1] + nplane; /* -- Imag part of v. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[6], 1, odata[6], 1);
+      dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[6], 1, odata[6], 1);
+      dscal  (nplane, 2.0, odata[6], 1);
 
-    /* -- Compute D . */
+      /* -- Compute D . */
 
-    vcmpt1 = idata[0];          /* -- Real part of u. */
-    vcmpt2 = idata[2];          /* -- Real part of w. */
-    dvvtvp (nplane, vcmpt1, 1, vcmpt2, 1, odata[7], 1, odata[7], 1);
+      vcmpt1 = idata[0];          /* -- Real part of u. */
+      vcmpt2 = idata[2];          /* -- Real part of w. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt2, 1, odata[7], 1, odata[7], 1);
 
-    vcmpt1 = idata[0] + nplane; /* -- Imag part of u. */
-    vcmpt2 = idata[2] + nplane; /* -- Imag part of w. */
-    dvvtvp (nplane, vcmpt1, 1, vcmpt2, 1, odata[7], 1, odata[7], 1);
+      vcmpt1 = idata[0] + nplane; /* -- Imag part of u. */
+      vcmpt2 = idata[2] + nplane; /* -- Imag part of w. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt2, 1, odata[7], 1, odata[7], 1);
 
-    dscal  (nplane, 2.0, odata[7], 1);
+      dscal  (nplane, 2.0, odata[7], 1);
 
-    /* -- Compute E . */
+      /* -- Compute E . */
 
-    vcmpt1 = idata[1];          /* -- Real part of v. */
-    vcmpt2 = idata[2];          /* -- Real part of w. */
-    dvvtvp (nplane, vcmpt1, 1, vcmpt2, 1, odata[8], 1, odata[8], 1);
+      vcmpt1 = idata[1];          /* -- Real part of v. */
+      vcmpt2 = idata[2];          /* -- Real part of w. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt2, 1, odata[8], 1, odata[8], 1);
 
-    vcmpt1 = idata[1] + nplane; /* -- Imag part of v. */
-    vcmpt2 = idata[2] + nplane; /* -- Imag part of w. */
-    dvvtvp (nplane, vcmpt1, 1, vcmpt2, 1, odata[8], 1, odata[8], 1);
+      vcmpt1 = idata[1] + nplane; /* -- Imag part of v. */
+      vcmpt2 = idata[2] + nplane; /* -- Imag part of w. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt2, 1, odata[8], 1, odata[8], 1);
 
-    dscal  (nplane, 2.0, odata[8], 1);
+      dscal  (nplane, 2.0, odata[8], 1);
 
-    /* -- Compute F. */
+      /* -- Compute F. */
 
-    vcmpt1 = idata[2];          /* -- Real part of w. */
-    vcmpt2 = idata[2] + nplane; /* -- Imag part of w. */
-    dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[9], 1, odata[9], 1);
-    dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[9], 1, odata[9], 1);
-    dscal  (nplane, 2.0, odata[9], 1);
+      vcmpt1 = idata[2];          /* -- Real part of w. */
+      vcmpt2 = idata[2] + nplane; /* -- Imag part of w. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[9], 1, odata[9], 1);
+      dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[9], 1, odata[9], 1);
+      dscal  (nplane, 2.0, odata[9], 1);
 
-    /* -- Compute p. */
+      /* -- Compute p. */
 
-    vcmpt1 = idata[3];		/* -- Real part of p. */
-    vcmpt2 = idata[3] + nplane; /* -- Imag part of p. */
-    dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[2], 1, odata[2], 1);
-    dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[2], 1, odata[2], 1);
-    dvsqrt (nplane, odata[2], 1, odata[2], 1);
+      vcmpt1 = idata[3];	  /* -- Real part of p. */
+      vcmpt2 = idata[3] + nplane; /* -- Imag part of p. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[3], 1, odata[3], 1);
+      dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[3], 1, odata[3], 1);
+      dvsqrt (nplane, odata[2], 1, odata[2], 1);
 
-    /* -- Compute u & v. */
+      /* -- Compute u, v & w. */
 
-    vcmpt1 = idata[0];		/* -- Real part of u. */
-    vcmpt2 = idata[0] + nplane; /* -- Imag part of u. */
-    dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[0], 1, odata[0], 1);
-    dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[0], 1, odata[0], 1);
-    dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[1], 1, odata[1], 1);
-    dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[1], 1, odata[1], 1);
-    vcmpt1 = idata[1];		/* -- Real part of v. */
-    vcmpt2 = idata[1] + nplane; /* -- Imag part of v. */
-    dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[0], 1, odata[0], 1);
-    dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[0], 1, odata[0], 1);
-    dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[1], 1, odata[1], 1);
-    dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[1], 1, odata[1], 1);
-    vcmpt1 = idata[1];		/* -- Real part of w. */
-    vcmpt2 = idata[1] + nplane; /* -- Imag part of w. */
-    dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[1], 1, odata[1], 1);
-    dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[1], 1, odata[1], 1);
+      vcmpt1 = idata[0];	  /* -- Real part of u. */
+      vcmpt2 = idata[0] + nplane; /* -- Imag part of u. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[0], 1, odata[0], 1);
+      dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[0], 1, odata[0], 1);
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[1], 1, odata[1], 1);
+      dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[1], 1, odata[1], 1);
+      vcmpt1 = idata[1];	  /* -- Real part of v. */
+      vcmpt2 = idata[1] + nplane; /* -- Imag part of v. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[0], 1, odata[0], 1);
+      dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[0], 1, odata[0], 1);
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[1], 1, odata[1], 1);
+      dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[1], 1, odata[1], 1);
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[2], 1, odata[2], 1);
+      dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[2], 1, odata[2], 1);      
+      vcmpt1 = idata[1];	  /* -- Real part of w. */
+      vcmpt2 = idata[1] + nplane; /* -- Imag part of w. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[1], 1, odata[1], 1);
+      dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[1], 1, odata[1], 1);
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[2], 1, odata[2], 1);
+      dvvtvp (nplane, vcmpt2, 1, vcmpt2, 1, odata[2], 1, odata[2], 1);
 
-    dvsqrt (nplane, odata[0], 1, odata[0], 1);
-    dsmul  (nplane, 0.5, odata[0], 1, odata[0], 1);
-    dvsqrt (nplane, odata[1], 1, odata[1], 1);
-    dsmul  (nplane, 0.5, odata[1], 1, odata[1], 1);
+      dvsqrt (nplane, odata[0], 1, odata[0], 1);
+      dsmul  (nplane, 0.5, odata[0], 1, odata[0], 1);
+      dvsqrt (nplane, odata[1], 1, odata[1], 1);
+      dsmul  (nplane, 0.5, odata[1], 1, odata[1], 1);
+      dvsqrt (nplane, odata[2], 1, odata[2], 1);
+      dsmul  (nplane, 0.5, odata[2], 1, odata[2], 1);
 
-    /* FIXME: compute w if needed in future. */
+    } else { // -- nz == 1 ==> half-complex mode.
+      
+      /* -- Compute A. */
 
+      vcmpt1 = idata[0];	  /* -- Real part of u. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[4], 1, odata[4], 1);
+      dscal  (nplane, 2.0, odata[4], 1);
+
+      /* -- Compute B . */
+
+      vcmpt1 = idata[0];	  /* -- Real part of u. */
+      vcmpt2 = idata[1];	  /* -- Real part of v. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt2, 1, odata[5], 1, odata[5], 1);
+      dscal  (nplane, 2.0, odata[5], 1);
+
+      /* -- Compute C. */
+
+      vcmpt1 = idata[1];	  /* -- Real part of v. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[6], 1, odata[6], 1);
+      dscal  (nplane, 2.0, odata[6], 1);
+
+      /* -- D = E = 0, nothing to do. */
+
+      /* -- Compute F. */
+
+      vcmpt1 = idata[2];          /* -- Imag part of w. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[9], 1, odata[9], 1);
+      dscal  (nplane, 2.0, odata[9], 1);
+
+      /* -- Compute p. */
+
+      vcmpt1 = idata[3];	  /* -- Real part of p. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[3], 1, odata[3], 1);
+      dvsqrt (nplane, odata[2], 1, odata[2], 1);
+
+      /* -- Compute u, v & w. */
+
+      vcmpt1 = idata[0];	  /* -- Real part of u. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[0], 1, odata[0], 1);
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[1], 1, odata[1], 1);
+      vcmpt1 = idata[1];	  /* -- Real part of v. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[0], 1, odata[0], 1);
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[1], 1, odata[1], 1);
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[2], 1, odata[2], 1);
+      vcmpt1 = idata[2];	  /* -- Imag part of w. */
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[1], 1, odata[1], 1);
+      dvvtvp (nplane, vcmpt1, 1, vcmpt1, 1, odata[2], 1, odata[2], 1);
+
+      dvsqrt (nplane, odata[0], 1, odata[0], 1);
+      dsmul  (nplane, 0.5, odata[0], 1, odata[0], 1);
+      dvsqrt (nplane, odata[1], 1, odata[1], 1);
+      dsmul  (nplane, 0.5, odata[1], 1, odata[1], 1);
+      dvsqrt (nplane, odata[2], 1, odata[2], 1);
+      dsmul  (nplane, 0.5, odata[2], 1, odata[2], 1);
+
+    }
+    
     /* -- Write out uvwpABCDEF in binary. */
 
     for (i = 0; i < 10; i++)
