@@ -87,8 +87,7 @@ const real_t* coeffs_z (const int_t numModes)
 //
 //   S = 1 + eps_N/nu * Q.
 //
-// If the relevant vector of weights doesn't exist, create it
-// first.
+// If the relevant vector of weights doesn't exist, create it first.
 // ---------------------------------------------------------------------------
 {
   char routine[] = "svv::coeffs_z";
@@ -112,7 +111,7 @@ const real_t* coeffs_z (const int_t numModes)
     if ((mN >= 0) && (mN < N) && (eps > EPSDP)) {
       for (i = base; i < base + numModes; i++) 
         if (i > mN) 
-	   svvcoeff[i-base] = exp (-sqr ((N-i)/(1.0*mN -i))) ;
+	   svvcoeff[i-base] = exp (-sqr ((N-i)/(1.0*mN - i))) ;
       for (i = 0; i < numModes; i++)  svvcoeff[i] = 1.0 + eps/nu * svvcoeff[i];
     }
     else

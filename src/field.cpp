@@ -524,6 +524,8 @@ Field& Field::solve (AuxField*             f  ,
 //                       H v = - M f - H g + <h, w>.
 //                                      c
 //
+//  See also the description at the top of field.h.
+//  
 /// This routine creates the RHS vector from the input forcing field f
 /// and the Field's boundary conditions g (essential) & h (natural).
 /// Forcing field f's data area is overwritten/destroyed during
@@ -548,7 +550,7 @@ Field& Field::solve (AuxField*             f  ,
 ///   boundary) nodes first, followed by all element-internal nodes.
 ///   The zeroing operation which occurs after each application of the
 ///   Helmholtz operator serves to apply the essential BCs, which are
-///   zero during the iteration (see this file's header).
+///   zero during the iteration.
 ///
 ///   The notation under JACPCG follows that used in Fig 2.5 of Barrett
 ///   et al., "Templates for the Solution of Linear Systems", netlib.
@@ -1052,7 +1054,7 @@ void Field::coupleBCs (Field*      v  ,
 /// Couple/uncouple boundary condition values for the radial and
 /// azimuthal velocity fields in cylindrical coordinates, depending on
 /// indicated direction.  This action is required due to the coupling
-/// in the viscous terms of the N--S equations in cylindrical coords.
+/// in the viscous terms of the;lo N--S equations in cylindrical coords.
 ///
 /// dir == FORWARD
 ///

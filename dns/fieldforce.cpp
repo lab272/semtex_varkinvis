@@ -922,10 +922,10 @@ void SFDForce::physical (AuxField*         ff ,
 BuoyancyForce::BuoyancyForce (Domain* D   ,
 			      FEML*   file)
 // ---------------------------------------------------------------------------
-// Constructor for Boussinesq buoyancy terms, all associated with
-// (assumed) small variations to the background density field. There
-// are three possible additive contributions, with buoyancy force per
-// unit mass driven by
+// Constructor for Boussinesq gradient-type buoyancy terms, all
+// associated with (assumed) small variations to the background
+// density field. There are three possible additive contributions,
+// with buoyancy force per unit mass driven by
 //  
 // 1. (standard) a uniform acceleration/gravity field;
 // 2. (extended) gradient of kinetic energy.
@@ -935,9 +935,8 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
 //
 // rho'/rho_0 [ g + 0.5 grad (|u|^2) + 0.5 grad (|Omega x r|^2) ]
 //              ~              ~                    ~     ~  
-//
 // We restrict the treatment of frame rotation centrifugal force:
-//    in Cartesian,   only allow Omega_z,
+//   in Cartesian,   only allow Omega_z,
 //   in cylindrical, only allow Omega_x;
 // in other words, we only allow rotation around the coordinate system
 // symmetry axis.  Steady rotation is assumed.
@@ -946,8 +945,7 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
 //   in Cartesian,   only allow x and/or y components,
 //   in cylindrical, only allow x component,
 // in other words, the forcing obeys the symmetry of the coordinate system.
-  
-
+//  
 // And for cylindrical coordinates we also only allow to deal with a
 // gravitational component aligned with the x axis.
 //
@@ -959,6 +957,13 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
 //              ~                ~                 ~
 // where the x component of the last term is Omega_z^2 x
 // while the y component of the last term is Omega_z^2 y
+//
+// Reference: Blackburn Lopez Singh & Smits JFM 2021.
+
+// As noted above, what is provided here are the "gradient-type"
+// buoyancy terms, only.  The more general treatment outlined in the
+// reference, where buoyancy forces are associated with all non-local
+// accelerative terms, is dealt with in nonlinear.cpp.
 // ---------------------------------------------------------------------------
 {
   const char  routine[] = "BuoyancyForce::BuoyancyForce";
@@ -1065,7 +1070,7 @@ void BuoyancyForce::physical (AuxField*               ff ,
 // ---------------------------------------------------------------------------
 {
   if (!_enabled) return;
-#if 1
+
     if (com == 0) {		// -- First time through on this timestep.
     if (_kineticgrad)
       (_a[1] -> innerProduct (U, U, NCOM)) *= 0.5;
@@ -1116,46 +1121,4 @@ void BuoyancyForce::physical (AuxField*               ff ,
     } 
     break;
   }
-
-#else
-  if (com == 0) {		// -- First time through on this timestep.
-    if (_kineticgrad)
-      (_a[1] -> innerProduct (U, U, NCOM)) *= 0.5;
-    else if (_centrifugal)
-      *_a[1] = 0.0;
-    if (_centrifugal) {
-      *_a[0] = _omega / sqrt (2.0);
-      _a[0] -> mulY();
-      _a[1] -> timesPlus (*_a[0], *_a[0]);
-    } // -- _a[1] now has scalar for subsequent gradient computations.
-    *_a[0]  = _TREF;
-    *_a[0] -= *U[NCOM];  // -- U[NCOM] contains temperature.
-    *_a[0] *= _BETAT;    // -- _a[0] = rho'/rho_0, relative density variation.
-  }
-
-  switch (com) {		// -- Here we deal with _a[1] & _a[2].
-  case 0:
-    if (_kineticgrad) {
-      (*_a[2] = *_a[1]) . gradient (0);
-      ff -> timesPlus (*_a[0], *_a[2]);
-    }
-    break;
-  case 1:
-    if (_kineticgrad || _centrifugal) {
-      (*_a[2] = *_a[1]) . gradient (1);
-      ff -> timesPlus (*_a[0], *_a[2]);
-    } 
-    break;
-  case 2:
-    if (_kineticgrad && Geometry::nDim() > 2) {
-      (*_a[2] = *_a[1]) . transform(FORWARD).gradient(2).transform(INVERSE);
-      ff -> timesPlus (*_a[0], *_a[2]);
-    } 
-    break;
-  }
-
-  // -- And now just with _a[0].
-
-  if (fabs (_g[com]) > EPSDP) ff -> axpy (_g[com], *_a[0]);
-#endif  
 }

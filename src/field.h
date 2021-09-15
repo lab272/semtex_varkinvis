@@ -81,6 +81,7 @@ class Field : public AuxField
 //    |        |               |  |     |  |     |             | | g|
 //    +--------+               \  /     \  /     +-------------+ |  |.
 //                                                               |  |
+//                                                               \  /
 //  Here n_global is the number of nodes that receive global node
 //  numbers, typically those on the mesh edges.  N_solve is the number
 //  of these nodes that have values that must be solved for,
@@ -92,7 +93,7 @@ class Field : public AuxField
 //  of the partition Hc.  M.f can also be formed on an
 //  element-by-element basis and is cheap for nodal spectral elements
 //  since M is diagonal.  Both tasks are performed by the
-//  Field::constrain routine below.
+//  Field::constrain routine.
 //
 /// Field names
 /// -----------

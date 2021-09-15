@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
-// mesh.cpp: read information from a FEML stream, provide
-// facilities for generation of mesh knots and initial connectivity.
+// mesh.cpp: read information from a FEML stream, provide facilities
+// for generation of geometrical mesh knots and initial connectivity.
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
 //
@@ -607,7 +607,8 @@ void Mesh::checkAssembly()
 // -- Private member function.
 //  
 // All element sides have to either mate an adjoining element or fall on
-// a boundary.  Check it out.  But surfaces() must have been called first.
+// a boundary.  Check it out.  Assemble() and surfaces() must have
+// been called first.
 // ---------------------------------------------------------------------------
 {
   char           routine[] = "Mesh::checkAssembly", err[StrMax];

@@ -36,8 +36,11 @@
 // [4] Dong (2015) "A convective-like energy-stable open boundary condition
 //     for simulations of incompressible flows.  JCP 302:300-328.
 // [5] Blackburn, Lee, Albrecht & Singh (2019) "Semtex: a spectral
-//     element–Fourier solver for the incompressible Navier–Stokes
+//     element--Fourier solver for the incompressible Navier--Stokes
 //     equations in cylindrical or Cartesian coordinates", CPC 245:106804.
+// [6] Blackburm, Lopez, Singh & Smits (2021) "On the Boussinesq
+//     approximation in arbitrarily accelerating frames of reference" JFM.
+//   
 // --
 // This file is part of Semtex.
 //
