@@ -104,7 +104,7 @@ static char RCS[] = "$Id$";
 #include <sem.h>
 #include <tensorcalcs.h>
 #define FLDS_MAX 64 // -- More than we'll ever want.
-#define FLAG_MAX 10 // -- NB: FLAG_MAX should tally with the following enum:
+#define FLAG_MAX 9  // -- NB: FLAG_MAX should tally with the following enum:
 enum {
   ENERGY      ,     // -- NB: the placing of ENERGY and FUNCTION in the first
   FUNCTION    ,	    //    two positions is significant: don't break this.
