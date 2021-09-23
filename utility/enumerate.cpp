@@ -763,7 +763,7 @@ void Nsys::renumber (const int_t optlevel)
     }
 
     Veclib::fill (nsolve, 1, mask, 1);
-    Femlib::rcm  (best, xadj, adjncy, mask, perm, nlvl, xls );
+    Femlib::rcm  (best, xadj, adjncy, mask, perm, nlvl, xls);
 
     break;
   }
@@ -807,7 +807,7 @@ void Nsys::renumber (const int_t optlevel)
 
 int_t Nsys::buildAdjncy (vector<int_t>* adjncyList) const
 // ---------------------------------------------------------------------------
-// Traverse elements and build up a vector of linked lists that
+// Traverse elements and build up an array of int_t vactors that
 // describe the global nodes adjacent to each global node.
 //
 // Return the total amount of storage required when information is packed
@@ -861,19 +861,21 @@ void Nsys::connectivSC (vector<int_t>* adjList,
 			const int_t*   mask   ,
 			const int_t    next   ) const
 // ---------------------------------------------------------------------------
-// AdjList is an array of linked lists, each of which describes the
+// AdjList is an array of int_t vectors, each of which describes the
 // global nodes that have connectivity with the the current node,
 // i.e. which make a contribution to the weighted-residual integral
 // for this node.  This routine fills in the contribution from the
-// current element.
+// current element, as determined by bmap (global numbers of element
+// boundary nodes) and mask.
 //
-// For general finite elements, all nodes of an element are
-// interconnected, while for statically-condensed elements, only the
-// boundary nodes are considered (since internal nodes are not
-// global).
+// For general finite element Helmholtz matrices, all nodes of an
+// element are interconnected, while for statically-condensed
+// (high-order) elements, only the boundary nodes are considered
+// (since internal nodes are not global).  Hence the traverse around
+// the next external nodes.
 //
-// Essential-BC nodes are ignored, since we're only interested in
-// mimimizing bandwidths of global matrices.
+// Essential-BC nodes (those with mask == 1) are ignored, since we're
+// only interested in mimimizing bandwidths of global matrices.
 // ---------------------------------------------------------------------------
 {
   register int_t          i, j, found, gidCurr, gidMate;
