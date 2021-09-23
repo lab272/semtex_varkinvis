@@ -241,7 +241,7 @@ static void getargs (int    argc   ,
 
 static char axial (FEML* file)
 // ---------------------------------------------------------------------------
-// Return the character tag corresponding to "axis" group, if that  exists.
+// Return the character tag corresponding to "axis" group, if that exists.
 // ---------------------------------------------------------------------------
 {
   if (!file->seek ("GROUPS")) return '\0';
@@ -568,8 +568,8 @@ Nsys::Nsys (char           name    ,
   nglobal   = bndmap [Veclib::imax (nbndry, &bndmap[0], 1)] + 1;
   nsolve    = sortGid (&bndmap[0], &bndmsk[0]);
 
-  renumber (optlev);
-  nbandw = globalBandwidth ();
+  this -> renumber (optlev);
+  nbandw = this -> globalBandwidth ();
 }
 
 
@@ -728,7 +728,7 @@ void Nsys::renumber (const int_t optlevel)
   Veclib::copy (nbndry, &bndmap[0], 1, bsave, 1);
   for (i = nsolve; i < nglobal; i++) invperm[i] = i;
 
-  fillAdjncy (adjncyList, adjncy, xadj, tabSize);
+  this -> fillAdjncy (adjncyList, adjncy, xadj, tabSize);
   delete   [] adjncyList;
 
   switch (optlevel) {
@@ -754,7 +754,7 @@ void Nsys::renumber (const int_t optlevel)
       for (i = 0; i < nsolve; i++) invperm[perm[i]] = i;
       Veclib::gathr (nbndry, invperm, bsave, &bndmap[0]);
 
-      BWtest = globalBandwidth();
+      BWtest = this -> globalBandwidth();
       if (BWtest < BWmin) {
 	BWmin = BWtest;
 	best  = rtest;
@@ -780,7 +780,7 @@ void Nsys::renumber (const int_t optlevel)
       for (i = 0; i < nsolve; i++) invperm[perm[i]] = i;
       Veclib::gathr (nbndry, invperm, bsave, &bndmap[0]);
 
-      BWtest = globalBandwidth();
+      BWtest = this -> globalBandwidth();
       if (BWtest < BWmin) {
 	BWmin = BWtest;
 	best  = root;
@@ -818,7 +818,7 @@ int_t Nsys::buildAdjncy (vector<int_t>* adjncyList) const
   const int_t    next = nbndry / nel;
 
   for (k = 0, ntab = 0; k < nel; k++) {
-    connectivSC (adjncyList, &bndmap[0] + ntab, &bndmsk[0] + ntab, next);
+    this -> connectivSC (adjncyList, &bndmap[0]+ntab, &bndmsk[0]+ntab, next);
     ntab += next;
   }
 
@@ -908,7 +908,8 @@ int_t Nsys::globalBandwidth () const
   const int_t    next = nbndry / nel;
 
   for (k = 0, noff = 0; k < nel; k++) {
-    nband = max (bandwidthSC (&bndmap[0]+noff, &bndmsk[0]+noff, next), nband);
+    nband = max (this -> bandwidthSC
+		 (&bndmap[0]+noff, &bndmsk[0]+noff, next), nband);
     noff += next;
   }
 
