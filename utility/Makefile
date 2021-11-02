@@ -12,7 +12,7 @@ essential: sem compare enumerate
 all: essential plain preplot nosrc meshpr calc addfield sem2nek \
      convert project interp probe rectmesh transform wallmesh   \
      phase lowpass eneq integral traction stressdiv mapmesh     \
-     wavestress nonlin meshplot
+     wavestress nonlin meshplot nested
 
 distclean:
 	make clean
@@ -20,7 +20,7 @@ distclean:
         integral interp lowpass meshpr moden noiz phase preplot probe   \
         probeline probeplane project rectmesh repeatxy repeatz rstress  \
         sem2nek sem2tec slit stressdiv transform wallmesh xplane modep  \
-	wavestress nonlin meshplot
+	wavestress nonlin meshplot nested
 
 # ----------------------------------------------------------------------------
 # Standard rules and definitions.
@@ -43,6 +43,9 @@ compare: $(COMOBJ)
 # Build enumerate, global mesh numbering utility.
 #
 enumerate: feml.o mesh.o enumerate.o $(SEMHDR)
+	$(LD) -o $@ $@.o feml.o mesh.o $(LDFLAGS)
+
+nested: feml.o mesh.o nested.o $(SEMHDR)
 	$(LD) -o $@ $@.o feml.o mesh.o $(LDFLAGS)
 
 # ----------------------------------------------------------------------------

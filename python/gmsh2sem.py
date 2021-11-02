@@ -94,7 +94,7 @@ if '-f' in sys.argv:
 try:
     infilename = sys.argv[-1]
 except:
-    print "Usage: gmsh2sem [options] infile.msh"; sys.exit(1)
+    print ("Usage: gmsh2sem [options] infile.msh"); sys.exit(1)
 
 ifile = open (infilename, 'r')
 t1    = open (".t1", 'w')

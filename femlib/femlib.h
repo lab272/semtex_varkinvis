@@ -141,16 +141,23 @@ void message_sexchange (float*,  const int_t, const int_t, const int_t);
 void message_iexchange (int_t*,  const int_t, const int_t, const int_t);
 
 // -- FORTRAN
-// -- Routines from NETLIB.f:
+// -- Routines from netlib.f:
+
+   // 1) SPARSPAK
 
 void F77NAME(genrcm) (const int_t&,int_t*,int_t*,int_t*,int_t*,int_t*);
 void F77NAME(fnroot) (int_t&,int_t*,int_t*,int_t*,int_t&,int_t*,int_t*);
 void F77NAME(rcm)    (const int_t&,int_t*,int_t*,int_t*,int_t*,int_t&,int_t*);
+void F77NAME(gennd)  (const int_t&,int_t*,int_t*,int_t*,int_t*,int_t*,int_t*);
+  
+  // 2) FFTPACK
 
 void F77NAME(drffti) (const int_t&,real_t*,int_t*);
 void F77NAME(drfftf) (const int_t&,real_t*,real_t*,const real_t*,const int_t*);
 void F77NAME(drfftb) (const int_t&,real_t*,real_t*,const real_t*,const int_t*);
 
+  // 3) Other
+  
 double F77NAME(fbrent) (const real_t&, const real_t&,
 			real_t(*)(const real_t&), const real_t&);
 void   F77NAME(braket) (real_t&, real_t&, real_t&, real_t&, real_t&, real_t&,
@@ -310,7 +317,7 @@ public:
     { dabandon (v); }
   static void abandon (float** v)
     { sabandon (v); }
-  static int_t  fwords (int_t* ni, int_t* nd, int_t* ns)
+  static int_t fwords (int_t* ni, int_t* nd, int_t* ns)
     { return FamilySize (ni, nd, ns); }
 
   static void genrcm (const int_t& n, int_t* x, int_t* a,
@@ -319,9 +326,12 @@ public:
   static void fnroot (int_t& r, int_t* x, int_t* a, int_t* m,
 		      int_t& n, int_t* l, int_t* p) 
     { F77NAME(fnroot) (r, x, a, m, n, l, p); }
-  static void rcm (const int_t& n, int_t* x, int_t* a, int_t* m,
-		   int_t* p, int_t& c, int_t* l)
-    { F77NAME(rcm) (n, x, a, m, p, c, l); }
+  static void rcm    (const int_t& n, int_t* x, int_t* a, int_t* m,
+		      int_t* p, int_t& c, int_t* l)
+    { F77NAME(rcm)   (n, x, a, m, p, c, l); }
+  static void gennd  (const int_t& n, int_t* x, int_t* a, int_t* m,
+		      int_t* p, int_t* c, int_t* l)
+    { F77NAME(gennd) (n, x, a, m, p, c, l); }
 
   static void rffti (const int_t& n , real_t* w, int_t* i)
     { F77NAME(drffti) (n, w, i); }

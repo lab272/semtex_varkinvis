@@ -178,8 +178,8 @@ def convert():
 
     for i in range(ff.ntot):
         for field in range(ff.nflds):
-            print "%g" % data[i, field],
-        print
+            print ("%g" % data[i, field], end=")
+        print ()
 
 
 def element_wise():
@@ -196,7 +196,7 @@ def element_wise():
     #    - of 11th element
     #    - of first z-plane
     #    - of second field (in this case, v)
-    print elmt_wise[1,0,10,:,:]
+    print (elmt_wise[1,0,10,:,:])
 
 if __name__ == "__main__":
     element_wise()

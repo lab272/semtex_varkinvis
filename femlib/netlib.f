@@ -1988,9 +1988,9 @@ C
       NV2 = NV / 2
 C
       DO 100 I = 1, NV2
-         TMP            = V(I)
+         TMP           = V(I)
          V(I)          = V(NV - I + 1)
-         V(NV - 1 + 1) = TMP
+         V(NV - I + 1) = TMP
  100  CONTINUE
       RETURN
       END
@@ -2034,7 +2034,8 @@ C
       INTEGER XADJ(1), I, NEQNS, NSEP, NUM, ROOT
 C     
 C***************************************************************
-C     
+C
+
       DO 100 I = 1, NEQNS
          MASK(I) = 1
  100  CONTINUE
@@ -2047,11 +2048,14 @@ C        -----------------------------
          ROOT = I
 C        -------------------------------------------
 C        FIND A SEPARATOR AND NUMBER THE NODES NEXT.
-C        -------------------------------------------
+C     -------------------------------------------
+
          CALL FNDSEP ( ROOT, XADJ, ADJNCY, MASK,
-     1                 NSEP, PERM(NUM+1), XLS, LS )
-         NUM  = NUM + NSEP
+     1     NSEP, PERM(NUM+1), XLS, LS )
+           NUM  = NUM + NSEP
+
          IF ( NUM .GE. NEQNS ) GO TO 400
+
          GO TO 200
  300  CONTINUE
 C     ----------------------------------------------
@@ -2109,12 +2113,17 @@ C
 C     
 C***************************************************************
 C     
-      CALL FNROOT ( ROOT, XADJ, ADJNCY, MASK,
-     1              NLVL, XLS, LS )
+C      CALL FNROOT ( ROOT, XADJ, ADJNCY, MASK,
+C     1     NLVL, XLS, LS )
+      CALL ROOTLS ( ROOT, XADJ, ADJNCY, MASK,
+     1              NLVL, XLS, LS )      
 C     ----------------------------------------------
 C     IF THE NUMBER OF LEVELS IS LESS THAN 3, RETURN
 C     THE WHOLE COMPONENT AS THE SEPARATOR.
 C     ----------------------------------------------
+
+C     GOTO 200
+
       IF ( NLVL .GE. 3 ) GO TO 200
       NSEP = XLS(NLVL+1) - 1
       DO 100 I = 1, NSEP
@@ -2123,6 +2132,7 @@ C     ----------------------------------------------
          MASK(NODE) = 0
  100  CONTINUE
       RETURN
+
 C     ----------------------------------------------------
 C     FIND THE MIDDLE LEVEL OF THE ROOTED LEVEL STRUCTURE.
 C     ----------------------------------------------------

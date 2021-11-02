@@ -726,7 +726,7 @@ void Nsys::renumber (const int_t optlevel)
   bsave   = invperm + nglobal;
   
   Veclib::copy (nbndry, &bndmap[0], 1, bsave, 1);
-  for (i = nsolve; i < nglobal; i++) invperm[i] = i;
+  for (i = nsolve; i < nglobal; i++) invperm[i] = i; // -- Dirichlet nodes.
 
   this -> fillAdjncy (adjncyList, adjncy, xadj, tabSize);
   delete   [] adjncyList;
@@ -811,7 +811,7 @@ int_t Nsys::buildAdjncy (vector<int_t>* adjncyList) const
 // describe the global nodes adjacent to each global node.
 //
 // Return the total amount of storage required when information is packed
-// into an int_t vector, as required by genrcm.
+// into an int_t vector, as required by rcm.
 // ---------------------------------------------------------------------------
 {
   register int_t k, ntab;
@@ -835,7 +835,7 @@ void Nsys::fillAdjncy (vector<int_t>* adjncyList,
 		       const int_t    tabSize   ) const
 // ---------------------------------------------------------------------------
 // Load the information contained in adjncyList into the two vectors
-// adjncy & xadj required by genrcm.
+// adjncy & xadj required by rcm.
 // ---------------------------------------------------------------------------
 {
   const char routine[] = "Nsys::fillAdjncy";

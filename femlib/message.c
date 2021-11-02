@@ -1,8 +1,15 @@
 /*****************************************************************************
- * message.c: message-passing routines, currently MPI-specific.
+ * message.c: all semtex message-passing routines, currently MPI-specific.
+ *
+ * See the following for a description of what the exchange routines do:
+ *
+ * Rudman M & Blackburn HM (2006) Direct numerical
+ *  simulation of turbulent non-Newtonian flow using a spectral
+ *  element method, Appl Math Mod, V30N11: 1229-1248.
  *
  * Copyright (c) 1996 <--> $Date$, Hugh Blackburn
  *
+ * --
  * This file is part of Semtex.
  * 
  * Semtex is free software; you can redistribute it and/or modify it
@@ -19,10 +26,6 @@
  * along with Semtex (see the file COPYING); if not, write to the Free
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- *
- * Reference: Rudman M & Blackburn HM (2006) Direct numerical
- *  simulation of turbulent non-Newtonian flow using a spectral
- *  element method, Appl Math Mod, V30N11: 1229-1248.
  *
  * $Id$
  *****************************************************************************/

@@ -407,7 +407,7 @@ void Element::global2localSC (const real_t* RHS ,
 ///
 /// On entry, global-node solution values are in RHS and F contains the
 /// weak form of internal forcing in its top end (as installed by
-/// e2gSumSC).
+/// local2globalSumSC).
 //
 // If u is current Element, compute internal solution according to:
 //            -1      -1

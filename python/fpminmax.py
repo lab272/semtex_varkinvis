@@ -35,21 +35,21 @@ if __name__ == "__main__":
     elmt_wise = data.reshape((ff.nflds, ff.nz, ff.nel, ff.ns, ff.nr))
     
     if np.isnan(data).any():
-        print "NaN"
+        print ("NaN")
     if np.isinf(data).any():
-        print "Inf"
+        print ("Inf")
     
-    print "#  z     FM ",
+    print ("#  z     FM ", end=")
     for field in ff.fields:
-        print "%9s_min %8s_max " % (field, field),
-    print
+        print ("%9s_min %8s_max " % (field, field), end=")
+    print ()
     for z in range(ff.nz):
-        print "%4i %s" % (z, fourier_name(z)),
+        print ("%4i %s" % (z, fourier_name(z), end=")
         for field in range(ff.nflds):
             fmin = elmt_wise[field,z].flatten().min()
             fmax = elmt_wise[field,z].flatten().max()
             if abs(fmin) < args.eps: fmin = 0.
             if abs(fmax) < args.eps: fmax = 0.
-            print "  % 12g % 12g" % (fmin, fmax),
-        print
+            print ("  % 12g % 12g" % (fmin, fmax), end=")
+        print ()
 

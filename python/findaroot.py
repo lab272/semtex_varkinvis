@@ -54,7 +54,7 @@ def zriddr (f, x1, x2, xtol=1.0e-6, ytol=1.0e-6, maxit=30):
             xm = 0.5*(xl+xh)
             fm = f(xm)
             if (abs(fm) <= ytol): return xm            
-            # print "xm = ", xm, "f(xm) = ", fm            
+            # print ("xm = ", xm, "f(xm) = ", fm)
             s = math.sqrt(fm*fm-fl*fh)
             if (s == 0.0): return ans
             xnew = xm+(xm-xl)*((1.0 if (fl >= fh) else -1.0) * fm/s)
@@ -130,7 +130,7 @@ def zriddrbrak (f, x1guess, x2guess, xtol=1.0e-6, ytol=1.0e-6, maxit=30):
             xm = 0.5*(xl+xh)
             fm = f(xm)
             if (abs(fm) <= ytol): return xm
-#            print "xm = ", xm, "f(xm) = ", fm            
+#            print ("xm = ", xm, "f(xm) = ", fm)
             s = math.sqrt(fm*fm-fl*fh)
             if (s == 0.0): return ans
             xnew = xm+(xm-xl)*((1.0 if (fl >= fh) else -1.0) * fm/s)
@@ -166,14 +166,13 @@ def testfun (x):
     return x - math.exp(-x)
 
 #root = secant (testfun, 20)
-#print "root using secant method: ", root
+#print ("root using secant method: ", root)
 #
 root = zriddr (testfun, 0, 20)
-print "root using Ridder's method: ", root
+print ("root using Ridder's method: ", root)
 #
 #x1, x2, f1, f2 = zbrak (testfun, 0.2, 0.3)
-#print "bracketting interval returned by zbrak: ", x1, x2
+#print ("bracketting interval returned by zbrak: ", x1, x2)
 #
 root = zriddrbrak (testfun, 0.2, 0.4, 1e-4, 1e-4)
-print "root using Ridder's method with bracketting: ", root
-
+print ("root using Ridder's method with bracketting: ", root)

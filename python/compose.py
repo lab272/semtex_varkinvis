@@ -34,19 +34,19 @@ elif (len(sys.argv) == 3):
         (file1.hdr.geometry.ns  != file2.hdr.geometry.ns)   or
         (file1.hdr.geometry.nz  != file2.hdr.geometry.nz)   or
         (file1.hdr.geometry.nel != file2.hdr.geometry.nel)) :
-        print "The two input files do not conform"
+        print ("The two input files do not conform")
         sys.exit(1)
 else:
-    print "Usage: compose.py file.fld [anotherfile.fld]"
+    print ("Usage: compose.py file.fld [anotherfile.fld]")
     sys.exit(1)
 
 if (mode == 1):
-    print 'Input has these fields, supply a string below to',
-    print 'indicate/rename ones you want:'
-    print file1.hdr.fields
+    print ("Input has these fields, supply a string below to", end=")
+    print ("indicate/rename ones you want:")
+    print (file1.hdr.fields)
     required_fields = raw_input()
     if (len(required_fields) < len(file1.hdr.fields)):
-        print required_fields, ': cannot shorter than :', file1.hdr.fields
+        print (required_fields, ": cannot shorter than :", file1.hdr.fields)
         sys.exit(1)
     wanted = ''.join(re.findall(r'\S+', required_fields))
     
@@ -69,28 +69,28 @@ if (mode == 1):
     ofile.close()
 
 else:
-    print 'Input1 has these fields, supply a string below to',
-    print 'indicate/rename ones you want:'
-    print file1.hdr.fields
+    print ("Input1 has these fields, supply a string below to", end=")
+    print ("indicate/rename ones you want:")
+    print (file1.hdr.fields)
     required_fields1 = raw_input()
     if (len(required_fields1) < len(file1.hdr.fields)):
-        print required_fields1, ': cannot be shorter than :', file1.hdr.fields
+        print(required_fields1, ": cannot be shorter than :", file1.hdr.fields)
         sys.exit(1)
     wanted1 = ''.join(re.findall(r'\S+', required_fields1))
     
-    print 'Input2 has these fields, supply a string below to',
-    print 'indicate/rename ones you want:'
-    print file2.hdr.fields
+    print ("Input2 has these fields, supply a string below to", end=")
+    print ("indicate/rename ones you want:")
+    print (file2.hdr.fields)
     required_fields2 = raw_input()
     if (len(required_fields2) < len(file2.hdr.fields)):
-        print required_fields2, ': cannot be shorter than :', file2.hdr.fields
+        print(required_fields2, ": cannot be shorter than :", file2.hdr.fields)
         sys.exit(1)    
     wanted2 = ''.join(re.findall(r'\S+', required_fields2))
 
     outfile = raw_input("type in an output file name: ")
     newhdr  = file1.hdr
     newhdr.fields = wanted1 + wanted2
-    print 'new file will have fields: ', newhdr.fields
+    print ("new file will have fields: ", newhdr.fields)
     ofile = fieldfile.Fieldfile(outfile, 'w', newhdr)
 
     ofile.data = np.zeros((len(ofile.hdr.fields),ofile.ntot))
