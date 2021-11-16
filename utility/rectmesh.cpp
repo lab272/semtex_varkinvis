@@ -121,12 +121,13 @@ int main (int    argc,
 
   cout << "<NODES NUMBER=" << Nx*Ny << ">" << endl;
 
+  std::cout.precision(16);
   for (k = vOffset, i = 0; i < Ny; i++)
     for (j = 0; j < Nx; j++)
       cout << setw(5)  << ++k << "\t"
-	   << setw(15) << vertex[i][j] -> x
-	   << setw(15) << vertex[i][j] -> y
-	   << setw(15) << vertex[i][j] -> z
+	   << setw(20) << vertex[i][j] -> x
+	   << setw(20) << vertex[i][j] -> y
+	   << setw(20) << vertex[i][j] -> z
 	   << endl;
   
   cout << "</NODES>" << endl;

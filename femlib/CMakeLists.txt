@@ -12,9 +12,10 @@ BISON_TARGET (Parser initial.y ${CMAKE_CURRENT_BINARY_DIR}/initial.c)
 
 set (fem_lib_src
   ${BISON_Parser_OUTPUTS}
-  polyops.c  operators.c   polylib.c  filter.c
-  fourier.c  mapping.c     family.c   message.c
-  temfftd.F  matops.F      canfft.f   netlib.f  
+  polyops.c  operators.c   polylib.c    filter.c
+  fourier.c  mapping.c     family.c     message.c
+  temfftd.F  matops.F      sparsepak.F
+  canfft.f   netlib.f  
 )
 
 add_library (fem STATIC ${fem_lib_src})

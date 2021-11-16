@@ -55,14 +55,14 @@ rfile = open (session+'.rect', 'w')
 
 i = 0
 while i < x.size:
-    rfile.write (str(x[i])+'\n')
+    rfile.write ('%24.16f' % x[i] + '\n')
     i = i+1
 
 rfile.write ('\n')
 
 i = 0
 while i < y.size:
-    rfile.write (str(y[i])+'\n')
+    rfile.write ('%24.16f' % y[i] + '\n')
     i = i+1
 
 rfile.close()

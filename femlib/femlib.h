@@ -145,7 +145,6 @@ void message_iexchange (int_t*,  const int_t, const int_t, const int_t);
 
    // 1) SPARSPAK
 
-void F77NAME(genrcm) (const int_t&,int_t*,int_t*,int_t*,int_t*,int_t*);
 void F77NAME(fnroot) (int_t&,int_t*,int_t*,int_t*,int_t&,int_t*,int_t*);
 void F77NAME(rcm)    (const int_t&,int_t*,int_t*,int_t*,int_t*,int_t&,int_t*);
 void F77NAME(gennd)  (const int_t&,int_t*,int_t*,int_t*,int_t*,int_t*,int_t*);
@@ -320,9 +319,6 @@ public:
   static int_t fwords (int_t* ni, int_t* nd, int_t* ns)
     { return FamilySize (ni, nd, ns); }
 
-  static void genrcm (const int_t& n, int_t* x, int_t* a,
-		      int_t* p, int_t* m, int_t* l) 
-    { F77NAME(genrcm) (n, x, a, p, m, l); }
   static void fnroot (int_t& r, int_t* x, int_t* a, int_t* m,
 		      int_t& n, int_t* l, int_t* p) 
     { F77NAME(fnroot) (r, x, a, m, n, l, p); }

@@ -131,7 +131,7 @@ int main (int    argc,
 
     if (threed) {
 
-      // -- Print_t out x, y, z for every mesh location, in planes.
+      // -- Print out x, y, z for every mesh location, in planes.
 
       nz = (nz > 1) ? nz : 0;
       for (k = 0; k <= nz; k++) {
@@ -145,7 +145,7 @@ int main (int    argc,
 
     } else {
 
-      // -- Print_t out x-y mesh.
+      // -- Print out x-y mesh.
 
       std::cout.precision(16);
       for (ID = 0; ID < NEL; ID++) {

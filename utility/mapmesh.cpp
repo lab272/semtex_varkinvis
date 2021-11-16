@@ -136,8 +136,12 @@ int main (int    argc,
 
   cout << "<NODES NUMBER=" << nNode << '>' << endl;
 
+  std::cout.precision(16);
   for (i = 0; i < nNode; i++)
-    cout << id[i] << '\t' << mapx[i] << '\t' << mapy[i] << "\t0" << endl;
+    cout << id[i]
+	 << setw(20) << mapx[i]
+	 << setw(24) << mapy[i]
+	 << "\t0" << endl;
 
   cout << "</NODES>" << endl;
 

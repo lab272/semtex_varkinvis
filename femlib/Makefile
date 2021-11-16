@@ -30,7 +30,7 @@ FFT	   = temfftd  canfft   fourier
 
 MEMORY     = mapping  family   message
 
-IMPORT     = netlib
+IMPORT     = netlib sparsepak
 
 ALL        = $(INITIAL) $(OPERATORS) $(FFT) $(MEMORY) $(IMPORT)
 
@@ -113,5 +113,6 @@ endif
 # ----------------------------------------------------------------------------
 # Rules to help with .F routines.
 #
-matops.o:  matops.F
-temfftd.o: temfftd.F
+matops.o:    matops.F
+temfftd.o:   temfftd.F
+sparsepak.o: sparsepak.F
