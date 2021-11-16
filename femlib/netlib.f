@@ -781,7 +781,7 @@ C
       SUBROUTINE RADF2 (IDO,L1,CC,CH,WA1)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION       CH(IDO,2,L1)           ,CC(IDO,L1,2)           ,
-     1                WA1(1)
+     1                WA1(*)
       DO 101 K=1,L1
          CH(1,1,K) = CC(1,K,1)+CC(1,K,2)
          CH(IDO,2,K) = CC(1,K,1)-CC(1,K,2)
@@ -811,7 +811,7 @@ C
       SUBROUTINE RADB2 (IDO,L1,CC,CH,WA1)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION       CC(IDO,2,L1)           ,CH(IDO,L1,2)           ,
-     1                WA1(1)
+     1                WA1(*)
       DO 101 K=1,L1
          CH(1,K,1) = CC(1,1,K)+CC(IDO,2,K)
          CH(1,K,2) = CC(1,1,K)-CC(IDO,2,K)
@@ -841,7 +841,7 @@ C
       SUBROUTINE RADF3 (IDO,L1,CC,CH,WA1,WA2)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION       CH(IDO,3,L1)           ,CC(IDO,L1,3)           ,
-     1                WA1(1)     ,WA2(1)
+     1                WA1(*)     ,WA2(*)
 C     *** TAUI IS -SQRT(3)/2 ***
       DATA TAUR,TAUI /-0.5D0,0.86602540378443864676D0/
       DO 101 K=1,L1
@@ -880,7 +880,7 @@ C
       SUBROUTINE RADB3 (IDO,L1,CC,CH,WA1,WA2)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION       CC(IDO,3,L1)           ,CH(IDO,L1,3)           ,
-     1                WA1(1)     ,WA2(1)
+     1                WA1(*)     ,WA2(*)
 C     *** TAUI IS SQRT(3)/2 *** 
       DATA TAUR,TAUI /-0.5D0,0.86602540378443864676D0/
       DO 101 K=1,L1
@@ -921,7 +921,7 @@ C
       SUBROUTINE RADF4 (IDO,L1,CC,CH,WA1,WA2,WA3)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION       CC(IDO,L1,4)           ,CH(IDO,4,L1)           ,
-     1                WA1(1)     ,WA2(1)     ,WA3(1)
+     1                WA1(*)     ,WA2(*)     ,WA3(*)
       DATA HSQT2 /0.70710678118654752440D0/
       DO 101 K=1,L1
          TR1 = CC(1,K,2)+CC(1,K,4)
@@ -977,7 +977,7 @@ C
       SUBROUTINE RADB4 (IDO,L1,CC,CH,WA1,WA2,WA3)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION       CC(IDO,4,L1)           ,CH(IDO,L1,4)           ,
-     1                WA1(1)     ,WA2(1)     ,WA3(1)
+     1                WA1(*)     ,WA2(*)     ,WA3(*)
       DATA SQRT2 /1.41421356237309504880D0/
       DO 101 K=1,L1
          TR1 = CC(1,1,K)-CC(IDO,4,K)
@@ -1037,7 +1037,7 @@ C
       SUBROUTINE RADF5 (IDO,L1,CC,CH,WA1,WA2,WA3,WA4)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION       CC(IDO,L1,5)           ,CH(IDO,5,L1)           ,
-     1                WA1(1)     ,WA2(1)     ,WA3(1)     ,WA4(1)
+     1                WA1(*)     ,WA2(*)     ,WA3(*)     ,WA4(*)
       DATA TR11,TI11,TR12,TI12 /0.3090169943749474241D0,
      +     0.95105651629515357212D0,
      1     -0.8090169943749474241D0, 0.58778525229247312917D0/
@@ -1100,7 +1100,7 @@ C
       SUBROUTINE RADB5 (IDO,L1,CC,CH,WA1,WA2,WA3,WA4)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION       CC(IDO,5,L1)           ,CH(IDO,L1,5)           ,
-     1                WA1(1)     ,WA2(1)     ,WA3(1)     ,WA4(1)
+     1                WA1(*)     ,WA2(*)     ,WA3(*)     ,WA4(*)
 C     *** TR11=COS(2*PI/5), TI11=SIN(2*PI/5)
 C     *** TR12=COS(4*PI/5), TI12=SIN(4*PI/5)      
       DATA TR11,TI11,TR12,TI12 /0.3090169943749474241D0,
@@ -1170,7 +1170,7 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION       CH(IDO,L1,IP)          ,CC(IDO,IP,L1)          ,
      1                C1(IDO,L1,IP)          ,C2(IDL1,IP),
-     2                CH2(IDL1,IP)           ,WA(1)
+     2                CH2(IDL1,IP)           ,WA(*)
       DATA TPI/6.28318530717958647692D0/
       ARG = TPI/DFLOAT(IP)
       DCP = DCOS(ARG)
@@ -1339,7 +1339,7 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION       CH(IDO,L1,IP)          ,CC(IDO,IP,L1)          ,
      1                C1(IDO,L1,IP)          ,C2(IDL1,IP),
-     2                CH2(IDL1,IP)           ,WA(1)
+     2                CH2(IDL1,IP)           ,WA(*)
       DATA TPI/6.28318530717958647692D0/
       ARG = TPI/DFLOAT(IP)
       DCP = DCOS(ARG)
