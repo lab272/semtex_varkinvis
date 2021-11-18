@@ -1312,9 +1312,6 @@ void Mesh::buildMask (const int_t np  ,
       if (!(S -> mateElmt)) {
 	if (
 	     this -> matchBC (S -> group, tolower (fld),   'D')          ||
-	    (this -> matchBC (S -> group, tolower (fld),   'I') &&
-			                  tolower (fld) == 'c')          ||
-			 
 	    (axisE && this -> matchBC (S -> group, tolower (fld), 'A'))
 	    ) {
 	  S -> startNode -> gID = 1;
