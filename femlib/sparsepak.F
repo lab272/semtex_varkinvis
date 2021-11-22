@@ -1,6 +1,8 @@
 #if 1
-C     -- For completeness, we also include below the earlier routine
-C     versions (with bug fixes).      
+C     -- For completeness, we also include the earlier routine
+C     versions (with bug fixes implemented) at EOF.
+C
+C     -- Search for @@@ to locate error remediation.
 C
 C     ##################################################################
 C     Since circa 2010 SPARSPAK is no longer available through netlib.
@@ -433,7 +435,7 @@ c  For each node in current level.
 c
         node = perm(i)
         jstrt = xadj(node)
-c       *** NB NEXT LINE WAS IN ERROR ***
+c       @@@ NB NEXT LINE WAS IN ERROR @@@
 c       jstop = xadj(node+i) - 1
         jstop = xadj(node+1) - 1        
 c
@@ -1331,7 +1333,7 @@ C
 C     
 C***************************************************************
 C     
-C      CALL FNROOT ( ROOT, XADJ, ADJNCY, MASK,
+C     @@@ CALL FNROOT ( ROOT, XADJ, ADJNCY, MASK,
 C     1     NLVL, XLS, LS )
       CALL ROOTLS ( ROOT, XADJ, ADJNCY, MASK,
      1              NLVL, XLS, LS )      
@@ -1356,10 +1358,10 @@ C     FIND THE MIDDLE LEVEL OF THE ROOTED LEVEL STRUCTURE.
 C     ----------------------------------------------------
  200  MIDLVL = (NLVL + 2)/2
       MIDBEG = XLS(MIDLVL)
-C     MPIBEG = XLS(MIDLVL + 1)
+C     @@@ MPIBEG = XLS(MIDLVL + 1)
       MP1BEG = XLS(MIDLVL + 1)       
       MIDEND = MP1BEG - 1
-C     MPIEND = XLS(MIDLVL+2) - 1
+C     @@@ MPIEND = XLS(MIDLVL+2) - 1
       MP1END = XLS(MIDLVL+2)
 C     -------------------------------------------------
 C     THE SEPARATOR IS OBTAINED BY INCLUDING ONLY THOSE
@@ -1367,7 +1369,7 @@ C     MIDDLE-LEVEL NODES WITH NEIGHBORS IN THE MIDDLE+1
 C     LEVEL. XADJ IS USED TEMPORARILY TO MARK THOSE
 C     NODES IN THE MIDDLE+1 LEVEL.
 C     -------------------------------------------------
-C     DO 300 I = MPIBEG, MP1END
+C     @@@ DO 300 I = MPIBEG, MP1END
       DO 300 I = MP1BEG, MP1END         
          NODE = LS(I)
          XADJ(NODE) = - XADJ(NODE)

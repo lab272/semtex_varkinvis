@@ -117,51 +117,9 @@ int main (int    argc,
 
   header();
 
-  // -- Print up vertex list.
-
-  cout << "<NODES NUMBER=" << Nx*Ny << ">" << endl;
-
-  std::cout.precision(16);
-  for (k = vOffset, i = 0; i < Ny; i++)
-    for (j = 0; j < Nx; j++)
-      cout << setw(5)  << ++k << "\t"
-	   << setw(20) << vertex[i][j] -> x
-	   << setw(20) << vertex[i][j] -> y
-	   << setw(20) << vertex[i][j] -> z
-	   << endl;
-  
-  cout << "</NODES>" << endl;
-
-  // -- Print up elements.
-
-  cout << endl << "<ELEMENTS NUMBER=" << NelB*Nb << ">" << endl;
-
-#if 1
-  for (k = eOffset+1, b = 0; b < Nb; b++)
-    for (i = 0; i < (Ny - 1); i++)
-      for (j = b*((Nx-1)/Nb); j < (b+1)*((Nx-1)/Nb); j++, k++)
-	cout << setw(5) << k << "\t" << "<Q>"
-	     << setw(5) << vOffset + j +  i      * Nx + 1
-	     << setw(5) << vOffset + j +  i      * Nx + 2
-	     << setw(5) << vOffset + j + (i + 1) * Nx + 2
-	     << setw(5) << vOffset + j + (i + 1) * Nx + 1
-	     << "    </Q>" << endl;
-#else
-  for (k = eOffset+1, i = 0; i < (Ny - 1); i++)
-    for (j = 0; j < (Nx - 1); j++, k++)
-      cout << setw(5) << k << "\t" << "<Q>"
-	   << setw(5) << vOffset + j +  i      * Nx + 1
-	   << setw(5) << vOffset + j +  i      * Nx + 2
-	   << setw(5) << vOffset + j + (i + 1) * Nx + 2
-	   << setw(5) << vOffset + j + (i + 1) * Nx + 1
-	   << "    </Q>" << endl;
-#endif
-    
-  cout << "</ELEMENTS>" << endl;
-
   // -- Print up surfaces.
 
-  cout << endl << "<SURFACES NUMBER=" << 2*((Nx-1)+(Ny-1)) << ">" << endl;
+  cout << "<SURFACES NUMBER=" << 2*((Nx-1)+(Ny-1)) << ">" << endl;
 
 #if 1
   for (k = 1, b = 0; b < Nb; b++)
@@ -210,6 +168,49 @@ int main (int    argc,
 #endif
     
   cout << "</SURFACES>" << endl;
+  
+
+  // -- Print up vertex list.
+
+  cout << endl << "<NODES NUMBER=" << Nx*Ny << ">" << endl;
+
+  std::cout.precision(16);
+  for (k = vOffset, i = 0; i < Ny; i++)
+    for (j = 0; j < Nx; j++)
+      cout << setw(5)  << ++k << "\t"
+	   << setw(20) << vertex[i][j] -> x
+	   << setw(20) << vertex[i][j] -> y
+	   << setw(20) << vertex[i][j] -> z
+	   << endl;
+  
+  cout << "</NODES>" << endl;
+
+  // -- Print up elements.
+
+  cout << endl << "<ELEMENTS NUMBER=" << NelB*Nb << ">" << endl;
+
+#if 1
+  for (k = eOffset+1, b = 0; b < Nb; b++)
+    for (i = 0; i < (Ny - 1); i++)
+      for (j = b*((Nx-1)/Nb); j < (b+1)*((Nx-1)/Nb); j++, k++)
+	cout << setw(5) << k << "\t" << "<Q>"
+	     << setw(5) << vOffset + j +  i      * Nx + 1
+	     << setw(5) << vOffset + j +  i      * Nx + 2
+	     << setw(5) << vOffset + j + (i + 1) * Nx + 2
+	     << setw(5) << vOffset + j + (i + 1) * Nx + 1
+	     << "    </Q>" << endl;
+#else
+  for (k = eOffset+1, i = 0; i < (Ny - 1); i++)
+    for (j = 0; j < (Nx - 1); j++, k++)
+      cout << setw(5) << k << "\t" << "<Q>"
+	   << setw(5) << vOffset + j +  i      * Nx + 1
+	   << setw(5) << vOffset + j +  i      * Nx + 2
+	   << setw(5) << vOffset + j + (i + 1) * Nx + 2
+	   << setw(5) << vOffset + j + (i + 1) * Nx + 1
+	   << "    </Q>" << endl;
+#endif
+    
+  cout << "</ELEMENTS>" << endl;
 
   return EXIT_SUCCESS;
 }

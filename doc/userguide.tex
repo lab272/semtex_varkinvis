@@ -1018,7 +1018,7 @@ conditions.  This example illustrates the methods used to set BCs and
 also to generate curved element boundaries.  Also we will demonstrate
 the selection of the iterative PCG solver \citep{barrett94} as an
 alternative to the default direct Cholesky solver
-\citep{anderson99}. The session file \texttt{laplace6} shown below is
+\citep{anderson99}. The session file \texttt{laplace7} shown below is
 provided in the \verb|mesh| subdirectory.
 %
 {\small
@@ -1040,6 +1040,7 @@ provided in the \verb|mesh| subdirectory.
 <TOKENS>
         N_P      = 11
         TOL_REL  = 1e-12
+        STEP_MAX = 1000
 </TOKENS>
 
 <GROUPS NUMBER=4>
@@ -1129,7 +1130,7 @@ be generated and visualised using the \verb|meshplot| utility.
 %
 {\small
 \begin{verbatim}
-$ meshpr laplace6 | meshplot -i -n -o mesh.ps -d gv
+$ meshpr laplace7 | meshplot -i -n -o mesh.ps -d gv
 \end{verbatim}
 } \noindent If you have the \verb|gv| utility installed (for X11
 display of PostScript) you should see a plot like
@@ -1138,7 +1139,7 @@ have an appropriate utility installed) convert the output to PDF, \eg
 %
 {\small
 \begin{verbatim}
-$ meshpr laplace6 | meshplot -i -n | ps2pdf - > laplace6.pdf
+$ meshpr laplace7 | meshplot -i -n | ps2pdf - > laplace7.pdf
 \end{verbatim}
 }
 \begin{figure}
@@ -1147,7 +1148,7 @@ $ meshpr laplace6 | meshplot -i -n | ps2pdf - > laplace6.pdf
 \end{center}
 \caption{
 \label{lapcurve}
-  The mesh corresponding to the \texttt{laplace6} session file.  Note
+  The mesh corresponding to the \texttt{laplace7} session file.  Note
   that the number of points along the edge of every element is
   \texttt{N\_P = 11} as declared in the \texttt{TOKENS} section and
   that internal points are placed inside non-rectangular elements, \eg
@@ -1218,13 +1219,14 @@ default direct solver:
 %
 {\small
 \begin{verbatim}
-$ elliptic laplace6
+$ elliptic laplace7
 -- Forcing                 : set to zero
 -- Initial condition       : set to zero
 -- Installing matrices for field 'c' [*]
-Field: 'c' error norms (inf, L2, H1): 5.44009e-15  1.5745e-15  6.77144e-14
+-- REMARK: Field: 'c' error norms (inf, L2, H1): 8.54872e-15  2.15768e-15  5.46269e-14
 \end{verbatim}
 }
+%Field: 'c' error norms (inf, L2, H1): 5.44009e-15  1.5745e-15  6.77144e-14
 
 The `\verb|Installing matrices|' message indicates that a direct
 solution will be carried out.  Next try the iterative (PCG) solver
@@ -1232,12 +1234,13 @@ using the \verb+-i+ command-line option to \texttt{elliptic}:
 %
 {\small
 \begin{verbatim}
-$ elliptic -i laplace6
+$ elliptic -i laplace7
 -- Forcing                 : set to zero
 -- Initial condition       : set to zero
-Field: 'c' error norms (inf, L2, H1): 1.93215e-12  8.91558e-13  1.88887e-11
+-- REMARK: Field: 'c' error norms (inf, L2, H1): 8.32201e-13  2.93711e-13  5.01449e-12
 \end{verbatim}
 }
+%Field: 'c' error norms (inf, L2, H1): 1.93215e-12  8.91558e-13  1.88887e-11
 \noindent
 In this case the direct solver is more accurate, but comparable
 accuracy with the iterative solver could be obtained by decreasing
@@ -1260,12 +1263,12 @@ also be read by \emph{VisIt} and \emph{Paraview})
 %
 {\small
 \begin{verbatim}
-$ meshpr laplace6 | sem2tec laplace6.fld
+$ meshpr laplace7 | sem2tec laplace7.fld
 \end{verbatim}
 }
 %
 \noindent
-which produces \verb|laplace6.plt|, an input file format which can be
+which produces \verb|laplace7.plt|, an input file format which can be
 read by \Tecplot.  A contour plot of the solution obtained with
 \Tecplot\ is shown in figure~\ref{fig.lapcont}.
 
@@ -1273,7 +1276,7 @@ read by \Tecplot.  A contour plot of the solution obtained with
 \begin{center}
 \includegraphics[width=0.55\textwidth]{laplace6cont}
 \end{center}
-\caption{ Solution corresponding to the \texttt{laplace6} session
+\caption{ Solution corresponding to the \texttt{laplace7} session
   file.  This image was produced using \Tecplot.  }
 \label{fig.lapcont}
 \end{figure}
@@ -2388,7 +2391,7 @@ and pressure tractions are individually zero, rather than their sum.
 \noindent This is a set of computed boundary conditions (computed
 Robin/mixed for velocity and pressure).  These boundary conditions
 were originally described in \citet{dong15} (see equations 37 and 38
-there) , and are based on maintaining boundedness of kinetic energy
+there), and are based on maintaining boundedness of kinetic energy
 within the domain.  It is an excellent combination for maintaining
 stability for flows in short open domains, where the use of the
 'stress-free' condition described in \S\,\ref{sec.stressfree} can lead

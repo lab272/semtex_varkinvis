@@ -80,14 +80,14 @@ FEML::FEML (const char* session) :
   int_t      i, N;
   bool       OK, found;
 
-  const char* reserved[] = {
+  const char* reserved[] = {	// -- The ordering below isn't significant.
     "TOKENS",
     "FIELDS",
     "GROUPS",
     "BCS",
+    "SURFACES",    
     "NODES",
     "ELEMENTS",
-    "SURFACES",
     "CURVES",
     "USER",
     "HISTORY",
