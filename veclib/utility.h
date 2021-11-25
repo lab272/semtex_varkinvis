@@ -47,6 +47,10 @@ enum lev {WARNING, ERROR, REMARK};
 
 extern "C" {
   void       message (const char *routine, const char *txt, int level);
+  
+  void       stringSubst (char * const       buffptr,
+			  const char * const pattstr,
+			  const char * const replstr);
 
   double     dclock  ();
   float      sclock  ();

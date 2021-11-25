@@ -701,8 +701,8 @@ c
       integer xadj(*)
 c
 c  Determine the level structure associated with ROOT.
-c
-      call rootls ( root, xadj, adjncy, mask, nlvl, xls, ls )
+c  @@@ The book (and PETSc) have a call to fnroot here:
+      call rootls ( root, xadj, adjncy, mask, nlvl, xls, ls )      
 c
 c  If the number of levels is less than 3, return the
 c  whole component as the separator.
@@ -726,7 +726,8 @@ c
       midbeg = xls(midlvl)
       mp1beg = xls(midlvl + 1)
       midend = mp1beg - 1
-      mp1end = xls(midlvl+2)
+c     @@@ mp1end = xls(midlvl+2) but the book (and PETSc) has - 1:
+      mp1end = xls(midlvl+2)   
 c
 c  The separator is obtained by including only those
 c  MIDDLE-level nodes with neighbors in the MIDDLE+1

@@ -25,6 +25,9 @@
  * of surfaces as a starting point for editing if this information is
  * not yet determined. -s ==> -c.
  *
+ * The minimum element order (N_P in session file) is 3 unless uniform
+ * spacing (-u) is requested, in which case it is 2.
+ *
  * @file utility/meshpr.cpp
  * @ingroup group_utility
  *****************************************************************************/
@@ -89,9 +92,18 @@ int main (int    argc,
 
   FEML feml (session);
 
+  if (np)
+    Femlib::ivalue ("N_P", np);
+  else
+    np = Femlib::ivalue ("N_P");
+
+  if (basis == GLJ) {
+    if (np < 3) message (prog, "minimum N_P is 3 for GLL mesh",     ERROR);
+  } else {
+    if (np < 2) message (prog, "minimum N_P is 2 for uniform mesh", ERROR);
+  }
+
   if   (verb) Femlib::ivalue ("VERBOSE", verb);
-  if   (np)   Femlib::ivalue ("N_P",     np  );
-  else  np =  Femlib::ivalue ("N_P");
   if   (nz)   Femlib::ivalue ("N_Z",     nz  );
   else  nz =  Femlib::ivalue ("N_Z");
 

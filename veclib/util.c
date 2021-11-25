@@ -1,5 +1,5 @@
 /*****************************************************************************
- *                            FILE & I-O UTILITIES
+ *                   FILE, STRING, I-O, TIMING UTILITIES
  *
  * $Id$
  *****************************************************************************/
@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 
 #include <cfemdef.h>
 #include <cveclib.h>
@@ -87,12 +88,72 @@ float sclock (void)
 #endif
 
 
+static void stringSubst2 (char * const       bsrcptr,
+			  char * const       bdstptr,
+			  const char * const pattstr,
+			  const char * const replstr,
+			  const int          pattsiz,
+			  const int          replsiz)
+/* ------------------------------------------------------------------------- *
+ * String substitution routine, borrowed from Scotch. This part is hidden.
+ * ------------------------------------------------------------------------- */
+{
+  char *              pattptr;
+  int                 pattidx;
+
+  /* Search for the pattern in the remaining source string   */
+  pattptr = strstr (bsrcptr, pattstr);
+
+  /* Get length of unchanged part */
+  pattidx = (pattptr == NULL) ? (strlen (bsrcptr) + 1): (pattptr - bsrcptr);
+
+  /* If replacement is smaller, pre-move unchanged part */
+  if (replsiz < pattsiz)
+    memmove (bdstptr, bsrcptr, pattidx * sizeof (char));
+
+  /* If remaining part of string has to be processed */
+  if (pattptr != NULL)
+    stringSubst2 (pattptr + pattsiz,
+		  bdstptr + pattidx + replsiz,
+		  pattstr, replstr,
+		  pattsiz, replsiz);
+
+  /* If replacement is longer, post-move unchanged part */
+  if (replsiz > pattsiz)
+    memmove (bdstptr, bsrcptr, pattidx * sizeof (char));
+  
+  /* If there is something to replace         */
+  if (pattptr != NULL)
+    /* Write replacement string */
+    memcpy (bdstptr + pattidx, replstr, replsiz * sizeof (char));
+
+  return;
+}
+
+
+void stringSubst (char * const       buffptr, /* String to search into */
+		  const char * const pattstr, /* Pattern to search for */
+		  const char * const replstr) /* Replacement string    */
+/* ------------------------------------------------------------------------- *
+ * String substitution routine, borrowed from Scotch.  This part is visible.
+ * ------------------------------------------------------------------------- */ 
+{
+  int pattsiz;
+  int replsiz;
+
+  pattsiz = strlen (pattstr);
+  replsiz = strlen (replstr);
+
+  stringSubst2 (buffptr, buffptr, pattstr, replstr, pattsiz, replsiz);
+}
+
+
 void printDvector (FILE  *fp     ,
-		   int_t    width  ,
-		   int_t    prec   ,
-		   int_t    ntot   ,
-		   int_t    inc    ,
-		   int_t    nfield , ...)
+		   int_t  width  ,
+		   int_t  prec   ,
+		   int_t  ntot   ,
+		   int_t  inc    ,
+		   int_t  nfield , ...)
 /* ------------------------------------------------------------------------- *
  * Print up a variable number of dvectors on fp, in columns.
  * ------------------------------------------------------------------------- */
