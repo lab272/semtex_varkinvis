@@ -333,8 +333,8 @@ problems,\\
 \end{tabbing}
 and (if MPI is present) their equivalent multi-process versions
 \texttt{elliptic\_mp} and \texttt{dns\_mp}, which can speed up
-solution of \threed\ problems.  There are also a number of associated
-pre- and post-processing utilities.
+solution of \threed\ problems (see \S\,\ref{sec.mpi}).  There are also
+a number of associated pre- and post-processing utilities.
 
 Elliptic equations dealt with by \Semtex\ are in general of Helmholtz
 type;
@@ -2518,6 +2518,9 @@ the header of associated source files, especially of the utilities.
 \section{Execution speed}
 \label{sec.speed}
 
+%-----------------------------------------------------------------------------
+\subsection{Serial (per processor) speed}
+
 \Semtex\ makes good use of the BLAS, so it can be worth seeking fast
 implementations. Especially, performance of the matrix--matrix
 multiplication routine \verb+dgemm+ is critical. Many math libraries,
@@ -2535,6 +2538,68 @@ the direct solution that is obtained by default. This is nice because
 additionally, less memory is required. It is generally worth checking
 this if you plan an extended series of runs, and Reynolds numbers are
 large.
+
+%-----------------------------------------------------------------------------
+\subsection{Parallel execution}
+\label{sec.mpi}
+
+At present, the two primary solvers in \Semtex\ support parallel
+MPI-based execution for \threed\ problems.  The associated solvers are
+called \verb|elliptic_mp| (which gets little use\,---\,it mainly
+exists for completeness and testing purposes) and \verb|dns_mp|.  If
+an MPI system (\eg \verb|openmpi|, \verb|mpich|, \verb|lam/mpi|) is
+present on your machine, the \verb|cmake| build system should detect
+that and compile these two extra executables.
+
+For \threed\ problems (\verb|N_Z|\,$\ge4$, see \S\,\ref{sec.nz}), the
+solution can be made parallel across (\twod) Fourier modes.  No change
+to the problem's \verb|session| file is required; one just needs to
+change the executable from \verb|dns| to \verb|dns_mp| and pass
+execution over to \verb|mpirun| (or local equivalent) for
+administration.  The maximum number of processors which can be
+employed is \verb|N_Z|\,$/2$, because each \twod\ Fourier mode is
+complex (has real and imaginary parts), must be even, and must be
+congruent with the 2-3-5 prime-factor FFT used.  (Don't be too
+concerned: if you choose an inappropriate value, an error message will
+be issued and execution will be terminated!).  Generally, parallel
+speed-up will be intially somewhat linear with number of processors
+used, but will eventually decay (see figure~\ref{fig:scaling}).
+
+\begin{figure}
+\begin{center}
+  \includegraphics[width=0.5\textwidth]{HardScaling}
+\end{center}
+\caption{Hard scaling (speed-up for problem of a fixed size) relations
+  for Fourier-parallel DNS of a turbulent pipe flow obtained at two
+  different supercomputer facilities using MPI. The speed-up is
+  approximately linear with number of processes until communications
+  overheads become dominant (problem-dependent).  \citep[Reproduced
+    from][]{blas19}.}
+\label{fig:scaling}
+\end{figure}
+
+For example, the mesh used for the channel flow DNS examined in
+chapter~\ref{ch.dns101} has \verb|N_Z|\,$=80$.  Then the maximum
+number of processes which could be employed for parallel execution is
+40.  However, the number of elements (96) is rather small, so one
+could perhaps more efficiently use 20, or 10 (and maybe even as few as
+8, 4 or 2) processors: one has to check the speed-up to see which is
+most efficient, consider how long you are prepared to wait for results
+and how many processors are available for use.
+
+Here is how to use \verb|dns_mp| for that problem (noting that one
+should first have used \verb|enumerate| to generate a
+\verb|chan.num| file) with 8 processors: {\small
+\begin{verbatim}
+$ mpirun -np 8 dns_mp chan > /dev/null
+\end{verbatim}}
+\noindent
+(Redirection of \verb|stdout| to \verb|/dev/null| is not necessary,
+but once you are sure that the problem will run OK, is generally a
+Good Idea.)
+
+Apologies, but for now at least, none of the \Semtex\ utilities will
+run in parallel.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Extra controls}
@@ -4858,7 +4923,7 @@ resolution suggested in the session file is quite good for the
 Reynolds number employed.
 
 %=============================================================================
-\section{Timestepping order, restarting}
+\section{Timestepping order, restarting, and parallel execution}
 \label{sec.restart}
 
 \Semtex's \verb|dns| can run with first, second, or third-order
@@ -4972,6 +5037,12 @@ values in friction velocity units with comparison to data from
   $u_{\tau}$. Comparison to data from \citet{kmm87}.}
 \label{pic:rms_global}
 \end{figure}
+
+\emph{Finally (though it is very important), we should note that one
+could run this simulation either on a single processor, or, using MPI,
+on up to 40 processors (and perhaps have sped up execution by up to a
+factor of 40!).  Please see the discussion of \S\,\ref{sec.mpi} for
+further information.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
