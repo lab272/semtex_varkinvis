@@ -83,7 +83,7 @@ meshplotE 23	# Plot an SEM mesh in the given order
 		# usage: meshplot filename order [mode]
 		#
 		#        order = vector listing element numbers in the order
-		#                  you want them drawn
+		#                  you want them drawn (base-1)
 		#        mode  = 0,2 : draw elements
 		#        mode  = 1,3 : draw all mesh lines
 		#

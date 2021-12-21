@@ -5,7 +5,7 @@
 #    build subdirectory, e.g.: cd build; cmake ..; make
 
 project (semtex C CXX Fortran)
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.0)
 
 # -- Static linkage (comment out for dynamic linkage/default).
 
@@ -32,17 +32,19 @@ endif ()
 
 # -- Vendor-specific switches:
 
-if (APPLE)
+if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
    set (BLA_VENDOR "Generic")
    message (STATUS "Building with Apple Accelerate BLAS and LAPACK.")
-   add_compile_options (
-     -Wno-parentheses
-     -Wno-unused-value
-     -Wno-implicit-function-declaration
-     -Wno-format
-     -Wno-format-security  
-     -Wno-switch
-   )
+   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+     -Wno-parentheses \
+     -Wno-unused-value \
+     -Wno-implicit-function-declaration \
+     -Wno-format \
+     -Wno-format-security -Wno-switch")
+   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
+     -Wno-parentheses \
+     -Wno-format \
+     -Wno-format-security")
 elseif (DEFINED ENV{BLA_VENDOR})
    message (STATUS "Building with vendor BLAS and LAPACK: " "$ENV{BLA_VENDOR}")
 endif()	   

@@ -52,6 +52,8 @@ public:
   void  extent      (Point&, Point&) const;
   void  assemble    (const bool = false);
 
+  void  buildDualGraph (vector<int_t>&, vector<int_t>&, const int_t = 0) const;
+
   static void showGlobalID (Mesh&);
   static void showAssembly (Mesh&);
 

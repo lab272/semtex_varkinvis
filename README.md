@@ -197,6 +197,10 @@ Because these tests exercise the solvers as well as a range of
 utilities, SUCCESSFUL COMPLETION OF THE CTEST STAGE INDICATES THAT YOU
 HAVE A WORKING SET OF EXECUTABLES.
 
+NB: to speed up compilation on a multi-core machine, you could use
+e.g. "make -j 4" (argument depending on number of cores available)
+instead of "make" above.
+
 You can also explicitly turn off MPI-based parts of compilation,
 and/or make executable versions for debugging if required, via
 command-line flags to cmake, e.g.: cmake -DWITH_MPI=OFF -DDEBUG=ON ..

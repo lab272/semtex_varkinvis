@@ -16,7 +16,7 @@
 
 /* So: */
 
-#define IRIS
+/*#define IRIS*/
 
 /*
 
@@ -420,11 +420,11 @@ END OF HEADER COMMENTS ....
 
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 
 #if defined CRAYB
 #define CRAY
 #endif
-
 
 #if defined CRAY
 #define   FloatSize        8
@@ -680,12 +680,12 @@ static void CleanUp(IsOk)
   if (!IsOk && *PlotFileName)
     { 
       fclose(PlotFile);
-      unlink(PlotFileName);
+      remove(PlotFileName);
     }
   if (*BlckFName)
     {
       fclose(BlckFile);
-      unlink(BlckFName);
+      remove(BlckFName);
     }
   if (!IsOk)
     exit (-1);
@@ -1845,7 +1845,7 @@ void GetElementType()
         Element = BRICK;
       else if (CheckTokenStr("CUBE"))
         {
-          WarnMsg("Element type of CUBE will be phased out.  Use BRICK\n");
+          WarnMsg("Element type of CUBE will be phased out.  Use BRICK\n", TRUE);
           Element = BRICK;
         }
       else
@@ -2018,7 +2018,7 @@ void RecogZoneHeader()
     {
       IMax = OldIMax;
       ISet = TRUE;
-      WarnMsg("Variables are being duplicated and I is not set.\n         I will be set to value of previous zone.");
+      WarnMsg("Variables are being duplicated and I is not set.\n         I will be set to value of previous zone.", TRUE);
     }
   else if (!ISet)
     {
@@ -2343,7 +2343,7 @@ void RecogTextHeader()
               else if (CheckTokenStr("FILLED"))
                 BoxType = 2.0;
               else
-                ErrMsg("Invalid Box Type");
+                ErrMsg("Invalid Box Type", TRUE);
             }
         }
       else if (CompareIdent(CurData,"BXF"))
@@ -2379,7 +2379,7 @@ void RecogTextHeader()
               else if (CheckTokenStr("COURIER-BOLD"))
                 Font = 10.0;
               else
-                ErrMsg("Invalid Font Type");
+                ErrMsg("Invalid Font Type", TRUE);
            }
         }
       else if (CompareIdent(CurData,"H"))
@@ -2686,7 +2686,7 @@ int main (argc,argv)
           if (argv[I])
             {
               if (!Plot3D_GetList(argv[I],Plot3DKSet,'K'))
-                ErrMsg("Bad -kp list");
+                ErrMsg("Bad -kp list", TRUE);
             }
         }
       else if (!strcmp(argv[I],"-jp") || !strcmp(argv[I],"-JP"))
@@ -2696,7 +2696,7 @@ int main (argc,argv)
           if (argv[I])
             {
               if (!Plot3D_GetList(argv[I],Plot3DJSet,'J'))
-                ErrMsg("Bad -jp list");
+                ErrMsg("Bad -jp list", TRUE);
             }
         }
       else if (!strcmp(argv[I],"-ip") || !strcmp(argv[I],"-IP"))
@@ -2706,7 +2706,7 @@ int main (argc,argv)
           if (argv[I])
             {
               if (!Plot3D_GetList(argv[I],Plot3DISet,'I'))
-                ErrMsg("Bad -ip list");
+                ErrMsg("Bad -ip list", TRUE);
             }
         }
 #endif /*PLOT3D*/
@@ -2714,7 +2714,7 @@ int main (argc,argv)
       else
         { 
           if ((*argv[I] == '-') && (strlen(argv[I]) > 1))
-            ErrMsg("invalid flag");
+            ErrMsg("invalid flag", TRUE);
           else
             {
               if (!InFileFound)
@@ -3092,7 +3092,7 @@ PLOT3D input ONLY:\n\
                 }
               else
                 {
-                  WarnMsg("Expecting Record Marker or Data.  Skipping Current token"); 
+                  WarnMsg("Expecting Record Marker or Data.  Skipping Current token", TRUE); 
 /*                LinePos = 0; */
                   GetToken(FALSE,TRUE,InFile);
                 }
@@ -3709,7 +3709,7 @@ PLOT3D input ONLY:\n\
    
                               if (IsOk && (IMax == 1) && 
                                  ((Format == POINT) || (Format == BLOCK)))
-                                 WarnMsg("Non-Standard input: IMax = 1");
+				WarnMsg("Non-Standard input: IMax = 1", TRUE);
                             }
                           if ((Format == FEBLOCK) || 
                               (Format == FEPOINT))
@@ -3727,10 +3727,12 @@ PLOT3D input ONLY:\n\
 
                                   switch (Element)
                                     {
-                                      case TRIANGLE      : L = 3; break;
-                                      case QUADRILATERAL : L = 4; break;
-                                      case TETRAHEDRON   : L = 4; break;
-                                      case BRICK         : L = 8; break;
+				    case TRIANGLE      : L = 3; break;
+				    case QUADRILATERAL : L = 4; break;
+				    case TETRAHEDRON   : L = 4; break;
+				    case BRICK         : L = 8; break;
+				    default:
+				      WarnMsg("Bad element type", TRUE);
                                     }
                                   J = 0;
                                   while ((CurToken == ValueToken) && (J < JMax))
@@ -3829,7 +3831,7 @@ PLOT3D input ONLY:\n\
                           ((XX < 0.0) || (XX > 1.0) ||
                            (YY < 0.0) || (YY > 1.0)))
                         {
-                          WarnMsg("WINDOW Mode geometry has starting position outside of window");
+                          WarnMsg("WINDOW Mode geometry has starting position outside of window", TRUE);
                         }
                       WriteR(PlotFile,&TGZone);
                       WriteR(PlotFile,&Color);
@@ -4001,7 +4003,7 @@ PLOT3D input ONLY:\n\
                               ((XX < 0.0) || (XX > 1.0) ||
                                (YY < 0.0) || (YY > 1.0)))
                             {
-                              WarnMsg("WINDOW Mode Text has starting position outside of window");
+                              WarnMsg("WINDOW Mode Text has starting position outside of window", TRUE);
                             }
                           WriteR(PlotFile,&Font);
                           WriteR(PlotFile,&Height);
@@ -4035,7 +4037,7 @@ PLOT3D input ONLY:\n\
                     }
                   else
                     {
-                      WarnMsg("Expecting Record Marker, Skipping current line...");
+                      WarnMsg("Expecting Record Marker, Skipping current line...", TRUE);
                       GetNextLine(InFile);
                       LinePos = 0;
                       GetToken(FALSE,TRUE,InFile);

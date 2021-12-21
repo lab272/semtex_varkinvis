@@ -446,11 +446,8 @@ void Mesh::surfaces ()
 		 _elmtTable[me - 1] -> side[ms - 1] -> group    ) {
 	sprintf (err, "Surface %1d, mating elmt %1d, side %1d already set",
 		 t, me, ms);
-#if 0
-	message (routine, err, ERROR);
-#else
+
 	message (routine, err, WARNING);
-#endif
       }
 
       me--; ms--;
@@ -1028,6 +1025,59 @@ void Mesh::Side::connect (const int_t ni ,
 
   if (endNode -> gID == UNSET)
     endNode -> gID = gid++;
+}
+
+
+void Mesh::buildDualGraph (vector<int_t>& adjncy,  // -- Length TBD.
+			   vector<int_t>& xadj  ,  // -- Length nel+1.
+			   const int_t    base  )  // -- Index base 0/1.
+  const
+// ---------------------------------------------------------------------------
+// Produce adjacency tables for the dual graph of the mesh elements.
+//
+// These describe element-element side connectivity information and
+// may be used e.g. for partitioning.
+//
+// See e.g. George & Liu (1981) for description of adjncy and xadj structure.  
+// ---------------------------------------------------------------------------
+{
+  const int_t            nElmt = this -> nEl();
+  vector<vector<int_t> > adjncyList;
+  Elmt*                  E;
+  Side*                  S;
+  int_t                  i, j, k, nSide, nEdge;
+
+  // -- All the info for the mesh dual graph exists; first, we extract
+  //    it into the "ragged" 2D array adjncyList.  Each row will hold
+  //    a list of elements adjacent to its associated element.
+
+  for (nEdge = 0, i = 0; i < nElmt; i++) {
+    E = _elmtTable[i];
+    nSide = E -> nNodes();
+    vector<int_t> evec; 	// -- Local work vector.
+    for (j = 0; j < nSide; j++) {
+      S = E -> side[j];
+      if (S -> mateElmt) {
+	evec.push_back (S -> mateElmt -> ID); // -- IDs are base-0.
+	nEdge++;
+      }
+    }
+    adjncyList.push_back (evec);
+  }
+
+  // -- At this stage, nEdge holds the number of edges in the dual
+  //    graph and we have all the info: we just need to insert it into
+  //    adjncy and xadj.
+  
+  adjncy.resize (nEdge + 1);
+  xadj.resize   (nElmt + 1);
+
+  for (k = 0, i = 0; i < nElmt; i++) {
+    xadj[i] = k + base;
+    for (j = 0; j < adjncyList[i].size(); j++)
+      adjncy[k++] = adjncyList[i][j] + base;
+  }
+  xadj[i] = k + base;
 }
 
 
