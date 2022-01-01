@@ -54,6 +54,7 @@ endif()
 find_package   (BISON  REQUIRED)
 find_package   (BLAS   REQUIRED)
 find_package   (LAPACK REQUIRED)
+
 if (WITH_MPI)
   find_package (MPI)
   if (MPI_FOUND)
