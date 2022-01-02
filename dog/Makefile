@@ -6,7 +6,7 @@
 # $Id$
 ##############################################################################
 
-SEM   = ../
+SEM   = ..
 VPATH = $(SEM)/src
 
 ifdef FLIP		# -- Use the "half-period-flip map".
