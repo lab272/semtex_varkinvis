@@ -88,6 +88,6 @@ include (test/CMakeLists.txt)
 
 # -- Optional compilation of linear stability codes, if supplied.
 
-if (EXISTS ${CMAKE_SOURCE_DIR}/stab)
-  include (${CMAKE_SOURCE_DIR}/stab/CMakeLists.txt)
+if (EXISTS ${CMAKE_SOURCE_DIR}/dog)
+  include (${CMAKE_SOURCE_DIR}/dog/CMakeLists.txt)
 endif()
