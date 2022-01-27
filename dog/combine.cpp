@@ -2,7 +2,7 @@
 // combine.cpp: add a perturbation/mode to a base flow, output in
 // physical space.
 //
-// Copyright (c) 2002 <--> $Date$, Hugh Blackburn
+// Copyright (c) 2002 <--> $Date: 2022/01/07 07:27:02 $, Hugh Blackburn
 //
 // USAGE
 // -----
@@ -104,7 +104,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-static char RCS[] = "$Id$";
+static char RCS[] = "$Id: combine.cpp,v 1.7 2022/01/07 07:27:02 bburn Exp $";
 
 #include <cstdarg>
 #include <cstdlib>
@@ -130,7 +130,7 @@ using namespace std;
 
 static char prog[] = "combine";
 
-static char* hdr_fmt[] = { 
+const char* hdr_fmt[] = { 
   "%-25s "    "Session\n",
   "%-25s "    "Created\n",
   "%-25s "    "Nr, Ns, Nz, Elements\n",

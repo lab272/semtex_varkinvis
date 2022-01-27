@@ -1,0 +1,43 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/Users/hmb/develop-git/semtex-xxt/build/CMakeFiles/gsmpi-1.2.1"
+		},
+		{
+			"file" : "/Users/hmb/develop-git/semtex-xxt/build/CMakeFiles/gsmpi-1.2.1.rule"
+		},
+		{
+			"file" : "/Users/hmb/develop-git/semtex-xxt/build/CMakeFiles/gsmpi-1.2.1-complete.rule"
+		},
+		{
+			"file" : "/Users/hmb/develop-git/semtex-xxt/ThirdParty/stamp/gsmpi-1.2.1-build.rule"
+		},
+		{
+			"file" : "/Users/hmb/develop-git/semtex-xxt/ThirdParty/stamp/gsmpi-1.2.1-configure.rule"
+		},
+		{
+			"file" : "/Users/hmb/develop-git/semtex-xxt/ThirdParty/stamp/gsmpi-1.2.1-download.rule"
+		},
+		{
+			"file" : "/Users/hmb/develop-git/semtex-xxt/ThirdParty/stamp/gsmpi-1.2.1-install.rule"
+		},
+		{
+			"file" : "/Users/hmb/develop-git/semtex-xxt/ThirdParty/stamp/gsmpi-1.2.1-mkdir.rule"
+		},
+		{
+			"file" : "/Users/hmb/develop-git/semtex-xxt/ThirdParty/stamp/gsmpi-1.2.1-patch.rule"
+		},
+		{
+			"file" : "/Users/hmb/develop-git/semtex-xxt/ThirdParty/stamp/gsmpi-1.2.1-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"gsmpi-1.2.1"
+		],
+		"name" : "gsmpi-1.2.1"
+	}
+}

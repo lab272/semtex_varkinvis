@@ -9,16 +9,13 @@ cmake_minimum_required (VERSION 3.0)
 
 # -- Static linkage (comment out for dynamic linkage/default).
 
-#SET (CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-#SET (BUILD_SHARED_LIBS OFF)
-#SET (CMAKE_EXE_LINKER_FLAGS "-static")
+#set (CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+#set (BUILD_SHARED_LIBS OFF)
+#set (CMAKE_EXE_LINKER_FLAGS "-static")
 
 # -- Pull in the pre-processor flags, which can optionally be set on
 #    the comamnd line (if not enabled here).  E.g. cmake -DDEBUG=ON ..
 #
-# -- Note that even with the MPI option set, all codes other than the
-#    elliptic and dns solvers are serial executables and hence do not
-#    exploit or benefit from presence of MPI.
 
 option (WITH_MPI    "Build dns+elliptic solvers with MPI"            ON )
 option (DEBUG       "Build with debugging preprocessor conditionals" OFF)
@@ -49,18 +46,45 @@ elseif (DEFINED ENV{BLA_VENDOR})
    message (STATUS "Building with vendor BLAS and LAPACK: " "$ENV{BLA_VENDOR}")
 endif()	   
 
-# -- External package dependencies.
+# -- External package dependencies, assumed to be supplied by vendor
+#    or package manager: 
 
 find_package   (BISON  REQUIRED)
 find_package   (BLAS   REQUIRED)
 find_package   (LAPACK REQUIRED)
+find_package   (MPI    REQUIRED)
 
-if (WITH_MPI)
-  find_package (MPI)
-  if (MPI_FOUND)
-    message (STATUS "Building codes elliptic_mp and dns_mp with MPI support.")
-  endif (MPI_FOUND)
-endif (WITH_MPI)
+#if (WITH_MPI)
+#  find_package (MPI)
+#  if (MPI_FOUND)
+#    message (STATUS "Building codes elliptic_mp and dns_mp with MPI support.")
+#  endif (MPI_FOUND)
+#endif (WITH_MPI)
+
+# -- Set up to compile third-party library dependencies that we will
+#    supply, as they are less likely to be already available.
+
+#    Add support for CMAKE_DEPENDENT_OPTION:
+
+include (CMakeDependentOption)
+include (CMakeParseArguments)
+
+#    Third-party modules included with semtex:
+
+set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+set (TPSRC   ${CMAKE_SOURCE_DIR}/ThirdParty)
+set (TPBUILD ${CMAKE_SOURCE_DIR}/ThirdParty)
+set (TPDIST  ${CMAKE_BINARY_DIR}/ThirdParty/dist)
+set (TPINC   ${CMAKE_INSTALL_PREFIX}/include/ThirdParty)
+# -- the following for monash storage:
+#set (TPURL   https://users.monash.edu.au/~bburn/src)
+# -- the following for gitlab storage:
+# -- see https://stackoverflow.com/questions/56943327
+set (TPURL https://gitlab.com/api/v4/projects/32564913/repository/files)
+
+include (SemtexCommon)
+include (ThirdPartyScotch)
+include (ThirdPartyMPI)
 
 # -- Build semtex libraries.
 

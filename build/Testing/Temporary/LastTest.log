@@ -1,0 +1,555 @@
+Start testing: Jan 07 18:26 AEDT
+----------------------------------------------------------
+1/34 Testing: laplace1
+1/34 Test: laplace1
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "elliptic" "laplace1"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"laplace1" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"laplace1" end time: Jan 07 18:26 AEDT
+"laplace1" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/34 Testing: laplace3
+2/34 Test: laplace3
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "elliptic" "laplace3"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"laplace3" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"laplace3" end time: Jan 07 18:26 AEDT
+"laplace3" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/34 Testing: laplace4
+3/34 Test: laplace4
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "elliptic" "laplace4"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"laplace4" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"laplace4" end time: Jan 07 18:26 AEDT
+"laplace4" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/34 Testing: laplace5
+4/34 Test: laplace5
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "elliptic" "laplace5"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"laplace5" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"laplace5" end time: Jan 07 18:26 AEDT
+"laplace5" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/34 Testing: laplace6
+5/34 Test: laplace6
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "elliptic" "laplace6"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"laplace6" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"laplace6" end time: Jan 07 18:26 AEDT
+"laplace6" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/34 Testing: laplace7
+6/34 Test: laplace7
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "elliptic" "laplace7"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"laplace7" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"laplace7" end time: Jan 07 18:26 AEDT
+"laplace7" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/34 Testing: poisson1
+7/34 Test: poisson1
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "elliptic" "poisson1"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"poisson1" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"poisson1" end time: Jan 07 18:26 AEDT
+"poisson1" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/34 Testing: poisson2
+8/34 Test: poisson2
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "elliptic" "poisson2"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"poisson2" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.37 sec
+----------------------------------------------------------
+Test Passed.
+"poisson2" end time: Jan 07 18:26 AEDT
+"poisson2" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/34 Testing: helmholtz1
+9/34 Test: helmholtz1
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "elliptic" "helmholtz1"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"helmholtz1" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"helmholtz1" end time: Jan 07 18:26 AEDT
+"helmholtz1" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/34 Testing: mixed1
+10/34 Test: mixed1
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "elliptic" "mixed1"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"mixed1" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"mixed1" end time: Jan 07 18:26 AEDT
+"mixed1" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/34 Testing: taylor2
+11/34 Test: taylor2
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "dns" "taylor2"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"taylor2" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"taylor2" end time: Jan 07 18:26 AEDT
+"taylor2" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/34 Testing: taylor3
+12/34 Test: taylor3
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "dns" "taylor3"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"taylor3" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"taylor3" end time: Jan 07 18:26 AEDT
+"taylor3" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/34 Testing: taylor4
+13/34 Test: taylor4
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "dns" "taylor4"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"taylor4" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"taylor4" end time: Jan 07 18:26 AEDT
+"taylor4" time elapsed: 00:00:00
+----------------------------------------------------------
+
+14/34 Testing: taylor5
+14/34 Test: taylor5
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "dns" "taylor5"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"taylor5" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"taylor5" end time: Jan 07 18:26 AEDT
+"taylor5" time elapsed: 00:00:00
+----------------------------------------------------------
+
+15/34 Testing: kovas1
+15/34 Test: kovas1
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "dns" "kovas1"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"kovas1" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.10 sec
+----------------------------------------------------------
+Test Passed.
+"kovas1" end time: Jan 07 18:26 AEDT
+"kovas1" time elapsed: 00:00:00
+----------------------------------------------------------
+
+16/34 Testing: kovas2
+16/34 Test: kovas2
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "dns" "kovas2"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"kovas2" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.10 sec
+----------------------------------------------------------
+Test Passed.
+"kovas2" end time: Jan 07 18:26 AEDT
+"kovas2" time elapsed: 00:00:00
+----------------------------------------------------------
+
+17/34 Testing: kovas3
+17/34 Test: kovas3
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "dns" "kovas3"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"kovas3" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"kovas3" end time: Jan 07 18:26 AEDT
+"kovas3" time elapsed: 00:00:00
+----------------------------------------------------------
+
+18/34 Testing: kovas4
+18/34 Test: kovas4
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "dns" "kovas4"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"kovas4" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"kovas4" end time: Jan 07 18:26 AEDT
+"kovas4" time elapsed: 00:00:00
+----------------------------------------------------------
+
+19/34 Testing: kovas5
+19/34 Test: kovas5
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "dns" "kovas5"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"kovas5" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.10 sec
+----------------------------------------------------------
+Test Passed.
+"kovas5" end time: Jan 07 18:26 AEDT
+"kovas5" time elapsed: 00:00:00
+----------------------------------------------------------
+
+20/34 Testing: tube1
+20/34 Test: tube1
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "dns" "tube1"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"tube1" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"tube1" end time: Jan 07 18:26 AEDT
+"tube1" time elapsed: 00:00:00
+----------------------------------------------------------
+
+21/34 Testing: tube2
+21/34 Test: tube2
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "dns" "tube2"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"tube2" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.06 sec
+----------------------------------------------------------
+Test Passed.
+"tube2" end time: Jan 07 18:26 AEDT
+"tube2" time elapsed: 00:00:00
+----------------------------------------------------------
+
+22/34 Testing: tube3
+22/34 Test: tube3
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "dns" "tube3"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"tube3" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"tube3" end time: Jan 07 18:26 AEDT
+"tube3" time elapsed: 00:00:00
+----------------------------------------------------------
+
+23/34 Testing: tube4
+23/34 Test: tube4
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "dns" "tube4"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"tube4" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.06 sec
+----------------------------------------------------------
+Test Passed.
+"tube4" end time: Jan 07 18:26 AEDT
+"tube4" time elapsed: 00:00:00
+----------------------------------------------------------
+
+24/34 Testing: sbr
+24/34 Test: sbr
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "dns" "sbr"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"sbr" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"sbr" end time: Jan 07 18:26 AEDT
+"sbr" time elapsed: 00:00:00
+----------------------------------------------------------
+
+25/34 Testing: tc1
+25/34 Test: tc1
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "dns" "tc1"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"tc1" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"tc1" end time: Jan 07 18:26 AEDT
+"tc1" time elapsed: 00:00:00
+----------------------------------------------------------
+
+26/34 Testing: cylkov2
+26/34 Test: cylkov2
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "" "/Users/hmb/develop-git/semtex-xxt/build" "dns" "cylkov2"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"cylkov2" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+<end of output>
+Test time =   0.86 sec
+----------------------------------------------------------
+Test Passed.
+"cylkov2" end time: Jan 07 18:26 AEDT
+"cylkov2" time elapsed: 00:00:00
+----------------------------------------------------------
+
+27/34 Testing: laplace3_mp
+27/34 Test: laplace3_mp
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "mpirun -np 2" "/Users/hmb/develop-git/semtex-xxt/build" "elliptic_mp" "laplace3"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"laplace3_mp" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+mkdir: Testing/laplace3: File exists
+<end of output>
+Test time =   0.18 sec
+----------------------------------------------------------
+Test Passed.
+"laplace3_mp" end time: Jan 07 18:26 AEDT
+"laplace3_mp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+28/34 Testing: taylor3_mp
+28/34 Test: taylor3_mp
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "mpirun -np 2" "/Users/hmb/develop-git/semtex-xxt/build" "dns_mp" "taylor3"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"taylor3_mp" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+mkdir: Testing/taylor3: File exists
+<end of output>
+Test time =   0.14 sec
+----------------------------------------------------------
+Test Passed.
+"taylor3_mp" end time: Jan 07 18:26 AEDT
+"taylor3_mp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+29/34 Testing: taylor4_mp
+29/34 Test: taylor4_mp
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "mpirun -np 2" "/Users/hmb/develop-git/semtex-xxt/build" "dns_mp" "taylor4"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"taylor4_mp" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+mkdir: Testing/taylor4: File exists
+<end of output>
+Test time =   0.14 sec
+----------------------------------------------------------
+Test Passed.
+"taylor4_mp" end time: Jan 07 18:26 AEDT
+"taylor4_mp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+30/34 Testing: taylor5_mp
+30/34 Test: taylor5_mp
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "mpirun -np 2" "/Users/hmb/develop-git/semtex-xxt/build" "dns_mp" "taylor5"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"taylor5_mp" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+mkdir: Testing/taylor5: File exists
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"taylor5_mp" end time: Jan 07 18:26 AEDT
+"taylor5_mp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+31/34 Testing: kovas2_mp
+31/34 Test: kovas2_mp
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "mpirun -np 2" "/Users/hmb/develop-git/semtex-xxt/build" "dns_mp" "kovas2"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"kovas2_mp" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+mkdir: Testing/kovas2: File exists
+<end of output>
+Test time =   0.17 sec
+----------------------------------------------------------
+Test Passed.
+"kovas2_mp" end time: Jan 07 18:26 AEDT
+"kovas2_mp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+32/34 Testing: kovas3_mp
+32/34 Test: kovas3_mp
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "mpirun -np 2" "/Users/hmb/develop-git/semtex-xxt/build" "dns_mp" "kovas3"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"kovas3_mp" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+mkdir: Testing/kovas3: File exists
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"kovas3_mp" end time: Jan 07 18:26 AEDT
+"kovas3_mp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+33/34 Testing: kovas4_mp
+33/34 Test: kovas4_mp
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "mpirun -np 2" "/Users/hmb/develop-git/semtex-xxt/build" "dns_mp" "kovas4"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"kovas4_mp" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+mkdir: Testing/kovas4: File exists
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"kovas4_mp" end time: Jan 07 18:26 AEDT
+"kovas4_mp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+34/34 Testing: kovas5_mp
+34/34 Test: kovas5_mp
+Command: "/Users/hmb/develop-git/semtex-xxt/test/testregression" "mpirun -np 2" "/Users/hmb/develop-git/semtex-xxt/build" "dns_mp" "kovas5"
+Directory: /Users/hmb/develop-git/semtex-xxt/build
+"kovas5_mp" start time: Jan 07 18:26 AEDT
+Output:
+----------------------------------------------------------
+mkdir: Testing: File exists
+mkdir: Testing/kovas5: File exists
+<end of output>
+Test time =   0.16 sec
+----------------------------------------------------------
+Test Passed.
+"kovas5_mp" end time: Jan 07 18:26 AEDT
+"kovas5_mp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Jan 07 18:26 AEDT
