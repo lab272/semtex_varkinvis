@@ -54,12 +54,12 @@ find_package   (BLAS   REQUIRED)
 find_package   (LAPACK REQUIRED)
 find_package   (MPI    REQUIRED)
 
-#if (WITH_MPI)
-#  find_package (MPI)
-#  if (MPI_FOUND)
-#    message (STATUS "Building codes elliptic_mp and dns_mp with MPI support.")
-#  endif (MPI_FOUND)
-#endif (WITH_MPI)
+if (WITH_MPI)
+  find_package (MPI)
+  if (MPI_FOUND)
+    message (STATUS "Building codes elliptic_mp and dns_mp with MPI support.")
+  endif (MPI_FOUND)
+endif (WITH_MPI)
 
 # -- Set up to compile third-party library dependencies that we will
 #    supply, as they are less likely to be already available.
