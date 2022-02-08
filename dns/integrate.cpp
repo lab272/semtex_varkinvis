@@ -342,7 +342,8 @@ static Msys** preSolve (const Domain* D)
 // ---------------------------------------------------------------------------
 {
   const int_t             nmodes = Geometry::nModeProc();
-  const int_t             base   = Geometry::baseMode(); const int_t             itLev  = Femlib::ivalue ("ITERATIVE");
+  const int_t             base   = Geometry::baseMode();
+  const int_t             itLev  = Femlib::ivalue ("ITERATIVE");
   const real_t            beta   = Femlib:: value ("BETA");
   const vector<Element*>& E = D -> elmt;
   Msys**                  M = new Msys* [static_cast<size_t>(NADV + 1)];

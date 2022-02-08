@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////
 // drive.cpp: control spectral element DNS for incompressible flows.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
 // USAGE:
 // -----
@@ -32,26 +32,7 @@
 // Fourier solver for the incompressible Navier Stokes equations in
 // cylindrical or Cartesian coordinates", CPC.
 //
-// --
-// This file is part of Semtex.
-//
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-//
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 //////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <dns.h>
 
@@ -63,7 +44,7 @@ static char RCS[] = "$Id$";
 
 static void getargs    (int, char**, bool&, char*&);
 static void preprocess (const char*, FEML*&, Mesh*&, vector<Element*>&,
-			BCmgr*&, Domain*&);
+			BCmgr*&, Domain*&, FieldForce*&);
 
 void integrate (void (*)
 		(Domain*, BCmgr*, AuxField**, AuxField**, FieldForce*),
@@ -94,7 +75,7 @@ int main (int    argc,
   Femlib::initialize (&argc, &argv);
   getargs (argc, argv, freeze, session);
 
-  preprocess (session, file, mesh, elmt, bman, domain);
+  preprocess (session, file, mesh, elmt, bman, domain, FF);
 
   if ((!domain -> hasScalar()) && freeze)
     message (prog, "need scalar declared if velocity is frozen", ERROR);
@@ -103,8 +84,6 @@ int main (int    argc,
 
   domain -> restart ();
 
-  FF = new FieldForce (domain, file);
-  
   ROOTONLY domain -> report ();
   
   if (freeze) 
@@ -124,6 +103,7 @@ int main (int    argc,
 
   return EXIT_SUCCESS;
 }
+
 
 static void getargs (int    argc   ,
 		     char** argv   ,
@@ -191,7 +171,8 @@ static void preprocess (const char*       session,
 			Mesh*&            mesh   ,
 			vector<Element*>& elmt   ,
 			BCmgr*&           bman   ,
-			Domain*&          domain )
+			Domain*&          domain ,
+			FieldForce*&      FF     )
 // ---------------------------------------------------------------------------
 // Create objects needed for execution, given the session file name.
 // They are listed above in order of creation.
@@ -257,7 +238,15 @@ static void preprocess (const char*       session,
 
   VERBOSE cout << "Building domain ..." << endl;
 
-  domain = new Domain (file, elmt, bman);
+  domain = new Domain (session, mesh, elmt, bman);
+
+  VERBOSE cout << "done" << endl;
+
+  // -- Parse Field Force info from FEML file.
+
+  VERBOSE cout << "Building field forcing ..." << endl;
+
+  FF = new FieldForce (domain, file);
 
   VERBOSE cout << "done" << endl;
 
