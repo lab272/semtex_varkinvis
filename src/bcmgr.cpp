@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // bcmgr.cpp: class functions for managing boundary conditions.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
 // SYNOPSIS
 // --------
@@ -120,6 +120,7 @@
 //   <H> Natural pressure BC (no value specified, since it gets computed);
 //   <A> Axis BCs for cylindrical coords.  Also, must belong to "axis" group;
 //   <O> Computed open BCs, see [3]. Must belong to the "open" group;
+//   <I> Computed open BC for u&v, mixed for w, Dirichlet for c. "inlet" group.
 //
 // The character tags for variables as shown match those used
 // internally as Field names, so that the order in which the BCs are
@@ -209,26 +210,7 @@
 // N.B. Typo in eq. (37) of [3], confirmed by author: the term n x
 // \omega should be n . \nabla x \omega.
 //
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
@@ -279,7 +261,7 @@ BCmgr::BCmgr (FEML*             file,
 
   VERBOSE cout << routine << ": Installing numbering systems ... ";
 
-  buildnum (file -> root(), elmt);
+  this -> buildnum (file -> root(), elmt);
 
   VERBOSE cout << "done" << endl;
 
@@ -513,7 +495,7 @@ BCmgr::BCmgr (FEML*             file,
 
   VERBOSE cout << "  Building internal list of BC edges ... ";
 
-  buildsurf (file, elmt);
+  this -> buildsurf (file, elmt);
 
   VERBOSE cout << "done" << endl;
 }
@@ -958,6 +940,43 @@ int_t BCmgr::nWall ()
   for (b = _elmtbc.begin(); b != _elmtbc.end(); b++) {
     BCT = *b;
     if (strstr (groupInfo (BCT -> group), "wall")) count++;
+  }
+
+  return count;
+}
+
+
+int_t BCmgr::nAxis ()
+// ---------------------------------------------------------------------------
+// Count up the number of surfaces/element edges that have "axis" descriptor.
+// ---------------------------------------------------------------------------
+{
+  vector<BCtriple*>::const_iterator b;
+  int_t                             count = 0;
+  BCtriple*                         BCT;
+
+  for (b = _elmtbc.begin(); b != _elmtbc.end(); b++) {
+    BCT = *b;
+    if (strstr (groupInfo (BCT -> group), "axis")) count++;
+  }
+
+  return count;
+}
+
+
+int_t BCmgr::nMatching (const char* descript)
+// ---------------------------------------------------------------------------
+// Count up the number of surfaces/element edges that have given
+//  string descriptor.
+// ---------------------------------------------------------------------------
+{
+  vector<BCtriple*>::const_iterator b;
+  int_t                             count = 0;
+  BCtriple*                         BCT;
+
+  for (b = _elmtbc.begin(); b != _elmtbc.end(); b++) {
+    BCT = *b;
+    if (strstr (groupInfo (BCT -> group), descript)) count++;
   }
 
   return count;

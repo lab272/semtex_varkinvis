@@ -1,35 +1,23 @@
 ///////////////////////////////////////////////////////////////////////////////
 // domain.cpp: implement domain class functions.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// SYNOPSIS
+// --------
+// Essentially a Domain amounts to a collection of Fields whose data
+// are to be computed by solution of an elliptic (Laplace, Poisson,
+// Helmholtz) problem.
 //
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
+// Copyright (c) 1994+, Hugh M Blackburn
+//
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
 
-Domain::Domain (FEML*             F,
-		vector<Element*>& E,
-		BCmgr*            B) :
+Domain::Domain (const FEML*       file   ,
+		Mesh const*       mesh   ,
+		vector<Element*>& element,
+		BCmgr const*      bcmgr  ) :
 // ---------------------------------------------------------------------------
 // Construct a new Domain with all user Fields for use by a time
 // integrator or elliptic solver (more generally, variables that have
@@ -48,10 +36,15 @@ Domain::Domain (FEML*             F,
 // file are: c, uvp, uvwp, uvcp, uvwcp (but I/O field dumps are
 // allowed other variables and orderings).  We check/enforce these
 // constraints within this constructor.
+//
+// Build assembly map information and masks to allow for solution of
+// global problems (no longer use enumerate utility to construct
+// these).
 // 
 // No initialization of Field MatrixSystems.
+//  
 // ---------------------------------------------------------------------------
-  elmt (E)
+  elmt (element)
 {
   const char  routine[] = "Domain::Domain";
   const int_t verbose   = Femlib::ivalue ("VERBOSE");
@@ -60,11 +53,11 @@ Domain::Domain (FEML*             F,
   int_t       i, nfield;
   real_t*     alloc;
 
-  strcpy ((name = new char [strlen (F -> root()) + 1]), F -> root());
+  strcpy ((name = new char [strlen (file -> root()) + 1]), file -> root());
   Femlib::value ("t", time = 0.0);
   step = 0;
 
-  strcpy ((field = new char [strlen (B -> field()) + 1]), B -> field());
+  strcpy ((field = new char [strlen (bcmgr -> field()) + 1]), bcmgr -> field());
   nfield = strlen (field);
 
   if ((nfield < 1) || (nfield == 2))
@@ -87,13 +80,26 @@ Domain::Domain (FEML*             F,
   
   VERBOSE cout << routine << ": Domain will contain fields: " << field << endl;
 
+  // -- Now check that constraints on (radial, azimuthal) velocity
+  //    components are satisfied in the case that this is a 3D
+  //    cylindrical problem: the types (Dirichlet/Neumann) of these
+  //    BCs must match, off-axis, owing to the coupling required of
+  //    those variables.
+
+  if (Geometry::cylindrical() && (Geometry::nZ() > 2))
+    this -> checkVBCs (file, field);
+
   // -- Build boundary system and field for each variable.
   
   VERBOSE cout << "  Building domain boundary systems ... ";
 
   b.resize (nfield);
-  for (i = 0; i < nfield; i++) b[i] = new BoundarySys (B, E, field[i]);
+  for (i = 0; i < nfield; i++) b[i] = new BoundarySys (bcmgr, elmt, field[i]);
 
+  VERBOSE cout << "done" << endl;
+
+  VERBOSE cout << "  Building assembly mappings ... ";
+	  
   VERBOSE cout << "done" << endl;
 
   VERBOSE cout << "  Building domain fields ... ";
@@ -108,6 +114,215 @@ Domain::Domain (FEML*             F,
   }
 
   VERBOSE cout << "done" << endl;
+}
+
+
+void Domain::checkVBCs (FEML*       file ,
+			char const* field) const
+// ---------------------------------------------------------------------------
+// For cylindrical 3D fluids problems, the declared boundary condition types
+// for velocity fields v & w must be the same for all groups, to allow
+// for coupling of these fields (which uncouples the viscous substep).
+//
+// Check/assert this by running through each group's BCs and checking
+// for tag agreement on v & w BCs.
+//
+// NB: this check isn't required if the problem is 2D2C or 2D3C, just 3D3C.
+// ---------------------------------------------------------------------------
+{
+  const char routine[] = "Domain::checkVBCs";
+
+  if (!Geometry::cylindrical() || (Geometry::nDim() < 3)) return;
+  
+  if (!file->seek ("BCS"))  return;
+  if (!strchr (field, 'u')) return;
+  if (!strchr (field, 'v') || !strchr (field, 'w')) return;
+
+  int_t       i, j, id, nbcs;
+  char        vtag, wtag, groupc, fieldc, tagc, tag[StrMax], err[StrMax];
+  const int_t N (file->attribute ("BCS", "NUMBER"));
+
+  for (i = 0; i < N; i++) {
+
+    while ((groupc = file->stream().peek()) == '#') // -- Skip comments.
+      file->stream().ignore (StrMax, '\n');
+
+    file->stream() >> id >> groupc >> nbcs;
+    vtag = wtag = '\0';
+
+    for (j = 0; j < nbcs; j++) {
+
+      file->stream() >> tag;
+      if (strchr (tag, '<') && strchr (tag, '>') && (strlen (tag) == 3))
+	tagc = tag[1];
+      else {
+	sprintf (err, "unrecognized BC tag format: %s", tag);
+	message (routine, err, ERROR);
+      }
+
+      file->stream() >> fieldc;
+      if      (fieldc == 'v') vtag = tagc;
+      else if (fieldc == 'w') wtag = tagc;
+      file->stream().ignore (StrMax, '\n');
+    }
+    
+    if (!(vtag && wtag)) {
+      sprintf (err, "group %c: BCs for fields 'v' & 'w' both needed", groupc);
+      message (routine, err, ERROR);
+    }
+    if (vtag != wtag) {
+      sprintf (err, "group %c, fields 'v' & 'w': BC type mismatch", groupc);
+      message (routine, err, ERROR);
+    }
+  }
+}
+
+
+char Mesh::axialTag (const FEML* file) const
+// ---------------------------------------------------------------------------
+// Return the character tag corresponding to "axis" group, if that exists.
+// ---------------------------------------------------------------------------
+{
+  if (!file->seek ("GROUPS")) return '\0';
+
+  int_t       i;
+  char        nextc, buf[StrMax];
+  const int_t N (file->attribute ("GROUPS", "NUMBER"));
+  
+  for (i = 0; i < N; i++) {
+    while ((nextc = file->stream().peek()) == '#') // -- Skip comments.
+      file->stream().ignore (StrMax, '\n');
+    file->stream() >> buf >> nextc >> buf;
+    if (strstr (buf, "axis")) return nextc;
+  }
+
+  return '\0';
+}
+
+
+void Mesh::checkAxialBCs (const FEML* file,
+			  const char  atag)
+// ---------------------------------------------------------------------------
+// Run through and ensure that for "axis" group, all BCs are of type <A>.
+// ---------------------------------------------------------------------------
+{
+  if (!file->seek ("BCS")) return;
+
+  int_t       i, j, id, nbcs;
+  char        groupc, fieldc, tagc, tag[StrMax], err[StrMax];
+  const int_t N (file->attribute ("BCS", "NUMBER"));
+
+  for (i = 0; i < N; i++) {
+
+    while ((groupc = file->stream().peek()) == '#') // -- Skip comments.
+      file->stream().ignore (StrMax, '\n');
+
+    file->stream() >> id >> groupc >> nbcs;
+
+    for (j = 0; j < nbcs; j++) {
+
+      file->stream() >> tag;
+      if (strchr (tag, '<') && strchr (tag, '>') && (strlen (tag) == 3))
+	tagc = tag[1];
+      else {
+	sprintf (err, "unrecognized BC tag format: %s", tag);
+	message (prog, err, ERROR);
+      }
+
+      file->stream() >> fieldc;
+
+      if (groupc == atag && tagc != 'A') {
+	sprintf (err, "group '%c': field '%c' needs axis BC", groupc, fieldc);
+	message (prog, err, ERROR);
+      }
+      file->stream().ignore (StrMax, '\n');
+    }
+  }
+}
+
+
+bool Domain::multiModalBCs (const FEML*  file ,
+			    BCmgr const* mgr  ,
+			    char  const* field) const
+// ---------------------------------------------------------------------------
+// For cylindrical 3D problems where the axis is present in the
+// solution domain, we have to cope with axial boundary conditions
+// that vary with Fourier mode, see Blackburn & Sherwin JCP 197
+// (2004), and these are automatically assigned by the code.  In all
+// other cases, the types of BCs are taken to be the same over all
+// Fourier modes considered.  This routine returns true or false (the
+// latter for the simple case).  Also check that v & w BCs are able to
+// be coupled (are everywhere of same type) if required for non-zero
+// modes.  Various checks here were imported from (outdated)
+// enumerate.cpp.
+// ---------------------------------------------------------------------------
+{
+  if (!Geometry::cylindrical()) return false;
+
+  // -- Checks on declarations of axis BCs (even if not eventually used).
+  
+  char axistag = this -> axialTag (file);
+  if (axistag)   this -> checkAxialBCs (file, axistag);
+  
+  if (Geometry::nDim < 3) return false;
+
+  // -- The test is associated with cylindrical coords, 3D3C.
+
+  this -> checkVBCs (file, field);
+
+  // -- That's dealt with the straightforward cases.  Now we require that
+  //    a BC tag of type <A> must be present and also that at least
+  //    one SURFACE references a GROUP tagged with the string "axis".
+
+  if ((file -> isStringInSection ("BCS", "<A>")) && (mgr  -> nAxis() > 0))
+    return true;   // -- Will need BC sets for different Fourier modes.
+  else
+    return false;  // -- Will not.
+}
+
+
+void Domain::makeAssemblyMaps (const Mesh const*  mesh ,
+			       const BCmgr const* mgr  ,
+			       char const*        field) const
+// ---------------------------------------------------------------------------
+// For all the named fields in the problem, set up internal tables of
+// global numbering schemes for subsequent retrieval based on supplied
+// character name and Fourier mode index.  Each field name will map to
+// a 3-long vector of NumberSys* (one each for Fourier modes 0, 1, 2+).
+//
+// Assembly maps are uniquely determined by
+//  
+// 1. the mask vector which tells us if an element-boundary node has
+// an Essential/Dirichlet BC, i.e. the corresponding value is to be
+// lifted out of the solution and
+//
+// 2. by the elliptic problem solution strategy and hence,
+// numbering/assembly methodology applied to the remaining unmasked
+// nodes.
+//
+// We assume that the same solution strategy is going to be applied to
+// all the elliptic sub-problems, hence uniqueness of the mask vector
+// is sufficient.
+//  
+// ---------------------------------------------------------------------------
+{
+  int_t        i, j, mode;
+  char         name;
+  vector<bool> mask;
+  bool         found;
+
+  for (i = 0, i < strlen(field); i++) {
+    name = field[i];
+    for (mode = 0; mode < 3; mode++) {
+      _globalNumbering[name][mode] = new NumberSys*;
+      mesh.buildLiftMask (Geometry::nP(), name, mode, mask);
+      found = false;
+      for (j = 0; !found && j < _n.size(); j++)
+	if (found = _n[j] - > match (mask))
+	  _globalNumbering[name][mode] = _n[j];
+      if (!found) 
+    }
+  }
 }
 
 

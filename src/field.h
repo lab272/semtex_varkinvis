@@ -110,7 +110,8 @@ class Field : public AuxField
 {
 friend class BCmgr;
 public:
-  Field  (BoundarySys*, real_t*, const int_t, vector<Element*>&, const char);
+  Field  (BoundarySys*, NumberSys*, real_t*, const int_t,
+	  vector<Element*>&, const char);
  ~Field  () { }
  
   Field& operator = (const AuxField& z) {AuxField::operator=(z); return *this;}
@@ -147,6 +148,7 @@ private:
   real_t*      _sheet ;		//!<  Wrap-around storage for data boundary.
   real_t**     _line  ;		//!<  Single plane's worth of sheet.
   BoundarySys* _bsys  ;		//!<  Boundary system information.
+  NumberSys*   _nsys  ;         //!<  Global numbering scheme (assembly info).
 
   void getEssential      (const real_t*, real_t*,
 			  const vector<Boundary*>&, const NumberSys*) const;

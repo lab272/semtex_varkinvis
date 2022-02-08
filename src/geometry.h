@@ -22,7 +22,6 @@ class Geometry
 // geometry has been extended to include the processor ID, number of
 // processors, number of data planes per processor, etc.
 //
-// $Id$
 // ===========================================================================
 {
 public:

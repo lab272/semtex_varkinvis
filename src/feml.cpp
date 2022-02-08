@@ -26,26 +26,7 @@
 //
 // TO DO: move to XML.
 //
-// --
-// This file is part of Semtex.
-//
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-//
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <cstdlib>		// -- C standard headers.
 #include <cstdio>
@@ -425,8 +406,6 @@ bool FEML::echo (ostream&    stream,
         return true;
 }
 
-// -- Added by Thomas Albrecht for evaluation of FORCE section.
-
 
 bool FEML::valueFromSection (real_t     *value  ,
 			     const char *section,
@@ -439,7 +418,7 @@ bool FEML::valueFromSection (real_t     *value  ,
 // ---------------------------------------------------------------------------
 {
   char routine[] = "FEML::valueFromSection";
-  char endsection[StrMax], s[StrMax];
+  char endsection[StrMax], s[StrMax], *tok;
 
   sprintf (endsection, "</%s>", section);
 
@@ -449,7 +428,6 @@ bool FEML::valueFromSection (real_t     *value  ,
       stream().getline(s, StrMax);
       if (s[0] == '#') continue;
       if (strstr (s, endsection)) break;
-      char *tok;
       if ((tok = strtok (s, "=")) == NULL) continue;
       if (strstr (tok, token)) {
         tok = strtok (NULL, "\0");
@@ -475,7 +453,7 @@ bool FEML::valueFromSection (int_t      *value  ,
 // ---------------------------------------------------------------------------
 {
   char routine[] = "FEML::valueFromSection";
-  char endsection[StrMax], s[StrMax];
+  char endsection[StrMax], s[StrMax], *tok;
 
   sprintf (endsection, "</%s>", section);
 
@@ -485,7 +463,6 @@ bool FEML::valueFromSection (int_t      *value  ,
       stream().getline(s, StrMax);
       if (s[0] == '#') continue;
       if (strstr (s, endsection)) break;
-      char *tok;
       if ((tok = strtok (s, "=")) == NULL) continue;
       if (strstr (tok, token)) {
         tok = strtok (NULL, "\0");
@@ -511,7 +488,8 @@ bool FEML::valueFromSection (char       *buf    ,
 // ---------------------------------------------------------------------------
 {
   char routine[] = "FEML::valueFromSection";
-  char endsection[StrMax], s[StrMax];
+  char endsection[StrMax], s[StrMax], *tok;
+
 
   sprintf (endsection, "</%s>", section);
 
@@ -521,7 +499,6 @@ bool FEML::valueFromSection (char       *buf    ,
       stream().getline (s, StrMax);
       if (s[0] == '#') continue;
       if (strstr (s, endsection)) break;
-      char *tok;
       if ((tok = strtok (s, "=")) == NULL) continue;
       if (strstr (tok, token)) {
         tok = strtok (NULL, "\0");
@@ -533,6 +510,37 @@ bool FEML::valueFromSection (char       *buf    ,
   } else {
     sprintf (s, "%s section not found", section);
     message (routine, s, ERROR);
+  }
+
+  return false;
+}
+
+
+bool FEML::isStringInSection (const char *section,
+			      const char *string )
+// ---------------------------------------------------------------------------
+// Check if string exists in nominated section.  Return true if it
+// does, otherwise false.  Leave stream positioned at start of next
+// line.
+// ---------------------------------------------------------------------------
+{
+  char routine[] = "FEML::isStringInSection";
+  char endsection[StrMax], s[StrMax];
+
+  sprintf (endsection, "</%s>", section);
+
+  if (seek (section)) {
+    stream().ignore (StrMax, '\n');
+    while (!stream().eof()) {
+      stream().getline (s, StrMax);
+      if (s[0] == '#') continue;
+      if (strstr (s, endsection)) break;
+      if (strstr (s, string) return true;
+    }
+    return false;
+  } else {
+    sprintf (s, "%s section not found", section);
+    message (routine, s, REMARK);
   }
 
   return false;

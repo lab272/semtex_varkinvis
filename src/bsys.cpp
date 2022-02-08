@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // bsys.cpp: BoundarySys class functions.
 //
-// Copyright (c) 1999 <--> $Date$, Hugh Blackburn
+// Copyright (c) 1999+, Hugh M Blackburn
 //
 // The information to be returned by class functions are the global
 // numbering scheme and vector of Boundary*'s for a given Field and
@@ -15,26 +15,7 @@
 // for the 0th, 1st and 2nd (and higher) modes, irrespective of the
 // number of Fourier modes actually used.  See bcmgr.cpp.
 //
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
@@ -44,6 +25,7 @@ BoundarySys::BoundarySys (BCmgr*                  bcmgr,
 			  const char              name ) :
 // ---------------------------------------------------------------------------
 // Construct internal storage for boundary systems for all modes.
+// Input value "name" is one of the standard Field names: "uvwcp".  
 // ---------------------------------------------------------------------------
   _field_name (name),
   _nbound     (bcmgr -> nBCedges()),
@@ -58,9 +40,11 @@ BoundarySys::BoundarySys (BCmgr*                  bcmgr,
   char                        buf[StrMax], group;
   int_t                       i, j, k, offset;
 
+#if 0
   _number = new NumberSys* [3];
   for (i = 0; i < 3; i++) _number[i] = bcmgr -> getNumberSys (_field_name, i);
-
+#endif
+  
   _boundary = new vector<Boundary*> [3];
 
   if (!_nbound) { for (i = 0; i < 3; i++) _boundary[i].resize (0); return; }
@@ -141,6 +125,7 @@ const vector<Boundary*>& BoundarySys::BCs (const int_t mode) const
     _boundary [clamp (mode,static_cast<int_t>(0),static_cast<int_t>(2))];
 }
 
+#if 0
 
 const NumberSys* BoundarySys::Nsys (const int_t mode) const
 // ---------------------------------------------------------------------------
@@ -162,3 +147,5 @@ const real_t* BoundarySys::Imass (const int_t mode) const
   return 
     _number [clamp(mode,static_cast<int_t>(0),static_cast<int_t>(2))]->imass();
 }
+
+#endif

@@ -3,7 +3,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // mesh: header file for Mesh and related classes.
 //
-// $Id$
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <vector>
@@ -24,7 +23,7 @@ class Mesh
 // 
 // Mesh provides seven externally-visible facilities: 
 // (1) Return number of elements in mesh,
-// (2) Generation of element-boundary boundary-to-global mapping vector.
+// (2) Generation of (BC-naive) element-boundary assembly mapping.
 // (3) Generation of element-boundary Essential BC mask vector.
 // (4) Generation of element mesh knot points.
 // (5) Print up NEKTON-style .rea information (backwards compatibility).
@@ -41,11 +40,16 @@ public:
 
   enum IDstatus {UNSET = -1};
 
-  Mesh (FEML*, const bool = true);
+  Mesh (FEML*, const bool true);
 
-  int_t nEl         () const { return _elmtTable.size(); }
-  int_t buildMap    (const int_t, int_t*);
-  void  buildMask   (const int_t, const char, int_t*);
+  int_t nEl () const { return _elmtTable.size(); }
+
+  bool  cylindricalAxis   () const; 
+  
+  void  buildLiftMask     (const int_t, const char, const int_t, bool*);
+  int_t buildAssemblyMap  (const int_t, int_t*);
+  void  buildMask         (const int_t, const char, int_t*);
+  
   void  meshElmt    (const int_t, const int_t, const real_t*, const real_t*,
 		     real_t*, real_t*) const;
   void  printNek    () const;
@@ -94,7 +98,7 @@ public:
     Node*         startNode;
     Node*         endNode;
     Elmt*         thisElmt;
-    Elmt*         mateElmt;	// -- Doubles as a flag for union:
+    Elmt*         mateElmt;	// -- Doubles as a flag for union, set/NULL:
     union { Side* mateSide; char group; };
     void connect (const int_t, int_t&);
   };
@@ -105,8 +109,9 @@ private:
   vector<Elmt*>  _elmtTable;
   vector<Curve*> _curveTable;
 
-  void surfaces      ();
-  void curves        ();
+  void surfaces ();
+  void curves   ();
+  bool _checked;   // -- Connectivity checking was/not applied by constructor.
 
   void checkAssembly ();
   void chooseNode    (Node*, Node*);
@@ -114,7 +119,7 @@ private:
 
   void describeGrp (char, char*)                          const;
   void describeBC  (char, char, char*)                    const;
-  bool matchBC     (const char, const char, const char);
+  bool matchBC     (const char, const char, const char)   const;
 
   void meshSide (const int_t, const int_t, const int_t,
 		 const real_t*, Point*)                   const;

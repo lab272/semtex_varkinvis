@@ -39,6 +39,7 @@ class FEML
 // Keywords are stored upper case, input is case-insensitive.
 // The FEML class does not require that any of the above sections are actually
 // used in an input file, it just treats them as reserved section tag-names.
+//
 // ===========================================================================
 {
 
@@ -46,9 +47,10 @@ public:
   FEML  (const char*);
   ~FEML () { _feml_file.close(); }
 
-  bool valueFromSection (real_t *, const char *, const char *);
-  bool valueFromSection (int_t  *, const char *, const char *);
-  bool valueFromSection (char   *, const char *, const char *);
+  bool valueFromSection  (real_t *, const char *, const char *);
+  bool valueFromSection  (int_t  *, const char *, const char *);
+  bool valueFromSection  (char   *, const char *, const char *);
+  bool isStringInSection (const char *, const char *);  
 
   bool        seek      (const char*);
   int_t       attribute (const char*, const char*);
