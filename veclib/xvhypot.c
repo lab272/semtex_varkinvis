@@ -4,8 +4,6 @@
  * xvhypot:  z[i] = sqrt(SQR(x[i]) + SQR(y[i])).
  *
  * xvmag:    z[i] = sqrt(SQR(w[i]) + SQR(x[i]) + SQR(y[i])).
- *
- * $Id$
  *****************************************************************************/
 
 #include <math.h>

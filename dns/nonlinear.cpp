@@ -8,28 +8,9 @@
 // vector of body force per unit mass (with possible space-time
 // dependency).
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
-// --
-// This file is part of Semtex.
-//
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-//
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <dns.h>
 
@@ -99,8 +80,7 @@ void skewSymmetric (Domain*     D ,
   const int_t NCOM = D -> nVelCmpt();
 
   vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
-  AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
-  Field*            master = D -> u[0];	   // -- For smoothing operations.
+  AuxField*         tmp = D -> u[NADV]; // -- Pressure is used for scratch.
   int_t             i, j;
 
   for (i = 0; i < NADV; i++) {
@@ -112,7 +92,7 @@ void skewSymmetric (Domain*     D ,
     Uphys[i] -> transform (INVERSE);
   }
 
-  B -> maintainPhysical (master, Uphys, NCOM);
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM);
 
   if (Geometry::cylindrical()) {
 
@@ -237,8 +217,8 @@ void skewSymmetric (Domain*     D ,
   }
 
   for (i = 0; i < NADV; i++) {
-    N[i]   -> transform (FORWARD);
-    master -> smooth    (N[i]);
+    N[i] -> transform (FORWARD);
+    N[i] -> smooth (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
   }
 }
 
@@ -254,8 +234,8 @@ void altSkewSymmetric (Domain*     D ,
 // terms used here is so-called "alternating skew symmetric" method
 // (first documented by Bob Kerr) which uses the non-conservative and
 // conservative forms of the nonlinear terms on alternating
-// timesteps. This has shown in testing to be as robust as the full
-// skew symmetric method but costs half as much.
+// timesteps. This has shown in testing to be almost as robust as the
+// full skew symmetric method but costs half as much.
 //
 // NB: this is now used as the default advection scheme.  As noted, it
 // is about as robust but computationally cheaper than full
@@ -291,8 +271,7 @@ void altSkewSymmetric (Domain*     D ,
   const int_t NCOM = D -> nVelCmpt();
   
   vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
-  AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
-  Field*            master = D -> u[0];	   // -- For smoothing operations.
+  AuxField*         tmp = D -> u[NADV]; // -- Pressure is used for scratch.
   int_t             i, j;
   static int        toggle = 1;            // -- Switch u.grad(u) or div(uu).
   
@@ -305,7 +284,7 @@ void altSkewSymmetric (Domain*     D ,
     Uphys[i] -> transform (INVERSE);
   }
 
-  B -> maintainPhysical (master, Uphys, NCOM);
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM);
 
   if (Geometry::cylindrical()) {
 
@@ -450,8 +429,8 @@ void altSkewSymmetric (Domain*     D ,
   }
 
   for (i = 0; i < NADV; i++) {
-    N[i]   -> transform (FORWARD);
-    master -> smooth    (N[i]);
+    N[i] -> transform (FORWARD);
+    N[i] -> smooth (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
   }
   
   toggle = 1 - toggle;
@@ -496,8 +475,7 @@ void convective (Domain*     D ,
   const int_t NCOM = D -> nVelCmpt();
 
   vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
-  AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
-  Field*            master = D -> u[0];	   // -- For smoothing operations.
+  AuxField*         tmp = D -> u[NADV]; // -- Pressure is used for scratch.
   int_t             i, j;
 
   for (i = 0; i < NADV; i++) {
@@ -509,7 +487,7 @@ void convective (Domain*     D ,
     Uphys[i] -> transform (INVERSE);
   }
 
-  B -> maintainPhysical (master, Uphys, NCOM);
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM);
 
   if (Geometry::cylindrical()) {
 
@@ -594,8 +572,8 @@ void convective (Domain*     D ,
   }
 
   for (i = 0; i < NADV; i++) {
-    N[i]   -> transform (FORWARD);
-    master -> smooth    (N[i]);
+    N[i] -> transform (FORWARD);
+    N[i] -> smooth (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
   }
 }
 
@@ -640,8 +618,7 @@ void rotational1 (Domain*     D ,
   const bool  scalar = NADV > NCOM;
 
   vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
-  AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
-  Field*            master = D -> u[0];	   // -- For smoothing operations.
+  AuxField*         tmp = D -> u[NADV]; // -- Pressure is used for scratch.
   int_t             i, j;
 
   for (i = 0; i < NADV; i++) {
@@ -653,7 +630,7 @@ void rotational1 (Domain*     D ,
     Uphys[i] -> transform (INVERSE);
   }
 
-  B -> maintainPhysical (master, Uphys, NCOM);
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM);
 
   if (Geometry::cylindrical()) {
 
@@ -874,8 +851,8 @@ void rotational1 (Domain*     D ,
   }
 
   for (i = 0; i < NADV; i++) {
-    N[i]   -> transform (FORWARD);
-    master -> smooth    (N[i]);
+    N[i] -> transform (FORWARD);
+    N[i] -> smooth (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
   }  
 }
 
@@ -923,8 +900,7 @@ void rotational2 (Domain*     D ,
   const bool  scalar = NADV > NCOM;
 
   vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
-  AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
-  Field*            master = D -> u[0];	   // -- For smoothing operations.
+  AuxField*         tmp = D -> u[NADV]; // -- Pressure is used for scratch.
   int_t             i, j;
 
   for (i = 0; i < NADV; i++) {
@@ -936,7 +912,7 @@ void rotational2 (Domain*     D ,
     Uphys[i] -> transform (INVERSE);
   }
 
-  B -> maintainPhysical (master, Uphys, NCOM);
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM);
 
   if (Geometry::cylindrical()) {
 
@@ -1171,8 +1147,8 @@ void rotational2 (Domain*     D ,
   }
 
   for (i = 0; i < NADV; i++) {
-    N[i]   -> transform (FORWARD);
-    master -> smooth    (N[i]);
+    N[i] -> transform (FORWARD);
+    N[i] -> smooth (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
   }  
 }
 
@@ -1193,7 +1169,6 @@ void Stokes (Domain*     D ,
 
   vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
   AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
-  Field*            master = D -> u[0];	   // -- For smoothing operations.
   int_t             i, j;
 
   for (i = 0; i < NADV; i++) {
@@ -1205,7 +1180,7 @@ void Stokes (Domain*     D ,
     Uphys[i] -> transform (INVERSE);
   }
 
-  B -> maintainPhysical (master, Uphys, NCOM);
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM);
  
   for (i = 0; i < NCOM; i++) FF -> addPhysical (N[i], tmp, i, Uphys);
 
@@ -1243,8 +1218,8 @@ void Stokes (Domain*     D ,
   }
 
   for (i = 0; i < NADV; i++) {
-    N[i]   -> transform (FORWARD);
-    master -> smooth    (N[i]);
+    N[i] -> transform (FORWARD);
+    N[i] -> smooth (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
   }  
 }
 

@@ -754,46 +754,6 @@ Field& Field::smooth (AuxField* slave)
 }
 
 
-void Field::smooth (const int_t nZ ,
-		    real_t*     tgt) const
-/// --------------------------------------------------------------------------
-/// Smooth tgt field along element boundaries using *this, with
-/// mass-average smoothing.  Tgt is assumed to be arranged by planes, with
-/// planeSize() offset between each plane of data.
-// ---------------------------------------------------------------------------
-{
-  const int_t      nel     = Geometry::nElmt();
-  const int_t      npnp    = Geometry::nTotElmt();
-  const int_t      next    = Geometry::nExtElmt();
-  const int_t      nP      = Geometry::planeSize();
-  const NumberSys* N       = _bsys -> Nsys  (0);
-  const real_t*    imass   = _bsys -> Imass (0);
-  const int_t      nglobal = N    -> nGlobal();
-  const int_t*     btog    = N    -> btog();
-  const int_t*     gid;
-  register int_t   i, k;
-  vector<real_t>   work (nglobal);
-  real_t           *src, *dssum = &work[0];
-
-  for (k = 0; k < nZ; k++) {
-
-    Veclib::zero (nglobal, dssum, 1);
-    src = tgt + k * nP;
-    gid = btog;
-
-    for (i = 0; i < nel; i++, src += npnp, gid += next)
-      _elmt[i] -> bndryDsSum (gid, src, dssum);
-
-    Veclib::vmul (nglobal, dssum, 1, imass, 1, dssum, 1);
-    src = tgt + k * nP;
-    gid = btog;
-
-    for (i = 0; i < nel; i++, src += npnp, gid += next)
-      _elmt[i] -> bndryInsert (gid, dssum, src);
-  }
-}
-
-
 real_t Field::scalarFlux (const Field* C)
 /// --------------------------------------------------------------------------
 /// Static member function.

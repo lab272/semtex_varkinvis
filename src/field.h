@@ -121,7 +121,6 @@ public:
   Field& solve  (AuxField*, const ModalMatrixSys*);
 
   Field& smooth (AuxField* = NULL);
-  void   smooth (const int_t, real_t*) const;
 
   void evaluateBoundaries    (const Field*, const int_t, const bool = true);
   void evaluateM0Boundaries  (const Field*, const int_t);

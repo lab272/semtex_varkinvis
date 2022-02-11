@@ -1,29 +1,13 @@
 //////////////////////////////////////////////////////////////////////////////
 /// auxfield.cpp: routines for AuxField class, including Fourier
-/// expansions.  See also auxfield.h.
+/// expansions.  See also auxfield.h.  AuxFields amount to collections
+/// of element storage information and know nothing about mesh
+/// connectivity, or BCs (the Field class, derived from AuxField
+/// class, holds those kinds of extra data).
 //
-//  Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+//  Copyright (c) 1994+, Hugh M Blackburn
 //
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 //////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
@@ -1937,3 +1921,60 @@ AuxField& AuxField::projStab (const real_t alpha,
 
   return *this;
 }
+
+
+AuxField& AuxField::smooth (const int_t   nglobal    ,
+			    const int_t*  assemblymap,
+			    const real_t* inversemass)
+// ---------------------------------------------------------------------------
+// Smooth internal data along element boundaries using mass-average
+// smoothing.
+//
+// The operation is equivalent to finding
+//
+//            -1
+//   {u} = [M]   Sum [M] {u}  ,
+//      g     g     e   e   e
+//
+// where g ==> global, e ==> elemental, [M] ==> mass matrix, and the
+// summation is a "direct stiffness summation", or matrix assembly.
+//
+// This operation only does anything if the data isn't C0 (which it
+// e.g. is if it has resulted from solution of an elliptic problem,
+// since semtex is continuous-Galerkin).
+//
+// The inputs used by the operator are typically held in Domain
+// storage and are determined without any renumbering, masking, BCs
+// etc.  Thus, while an AuxField "knows nothing" about connectivity,
+// we here cheat a little and pass it data associated with that
+// information, but in a way that is BC-agnostic.
+// ---------------------------------------------------------------------------
+{
+  const int_t     nel     = Geometry::nElmt();
+  const int_t     npnp    = Geometry::nTotElmt();
+  const int_t     next    = Geometry::nExtElmt();
+  const int_t*    gid;
+  vector<real_t>  dssum (nglobal); // To do: speed up by passing in work vector.
+  int_t           i, k;
+  real_t*         src;
+
+  for (k = 0; k < _nz; k++) {
+
+    Veclib::zero (nglobal, &dssum[0], 1);
+    src = _plane[k];
+    gid = assemblymap;
+
+    for (i = 0; i < nel; i++, src += npnp, gid += next)
+      _elmt[i] -> bndryDsSum (gid, src, &dssum[0]);
+
+    Veclib::vmul (nglobal, &dssum[0], 1, inversemass, 1, &dssum[0], 1);
+    src = _plane[k];
+    gid = assemblymap;
+
+    for (i = 0; i < nel; i++, src += npnp, gid += next)
+      _elmt[i] -> bndryInsert (gid, &dssum[0], src);
+  }
+
+  return *this;
+}
+

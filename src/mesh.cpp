@@ -910,7 +910,7 @@ int_t Mesh::buildAssemblyMap (const int_t np ,
 // Generate connectivity (i.e. global knot numbers) for a mesh with np
 // knot points (i.e. Lagrange knots) along each element side, ignoring
 // internal element points (i.e. generate connectivity for
-// static-condensation form).
+// element-level static-condensation form).
 //
 // The numbering methodology is naive in that no attempt is made here
 // to optimise the numbering in any way or account for BCs: it is
@@ -1086,7 +1086,11 @@ void Mesh::buildDualGraph (vector<int_t>& adjncy,  // -- Length TBD.
     for (j = 0; j < adjncyList[i].size(); j++)
       adjncy[k++] = adjncyList[i][j] + base;
   }
-  xadj[i] = k + base;
+
+  // -- Conventional terminal values (not used?):
+  
+  adjncy[k] = 0;
+  xadj[i]   = k + base;
 }
 
 
@@ -1452,6 +1456,8 @@ void Mesh::buildLiftMask (const int_t   np  , // -- input, N_P for field.
 //      true for field c (modes 1 and above),
 //      true for field p (modes 1 and above);
 // <I>  true for field c.
+//
+// BC information is obtained from session file.
 // ---------------------------------------------------------------------------
 {
   const char routine[] = "Mesh::buildLiftMask";

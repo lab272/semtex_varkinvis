@@ -16,8 +16,6 @@
  *      nca ... int     ... number of columns in A
  *
  * Consider BLAS2 xgemv as alternatives.
- *
- * $Id$
  *****************************************************************************/
 
 #include <stdio.h>

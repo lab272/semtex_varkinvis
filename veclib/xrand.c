@@ -7,8 +7,6 @@
  * normally-distributed RVs has been implemented.
  *
  * Source: Numerical Recipes 2nd edn.
- *
- * $Id$
  *****************************************************************************/
 
 #include <math.h>

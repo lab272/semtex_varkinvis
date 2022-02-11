@@ -1,7 +1,5 @@
 /*****************************************************************************
  * xvlg10:  y[i] = log10(x[i]).
- *
- * $Id$
  *****************************************************************************/
 
 #include <math.h>
@@ -13,7 +11,7 @@
 #endif
 
 void dvlg10 (int_t n, const double* x, int_t incx,
-                              double* y, int_t incy)
+                            double* y, int_t incy)
 {
   register int_t i;
 
@@ -25,7 +23,7 @@ void dvlg10 (int_t n, const double* x, int_t incx,
 
 
 void svlg10 (int_t n, const float* x, int_t incx,
-                              float* y, int_t incy)
+                            float* y, int_t incy)
 {
   register int_t i;
 

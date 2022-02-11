@@ -3,8 +3,6 @@
  *
  * m is the order of the polynomial and its coefficients are stored in c in
  * descending order: c[0] is the constant term.
- *
- * $Id$
  *****************************************************************************/
 
 #include <cfemdef.h>

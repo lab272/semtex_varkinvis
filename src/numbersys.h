@@ -24,33 +24,33 @@ class NumberSys
 //    long.  Values are set to tue if the corresponding element has
 //    any bmask values set to true, otherwise set to false.
 //
-// Nglobal specifies the number of global nodes, while nsolve ( <=
-// nglobal) specifies the number of global nodes which have bmask
+// _Nglobal specifies the number of global nodes, while _nsolve ( <=
+// _nglobal) specifies the number of global nodes which have _bmask
 // values of false, i.e. where the nodal values will be solved for
 // instead of set explicitly.
 //
-// Nglobal and nsolve also effectively provide a top level in the
-// bmask/emask hierarchy, since if their difference is non-zero then
-// at least one bmask value (and emask value) will be true.
+// _Nglobal and _nsolve also effectively provide a top level in the
+// _bmask/_emask hierarchy, since if their difference is non-zero then
+// at least one _bmask value (and _emask value) will be true.
 // 
-// Btog gives global node numbers to Element-boundary nodes, same
-// length as bmask (nbndry).  The optimization level describes the
-// scheme used to build btog.
+// _Btog gives global node numbers to Element-boundary nodes, same
+// length as _bmask (i.e. _nbndry).  The optimization level describes the
+// scheme used to build _btog.
 //
 // Inv_mass is the inverse of the values of the global mass matrix,
 // but on Element boundaries only.  Used for Field smoothing
 // operations after derivative operators (if required).  Length =
 // nglobal.
 //
-// A NumberSys is uniquely identified by the entries in btog, or
-// equivalently the entries of bmask, together with optimization
+// A NumberSys is uniquely identified by the entries in _btog, or
+// equivalently the entries of _bmask, together with optimization
 // level/global elliptic problem solution strategy.
 // ===========================================================================
 {
 public:
   NumberSys (const int_t, const int_t, const int_t,
 	     const vector<int_t>&, const vector<bool>&);
- ~NumberSys () { }; 
+ ~NumberSys () { };
 
   int_t         nGlobal () const { return _nglobal; }
   int_t         nSolve  () const { return _nsolve;  }
@@ -70,15 +70,21 @@ private:
   int_t   _nbndry ;		// Number of element-edge nodes.
   int_t   _nsolve ;		// Number of non-masked global nodes.
   int_t   _nbandw ;		// Bandwidth of btog (includes diagonal).
+  int_t   _np     ;		// Number of nodes on an element edge.
+  int_t   _nel    ;		// Number of elements;
 
   vector<bool>  _bmask ;        // 1 for essential-BC nodes, 0 otherwise.
   vector<bool>  _emask ;	// 1 if associated Element has any esstl set.
   vector<int_t> _btog  ;	// Gives numbers to all element-boundary knots.
 
-  int_t sortGid (vector<int_t>&, vector<int_t>&);
+  int_t sortGid         (vector<int_t>&, vector<int_t>&);
+  int_t buildAdjncySC   (vector<int_t>&, vector<int_t>&, const int_t = 0) const;
+  int_t globalBandwidth () const;
+  int_t bandwidthSC     (const int_t*, const bool*, const int_t) const;
+  void  RCMnumbering    ();
   
 #if 0  
-  real_t* _imass ;		// Inverse of global mass matrix;
+  real_t* _imass ;		// Inverse of global mass matrix -- to Domain.
 #endif
 };
 

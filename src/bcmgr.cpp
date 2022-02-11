@@ -836,7 +836,7 @@ void BCmgr::buildnum (const char*       session,
     for (q = N -> _bmask, i = 0; i < nel; i++, q += next)
       N -> _emask[i] = Veclib::any (next, q, 1);
   }
-
+#if 0
   // -- Create inverse mass matrices, avoid division by zero on axis.
 
   for (j = 0; j < nset; j++) {
@@ -855,6 +855,7 @@ void BCmgr::buildnum (const char*       session,
 
     for (i = 0; i < nglobal; i++) mass[i] = 1.0 / mass[i];
   }
+#endif  
 }
 
 

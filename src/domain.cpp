@@ -1,10 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // domain.cpp: implement domain class functions.
 //
-// SYNOPSIS
-// --------
-// Essentially a Domain amounts to a collection of Fields whose data
-// are to be computed by solution of an elliptic (Laplace, Poisson,
+// A Domain amounts to a collection of Fields whose data are each to
+// be computed by solution of an elliptic (Laplace, Poisson,
 // Helmholtz) problem.
 //
 // Copyright (c) 1994+, Hugh M Blackburn
@@ -24,7 +22,7 @@ Domain::Domain (const FEML*       file   ,
 // to satisfy a PDE and BCs).  By convention, all Fields stored in the
 // Domain have single-character lower-case names.  On input, the names
 // of the Fields to be created are stored in the string "flds", which
-// is supplied from input class B (obtained from the names in the
+// is supplied from input class bcmgr (obtained from the names in the
 // FIELDS section of a session file).  At present, a Domain can
 // contain *ordered* storage for one vector field (components u v,
 // optionally w), an advected scalar field c, and a constraint scalar
@@ -46,12 +44,18 @@ Domain::Domain (const FEML*       file   ,
 // ---------------------------------------------------------------------------
   elmt (element)
 {
-  const char  routine[] = "Domain::Domain";
-  const int_t verbose   = Femlib::ivalue ("VERBOSE");
-  const int_t nz        = Geometry::nZProc();
-  const int_t ntot      = Geometry::nTotProc();
-  int_t       i, nfield;
-  real_t*     alloc;
+  const char     routine[] = "Domain::Domain";
+  const int_t    verbose   = Femlib::ivalue ("VERBOSE");
+  const int_t    nz        = Geometry::nZProc();
+  const int_t    ntot      = Geometry::nTotProc();
+  const int_t    nboundary = Geometry::nBnode();
+  const int_t    nel       = Geometry::nEl();
+  const int_t    next      = Geometry::nExtElmt();
+  const int_t    npnp      = Geometry::nTotElmt();
+  
+  int_t          i, nfield, *gid;
+  real_t*        alloc;
+  vector<real_t> unity (Geometry::nTotElmt(), 1.0);
 
   strcpy ((name = new char [strlen (file -> root()) + 1]), file -> root());
   Femlib::value ("t", time = 0.0);
@@ -94,14 +98,39 @@ Domain::Domain (const FEML*       file   ,
   VERBOSE cout << "  Building domain boundary systems ... ";
 
   b.resize (nfield);
-  for (i = 0; i < nfield; i++) b[i] = new BoundarySys (bcmgr, elmt, field[i]);
+  for (i = 0; i < nfield; i++)
+    b[i] = new BoundarySys (bcmgr, elmt, field[i]);
 
   VERBOSE cout << "done" << endl;
 
-  VERBOSE cout << "  Building assembly mappings ... ";
-	  
+  VERBOSE cout << "  Building naive assembly mapping and inverse mass ... ";
+
+  // -- N.B. These vectors are different lengths: the mapping vector
+  //    is nel*next (i.e. nboundary) long, and the highest number it
+  //    contains is (actually one less than, because we used 0-based
+  //    indexing) the number of (unique) globally-numbered
+  //    element-boundary nodes in the problem, _nglobal.  OTOH the
+  //    inverse mass matrix has just _nglobal (<= nboundary) storage
+  //    locations.
+
+  _bmapNaive.resize (nboundary);
+  mesh.buildAssemblyMap (Geometry::nP(), &_bmapNaive[0]);
+  _nglobal = _bmapNaive[Veclib::imax(_bmapNaive.size(), &_bmapNaive[0], 1)] + 1;
+  _imassNaive.resize (_nglobal);
+  
+  Veclib::zero (_nglobal, &_imassNaive[0], 1);
+  for (gid = &_bmapNaive[0], i = 0; i < nel; i++, gid += next)
+    element[i] -> bndryDsSum (gid, &unity[0], &_imassNaive[0]);
+  Veclib::srecp (_nglobal, &_imassNaive[0], 1, &imassNaive[0], 1);
+    
   VERBOSE cout << "done" << endl;
 
+  VERBOSE cout << "  Building individual field numbering schemes ... ";
+
+  void this -> makeAssemblyMaps (file, mesh, mgr);
+
+  VERBOSE cout << "done" << endl;
+  
   VERBOSE cout << "  Building domain fields ... ";
 
   u   .resize (nfield);
@@ -264,9 +293,9 @@ bool Domain::multiModalBCs (const FEML*  file ,
   char axistag = this -> axialTag (file);
   if (axistag)   this -> checkAxialBCs (file, axistag);
   
-  if (Geometry::nDim < 3) return false;
+  if (Geometry::nDim() < 3) return false;
 
-  // -- The test is associated with cylindrical coords, 3D3C.
+  // -- This test is associated with cylindrical coords, 3D3C:
 
   this -> checkVBCs (file, field);
 
@@ -281,9 +310,9 @@ bool Domain::multiModalBCs (const FEML*  file ,
 }
 
 
-void Domain::makeAssemblyMaps (const Mesh const*  mesh ,
-			       const BCmgr const* mgr  ,
-			       char const*        field) const
+void Domain::makeAssemblyMaps (const FEML*        file,
+			       const Mesh const*  mesh,
+			       const BCmgr const* mgr )
 // ---------------------------------------------------------------------------
 // For all the named fields in the problem, set up internal tables of
 // global numbering schemes for subsequent retrieval based on supplied
@@ -303,24 +332,61 @@ void Domain::makeAssemblyMaps (const Mesh const*  mesh ,
 // We assume that the same solution strategy is going to be applied to
 // all the elliptic sub-problems, hence uniqueness of the mask vector
 // is sufficient.
-//  
+//
+// Regardless of which process we are on, build NumberSys's for Fourier modes
+// 0, 1, 2, (if they're indicated).  
 // ---------------------------------------------------------------------------
 {
+  const int_t  strat = Femlib::ivalue ("ENUMERATION");
   int_t        i, j, mode;
   char         name;
-  vector<bool> mask;
   bool         found;
+  NumberSys*   N;
+  vector<bool> mask (Geometry::nBnode());
 
-  for (i = 0, i < strlen(field); i++) {
-    name = field[i];
-    for (mode = 0; mode < 3; mode++) {
-      _globalNumbering[name][mode] = new NumberSys*;
-      mesh.buildLiftMask (Geometry::nP(), name, mode, mask);
-      found = false;
-      for (j = 0; !found && j < _n.size(); j++)
-	if (found = _n[j] - > match (mask))
-	  _globalNumbering[name][mode] = _n[j];
-      if (!found) 
+  if (!this -> multiModalBCs (file, mgr, this -> field)) {
+    
+    // -- Numbersystems for all Fourier modes are identical.
+    
+    for (i = 0, i < strlen(this -> field); i++) {
+      name = this -> field[i];
+      mesh.buildLiftMask (Geometry::nP(), name, 0, mask);
+      for (found = false, j = 0; !found && j < _n.size(); j++)
+	if (found = _n[j] -> match (mask)) {
+	  N = _n[j];
+	  break;
+	}
+      if (!found) {
+	N = new NumberSys (Geometry::nP(), Geometry::nEl(),
+			   strat, _naiveMap, mask);
+	_n.push_back (N);
+      }
+
+      for (mode = 0; mode < 3; mode++)
+	_globalNumbering[name][mode] = N;
+    }
+
+  } else {
+
+    // -- Number systems are different for modes 0, 1, 2+ owing to
+    //    presence of axial BCs (Blackburn & Sherwin JCP 197 2004).
+
+    for (i = 0, i < strlen(this -> field); i++) {
+      name = this -> field[i];
+      for (mode = 0; mode < 3; mode++) {
+	mesh.buildLiftMask (Geometry::nP(), name, mode, mask);
+	for (found = false, j = 0; !found && j < _n.size(); j++)
+	  if (found = _n[j] -> match (mask)) {
+	    N = _n[j];
+	    break;
+	  }
+	if (!found) {
+	  N = new NumberSys (Geometry::nP(), Geometry::nEl(),
+			     strat, _naiveMap, mask);
+	  _n.push_back (N);
+	}
+	_globalNumbering[name][mode] = N;
+      }
     }
   }
 }

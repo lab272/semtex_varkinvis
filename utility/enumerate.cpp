@@ -905,31 +905,29 @@ int_t Nsys::globalBandwidth () const
 // --------------------------------------------------------------------------
 {
   register int_t k, noff, nband = 0;
-  const int_t    next = nbndry / nel;
+  const int_t    next = _nbndry / _nel;
 
   for (k = 0, noff = 0; k < nel; k++) {
-    nband = max (this -> bandwidthSC
-		 (&bndmap[0]+noff, &bndmsk[0]+noff, next), nband);
+    nband = max (this -> bandwidthSC (&btog[0]+noff, &_bmask[0]+noff, next),
+		 nband);
     noff += next;
   }
 
-  ++nband; // -- Diagonal.
+  ++nband; // -- Increment to include diagonal in BW.
 
   return nband;
 }
 
 
 int_t Nsys::bandwidthSC (const int_t* bmap,
-			 const int_t* mask,
+			 const bool*  mask,
 			 const int_t  next) const
 // ---------------------------------------------------------------------------
 // Find the global equation bandwidth of this element, excluding
 // diagonal.
 // ---------------------------------------------------------------------------
 {
-  register int_t i;
-  register int_t Min  = INT_MAX;
-  register int_t Max  = INT_MIN;
+  int_t i, Min = INT_MAX, Max = INT_MIN;
 
   for (i = 0; i < next; i++) {
     if (!mask[i]) {

@@ -13,8 +13,6 @@
  *     nca  ... int     ... number of columns in A
  *     C    ... double* ... result vector
  *     ncb  ... int     ... number of columns in B
- *
- * $Id$
  *****************************************************************************/
 
 #include <cfemdef.h>

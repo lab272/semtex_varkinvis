@@ -29,7 +29,6 @@ public:
   vector<Field*>       u   ;  // Solution fields: velocities, scalar, pressure.
   vector<BoundarySys*> b   ;  // Field boundary systems.
 
-
   int_t nField     () const { return u.size(); }
   int_t nAdvect    () const { return u.size() - 1; } // No. of advected terms.
   int_t nVelCmpt   () const { return                 // "" velocity components.
@@ -43,14 +42,22 @@ public:
   
   NumberSys const* getNsys (const char, const int_t) const;
 
+  int_t         nGlobal       () const { return _nglobal;        }
+  const int_t*  assemblyNaive () const { return &_bmapNaive[0];  } 
+  const real_t* invMassNaive  () const { return &_imassNaive[0]; }
+
 private:
   void  checkVBCs        (const FEML*, const char const*) const;
   char  axialTag         (const FEML*) const;
   bool  multiModalBCs    (const FEML*, const BCmgr const*, char const*) const;
-  void  makeAssemblyMaps (const FEML*, const BCmgr const*, char const*) const;
+  void  makeAssemblyMaps (const FEML*, const BCmgr const*, char const*);
 
-  map <const char, NumberSys*[3]> _globalNumbering;
-  vector<NumberSys*>              _n;  // Unique numbering schemes;
+  map <const char, NumberSys*[3]> _globalNumbering; // Pointers into:
+  vector<NumberSys*>              _n;               // unique numbering schemes.
+
+  int_t                           _nglobal;    // Number of unique edge nodes.
+  vector<int_t>                   _bmapNaive;  // BC-agnostic assembly map.
+  vector<real_t>                  _imassNaive; // Inverse mass matrix, _nglobal.
 };
 
 #endif

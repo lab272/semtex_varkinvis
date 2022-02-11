@@ -1,7 +1,5 @@
 /*****************************************************************************
  * xvsgn:  y[i] = sign(x[i])  --  sign = -1 if x<0, else +1.
- *
- * $Id$
  *****************************************************************************/
 
 #include <cfemdef.h>
@@ -12,7 +10,7 @@
 #endif
 
 void dvsgn (int_t n, const double* x, int_t incx,
-                             double* y, int_t incy)
+                           double* y, int_t incy)
 {
   register int_t i;
 
@@ -24,7 +22,7 @@ void dvsgn (int_t n, const double* x, int_t incx,
 
 
 void ivsgn (int_t n, const int_t* x, int_t incx,
-                             int_t* y, int_t incy)
+                           int_t* y, int_t incy)
 {
   register int_t i;
 
@@ -36,7 +34,7 @@ void ivsgn (int_t n, const int_t* x, int_t incx,
 
 
 void svsgn (int_t n, const float* x, int_t incx,
-                             float* y, int_t incy)
+                           float* y, int_t incy)
 {
   register int_t i;
   

@@ -1,7 +1,5 @@
 /*****************************************************************************
  * xvrecp:  y[i] = 1.0 / x[i].
- *
- * $Id$
  *****************************************************************************/
 
 #include <cfemdef.h>
@@ -12,7 +10,7 @@
 #endif
 
 void dvrecp (int_t n, const double* x, int_t incx,
-                              double* y, int_t incy)
+                            double* y, int_t incy)
 {
   register int_t i;
 
@@ -24,7 +22,7 @@ void dvrecp (int_t n, const double* x, int_t incx,
 
 
 void svrecp (int_t n, const float* x, int_t incx,
-                              float* y, int_t incy)
+                            float* y, int_t incy)
 {
   register int_t i;
 

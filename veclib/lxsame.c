@@ -2,8 +2,6 @@
  * lxsame: return 1 if all elements of x any y match, else zero.
  *
  * Floating point versions use absolute tolerances on the allowable difference.
- *
- * $Id$
  *****************************************************************************/
 
 #include <math.h>

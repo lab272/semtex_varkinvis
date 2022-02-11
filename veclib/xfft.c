@@ -7,8 +7,6 @@
 #include "cveclib.h"
 
 
-
-
 int ispow2(int k)
 /* ========================================================================= *
  * Is k a strictly positive int_t power of two?                            *
@@ -18,9 +16,6 @@ int ispow2(int k)
   if (k != 2) return 0;
   else        return 1;
 }
-
-
-
 
 
 int irpow2(int k)
@@ -33,9 +28,6 @@ int irpow2(int k)
 
   return k;
 }
-
-
-
 
  
 void cpreft(int K, complex *Wtab, int Sign)
@@ -62,9 +54,6 @@ void cpreft(int K, complex *Wtab, int Sign)
 }
 
 
-
-
- 
 void zpreft(int K, zomplex *Wtab, int Sign)
 /* ========================================================================= *
  * Make angular factors for FFT, put in Wtab[0..N-1].                        *
@@ -87,9 +76,6 @@ void zpreft(int K, zomplex *Wtab, int Sign)
     Wtab[i].Im = Sign * sin(theta);
   }
 }
-
-
-
 
 
 void cfft(int N, complex *Data, int TabLen, const complex *Wtab, int Forward)
@@ -156,9 +142,6 @@ void cfft(int N, complex *Data, int TabLen, const complex *Wtab, int Forward)
 }
 
 
-
-
-
 void zfft(int N, zomplex *Data, int TabLen, const zomplex *Wtab, int Forward)
 /* ========================================================================= *
  * Zomplex-zomplex FFT.   Forward = 1 ==> forward FFT, 0 ==> inverse.        *
@@ -223,9 +206,6 @@ void zfft(int N, zomplex *Data, int TabLen, const zomplex *Wtab, int Forward)
 }
 
 
-
-
-
 void scfft(int N, complex *Data, int TabLen, const complex *Wtab, int Forward)
 /* ========================================================================= *
  * Perform FFT of real-stored-as-complex data (Real-complex FFT).            *
@@ -285,9 +265,6 @@ void scfft(int N, complex *Data, int TabLen, const complex *Wtab, int Forward)
 }
 
 
-
-
-
 void dzfft(int N, zomplex *Data, int TabLen, const zomplex *Wtab, int Forward)
 /* ========================================================================= *
  * Perform FFT of double-stored-as-zomplex data (double-zomplex FFT).        *
@@ -345,9 +322,6 @@ void dzfft(int N, zomplex *Data, int TabLen, const zomplex *Wtab, int Forward)
     zfft(N, Data, TabLen, Wtab, 0);
   }
 }
-
-
-
 
 
 void dzpfft(int N, zomplex *Zbuf, int Forward)
@@ -422,9 +396,6 @@ void dzpfft(int N, zomplex *Zbuf, int Forward)
     Zbuf[Non2].Im = s2;
   }
 }
-
-
-
 
 
 void scpfft(int N, complex *Zbuf, int Forward)

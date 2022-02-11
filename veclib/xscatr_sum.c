@@ -3,8 +3,6 @@
  *
  * NB:  It is assumed that this operation is vectorizable, i.e. that there
  * are no repeated indices in the indirection vector y.
- *
- * $Id$
  *****************************************************************************/
 
 #include <cfemdef.h>

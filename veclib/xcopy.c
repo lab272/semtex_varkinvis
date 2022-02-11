@@ -2,8 +2,6 @@
  * xcopy:  y[i] = x[i].
  *
  * Use memcpy for cases where both skips are unity.
- *
- * $Id$
  *****************************************************************************/
 
 #include <string.h>

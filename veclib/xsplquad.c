@@ -1,8 +1,6 @@
 /*****************************************************************************
  * xsplquad.c: use cubic spline coefficients to compute definite integral
  * of a piecewise polynomial representation.
- *
- * $Id$
  *****************************************************************************/
 
 #include <cfemdef.h>

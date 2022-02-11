@@ -22,8 +22,6 @@
  * indexed arrays.
  *
  * NB: the vector x must be ordered such that x[0] < x[1] < ... < x[n-1];
- *
- * $Id$
  *****************************************************************************/
 
 #include <stdio.h>
