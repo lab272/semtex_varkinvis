@@ -10,15 +10,15 @@
 #include <sem.h>
 
 
-Field::Field (BoundarySys*      B,
-	      real_t*           M,
-	      const int_t       N,
-	      vector<Element*>& E,
-	      const char        C) :
+Field::Field (BoundarySys*      B ,   // -- BC info for all Fourier modes.
+	      real_t*           M ,   // -- Data storage allocation.
+	      const int_t       nz,   // -- No. of planes of data per process.
+	      vector<Element*>& E ,   // -- Element operator pointers.
+	      const char        C ) : // -- Single-character name (significant).
 /// --------------------------------------------------------------------------
 /// Create storage for a new Field from scratch.
 // ---------------------------------------------------------------------------
-  AuxField (M, N, E, C),
+  AuxField (M, nz, E, C),
   _bsys    (B)
 {
   const int_t              np  = Geometry::nP();
@@ -45,7 +45,7 @@ Field::Field (BoundarySys*      B,
 
   // -- Set values for boundary data (in physical space, so no Field
   //    is needed and first argument is void in line with false final
-  //    one).
+  //    argument).
 
   this -> evaluateBoundaries (NULL, 0, false);
 
@@ -109,7 +109,7 @@ Field& Field::solve (AuxField*             f  ,
   const int_t next  = Geometry::nExtElmt();
   const int_t npnp  = Geometry::nTotElmt();
   const int_t ntot  = Geometry::nPlane();
-  const int_t bmode = Geometry::baseMode();
+  const int_t bmode = Geometry::baseMode(); // -- Process's lowest mode number.
   int_t       i, k, pmode, mode;
 
   for (k = 0; k < _nz; k++) {	// -- Loop over planes of data.
@@ -702,55 +702,6 @@ void Field::addToM0Boundaries (const real_t val,
     for (p = _line[0], i = 0; i < _nbound; i++, p += np)
       BC[i] -> addForGroup (grp, val, p);
   }
-}
-
-
-Field& Field::smooth (AuxField* slave)
-/// --------------------------------------------------------------------------
-/// Smooth slave field along element boundaries using *this, with
-/// mass-average smoothing.
-//  The operation is equivalent to finding
-//
-//            -1
-//   {u} = [M]   Sum [M] {u}  ,
-//      g     g     e   e   e
-//
-// where g ==> global, e ==> elemental, [M] ==> mass matrix, and the
-// summation is a "direct stiffness summation", or matrix assembly.
-//
-/// If slave == 0, smooth this -> data.
-// ---------------------------------------------------------------------------
-{
-  const int_t      nel     = Geometry::nElmt();
-  const int_t      npnp    = Geometry::nTotElmt();
-  const int_t      next    = Geometry::nExtElmt();
-  const NumberSys* N       = _bsys -> Nsys  (0);
-  const real_t*    imass   = _bsys -> Imass (0);
-  const int_t      nglobal = N    -> nGlobal();
-  const int_t*     btog    = N    -> btog();
-  const int_t*     gid;
-  register int_t   i, k;
-  vector<real_t>   work (nglobal);
-  real_t           *src, *dssum = &work[0];
-
-  for (k = 0; k < _nz; k++) {
-
-    Veclib::zero (nglobal, dssum, 1);
-    src = (slave) ? slave -> _plane[k] : _plane[k];
-    gid = btog;
-
-    for (i = 0; i < nel; i++, src += npnp, gid += next)
-      _elmt[i] -> bndryDsSum (gid, src, dssum);
-
-    Veclib::vmul (nglobal, dssum, 1, imass, 1, dssum, 1);
-    src = (slave) ? slave -> _plane[k] : _plane[k];
-    gid = btog;
-
-    for (i = 0; i < nel; i++, src += npnp, gid += next)
-      _elmt[i] -> bndryInsert (gid, dssum, src);
-  }
-
-  return *this;
 }
 
 

@@ -501,9 +501,9 @@ BCmgr::BCmgr (FEML*             file,
 }
 
 
-Condition* BCmgr::getCondition (const char  group,
-				const char  field,
-				const int_t mode )
+const Condition* BCmgr::getCondition (const char  group,
+				      const char  field,
+				      const int_t mode )
 // ---------------------------------------------------------------------------
 // Search internal list of Conditions for appropriate one, such that
 // the stored internal variables match input group & field names.
@@ -515,9 +515,9 @@ Condition* BCmgr::getCondition (const char  group,
 // information.
 // ---------------------------------------------------------------------------
 { 
-  const char routine[] = "BCmgr::getCondition";
-  char       buf[StrMax], err[StrMax], currgrp, currfld;
-  CondRecd*  C;
+  const char                  routine[] = "BCmgr::getCondition";
+  char                        buf[StrMax], err[StrMax], currgrp, currfld;
+  CondRecd*                   C;
   vector<CondRecd*>::iterator c;
   
   for (c = _cond.begin(); c != _cond.end(); c++) {
@@ -579,6 +579,7 @@ const char* BCmgr::groupInfo (const char name) const
   return 0;
 }
 
+#if 0
 
 NumberSys* BCmgr::getNumberSys (const char  name,
 				const int_t mode)
@@ -858,6 +859,7 @@ void BCmgr::buildnum (const char*       session,
 #endif  
 }
 
+#endif
 
 void BCmgr::buildsurf (FEML*             file,
 		       vector<Element*>& Elmt)
@@ -905,8 +907,8 @@ void BCmgr::buildsurf (FEML*             file,
   }
 
   if (Geometry::cylindrical()) {
-    const int_t    np = Geometry::nP();
-    vector<real_t> work (np);
+    const int_t                 np = Geometry::nP();
+    vector<real_t>              work (np);
     vector<BCtriple*>::iterator b;
 
     for (b = _elmtbc.begin(); b != _elmtbc.end(); b++) {

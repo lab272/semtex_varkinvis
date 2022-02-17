@@ -22,7 +22,7 @@
 //
 // Optionally integrate concentration of advected scalar field c.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
 // REFERENCES
 // ----------
@@ -34,33 +34,15 @@
 //     element--Fourier method for three-dimensional incompressible flows
 //     in cylindrical geometries", JCP 179:759-778
 // [4] Dong (2015) "A convective-like energy-stable open boundary condition
-//     for simulations of incompressible flows.  JCP 302:300-328.
+//     for simulations of incompressible flows", JCP 302:300-328.
 // [5] Blackburn, Lee, Albrecht & Singh (2019) "Semtex: a spectral
 //     element--Fourier solver for the incompressible Navier--Stokes
 //     equations in cylindrical or Cartesian coordinates", CPC 245:106804.
 // [6] Blackburm, Lopez, Singh & Smits (2021) "On the Boussinesq
-//     approximation in arbitrarily accelerating frames of reference" JFM.
+//     approximation in arbitrarily accelerating frames of reference",
+//     JFM 924:R1.
 //   
-// --
-// This file is part of Semtex.
-//
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-//
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <dns.h>
 

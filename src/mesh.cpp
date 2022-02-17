@@ -1420,10 +1420,10 @@ void Mesh::buildMask (const int_t np  , // -- input, N_P for field.
 }
 
 
-void Mesh::buildLiftMask (const int_t   np  , // -- input, N_P for field.
-		          const char    fld , // -- input, one of "cuvwp".
-			  const int_t   mode, // -- input, Fourier mode number.
-		          vector<bool>& mask) // -- output, element-edge masks.
+void Mesh::buildLiftMask (const int_t    np  , // -- input, N_P for field.
+		          const char     fld , // -- input, one of "cuvwp".
+			  const int_t    mode, // -- input, Fourier mode number.
+		          vector<int_t>& mask) // -- output, element-edge masks.
 // ---------------------------------------------------------------------------
 // This routine generates an bool mask vector for element-boundary
 // nodes.  For any location that corresponds to a domain boundary with
@@ -1515,7 +1515,7 @@ void Mesh::buildLiftMask (const int_t   np  , // -- input, N_P for field.
     }
   }
 
-  // -- Traverse mesh and load mask values.  No type conversion required...
+  // -- Traverse mesh and load mask values.
 
   for (i = 0; i < nel; i++) {
     E  = _elmtTable[i];

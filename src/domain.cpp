@@ -12,10 +12,10 @@
 #include <sem.h>
 
 
-Domain::Domain (const FEML*       file   ,
-		Mesh const*       mesh   ,
+Domain::Domain (FEML*             file   ,
+		const Mesh*       mesh   ,
 		vector<Element*>& element,
-		BCmgr const*      bcmgr  ) :
+		BCmgr*            bcmgr  ) :
 // ---------------------------------------------------------------------------
 // Construct a new Domain with all user Fields for use by a time
 // integrator or elliptic solver (more generally, variables that have
@@ -27,7 +27,7 @@ Domain::Domain (const FEML*       file   ,
 // contain *ordered* storage for one vector field (components u v,
 // optionally w), an advected scalar field c, and a constraint scalar
 // field p, whose gradient keeps the vector field divergence free
-// (i.e. for an incompressible flow, p is the reduced pressure ---
+// (i.e. for an incompressible flow, p is the reduced pressure;
 // pressure divided bu density).  We also allow just a scalar field
 // (so that the Domain class can be used with an elliptic
 // solver). Hence legal combinations of Fields declared in a session
@@ -36,7 +36,7 @@ Domain::Domain (const FEML*       file   ,
 // constraints within this constructor.
 //
 // Build assembly map information and masks to allow for solution of
-// global problems (no longer use enumerate utility to construct
+// global problems (we no longer use enumerate utility to construct
 // these).
 // 
 // No initialization of Field MatrixSystems.
@@ -49,7 +49,7 @@ Domain::Domain (const FEML*       file   ,
   const int_t    nz        = Geometry::nZProc();
   const int_t    ntot      = Geometry::nTotProc();
   const int_t    nboundary = Geometry::nBnode();
-  const int_t    nel       = Geometry::nEl();
+  const int_t    nel       = Geometry::nElmt();
   const int_t    next      = Geometry::nExtElmt();
   const int_t    npnp      = Geometry::nTotElmt();
   
@@ -114,20 +114,20 @@ Domain::Domain (const FEML*       file   ,
   //    locations.
 
   _bmapNaive.resize (nboundary);
-  mesh.buildAssemblyMap (Geometry::nP(), &_bmapNaive[0]);
+  mesh -> buildAssemblyMap (Geometry::nP(), &_bmapNaive[0]);
   _nglobal = _bmapNaive[Veclib::imax(_bmapNaive.size(), &_bmapNaive[0], 1)] + 1;
   _imassNaive.resize (_nglobal);
   
   Veclib::zero (_nglobal, &_imassNaive[0], 1);
   for (gid = &_bmapNaive[0], i = 0; i < nel; i++, gid += next)
     element[i] -> bndryDsSum (gid, &unity[0], &_imassNaive[0]);
-  Veclib::srecp (_nglobal, &_imassNaive[0], 1, &imassNaive[0], 1);
+  Veclib::vrecp (_nglobal, &_imassNaive[0], 1, &_imassNaive[0], 1);
     
   VERBOSE cout << "done" << endl;
 
   VERBOSE cout << "  Building individual field numbering schemes ... ";
 
-  void this -> makeAssemblyMaps (file, mesh, mgr);
+  this -> makeAssemblyMaps (file, mesh, bcmgr);
 
   VERBOSE cout << "done" << endl;
   
@@ -139,7 +139,7 @@ Domain::Domain (const FEML*       file   ,
   alloc = new real_t [static_cast<size_t>(nfield * ntot)];
   for (i = 0; i < nfield; i++) {
     udat[i] = alloc + i * ntot;
-    u[i]    = new Field (b[i], udat[i], nz, E, field[i]);
+    u[i]    = new Field (b[i], udat[i], nz, elmt, field[i]);
   }
 
   VERBOSE cout << "done" << endl;
@@ -147,7 +147,7 @@ Domain::Domain (const FEML*       file   ,
 
 
 void Domain::checkVBCs (FEML*       file ,
-			char const* field) const
+			const char* field) const
 // ---------------------------------------------------------------------------
 // For cylindrical 3D fluids problems, the declared boundary condition types
 // for velocity fields v & w must be the same for all groups, to allow
@@ -207,7 +207,7 @@ void Domain::checkVBCs (FEML*       file ,
 }
 
 
-char Mesh::axialTag (const FEML* file) const
+char Domain::axialTag (FEML* file) const
 // ---------------------------------------------------------------------------
 // Return the character tag corresponding to "axis" group, if that exists.
 // ---------------------------------------------------------------------------
@@ -229,13 +229,15 @@ char Mesh::axialTag (const FEML* file) const
 }
 
 
-void Mesh::checkAxialBCs (const FEML* file,
-			  const char  atag)
+void Domain::checkAxialBCs (FEML* file,
+			    char  atag) const
 // ---------------------------------------------------------------------------
 // Run through and ensure that for "axis" group, all BCs are of type <A>.
 // ---------------------------------------------------------------------------
 {
   if (!file->seek ("BCS")) return;
+
+  const char routine[] = "Domain::checkAxialBCs";
 
   int_t       i, j, id, nbcs;
   char        groupc, fieldc, tagc, tag[StrMax], err[StrMax];
@@ -255,14 +257,14 @@ void Mesh::checkAxialBCs (const FEML* file,
 	tagc = tag[1];
       else {
 	sprintf (err, "unrecognized BC tag format: %s", tag);
-	message (prog, err, ERROR);
+	message (routine, err, ERROR);
       }
 
       file->stream() >> fieldc;
 
       if (groupc == atag && tagc != 'A') {
 	sprintf (err, "group '%c': field '%c' needs axis BC", groupc, fieldc);
-	message (prog, err, ERROR);
+	message (routine, err, ERROR);
       }
       file->stream().ignore (StrMax, '\n');
     }
@@ -270,9 +272,9 @@ void Mesh::checkAxialBCs (const FEML* file,
 }
 
 
-bool Domain::multiModalBCs (const FEML*  file ,
-			    BCmgr const* mgr  ,
-			    char  const* field) const
+bool Domain::multiModalBCs (FEML*       file ,
+			    BCmgr*      mgr  ,
+			    const char* field) const
 // ---------------------------------------------------------------------------
 // For cylindrical 3D problems where the axis is present in the
 // solution domain, we have to cope with axial boundary conditions
@@ -310,9 +312,9 @@ bool Domain::multiModalBCs (const FEML*  file ,
 }
 
 
-void Domain::makeAssemblyMaps (const FEML*        file,
-			       const Mesh const*  mesh,
-			       const BCmgr const* mgr )
+void Domain::makeAssemblyMaps (FEML*       file,
+			       const Mesh* mesh,
+			       BCmgr*      mgr )
 // ---------------------------------------------------------------------------
 // For all the named fields in the problem, set up internal tables of
 // global numbering schemes for subsequent retrieval based on supplied
@@ -337,28 +339,28 @@ void Domain::makeAssemblyMaps (const FEML*        file,
 // 0, 1, 2, (if they're indicated).  
 // ---------------------------------------------------------------------------
 {
-  const int_t  strat = Femlib::ivalue ("ENUMERATION");
-  int_t        i, j, mode;
-  char         name;
-  bool         found;
-  NumberSys*   N;
-  vector<bool> mask (Geometry::nBnode());
+  const int_t   strat = Femlib::ivalue ("ENUMERATION");
+  int_t         i, j, mode;
+  char          name;
+  bool          found;
+  NumberSys*    N;
+  vector<int_t> mask (Geometry::nBnode());
 
   if (!this -> multiModalBCs (file, mgr, this -> field)) {
     
     // -- Numbersystems for all Fourier modes are identical.
     
-    for (i = 0, i < strlen(this -> field); i++) {
+    for (i = 0; i < strlen(this -> field); i++) {
       name = this -> field[i];
-      mesh.buildLiftMask (Geometry::nP(), name, 0, mask);
+      mesh -> buildLiftMask (Geometry::nP(), name, 0, &mask[0]);
       for (found = false, j = 0; !found && j < _n.size(); j++)
-	if (found = _n[j] -> match (mask)) {
+	if (found = _n[j] -> willMatch (mask)) {
 	  N = _n[j];
 	  break;
 	}
       if (!found) {
-	N = new NumberSys (Geometry::nP(), Geometry::nEl(),
-			   strat, _naiveMap, mask);
+	N = new NumberSys (Geometry::nP(), Geometry::nElmt(),
+			   strat, _bmapNaive, mask);
 	_n.push_back (N);
       }
 
@@ -371,24 +373,37 @@ void Domain::makeAssemblyMaps (const FEML*        file,
     // -- Number systems are different for modes 0, 1, 2+ owing to
     //    presence of axial BCs (Blackburn & Sherwin JCP 197 2004).
 
-    for (i = 0, i < strlen(this -> field); i++) {
+    for (i = 0; i < strlen(this -> field); i++) {
       name = this -> field[i];
       for (mode = 0; mode < 3; mode++) {
-	mesh.buildLiftMask (Geometry::nP(), name, mode, mask);
+	mesh -> buildLiftMask (Geometry::nP(), name, mode, &mask[0]);
 	for (found = false, j = 0; !found && j < _n.size(); j++)
-	  if (found = _n[j] -> match (mask)) {
+	  if (found = _n[j] -> willMatch (mask)) {
 	    N = _n[j];
 	    break;
 	  }
 	if (!found) {
-	  N = new NumberSys (Geometry::nP(), Geometry::nEl(),
-			     strat, _naiveMap, mask);
+	  N = new NumberSys (Geometry::nP(), Geometry::nElmt(),
+			     strat, _bmapNaive, mask);
 	  _n.push_back (N);
 	}
 	_globalNumbering[name][mode] = N;
       }
     }
   }
+}
+
+
+const NumberSys* Domain::getNsys (const char  name,
+				  const int_t mode) const
+// ---------------------------------------------------------------------------
+// Automate retrieval of assembly mapping scheme allocated for a particular
+// Field name and (global) Fourier mode index.
+// ---------------------------------------------------------------------------
+{
+  return
+    _globalNumbering.at (name)
+    [clamp (mode, static_cast<int_t>(0), static_cast<int_t>(2))];
 }
 
 

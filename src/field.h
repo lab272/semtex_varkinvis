@@ -110,7 +110,7 @@ class Field : public AuxField
 {
 friend class BCmgr;
 public:
-  Field  (BoundarySys*, NumberSys*, real_t*, const int_t,
+  Field  (BoundarySys*, real_t*, const int_t,
 	  vector<Element*>&, const char);
  ~Field  () { }
  
@@ -119,8 +119,6 @@ public:
   Field& operator = (const char*     z) {AuxField::operator=(z); return *this;}
 
   Field& solve  (AuxField*, const ModalMatrixSys*);
-
-  Field& smooth (AuxField* = NULL);
 
   void evaluateBoundaries    (const Field*, const int_t, const bool = true);
   void evaluateM0Boundaries  (const Field*, const int_t);
@@ -142,12 +140,11 @@ public:
   static real_t modeConstant  (const char, const int_t, const real_t);
 
 private:
-  int_t        _nbound;		//!<  Number of boundary edges.
-  int_t        _nline ;		//!<  Length of one boundary line.
-  real_t*      _sheet ;		//!<  Wrap-around storage for data boundary.
-  real_t**     _line  ;		//!<  Single plane's worth of sheet.
-  BoundarySys* _bsys  ;		//!<  Boundary system information.
-  NumberSys*   _nsys  ;         //!<  Global numbering scheme (assembly info).
+  int_t         _nbound;	//!<  Number of boundary edges.
+  int_t         _nline ;	//!<  Length of one boundary line.
+  real_t*       _sheet ;	//!<  Wrap-around storage for data boundary.
+  real_t**      _line  ;	//!<  Single plane's worth of sheet.
+  BoundarySys*  _bsys  ;	//!<  Boundary system information.
 
   void getEssential      (const real_t*, real_t*,
 			  const vector<Boundary*>&, const NumberSys*) const;

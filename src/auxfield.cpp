@@ -1950,9 +1950,9 @@ AuxField& AuxField::smooth (const int_t   nglobal    ,
 // information, but in a way that is BC-agnostic.
 // ---------------------------------------------------------------------------
 {
-  const int_t     nel     = Geometry::nElmt();
-  const int_t     npnp    = Geometry::nTotElmt();
-  const int_t     next    = Geometry::nExtElmt();
+  const int_t     nel  = Geometry::nElmt();
+  const int_t     npnp = Geometry::nTotElmt();
+  const int_t     next = Geometry::nExtElmt();
   const int_t*    gid;
   vector<real_t>  dssum (nglobal); // To do: speed up by passing in work vector.
   int_t           i, k;
@@ -1961,6 +1961,7 @@ AuxField& AuxField::smooth (const int_t   nglobal    ,
   for (k = 0; k < _nz; k++) {
 
     Veclib::zero (nglobal, &dssum[0], 1);
+    
     src = _plane[k];
     gid = assemblymap;
 
@@ -1968,6 +1969,7 @@ AuxField& AuxField::smooth (const int_t   nglobal    ,
       _elmt[i] -> bndryDsSum (gid, src, &dssum[0]);
 
     Veclib::vmul (nglobal, &dssum[0], 1, inversemass, 1, &dssum[0], 1);
+    
     src = _plane[k];
     gid = assemblymap;
 

@@ -16,7 +16,7 @@
 //
 // AUTHOR:
 // ------
-// Hugh Blackburn
+// Hugh M Blackburn
 // Department of Mechanical & Aerospace Engineering
 // Monash University
 // Vic 3800
@@ -28,9 +28,10 @@
 // See the more extensive list of references in integrate.cpp.  A
 // general reference for semtex is (same as [5] in integrate.cpp):
 //
-// Blackburn, Lee, Albrecht & Singh (2019) "Semtex: a spectral element
-// Fourier solver for the incompressible Navier Stokes equations in
-// cylindrical or Cartesian coordinates", CPC.
+// Blackburn, Lee, Albrecht & Singh (2019) "Semtex: a spectral
+// element--Fourier solver for the incompressible Navier--Stokes
+// equations in cylindrical or Cartesian coordinates", CPC
+// 245:106804.
 //
 //////////////////////////////////////////////////////////////////////////////
 

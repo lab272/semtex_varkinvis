@@ -12,7 +12,7 @@ NumberSys::NumberSys (const int_t          n_p     , // Element-edge N_P value.
 		      const int_t          n_el    , // Number of quad elements.
 		      const int_t          strat   , // Enumeration strategy.
 		      const vector<int_t>& naiveMap, // Un-optimised assembly.
-		      const vector<bool>&  liftMask) // Flagged for lifting.
+		      const vector<int_t>& liftMask) // Flagged for lifting.
   : _np (n_p), _nel (n_el), _optlevel (strat)
 // ---------------------------------------------------------------------------
 // Create internal storage for a global assembly numbering scheme for a mesh
@@ -53,10 +53,10 @@ NumberSys::NumberSys (const int_t          n_p     , // Element-edge N_P value.
   // -- _emask: says if any external nodes on an element are essential/Dirichet.
   
   for (i = 0; i < _nel; i++) {
-    _emask[i] = false;
+    _emask[i] = 0;
     for (j = 0; j < next; j++)
       if (_bmask[i*next + j]) {
-	_emask[i] = true;
+	_emask[i] = 1;
 	break;
       }
   }
@@ -67,6 +67,26 @@ NumberSys::NumberSys (const int_t          n_p     , // Element-edge N_P value.
   _nsolve = this -> sortGid (_btog, _bmask);
 
   if (_optlevel > 0) this -> RCMrenumbering ();
+}
+
+
+bool NumberSys::willMatch (const vector<int_t>& candidate) const
+// ---------------------------------------------------------------------------
+// Return true if candidate is the same as internal storage _bmask ---
+// in which case the eventual global numbering system _btog for a new
+// NumberSys would come out to be the same if the construction
+// strategy were also the same (which is assumed).
+// ---------------------------------------------------------------------------
+{
+  const char routine[] = "NumberSys::willMatch";
+
+  if (candidate.size() != _bmask.size()) {
+    message (routine, "mismatched mask lengths", REMARK);
+    return false;
+  }
+
+  return (Veclib::lsame (_bmask.size(), &_bmask[0], 1, &candidate[0], 1)) ?
+    true : false;
 }
 
 
@@ -217,7 +237,7 @@ int_t NumberSys::buildAdjncySC (vector<int_t>& adjncy,
 
 void NumberSys::connectivSC (vector<vector<int_t> >& adjList,
 			     const int_t*            bmap   ,
-			     const bool*             mask   ,
+			     const int_t*            mask   ,
 			     const int_t             next   )
   const
 // ---------------------------------------------------------------------------

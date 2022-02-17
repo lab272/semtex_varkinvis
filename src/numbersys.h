@@ -49,17 +49,20 @@ class NumberSys
 {
 public:
   NumberSys (const int_t, const int_t, const int_t,
-	     const vector<int_t>&, const vector<bool>&);
+	     const vector<int_t>&, const vector<int_t>&);
  ~NumberSys () { };
+
+  bool          willMatch   (const vector<int_t>&) const;
 
   int_t         nGlobal () const { return _nglobal; }
   int_t         nSolve  () const { return _nsolve;  }
   int_t         nBand   () const { return _nbandw;  }
 
-  const bool*   bmask   () const { return &_bmask[0]; }
-  const bool*   emask   () const { return &_emask[0]; }
+  const int_t*  bmask   () const { return &_bmask[0];         }
+  const int_t*  emask   () const { return &_emask[0];         }
+  const int_t*  btog    () const { return &_btog[0];          }
   int_t         fmask   () const { return _nglobal - _nsolve; }
-  const int_t*  btog    () const { return _btog;              }
+  
 #if 0  
   const real_t* imass   () const { return _imass;             }
 #endif
@@ -73,8 +76,8 @@ private:
   int_t   _np     ;		// Number of nodes on an element edge.
   int_t   _nel    ;		// Number of elements;
 
-  vector<bool>  _bmask ;        // 1 for essential-BC nodes, 0 otherwise.
-  vector<bool>  _emask ;	// 1 if associated Element has any esstl set.
+  vector<int_t> _bmask ;        // 1 for essential-BC nodes, 0 otherwise.
+  vector<int_t> _emask ;	// 1 if associated Element has any esstl set.
   vector<int_t> _btog  ;	// Gives numbers to all element-boundary knots.
 
   int_t sortGid         (vector<int_t>&, vector<int_t>&);

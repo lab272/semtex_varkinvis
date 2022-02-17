@@ -40,15 +40,15 @@ public:
 
   enum IDstatus {UNSET = -1};
 
-  Mesh (FEML*, const bool true);
+  Mesh (FEML*, const bool = true);
 
   int_t nEl () const { return _elmtTable.size(); }
 
   bool  cylindricalAxis   () const; 
   
-  void  buildLiftMask     (const int_t, const char, const int_t, bool*);
-  int_t buildAssemblyMap  (const int_t, int_t*);
-  void  buildMask         (const int_t, const char, int_t*);
+  void  buildLiftMask    (const int_t, const char, const int_t, int_t*) const;
+  int_t buildAssemblyMap (const int_t, int_t*) const;
+  void  buildMask        (const int_t, const char, int_t*) const;
   
   void  meshElmt    (const int_t, const int_t, const real_t*, const real_t*,
 		     real_t*, real_t*) const;
@@ -98,7 +98,7 @@ public:
     Node*         startNode;
     Node*         endNode;
     Elmt*         thisElmt;
-    Elmt*         mateElmt;	// -- Doubles as a flag for union, set/NULL:
+    Elmt*         mateElmt;	// -- Doubles as a flag for union, if set/NULL:
     union { Side* mateSide; char group; };
     void connect (const int_t, int_t&);
   };

@@ -535,7 +535,7 @@ bool FEML::isStringInSection (const char *section,
       stream().getline (s, StrMax);
       if (s[0] == '#') continue;
       if (strstr (s, endsection)) break;
-      if (strstr (s, string) return true;
+      if (strstr (s, string)) return true;
     }
     return false;
   } else {
