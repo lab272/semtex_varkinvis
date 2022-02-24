@@ -3,14 +3,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Sem.h: main header file for semtex spectral element solvers.
 //
-// Copyright (c) 1994<-->$Date$, Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
 // Conventions: 
 // 1. Arrays are 0-offset.
 // 2. Internal ident numbers id/ID start at 0.
 // 3. Class private variable names start with _.
 //
-// $Id$
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cstdlib>		/* System C(++) headers.  */
@@ -67,12 +66,13 @@ class FluidParticle;
 class NumberSys;
 
 #include <analysis.h>
+#include <assemblymap.h>
 #include <auxfield.h>
 #include <condition.h>
 #include <domain.h>
 #include <edge.h>
 #include <boundary.h>
-#include <bsys.h>
+#include <boundarysys.h>
 #include <bcmgr.h>
 #include <data2df.h>
 #include <family.h>

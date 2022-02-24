@@ -99,6 +99,7 @@ using namespace std;
 #include <femlib.h>
 #include <veclib.h>
 #include <blas.h>
+#include <geometry.h>
 #include <mesh.h>
 
 static inline int_t rma (int_t i, int_t j, int_t n)
@@ -242,8 +243,9 @@ Mesh::Mesh (FEML*      f    ,
   }
 }
 
+#if 0
 
-bool Mesh::cylindricalAxis ()
+bool Mesh::cylindricalAxis () const
 // ---------------------------------------------------------------------------
 // Check if axial BCs will be applied.  This requires that the problem
 // is in cylindrical coordinates AND that axial BCs exist AND that at least
@@ -262,6 +264,7 @@ bool Mesh::cylindricalAxis ()
 
 }
 
+#endif
 
 void Mesh::assemble (const bool printVacancy)
 // ---------------------------------------------------------------------------
@@ -905,7 +908,7 @@ void Mesh::meshElmt (const int_t   ID,
 
 
 int_t Mesh::buildAssemblyMap (const int_t np ,
-			      int_t*      map)
+			      int_t*      map) const
 // ---------------------------------------------------------------------------
 // Generate connectivity (i.e. global knot numbers) for a mesh with np
 // knot points (i.e. Lagrange knots) along each element side, ignoring
@@ -1315,7 +1318,8 @@ void Mesh::describeBC (char  grp,
 
 void Mesh::buildMask (const int_t np  , // -- input, N_P for field.
 		      const char  fld , // -- input, one of "cuvwpCUWP".
-		      bool*       mask) // -- output, element-edge masks.
+		      int_t*      mask) // -- output, element-edge masks.
+  const
 // ---------------------------------------------------------------------------
 // -- Called by enumerate utility.
 //  
@@ -1423,7 +1427,8 @@ void Mesh::buildMask (const int_t np  , // -- input, N_P for field.
 void Mesh::buildLiftMask (const int_t    np  , // -- input, N_P for field.
 		          const char     fld , // -- input, one of "cuvwp".
 			  const int_t    mode, // -- input, Fourier mode number.
-		          vector<int_t>& mask) // -- output, element-edge masks.
+		          int_t*         mask) // -- output, element-edge masks.
+  const
 // ---------------------------------------------------------------------------
 // This routine generates an bool mask vector for element-boundary
 // nodes.  For any location that corresponds to a domain boundary with
@@ -1502,6 +1507,7 @@ void Mesh::buildLiftMask (const int_t    np  , // -- input, N_P for field.
 	     (this -> matchBC (S -> group, tolower (fld), 'D')               ||
 	     (this -> matchBC (S -> group, tolower (fld), 'A') && axisEssnt) ||
 	     (this -> matchBC (S -> group, tolower (fld), 'I') && fld=='c')
+	      )
 	    ) {
 	  S -> startNode -> gID = 1;
 	  S -> endNode   -> gID = 1;

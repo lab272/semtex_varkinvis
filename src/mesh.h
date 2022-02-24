@@ -44,7 +44,9 @@ public:
 
   int_t nEl () const { return _elmtTable.size(); }
 
+#if 0
   bool  cylindricalAxis   () const; 
+#endif
   
   void  buildLiftMask    (const int_t, const char, const int_t, int_t*) const;
   int_t buildAssemblyMap (const int_t, int_t*) const;

@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // statistics.cpp: routines for statistical analysis of AuxFields.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
 // The collection of statistics is controlled by the setting of the
 // AVERAGE token. Legal values are 0 (default), 1, 2, 3. The routines
@@ -220,7 +220,6 @@ void Statistics::update (AuxField** wrka,
   
   char   key;
   int_t  i, j;
-  Field* master = _base -> u[0];
   map<char, AuxField*>::iterator k;
 
   // -- Weight old running averages.
@@ -428,7 +427,8 @@ void Statistics::update (AuxField** wrka,
   // -- Normalise and smooth running averages.
 
   for (k = _avg.begin(); k != _avg.end(); k++) {
-    master -> smooth (k -> second);
+    k -> second -> smooth
+      (_base -> nGlobal(), _base -> assemblyNaive(), _base -> invMassNaive());
     *(k -> second) /= static_cast<real_t>(_navg + 1);
   }
 

@@ -1110,7 +1110,7 @@ void BCmgr::maintainPhysical (const Field*             master,
 {
   if (!_open) return;		   // -- Hence _toggle remains false always.
   
-  const vector<Boundary*>& BC = master -> _bsys -> BCs (0);
+  const vector<Boundary*>& BC = master -> _bsys -> getBCs (0);
   Boundary*                B;
   int_t                    i, j, k, offset, skip;
 
@@ -1189,7 +1189,7 @@ void BCmgr::maintainFourier (const int_t      step   ,
   const real_t             nu    = Femlib::value ("KINVIS");
   const real_t             invDt = 1.0 / Femlib::value ("D_T");
 
-  const vector<Boundary*>& BC    = master -> _bsys -> BCs (0);
+  const vector<Boundary*>& BC    = master -> _bsys -> getBCs (0);
 
   const AuxField*          Ux    = Us[0];
   const AuxField*          Uy    = Us[1];
@@ -1492,7 +1492,7 @@ void BCmgr::accelerate (const Vector& a,
 // routines (and let it come in via Uf in maintainFourier).
 // ---------------------------------------------------------------------------
 {
-  const vector<Boundary*>& BC = u -> _bsys -> BCs (0);
+  const vector<Boundary*>& BC = u -> _bsys -> getBCs (0);
   Boundary*                B;
   int_t                    i;
 
@@ -1532,7 +1532,7 @@ void BCmgr::evaluateCMBCp (const Field* master, // Used for list of boundaries.
   static const real_t      iUZD   = 1.0 / Femlib::value ("DONG_UODELTA");
   static const real_t      iNUD   = 1.0 / Femlib::value ("KINVIS*DONG_DO");
   //  static const real_t      BIAS   = Femlib::value ("DONG_BIAS");
-  const vector<Boundary*>& BC     = master -> _bsys -> BCs (0);
+  const vector<Boundary*>& BC     = master -> _bsys -> getBCs (0);
   const int_t              offset = id * _nP;
   const Boundary*          B;
   real_t*                  beta = _work;
@@ -1703,7 +1703,7 @@ void BCmgr::evaluateCMBCu (const Field* P    , // Pressure field.
   static const real_t  iMu    = Femlib::value ("1.0/KINVIS");
   static const real_t  DOdt   = Femlib::value ("DONG_DO/D_T");
   const int_t          offset = id * _nP;
-  const Boundary*      B      = P -> _bsys -> BCs (0)[id];
+  const Boundary*      B      = P -> _bsys -> getBCs (0)[id];
   
   real_t* alpha = _work;
   real_t* beta  = alpha + Je + 1;

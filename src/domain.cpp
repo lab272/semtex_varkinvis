@@ -19,10 +19,12 @@ Domain::Domain (FEML*             file   ,
 // ---------------------------------------------------------------------------
 // Construct a new Domain with all user Fields for use by a time
 // integrator or elliptic solver (more generally, variables that have
-// to satisfy a PDE and BCs).  By convention, all Fields stored in the
-// Domain have single-character lower-case names.  On input, the names
-// of the Fields to be created are stored in the string "flds", which
-// is supplied from input class bcmgr (obtained from the names in the
+// to satisfy a PDE and BCs).
+//
+//  By convention, all Fields stored in the Domain have
+// single-character lower-case names.  On input, the names of the
+// Fields to be created are stored in the string "field", which is
+// supplied from input class bcmgr (obtained from the names in the
 // FIELDS section of a session file).  At present, a Domain can
 // contain *ordered* storage for one vector field (components u v,
 // optionally w), an advected scalar field c, and a constraint scalar
@@ -33,13 +35,15 @@ Domain::Domain (FEML*             file   ,
 // solver). Hence legal combinations of Fields declared in a session
 // file are: c, uvp, uvwp, uvcp, uvwcp (but I/O field dumps are
 // allowed other variables and orderings).  We check/enforce these
-// constraints within this constructor.
+// constraints within this constructor, and subsequently the ordering
+// and lengths of vectors of Field*, BoundarySys* and NumberSys* held
+// by the Domain matches that in the string "field".
 //
 // Build assembly map information and masks to allow for solution of
 // global problems (we no longer use enumerate utility to construct
 // these).
 // 
-// No initialization of Field MatrixSystems.
+// No initialisation of Field MatrixSystems occurs here.
 //  
 // ---------------------------------------------------------------------------
   elmt (element)
@@ -88,20 +92,10 @@ Domain::Domain (FEML*             file   ,
   //    components are satisfied in the case that this is a 3D
   //    cylindrical problem: the types (Dirichlet/Neumann) of these
   //    BCs must match, off-axis, owing to the coupling required of
-  //    those variables.
+  //    those variables.  Blackburn & Sherwin (2004).
 
   if (Geometry::cylindrical() && (Geometry::nZ() > 2))
     this -> checkVBCs (file, field);
-
-  // -- Build boundary system and field for each variable.
-  
-  VERBOSE cout << "  Building domain boundary systems ... ";
-
-  b.resize (nfield);
-  for (i = 0; i < nfield; i++)
-    b[i] = new BoundarySys (bcmgr, elmt, field[i]);
-
-  VERBOSE cout << "done" << endl;
 
   VERBOSE cout << "  Building naive assembly mapping and inverse mass ... ";
 
@@ -125,9 +119,22 @@ Domain::Domain (FEML*             file   ,
     
   VERBOSE cout << "done" << endl;
 
-  VERBOSE cout << "  Building individual field numbering schemes ... ";
+  VERBOSE cout << "  Building table of all field numbering schemes ... ";
 
   this -> makeAssemblyMaps (file, mesh, bcmgr);
+
+  VERBOSE cout << "done" << endl;
+
+  // -- Build boundary system and field for each variable.
+  
+  VERBOSE cout << "  Building domain boundary systems and numbering... ";
+
+  b.resize (nfield);
+  n.resize (nfield);
+  for (i = 0; i < nfield; i++) {
+    b[i] = new BoundarySys (bcmgr, elmt,  field[i]);
+    n[i] = new NumberSys   (_allMappings, field[i]);
+  }
 
   VERBOSE cout << "done" << endl;
   
@@ -136,10 +143,10 @@ Domain::Domain (FEML*             file   ,
   u   .resize (nfield);
   udat.resize (nfield);
 
-  alloc = new real_t [static_cast<size_t>(nfield * ntot)];
+  alloc = new real_t [static_cast<size_t> (nfield * ntot)];
   for (i = 0; i < nfield; i++) {
     udat[i] = alloc + i * ntot;
-    u[i]    = new Field (b[i], udat[i], nz, elmt, field[i]);
+    u[i]    = new Field (udat[i], b[i], n[i], nz, elmt, field[i]);
   }
 
   VERBOSE cout << "done" << endl;
@@ -319,7 +326,7 @@ void Domain::makeAssemblyMaps (FEML*       file,
 // For all the named fields in the problem, set up internal tables of
 // global numbering schemes for subsequent retrieval based on supplied
 // character name and Fourier mode index.  Each field name will map to
-// a 3-long vector of NumberSys* (one each for Fourier modes 0, 1, 2+).
+// a 3-long vector of AssemblyMap* (one each for Fourier modes 0, 1, 2+).
 //
 // Assembly maps are uniquely determined by
 //  
@@ -335,7 +342,7 @@ void Domain::makeAssemblyMaps (FEML*       file,
 // all the elliptic sub-problems, hence uniqueness of the mask vector
 // is sufficient.
 //
-// Regardless of which process we are on, build NumberSys's for Fourier modes
+// Regardless of which process we are on, build AssemblyMap's for Fourier modes
 // 0, 1, 2, (if they're indicated).  
 // ---------------------------------------------------------------------------
 {
@@ -343,29 +350,31 @@ void Domain::makeAssemblyMaps (FEML*       file,
   int_t         i, j, mode;
   char          name;
   bool          found;
-  NumberSys*    N;
+  AssemblyMap*  N;
   vector<int_t> mask (Geometry::nBnode());
 
   if (!this -> multiModalBCs (file, mgr, this -> field)) {
     
     // -- Numbersystems for all Fourier modes are identical.
     
-    for (i = 0; i < strlen(this -> field); i++) {
+    for (i = 0; i < strlen (this -> field); i++) {
       name = this -> field[i];
       mesh -> buildLiftMask (Geometry::nP(), name, 0, &mask[0]);
-      for (found = false, j = 0; !found && j < _n.size(); j++)
-	if (found = _n[j] -> willMatch (mask)) {
-	  N = _n[j];
+      for (found = false, j = 0; !found && j < _allMappings.size(); j++)
+	if (found = _allMappings[j] -> willMatch (mask)) {
+	  _allMappings[j] -> addTag (name, 0);
+	  _allMappings[j] -> addTag (name, 1);
+	  _allMappings[j] -> addTag (name, 2);
 	  break;
 	}
       if (!found) {
-	N = new NumberSys (Geometry::nP(), Geometry::nElmt(),
-			   strat, _bmapNaive, mask);
-	_n.push_back (N);
+	N = new AssemblyMap (Geometry::nP(), Geometry::nElmt(),
+			     strat, _bmapNaive, mask, name, 0);
+	N -> addTag (name, 1);
+	N -> addTag (name, 2);
+	
+	_allMappings.push_back (N);
       }
-
-      for (mode = 0; mode < 3; mode++)
-	_globalNumbering[name][mode] = N;
     }
 
   } else {
@@ -377,25 +386,25 @@ void Domain::makeAssemblyMaps (FEML*       file,
       name = this -> field[i];
       for (mode = 0; mode < 3; mode++) {
 	mesh -> buildLiftMask (Geometry::nP(), name, mode, &mask[0]);
-	for (found = false, j = 0; !found && j < _n.size(); j++)
-	  if (found = _n[j] -> willMatch (mask)) {
-	    N = _n[j];
+	for (found = false, j = 0; !found && j < _allMappings.size(); j++)
+	  if (found = _allMappings[j] -> willMatch (mask)) {
+	    _allMappings[j] -> addTag (name, mode);
 	    break;
 	  }
 	if (!found) {
-	  N = new NumberSys (Geometry::nP(), Geometry::nElmt(),
-			     strat, _bmapNaive, mask);
-	  _n.push_back (N);
+	  N = new AssemblyMap (Geometry::nP(), Geometry::nElmt(),
+			       strat, _bmapNaive, mask, name, mode);
+	  _allMappings.push_back (N);
 	}
-	_globalNumbering[name][mode] = N;
       }
     }
   }
 }
 
+#if 0
 
-const NumberSys* Domain::getNsys (const char  name,
-				  const int_t mode) const
+const AssemblyMap* Domain::getNsys (const char  name,
+				    const int_t mode) const
 // ---------------------------------------------------------------------------
 // Automate retrieval of assembly mapping scheme allocated for a particular
 // Field name and (global) Fourier mode index.
@@ -406,6 +415,7 @@ const NumberSys* Domain::getNsys (const char  name,
     [clamp (mode, static_cast<int_t>(0), static_cast<int_t>(2))];
 }
 
+#endif
 
 void Domain::report ()
 // ---------------------------------------------------------------------------

@@ -1,7 +1,5 @@
 ##############################################################################
 # Makefile for spectral element foundation routines, and shared definitions.
-#
-# $Id$
 ##############################################################################
 
 ifdef DEBUG
@@ -403,10 +401,11 @@ endif
 # Installation of header files.
 #
 default:
-	cp -f sem.h analysis.h auxfield.h bcmgr.h boundary.h bsys.h	\
-	condition.h data2df.h domain.h edge.h element.h family.h feml.h	\
-	field.h flowrate.h geometry.h history.h integration.h matrix.h 	\
-	mesh.h misc.h numbersys.h particle.h statistics.h svv.h 	\
+	cp -f sem.h analysis.h assemblymap.h auxfield.h bcmgr.h boundary.h \
+	boundarysys.h condition.h data2df.h domain.h edge.h element.h \
+	family.h feml.h field.h flowrate.h geometry.h history.h \
+	integration.h matrix.h mesh.h misc.h numbersys.h particle.h \
+	statistics.h svv.h \
 	../include
 
 #-----------------------------------------------------------------------------

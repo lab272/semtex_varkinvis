@@ -239,7 +239,7 @@ static void preprocess (const char*       session,
 
   VERBOSE cout << "Building domain ..." << endl;
 
-  domain = new Domain (session, mesh, elmt, bman);
+  domain = new Domain (file, mesh, elmt, bman);
 
   VERBOSE cout << "done" << endl;
 

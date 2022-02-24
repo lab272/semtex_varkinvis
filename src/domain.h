@@ -28,6 +28,7 @@ public:
   vector<real_t*>      udat;  // Data storage area for solution fields.
   vector<Field*>       u   ;  // Solution fields: velocities, scalar, pressure.
   vector<BoundarySys*> b   ;  // Corresponding boundary systems.
+  vector<NumberSys*>   n   ;  // Corresponding numbering systems.
 
   int_t nField     () const { return u.size(); }
   int_t nAdvect    () const { return u.size() - 1; } // No. of advected terms.
@@ -40,8 +41,6 @@ public:
   void  dump       ();
   void  transform  (const int_t);
   
-  const NumberSys* getNsys (const char, const int_t) const;
-
   int_t         nGlobal       () const { return _nglobal;        }
   const int_t*  assemblyNaive () const { return &_bmapNaive[0];  } 
   const real_t* invMassNaive  () const { return &_imassNaive[0]; }
@@ -53,12 +52,10 @@ private:
   bool  multiModalBCs    (FEML*, BCmgr*, const char*) const;
   void  makeAssemblyMaps (FEML*, const Mesh*, BCmgr*);
 
-  map <const char, NumberSys*[3]> _globalNumbering; // Pointers into:
-  vector<NumberSys*>              _n;               // unique numbering schemes.
-
-  int_t                           _nglobal;    // Number of unique edge nodes.
-  vector<int_t>                   _bmapNaive;  // BC-agnostic assembly map.
-  vector<real_t>                  _imassNaive; // Inverse mass matrix, _nglobal.
+  int_t                _nglobal;     // Number of unique element-edge nodes.
+  vector<int_t>        _bmapNaive;   // BC-agnostic assembly map.
+  vector<real_t>       _imassNaive;  // Corresp. inverse mass matrix, _nglobal.
+  vector<AssemblyMap*> _allMappings; // Complete set of AssemblyMaps for domain.
 };
 
 #endif
