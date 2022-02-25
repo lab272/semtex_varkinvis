@@ -66,7 +66,7 @@ else
 endif
 CFLAGS   = $(DEFINES) $(OPT)
 CXXFLAGS = $(DEFINES) $(OPT)  \
-	-Wno-unused-value -Wno-parentheses -Wno-switch
+	-Wno-unused-value -Wno-parentheses -Wno-switch -std=c++11
 FFLAGS   = $(DEFINES) $(OPT)
 LDFLAGS  = $(OPT) $(LIBDIR) -lfem -lvec $(F77LIBS)
 F77LIBS  = -framework Accelerate -lgfortran

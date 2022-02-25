@@ -62,8 +62,8 @@ ostream& printVector (ostream&    strm,
     va_start (ap, ntot);
     for (int_t k = 0; k < nvect; k++) u[k] = va_arg (ap, int_t*);
     va_end (ap);
-    for (register int_t l = 0; l < ntot; l++) {
-      for (register int_t j = 0; j < nvect; j++)
+    for (int_t l = 0; l < ntot; l++) {
+      for (int_t j = 0; j < nvect; j++)
 	strm << setw(15) << u[j][l];
       strm << endl;
     }
@@ -75,8 +75,8 @@ ostream& printVector (ostream&    strm,
     va_start (ap, ntot);
     for (int_t k = 0; k < nvect; k++) u[k] = va_arg (ap, real_t*);
     va_end (ap);
-    for (register int_t l = 0; l < ntot; l++) {
-      for (register int_t j = 0; j < nvect; j++)
+    for (int_t l = 0; l < ntot; l++) {
+      for (int_t j = 0; j < nvect; j++)
 	strm << setw(15) << u[j][l];
       strm << endl;
     }

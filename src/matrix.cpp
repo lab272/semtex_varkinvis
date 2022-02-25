@@ -170,7 +170,7 @@ MatrixSys::MatrixSys (const real_t            lambda2,
   const int_t    nint      = Geometry::nIntElmt();
   const int_t    npnp      = Geometry::nTotElmt();
   const int_t*   bmap;
-  register int_t i, j, k, m, n;
+  int_t i, j, k, m, n;
 
   if (verbose && _singular)
     cout << endl

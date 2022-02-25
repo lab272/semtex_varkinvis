@@ -28,7 +28,7 @@ NumberSys::NumberSys (const vector<AssemblyMap*>& allMaps,
 // in input variable allMaps.
 //
 // ---------------------------------------------------------------------------
-  _field_name (name),
+  _field_name (name)
 {
   const char  routine[] = "NumberSys::NumberSys"; 
   const int_t verbose = Femlib::ivalue ("VERBOSE");
@@ -38,9 +38,9 @@ NumberSys::NumberSys (const vector<AssemblyMap*>& allMaps,
 
   _map.resize(3);
   for (i = 0; i < 3; i++) {
-    for (found = false, j = 0; j < allMap.size(); j++)
-      if (found = (allMap[j] -> matchTag (name, i)))
-	_map[i] = allMap[j];
+    for (found = false, j = 0; j < allMaps.size(); j++)
+      if (found = (allMaps[j] -> matchTag (name, i)))
+	_map[i] = allMaps[j];
 
     if (!found) {			// -- Never happen.
       sprintf (err,
@@ -60,5 +60,3 @@ const AssemblyMap* NumberSys::getMap (const int_t mode) const
 {
   return _map [clamp (mode,static_cast<int_t>(0),static_cast<int_t>(2))];
 }
-
-#endif

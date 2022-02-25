@@ -97,7 +97,7 @@ template<class T> inline void rollv (T* u, const int_t n)
 
   T tmp(u[n - 1]);
 
-  for (register int_t q(n - 1); q; q--)
+  for (int_t q(n - 1); q; q--)
     u[q] = u[q - 1];
   u[0] = tmp;
 }

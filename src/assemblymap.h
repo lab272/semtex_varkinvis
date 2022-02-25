@@ -88,7 +88,7 @@ private:
   int_t globalBandwidth () const;
   void  connectivSC     (vector<vector<int_t> >&, const int_t*,
 			 const int_t*, const int_t) const;
-  int_t bandwidthSC     (const int_t*, const bool*, const int_t) const;
+  int_t bandwidthSC     (const int_t*, const int_t*, const int_t) const;
   void  RCMnumbering    ();
 };
 

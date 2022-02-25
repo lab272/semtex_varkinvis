@@ -650,8 +650,8 @@ void BCmgr::buildnum (const char*       session,
   ifstream       num;
   vector<real_t> work (npnp);
   real_t         *mass, *unity = &work[0];
-  register int_t i, j, nset, nglobal;
-  register int_t *gid, *q;
+  int_t i, j, nset, nglobal;
+  int_t *gid, *q;
 
   // -- Read in NumberSystems.
 

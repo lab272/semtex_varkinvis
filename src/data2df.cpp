@@ -157,7 +157,7 @@ Data2DF& Data2DF::F_shift (const real_t alpha,
 {
   const int_t    N = _nz >> 1;
   const int_t    first = (zero) ? 0 : 1;
-  register int_t i;
+  int_t i;
   int_t          k;
   real_t         cosA, sinA, tmp;
   real_t         *Re, *Im;
@@ -201,8 +201,8 @@ Data2DF& Data2DF::operator = (const Data2DF& rhs)
 
   else {			// -- Perform projection.
 
-    register int_t  i, k;
-    register real_t *LHS, *RHS;
+    int_t  i, k;
+    real_t *LHS, *RHS;
     const real_t    *IN,  *IT;
     const int_t     nzm = min (rhs._nz, _nz);
     vector<real_t>  work (rhs._np * _np);

@@ -242,7 +242,7 @@ int_t AssemblyMap::buildAdjncySC (vector<int_t>& adjncy,
   const int_t            next = _nbndry / _nel;
 
   for (k = 0, ntab = 0; k < _nel; k++) {
-    this -> connectivSC (adjncyList, &bndmap[0]+ntab, &bndmsk[0]+ntab, next);
+    this -> connectivSC (adjncyList, &_btog[0]+ntab, &_bmask[0]+ntab, next);
     ntab += next;
   }
 
@@ -295,7 +295,7 @@ void AssemblyMap::connectivSC (vector<vector<int_t> >& adjList,
 // ---------------------------------------------------------------------------
 {
   int_t                   i, j, gidCurr, gidMate;
-  bool                    found
+  bool                    found;
   vector<int_t>::iterator k;
   
   for (i = 0; i < next; i++) {
@@ -348,9 +348,10 @@ void AssemblyMap::RCMnumbering ()
 {
   if (!_optlev || !_nsolve) return;
 
+  const int_t verbose = Femlib::ivalue ("VERBOSE");
+
   VERBOSE cout << "RCM bandwidth optimisation level: " << _optlev ;
 
-  const int_t   verbose = Femlib::ivalue ("VERBOSE");
   int_t         i, root, nlvl;
   vector<int_t> adjncy, xadj;
   const int_t   tabSize = this -> buildAdjncySC (adjncy, xadj, 1); // Base-1.
@@ -367,7 +368,7 @@ void AssemblyMap::RCMnumbering ()
   Veclib::copy (_nbndry, &_btog[0], 1, bsave, 1);
   for (i = _nsolve; i < _nglobal; i++) invperm[i] = i; // -- Dirichlet nodes.
 
-  switch (optlev) {
+  switch (_optlev) {
   case 1: {
     root = 1;
     Veclib::fill   (_nsolve, 1, mask, 1);
@@ -388,7 +389,7 @@ void AssemblyMap::RCMnumbering ()
 
       Veclib::sadd (_nsolve, -1, perm, 1, perm, 1); // -- Revert to base-0.
       for (i = 0; i < _nsolve; i++) invperm[perm[i]] = i;
-      Veclib::gathr (nbndry, invperm, bsave, &_btog[0]);
+      Veclib::gathr (_nbndry, invperm, bsave, &_btog[0]);
 
       BWtest = this -> globalBandwidth();
       if (BWtest < BWmin) {
@@ -447,12 +448,12 @@ int_t AssemblyMap::globalBandwidth () const
 // diagonal).
 // --------------------------------------------------------------------------
 {
-  register int_t k, noff, nband = 0;
-  const int_t    next = nbndry / nel;
+  int_t k, noff, nband = 0;
+  const int_t    next = _nbndry / _nel;
 
-  for (k = 0, noff = 0; k < nel; k++) {
+  for (k = 0, noff = 0; k < _nel; k++) {
     nband = max (this -> bandwidthSC
-		 (&_btog[0]+noff, &bndmsk[0]+noff, next), nband);
+		 (&_btog[0]+noff, &_bmask[0]+noff, next), nband);
     noff += next;
   }
 
@@ -463,7 +464,7 @@ int_t AssemblyMap::globalBandwidth () const
 
 
 int_t AssemblyMap::bandwidthSC (const int_t* bmap,
-				const bool*  mask,
+				const int_t* mask,
 				const int_t  next) const
 // ---------------------------------------------------------------------------
 // Find the global equation bandwidth of this element, excluding

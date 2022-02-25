@@ -359,7 +359,7 @@ void Mixed::augmentSC (const int_t   side  ,
   const int_t    np    = Geometry::nP();
   const int_t    nm    = np - 1;
   const int_t*   start = bmap;
-  register int_t i, k;
+  int_t i, k;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -393,7 +393,7 @@ void Mixed::augmentOp (const int_t   side,
   const int_t    np    = Geometry::nP();
   const int_t    nm    = np - 1;
   const int_t*   start = bmap;
-  register int_t i;
+  int_t i;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -423,7 +423,7 @@ void Mixed::augmentDg (const int_t   side,
   const int_t    np    = Geometry::nP();
   const int_t    nm    = np - 1;
   const int_t*   start = bmap;
-  register int_t i;
+  int_t i;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -578,7 +578,7 @@ void MixedCBCp::augmentSC (const int_t   side  ,
   const int_t    np    = Geometry::nP();
   const int_t    nm    = np - 1;
   const int_t*   start = bmap;
-  register int_t i, k;
+  int_t i, k;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -612,7 +612,7 @@ void MixedCBCp::augmentOp (const int_t   side,
   const int_t    np    = Geometry::nP();
   const int_t    nm    = np - 1;
   const int_t*   start = bmap;
-  register int_t i;
+  int_t i;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -642,7 +642,7 @@ void MixedCBCp::augmentDg (const int_t   side,
   const int_t    np    = Geometry::nP();
   const int_t    nm    = np - 1;
   const int_t*   start = bmap;
-  register int_t i;
+  int_t i;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -750,7 +750,7 @@ void MixedCBCu::augmentSC (const int_t   side  ,
   const int_t    np    = Geometry::nP();
   const int_t    nm    = np - 1;
   const int_t*   start = bmap;
-  register int_t i, k;
+  int_t i, k;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -928,7 +928,7 @@ void MixedCBCv::augmentSC (const int_t   side  ,
   const int_t    np    = Geometry::nP();
   const int_t    nm    = np - 1;
   const int_t*   start = bmap;
-  register int_t i, k;
+  int_t i, k;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -1106,7 +1106,7 @@ void MixedCBCw::augmentSC (const int_t   side  ,
   const int_t    np    = Geometry::nP();
   const int_t    nm    = np - 1;
   const int_t*   start = bmap;
-  register int_t i, k;
+  int_t i, k;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -1240,7 +1240,7 @@ void MixedCBCwIn::augmentSC (const int_t   side  ,
   const int_t    np    = Geometry::nP();
   const int_t    nm    = np - 1;
   const int_t*   start = bmap;
-  register int_t i, k;
+  int_t i, k;
   
   switch (side) {
   case 1: start += nm;           break;

@@ -332,7 +332,7 @@ void Analyser::modalEnergy ()
   const int_t    base  = Geometry::baseMode();
   const int_t    nProc = Geometry::nProc();
   const int_t    NCOM  = _src -> nField() - 1;
-  register int_t i, m;
+  int_t i, m;
   vector<real_t> ek (N);
 
   for (m = 0; m < N; m++) {

@@ -52,7 +52,7 @@ const Element* HistoryPoint::locate (const real_t      x   ,
 // an element E, and return its location in r, s coordinates within E.
 // ---------------------------------------------------------------------------
 {
-  register int_t i;
+  int_t i;
   const int_t    NEL   = Esys.size();
   const bool     guess = true;
   const Element* E;
@@ -72,7 +72,7 @@ void HistoryPoint::extract (vector<AuxField*>& u  ,
 // assumed to have sufficient storage to suit.
 // ---------------------------------------------------------------------------
 {
-  register int_t i;
+  int_t i;
   const int_t    N = u.size();
 
   for (i = 0; i < N; i++) tgt[i] = u[i] -> probe (_E, _r, _s, _z);

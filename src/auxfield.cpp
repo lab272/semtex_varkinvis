@@ -523,8 +523,8 @@ AuxField& AuxField::gradient (const int_t dir)
   const int_t     ntot = nel * npnp;
   const int_t     nP   = Geometry::planeSize();
   vector<real_t>  work;
-  register real_t *xr, *xs, *tmp;
-  register int_t  i, k;
+  real_t *xr, *xs, *tmp;
+  int_t  i, k;
   const real_t    *DV, *DT;
 
   Femlib::quadrature (0, 0, &DV, 0  , np, GLJ, 0.0, 0.0);
@@ -683,9 +683,9 @@ void AuxField::gradient (const int_t nZ ,
   const int_t     np   = Geometry::nP();
   const int_t     npnp = np  * np;
   const int_t     ntot = nel * npnp;
-  register int_t  i, k;
+  int_t  i, k;
   vector<real_t>  work;
-  register real_t *plane, *xr, *xs, *Re, *Im;
+  real_t *plane, *xr, *xs, *Re, *Im;
   const real_t    *DV, *DT;
 
   Femlib::quadrature (0, 0, &DV, 0   , np, GLJ, 0.0, 0.0);
@@ -1056,7 +1056,7 @@ istream& operator >> (istream&  strm,
   const int_t    nP    = Geometry::nPlane();
   const int_t    NP    = Geometry::planeSize();
   const int_t    nProc = Geometry::nProc();
-  register int_t i, k;
+  int_t i, k;
 
   if (nProc > 1) {
 
@@ -1375,7 +1375,7 @@ void AuxField::couple (AuxField*   v  ,
   const int_t    nP    =  Geometry::planeSize();
   const int_t    nMode =  Geometry::nModeProc();
   const int_t    kLo   = (Geometry::procID() == 0) ? 1 : 0;
-  register int_t k, Re, Im;
+  int_t k, Re, Im;
   vector<real_t> work (nP);
   real_t         *Vr, *Vi, *Wr, *Wi, *tp = &work[0];
   
@@ -1431,8 +1431,8 @@ AuxField& AuxField::divY ()
 {
   const int_t      nel  = Geometry::nElmt();
   const int_t      npnp = Geometry::nTotElmt();
-  register int_t   i, k;
-  register real_t* p;
+  int_t   i, k;
+  real_t* p;
 
   for (k = 0; k < _nz; k++)
     for (p = _plane[k], i = 0; i < nel; i++, p += npnp)
@@ -1451,8 +1451,8 @@ void AuxField::divY (const int_t nZ ,
   const int_t      nel  = Geometry::nElmt();
   const int_t      npnp = Geometry::nTotElmt();
   const int_t      ntot = Geometry::planeSize();
-  register int_t   i, k;
-  register real_t* p;
+  int_t   i, k;
+  real_t* p;
 
   for (k = 0; k < nZ; k++)
     for (p = src + k * ntot, i = 0; i < nel; i++, p += npnp)
@@ -1467,8 +1467,8 @@ AuxField& AuxField::mulY ()
 {
   const int_t      nel  = Geometry::nElmt();
   const int_t      npnp = Geometry::nTotElmt();
-  register int_t   i, k;
-  register real_t* p;
+  int_t   i, k;
+  real_t* p;
 
   for (k = 0; k < _nz; k++)
     for (p = _plane[k], i = 0; i < nel; i++, p += npnp)
@@ -1487,8 +1487,8 @@ void AuxField::mulY (const int_t nZ ,
   const int_t      nel  = Geometry::nElmt();
   const int_t      npnp = Geometry::nTotElmt();
   const int_t      ntot = Geometry::planeSize();
-  register int_t   i, k;
-  register real_t* p;   
+  int_t   i, k;
+  real_t* p;   
 
   for (k = 0; k < nZ; k++)
     for (p = src + k * ntot, i = 0; i < nel; i++, p += npnp)
@@ -1503,8 +1503,8 @@ AuxField& AuxField::mulX ()
 {
   const int_t      nel  = Geometry::nElmt();
   const int_t      npnp = Geometry::nTotElmt();
-  register int_t   i, k;
-  register real_t* p;
+  int_t   i, k;
+  real_t* p;
 
   for (k = 0; k < _nz; k++)
     for (p = _plane[k], i = 0; i < nel; i++, p += npnp)
@@ -1523,8 +1523,8 @@ void AuxField::mulX (const int_t nZ ,
   const int_t      nel  = Geometry::nElmt();
   const int_t      npnp = Geometry::nTotElmt();
   const int_t      ntot = Geometry::planeSize();
-  register int_t   i, k;
-  register real_t* p;
+  int_t   i, k;
+  real_t* p;
 
   for (k = 0; k < nZ; k++)
     for (p = src + k * ntot, i = 0; i < nel; i++, p += npnp)
@@ -1630,11 +1630,11 @@ real_t AuxField::probe (const Element* E,
   const int_t      offset = E -> ID() * Geometry::nTotElmt();
   const real_t     betaZ  = z * Femlib::value ("BETA");
 
-  register int_t   k, Re, Im;
-  register real_t  value, phase;
+  int_t   k, Re, Im;
+  real_t  value, phase;
   vector<real_t>   work (nZ + _nz + 3 * np);
-  register real_t* fbuf = &work[0];
-  register real_t* lbuf = fbuf + nZ;
+  real_t* fbuf = &work[0];
+  real_t* lbuf = fbuf + nZ;
   real_t*          ewrk = lbuf + _nz;
 
   if (nP > 1) {
@@ -1691,8 +1691,8 @@ void AuxField::lengthScale (real_t* tgt) const
 {
   const int_t      nel  = Geometry::nElmt();
   const int_t      npnp = Geometry::nTotElmt();
-  register int_t   i;
-  register real_t* p;
+  int_t   i;
+  real_t* p;
 
   for (p = tgt, i = 0; i < nel; i++, p += npnp)
     _elmt[i] -> lengthScale (p);
@@ -1719,8 +1719,8 @@ real_t AuxField::CFL (const int_t dir, int_t& el) const
   const real_t     alpha    = 0.723;		  // -- Indicative max eigval.
   const real_t     c_lambda = 0.2;                // -- See reference.
   const int_t      P        = Geometry::nP() - 1; // -- Polynomial order.
-  register int_t   i, k;
-  register real_t* p;
+  int_t   i, k;
+  real_t* p;
   vector<real_t>   work (npnp);
   real_t           CFL = -FLT_MAX;
   real_t           cfl;
@@ -1828,7 +1828,7 @@ AuxField& AuxField::perturb (const int mode, const double pert)
 /// pert. Auxfield data are assumed be in Fourier space.
 //  --------------------------------------------------------------------------
 {
-  register int j;
+  int j;
   const int    nplane  = Geometry::planeSize();
   const int    relmode = mode - Geometry::baseMode ();
   const int    kr   = (2 * relmode)     * nplane;

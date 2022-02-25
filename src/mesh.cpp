@@ -558,7 +558,7 @@ void Mesh::fixPeriodic()
 // ---------------------------------------------------------------------------
 {
   const int_t    N = _nodeTable.size();
-  register int_t i;
+  int_t i;
   Node           *np, *npp;
 
   for (i = 0; i < N; i++) {
@@ -619,7 +619,7 @@ void Mesh::checkAssembly()
   const int_t    Ne = nEl();
   Elmt*          E;
   Side*          S;
-  register int_t i, j;
+  int_t i, j;
   bool           OK = true;
   
   if (!_checked)
@@ -727,7 +727,7 @@ Point Mesh::Elmt::centroid () const
 // Return point that is centroid of element Node points.
 // ---------------------------------------------------------------------------
 {
-  register int_t i;
+  int_t i;
   const    int_t K = nNodes();
   Point    C = {0.0, 0.0, 0.0};
 
@@ -762,7 +762,7 @@ void Mesh::meshSide (const int_t   np     ,
   const char     routine[] = "Mesh::meshSide";
   const int_t    Nc = _curveTable.size();
   const int_t    Ne = _elmtTable .size();
-  register int_t i;
+  int_t i;
 
   if (np < 2) message (routine, "must have at least two points", ERROR);
 
@@ -821,7 +821,7 @@ void Mesh::meshElmt (const int_t   ID,
   const real_t   y_shft = Femlib::value ("Y_SHIFT");
   const real_t   x_scal = Femlib::value ("X_SCALE");
   const real_t   y_scal = Femlib::value ("Y_SCALE");
-  register int_t i, j;
+  int_t i, j;
   vector<Point>  P (np);
   vector<real_t> work (np);
 
@@ -935,7 +935,7 @@ int_t Mesh::buildAssemblyMap (const int_t np ,
   // -- Create element-side based gID storage, if required, & initialize gIDs.
   
   const int_t    nel = nEl(), ni = np - 2;
-  register int_t i, j, k, ns;
+  int_t i, j, k, ns;
   int_t          nGid = 0, nb = 0;
   Elmt*          E;
   Side*          S;
@@ -1001,8 +1001,8 @@ void Mesh::Side::connect (const int_t ni ,
 // Fill in connectivity for this element side, updating global number gid.
 // ---------------------------------------------------------------------------
 {
-  register int_t i, k;
-  register Side* otherSide;
+  int_t i, k;
+  Side* otherSide;
 
   if (startNode -> periodic) {
     if (startNode -> periodic -> gID == UNSET)
@@ -1349,7 +1349,7 @@ void Mesh::buildMask (const int_t np  , // -- input, N_P for field.
 
   if (np < 2) message (routine, "need at least 2 knots", ERROR);
 
-  register int_t i, j, k, ns, nb = 0;
+  int_t i, j, k, ns, nb = 0;
   const int_t    nel   = nEl(), ni = np - 2;
   const int_t    axisE = strchr ("UvwPC", fld) != 0;
   Elmt*          E;
@@ -1469,7 +1469,7 @@ void Mesh::buildLiftMask (const int_t    np  , // -- input, N_P for field.
 
   if (np < 2) message (routine, "need at least 2 knots", ERROR);
 
-  register int_t i, j, k, ns, nb = 0;
+  int_t i, j, k, ns, nb = 0;
   const int_t    nel   = nEl(), ni = np - 2;
   bool           axisEssnt = false;
   Elmt*          E;

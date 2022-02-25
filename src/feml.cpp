@@ -287,7 +287,7 @@ bool FEML::tokens ()
 {
   const char     routine[] = "FEML::tokens";
   char           buf[STR_MAX];
-  register char* u;
+  char* u;
 
   if (seek ("TOKENS")) {
     _feml_file.ignore (STR_MAX, '\n');

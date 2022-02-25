@@ -27,8 +27,8 @@ Field::Field (real_t*           M ,   // -- Data storage allocation.
   const int_t              nzb = Geometry::basePlane();
   const vector<Boundary*>& BC  = _bsys -> getBCs (0);
   const real_t             dz  = Femlib::value ("TWOPI / BETA / N_Z");
-  register real_t*         p;
-  register int_t           i, k;
+  real_t*         p;
+  int_t           i, k;
 
   // -- Allocate storage for boundary data, round up size for Fourier transform.
   
@@ -298,8 +298,8 @@ void Field::constrain (real_t*          force  ,
   const int_t       ntot  = Geometry::nPlane();
   const int_t*      emask = N -> emask();
   const int_t*      btog  = N -> btog();
-  register Element* E;
-  register int_t    i;
+  Element* E;
+  int_t    i;
   real_t            *u = work, *tmp = work + npnp;
 
   // -- Manufacture -(M f + H g).
@@ -698,7 +698,7 @@ void Field::addToM0Boundaries (const real_t val,
     const vector<Boundary*>& BC = _bsys -> getBCs (0);
     const int_t              np = Geometry::nP();
     real_t*                  p;
-    register int_t           i;
+    int_t           i;
 
     for (p = _line[0], i = 0; i < _nbound; i++, p += np)
       BC[i] -> addForGroup (grp, val, p);
@@ -719,7 +719,7 @@ real_t Field::scalarFlux (const Field* C)
   const vector<Boundary*>& BC = C -> _bsys -> getBCs (0);
   vector<real_t>           work(4 * Geometry::nP());
   real_t                   F = 0.0;
-  register int_t           i;
+  int_t           i;
   
   for (i = 0; i < C -> _nbound; i++)
     F += BC[i] -> scalarFlux ("wall", C -> _data, &work[0]);
@@ -746,7 +746,7 @@ Vector Field::normTraction (const Field* P)
   const int_t              nsurf = P -> _nbound;
   Vector                   secF, F = {0.0, 0.0, 0.0};
   vector<real_t>           work(Geometry::nP());
-  register int_t           i;
+  int_t           i;
   
   for (i = 0; i < nsurf; i++) {
     secF = BC[i] -> normTraction ("wall", P -> _data, &work[0]);
@@ -789,7 +789,7 @@ Vector Field::tangTraction (const Field* U,
   const real_t             mu     = Femlib::value ("RHO * KINVIS");
   Vector                   secF, F= {0.0, 0.0, 0.0};
   vector<real_t>           work(4 * np);
-  register int_t           i;
+  int_t           i;
 
   for (i = 0; i < nbound; i++) {
     secF = UBC[i] -> tangTraction ("wall", U->_data, V->_data, &work[0]);
@@ -858,7 +858,7 @@ void Field::tangTractionV (real_t*      fx,
   Vector                   secF;
   vector<real_t>           work(4 * np);
   real_t                   *u, *v, *w;
-  register int_t           i, j;
+  int_t           i, j;
 
   for (j = 0; j < nz; j++) {
     u = U -> _plane[j];
@@ -966,7 +966,7 @@ void Field::coupleBCs (Field*      v  ,
   if (Geometry::nDim() < 3) return;
 
   const char     routine[] = "Field::coupleBCs";
-  register int_t k, Re, Im;
+  int_t k, Re, Im;
   const int_t    nL    =  v -> _nline;
   const int_t    nMode =  Geometry::nModeProc();
   const int_t    kLo   = (Geometry::procID() == 0) ? 1 : 0;
