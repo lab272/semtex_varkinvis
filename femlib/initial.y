@@ -406,8 +406,8 @@ void yy_show (void)
 }
 
 
-int_t yy_dump (char*         str,
-		 const int_t max)
+int_t yy_dump (char*       str,
+	       const int_t max)
 /* ------------------------------------------------------------------------- *
  * Load description of internal variables into string, to length max.
  * If string overflows, return 0, else 1.

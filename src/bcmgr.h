@@ -22,10 +22,10 @@ public:
   NumberSys*         getNumberSys (const char, const int_t = 0);
 #endif  
   vector<BCtriple*>& getBCedges   () { return _elmtbc; }
-  int_t                    nBCedges     () const { return _elmtbc.size(); }
-  int_t                    nWall        (); // Why not const: OSX compiler bug?
-  int_t                    nAxis        ();
-  int_t                    nMatching    (const char*);
+  int_t              nBCedges     () const { return _elmtbc.size(); }
+  int_t              nWall        (); // Why not const: OSX compiler bug?
+  int_t              nAxis        ();
+  int_t              nMatching    (const char*);
 
   class CondRecd {
   public: 

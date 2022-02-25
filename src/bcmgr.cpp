@@ -259,12 +259,14 @@ BCmgr::BCmgr (FEML*             file,
 
   strcpy ((_fields = new char [strlen (buf) + 1]), buf);
 
+#if 0
   VERBOSE cout << routine << ": Installing numbering systems ... ";
 
   this -> buildnum (file -> root(), elmt);
 
   VERBOSE cout << "done" << endl;
-
+#endif
+  
   if (!file -> seek ("GROUPS")) {
     if (verbose)
       message (routine, "no GROUPS, assuming no boundary conditions", WARNING);

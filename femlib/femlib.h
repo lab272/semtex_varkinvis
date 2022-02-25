@@ -15,8 +15,14 @@
 
 extern "C" {
 
+#if 1
 extern char buf[STR_MAX];
+#endif
 
+#if 0
+  char bufr[STR_MAX];
+#endif
+  
 // -- Routines from initial.y:
 
 void   yy_initialize (void);
