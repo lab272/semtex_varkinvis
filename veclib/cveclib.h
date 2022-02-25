@@ -67,7 +67,7 @@ enum    err_lev {WARNING, ERROR, REMARK};
  * UTILITIES:
  * ------------------------------------------------------------------------- */
 
-char buf[STR_MAX];
+extern char buf[STR_MAX]; /* -- Definition is in util.c */
 
 void    message (const char *routine, const char *txt, int level);
 FILE*   efopen  (const char *file,    const char *mode);

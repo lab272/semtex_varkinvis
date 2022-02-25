@@ -1,4 +1,4 @@
-add_executable (enumerate  ${CMAKE_SOURCE_DIR}/utility/enumerate.cpp)
+#add_executable (enumerate  ${CMAKE_SOURCE_DIR}/utility/enumerate.cpp)
 add_executable (compare    ${CMAKE_SOURCE_DIR}/utility/compare.cpp  )
 add_executable (slit       ${CMAKE_SOURCE_DIR}/utility/slit.c       )
 add_executable (chop       ${CMAKE_SOURCE_DIR}/utility/chop.c       )
@@ -47,8 +47,8 @@ add_custom_command (TARGET probe POST_BUILD
 target_compile_definitions (preplot PRIVATE IRIS=ON)
 target_compile_options     (preplot PRIVATE "-g")
 
-target_link_libraries (enumerate  src fem vec
-		      ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+#target_link_libraries (enumerate  src fem vec
+#		      ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 target_link_libraries (compare    src fem vec
 		      ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 target_link_libraries (slit       src fem vec
@@ -124,7 +124,7 @@ target_link_libraries (meshplot   src fem vec
 target_link_libraries (wavestress src fem vec
 		      ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})		      
 
-target_include_directories (enumerate  PUBLIC veclib femlib src)
+#target_include_directories (enumerate  PUBLIC veclib femlib src)
 target_include_directories (compare    PUBLIC veclib femlib src)
 target_include_directories (slit       PUBLIC veclib femlib src)
 target_include_directories (chop       PUBLIC veclib femlib src)
