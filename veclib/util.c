@@ -2,7 +2,8 @@
  *                   FILE, STRING, I-O, TIMING UTILITIES
  *****************************************************************************/
 
-#include <sys/types.h>
+/* #include <sys/types.h> */ /* No longer required? */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -12,7 +13,7 @@
 #include <cveclib.h>
 
 
-int_t _vecIreg[NVREG];	/* For FORTRAN linkage. */
+int_t   _vecIreg[NVREG];	/* For FORTRAN linkage. */
 char    _vecCreg[NVREG];
 float   _vecSreg[NVREG];
 double  _vecDreg[NVREG];

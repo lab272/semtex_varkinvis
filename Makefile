@@ -1,7 +1,6 @@
 ##############################################################################
 # (GNU) Makefile for spectral element solvers.
 #
-# $Id$
 ##############################################################################
 
 # -- $MAKE supplies the path to GNU make. Since it's typical that make

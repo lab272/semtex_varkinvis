@@ -10,23 +10,23 @@
 
 AssemblyMap::AssemblyMap (const int_t          n_p     , // Element N_P value.
 			  const int_t          n_el    , // Number of elements.
-			  const int_t          strat   , // Enumeration strategy.
-			  const vector<int_t>& naiveMap, // Un-optimised assembly.
-			  const vector<int_t>& liftMask, // Flagged for lifting.
+			  const int_t          strat   , // Renumber strategy.
+			  const vector<int_t>& naiveMap, // Initial assembly.
+			  const vector<int_t>& liftMask, // Flags for lifting.
 			  const char           name    , // Field name.
 			  const int_t          mode    ) // Fourier mode.
   : _np (n_p), _nel (n_el), _optlev (strat)
 // ---------------------------------------------------------------------------
-// Create internal storage for a global assembly numbering scheme for a mesh
-// of 2D quadrilateral elements.
+// Create internal storage for a global assembly numbering scheme for
+// a mesh of 2D quadrilateral elements.
 //
 // Input naiveMap is an un-optimised element-edge assembly mapping
 // generated e.g. by Mesh::buildMap() without reference to BC
 // information.  It is 4*(n_p-1)*n_el in length.
 //
 // Input liftMask (of the same length) flags element-edge nodes which
-// will be lifted out of eventual elliptic solution unknowns; a true
-// value indicates that the element edge data are to be supplied by an
+// will be lifted out of eventual elliptic solution unknowns; a value
+// of 1 indicates that the element edge data are to be supplied by an
 // essential/Dirichlet boundary condition.  This mask vector could be
 // generated e.g. by Mesh::buildMask(). The assembly numbers for the
 // associated global nodes will be sorted to the end of the numbering
