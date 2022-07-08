@@ -28,13 +28,14 @@ AssemblyMap::AssemblyMap (const int_t          n_p     , // Element N_P value.
 // will be lifted out of eventual elliptic solution unknowns; a value
 // of 1 indicates that the element edge data are to be supplied by an
 // essential/Dirichlet boundary condition.  This mask vector could be
-// generated e.g. by Mesh::buildMask(). The assembly numbers for the
-// associated global nodes will be sorted to the end of the numbering
-// scheme created here, and the associated values are not to be solved
-// for.
+// generated e.g. by Mesh::buildLiftMask(). The assembly numbers for
+// the associated global nodes will be sorted to the end of the
+// numbering scheme created here, and the associated values are not to
+// be solved for.
 //
-// Input strat is at present just a flag for optimisation level to be
-// applied to RCM bandwidth minimisation renumbering of global nodes.
+// Input strat is at present just a flag for optimisation level (0
+// .. 3) to be applied to RCM bandwidth minimisation renumbering of
+// global nodes.
 //
 // Inputs name and mode are initial name tags for this object.  If we
 // later find that another field name+mode would get the same assembly
@@ -46,15 +47,16 @@ AssemblyMap::AssemblyMap (const int_t          n_p     , // Element N_P value.
 // ---------------------------------------------------------------------------
 {
   const char  routine[] = "AssemblyMap::AssemblyMap";
-  const int_t next = _nbndry / _nel;
+  const int_t next = Geometry::nExtElmt();
   int_t       i, j;
 
   if (naiveMap.size() != liftMask.size())
     message (routine, "sizes of input vectors don't match",    ERROR);
-  if (naiveMap.size() != 4*(_np-1)*_nel )
+  if (naiveMap.size() != Geometry::nBnode())
     message (routine, "input vectors are of improper lengths", ERROR);
 
-  _tag.resize (0);		// -- Should initially be this in any case...
+  _tag  .resize (0);		// -- Should initially be this in any case...
+  _emask.resize (_nel);
   
   _btog  = naiveMap;
   _bmask = liftMask;
@@ -70,12 +72,14 @@ AssemblyMap::AssemblyMap (const int_t          n_p     , // Element N_P value.
       }
   }
 
-  _nbndry   = naiveMap.size();
-  _nglobal  = naiveMap[Veclib::imax (naiveMap.size(), &naiveMap[0], 1)] + 1;
- 
+  _nbndry  = naiveMap.size();
+  _nglobal = naiveMap[Veclib::imax (naiveMap.size(), &naiveMap[0], 1)] + 1;
+
   _nsolve = this -> sortGid (_btog, _bmask);
 
   if (_optlev > 0) this -> RCMnumbering ();
+
+  _nbandw = this -> globalBandwidth();
 
   _tag.push_back (new pair<char, int_t> (name, mode)); // -- Initial tags map.
 }
@@ -86,7 +90,8 @@ bool AssemblyMap::willMatch (const vector<int_t>& candidate) const
 // Return true if candidate is the same as internal storage _bmask ---
 // in which case the eventual global numbering system _btog for a new
 // AssemblyMap would come out to be the same if the construction
-// strategy were also the same (which is assumed).
+// strategy were also the same (which is assumed, since the same
+// optlevel would be used for all fields at runtime).
 // ---------------------------------------------------------------------------
 {
   const char routine[] = "AssemblyMap::willMatch";
@@ -122,6 +127,22 @@ bool AssemblyMap::matchTag (const char  name,
       return true;
 
   return false;
+}
+
+
+void AssemblyMap::printTags (char* fields) const
+// ---------------------------------------------------------------------------
+// Copy tag names into string fields.  Since by this stage we have no
+// way of knowing (or care) if the AssemblyMap contains encoding for
+// axis BCs, the characters are dealt with as they stand (lower case).
+// ---------------------------------------------------------------------------
+{
+  int_t i, j;
+  for (i = 0, j = 0; i < _tag.size(); i++) {
+    fields[j++] = _tag[i] -> first;
+    //    fields[j++] = '0' + _tag[i] -> second;
+  }
+  fields[j] = '\0';
 }
 
 
@@ -239,7 +260,7 @@ int_t AssemblyMap::buildAdjncySC (vector<int_t>& adjncy,
 {
   int_t                  i, j, k, ntab; 
   vector<vector<int_t> > adjncyList (_nsolve);
-  const int_t            next = _nbndry / _nel;
+  const int_t            next = Geometry::nExtElmt();
 
   for (k = 0, ntab = 0; k < _nel; k++) {
     this -> connectivSC (adjncyList, &_btog[0]+ntab, &_bmask[0]+ntab, next);
@@ -377,7 +398,7 @@ void AssemblyMap::RCMnumbering ()
     break;
   }
   case 2: {
-    int_t rtest, BWtest, BWmin = INT_MAX, best, incr = _nsolve / 20;
+    int_t rtest, BWtest, BWmin = INT_MAX, best, incr = max (10, _nbndry / 10);
 
     VERBOSE cout << ":" << endl;
 
@@ -448,8 +469,8 @@ int_t AssemblyMap::globalBandwidth () const
 // diagonal).
 // --------------------------------------------------------------------------
 {
-  int_t k, noff, nband = 0;
-  const int_t    next = _nbndry / _nel;
+  int_t       k, noff, nband = 0;
+  const int_t next = Geometry::nExtElmt();
 
   for (k = 0, noff = 0; k < _nel; k++) {
     nband = max (this -> bandwidthSC

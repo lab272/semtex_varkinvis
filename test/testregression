@@ -26,11 +26,11 @@ then
   mkdir $RUNDIR/$TEST
   cp $MESHDIR/$TEST .
 fi
-if test -f $TEST.num
-then
-  rm -f $TEST.num
-fi
-$BINDIR/enumerate -O3 $TEST > $TEST.num 2> /dev/null
+#if test -f $TEST.num
+#then
+#  rm -f $TEST.num
+#fi
+#$BINDIR/enumerate -O3 $TEST > $TEST.num 2> /dev/null
 $BINDIR/compare $TEST > $TEST.rst
 $EXEC $BINDIR/$CODE $TEST > /dev/null 2>&1
 $BINDIR/compare -n $TEST $TEST.fld > /dev/null 2> $TEST.new

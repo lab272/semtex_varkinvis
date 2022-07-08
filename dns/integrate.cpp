@@ -142,7 +142,7 @@ void integrate (void (*advection) (Domain*    ,
   for (i = 0; i < NADV; i++) *D -> u[i] = *Uf[0][i];
   A -> analyse (Us[0], Uf[0]);
 
-#else  // -- Normal timstepping.
+#else  // -- Normal timestepping.
   
   // -- The following timestepping loop implements equations (15--18) in [5].
 
@@ -208,9 +208,9 @@ void integrate (void (*advection) (Domain*    ,
       AuxField::couple (D -> u[1], D -> u[2], FORWARD);
     }
 
+    
     for (i = 0; i < NADV; i++) Solve (D, i, Uf[0][i], MMS[i]);
-    if (C3D)
-      AuxField::couple (D -> u[1], D -> u[2], INVERSE);
+    if (C3D) AuxField::couple (D -> u[1], D -> u[2], INVERSE);
 
     // -- Process results of this step.
 
@@ -369,7 +369,7 @@ static void Solve (Domain*     D,
 		   AuxField*   F,
 		   Msys*       M)
 // ---------------------------------------------------------------------------
-// Solve Helmholtz problem for D->u[i], using F as a forcing Field.
+// Solve Helmholtz problem for D -> u[i], using F as a forcing Field.
 // Iterative or direct solver selected on basis of field type, step,
 // time order and command-line arguments.
 // ---------------------------------------------------------------------------
@@ -389,7 +389,8 @@ static void Solve (Domain*     D,
     const real_t   beta    = Femlib::value ("BETA");
 
     Msys* tmp = new Msys
-      (lambda2, beta, base, nmodes, D -> elmt, D -> b[i], D -> n[i],  JACPCG);
+      (lambda2, beta, base, nmodes, D -> elmt, D -> b[i], D -> n[i], JACPCG);
+
     D -> u[i] -> solve (F, tmp);
     delete tmp;
 

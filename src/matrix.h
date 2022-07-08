@@ -12,11 +12,11 @@ friend class Field;
 //friend ostream& operator << (ostream&, MatrixSys&);
 //friend istream& operator >> (istream&, MatrixSys&);
 public:
-  MatrixSys     (const real_t, const real_t, const int_t, const vector<Element*>&,
-		 const BoundarySys*, const NumberSys*, const SolverKind);
- ~MatrixSys     ();
-  bool match    (const real_t, const real_t, const AssemblyMap*,
-		 const SolverKind) const;
+  MatrixSys  (const real_t, const real_t, const int_t, const vector<Element*>&,
+	      const BoundarySys*, const NumberSys*, const SolverKind);
+ ~MatrixSys  ();
+  bool match (const real_t, const real_t, const AssemblyMap*,
+	      const SolverKind) const;
 
 private:
   real_t  _HelmholtzConstant;	// Same for all modes.

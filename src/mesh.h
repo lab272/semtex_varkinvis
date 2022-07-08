@@ -38,7 +38,7 @@ public:
   class Elmt;
   class Side;
 
-  enum IDstatus {UNSET = -1};
+  enum IDstatus { UNSET = -1 };
 
   Mesh (FEML*, const bool = true);
 

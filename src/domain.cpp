@@ -21,7 +21,7 @@ Domain::Domain (FEML*             file   ,
 // integrator or elliptic solver (more generally, variables that have
 // to satisfy a PDE and BCs).
 //
-//  By convention, all Fields stored in the Domain have
+// By convention, all Fields stored in the Domain have
 // single-character lower-case names.  On input, the names of the
 // Fields to be created are stored in the string "field", which is
 // supplied from input class bcmgr (obtained from the names in the
@@ -342,8 +342,10 @@ void Domain::makeAssemblyMaps (FEML*       file,
 // all the elliptic sub-problems, hence uniqueness of the mask vector
 // is sufficient.
 //
-// Regardless of which process we are on, build AssemblyMap's for Fourier modes
-// 0, 1, 2, (if they're indicated).  
+// Regardless of which process we are on, build AssemblyMap's for
+// Fourier modes 0, 1, 2, (if they're indicated).
+//
+// See assemblymap.cpp.
 // ---------------------------------------------------------------------------
 {
   const int_t   strat = Femlib::ivalue ("ENUMERATION");

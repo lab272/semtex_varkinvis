@@ -55,9 +55,10 @@ public:
 	       const char, const int_t);
  ~AssemblyMap () { };
 
-  bool         willMatch (const vector<int_t>&) const;
+  bool         willMatch (const vector<int_t>&)     const;
   void         addTag    (const char, const int_t);
-  bool         matchTag  (const char, const int_t) const;
+  bool         matchTag  (const char, const int_t)  const;
+  void         printTags (char*)                    const;
 
   int_t        nGlobal () const { return _nglobal; }
   int_t        nSolve  () const { return _nsolve;  }
@@ -78,10 +79,10 @@ private:
   int_t _nel    ;	  // Number of elements;
 
   vector<int_t> _bmask;	  // 1 for essential-BC nodes, 0 otherwise.
-  vector<int_t> _emask;	  // 1 if associated Element has any esstl set.
+  vector<int_t> _emask;	  // 1 if associated Element has any essential set.
   vector<int_t> _btog ;	  // Assembly mapping for all element-boundary nodes.
 
-  vector<pair<char, int_t>* > _tag; // Field name and mode tag pairs.
+  vector<pair<char, int_t>* > _tag; // Field name and mode tag pairs for *this.
 
   int_t sortGid         (vector<int_t>&, const vector<int_t>&);
   int_t buildAdjncySC   (vector<int_t>&, vector<int_t>&, const int_t = 0) const;

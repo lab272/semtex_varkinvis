@@ -615,15 +615,17 @@ void Mesh::checkAssembly()
 // been called first.
 // ---------------------------------------------------------------------------
 {
-  char           routine[] = "Mesh::checkAssembly", err[StrMax];
-  const int_t    Ne = nEl();
-  Elmt*          E;
-  Side*          S;
-  int_t i, j;
-  bool           OK = true;
-  
+  char        routine[] = "Mesh::checkAssembly", err[StrMax];
+  const int_t Ne = nEl();
+  Elmt*       E;
+  Side*       S;
+  int_t       i, j;
+  bool        OK = true;
+
+#if 0  
   if (!_checked)
     message (routine, "can't apply this method to an unchecked Mesh", ERROR);
+#endif
 
   for (i = 0; i < Ne; i++) {
     E = _elmtTable[i];
@@ -645,6 +647,8 @@ void Mesh::checkAssembly()
     cout << endl << "# Summary:" << endl;
     showAssembly (*this);
   }
+
+  _checked = true;
 }
 
 
@@ -1321,7 +1325,8 @@ void Mesh::buildMask (const int_t np  , // -- input, N_P for field.
 		      int_t*      mask) // -- output, element-edge masks.
   const
 // ---------------------------------------------------------------------------
-// -- Called by enumerate utility.
+// -- Called by enumerate utility.  This will be deprecated/deleted
+// once we stop using it.
 //  
 // This routine generates an bool mask vector for element-boundary
 // nodes.  For any location that corresponds to a domain boundary with
@@ -1453,14 +1458,17 @@ void Mesh::buildLiftMask (const int_t    np  , // -- input, N_P for field.
 // <A> (depending on field and mode) or <I> (depending on field) is
 // for the mask to be 0/false.
 //
-// Mask is ... 
-// <D>: always true;
-// <A>: true for field u (modes 1 and above),
-//      true for field v (all modes),
-//      true for field w (modes 0, 2 and above),
-//      true for field c (modes 1 and above),
-//      true for field p (modes 1 and above);
-// <I>  true for field c.
+// Output array mask is 0 except on these kinds of boundaries (the
+// modal dependence occurs only for cylindrical coordinate systems and
+// on the domain axis):
+//
+// <D>: 1 (all fields),
+// <A>: 1 for field u (modes 1 and above),
+//      1 for field v (all modes),
+//      1 for field w (modes 0, 2 and above),
+//      1 for field c (modes 1 and above),
+//      1 for field p (modes 1 and above);
+// <I>  1 for field c.
 //
 // BC information is obtained from session file.
 // ---------------------------------------------------------------------------
@@ -1469,17 +1477,19 @@ void Mesh::buildLiftMask (const int_t    np  , // -- input, N_P for field.
 
   if (np < 2) message (routine, "need at least 2 knots", ERROR);
 
-  int_t i, j, k, ns, nb = 0;
-  const int_t    nel   = nEl(), ni = np - 2;
-  bool           axisEssnt = false;
-  Elmt*          E;
-  Side*          S;
+  int_t       i, j, k, ns, nb = 0;
+  const int_t nel = nEl(), ni = np - 2;
+  bool        axisEssnt = false;
+  Elmt*       E;
+  Side*       S;
 
-  // -- Is an axial BC going to be Essential/Dirichlet (true)?
+  // -- Is an axial BC going to be Essential/Dirichlet (mask = 1/true)?
+  //    These rules are encodings of eq. (25) from Blackburn & Sherwin
+  //    (2004), but with scalar (c) added.
 
-  if ((strchr ("ucp", fld) && (mode > 1)) ||
-      (fld == 'v')                        ||
-      (fld == 'w' && (mode != 1)))           axisEssnt = true;
+  if ((strchr ("ucp", fld) && (mode != 0)) ||
+      (fld == 'v')                         ||
+      (fld == 'w'          && (mode != 1)) )     axisEssnt = true;
 
   // -- Allocate space, unmask all gIDs.
 
@@ -1506,7 +1516,7 @@ void Mesh::buildLiftMask (const int_t    np  , // -- input, N_P for field.
 	if (
 	     (this -> matchBC (S -> group, tolower (fld), 'D')               ||
 	     (this -> matchBC (S -> group, tolower (fld), 'A') && axisEssnt) ||
-	     (this -> matchBC (S -> group, tolower (fld), 'I') && fld=='c')
+	     (this -> matchBC (S -> group, tolower (fld), 'I') && fld == 'c')
 	      )
 	    ) {
 	  S -> startNode -> gID = 1;

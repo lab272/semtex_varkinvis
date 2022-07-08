@@ -20,15 +20,16 @@ Field::Field (real_t*           M ,   // -- Data storage allocation.
 /// Create storage for a new Field from scratch.
 // ---------------------------------------------------------------------------
   AuxField (M, nz, E, C),
-  _bsys    (B)
+  _bsys    (B),
+  _nsys    (N)
 {
   const int_t              np  = Geometry::nP();
   const int_t              npr = Geometry::nProc();
   const int_t              nzb = Geometry::basePlane();
   const vector<Boundary*>& BC  = _bsys -> getBCs (0);
   const real_t             dz  = Femlib::value ("TWOPI / BETA / N_Z");
-  real_t*         p;
-  int_t           i, k;
+  real_t*                  p;
+  int_t                    i, k;
 
   // -- Allocate storage for boundary data, round up size for Fourier transform.
   
@@ -177,13 +178,13 @@ Field& Field::solve (AuxField*             f  ,
     break;
 
     case JACPCG: {
-      const int_t     StepMax =  Femlib::ivalue ("STEP_MAX");
-      const int_t     npts    = M -> _npts;
-      real_t          alpha, beta, dotp, epsb2, r2, rho1, rho2;
+      const int_t    StepMax =  Femlib::ivalue ("STEP_MAX");
+      const int_t    npts    = M -> _npts;
+      real_t         alpha, beta, dotp, epsb2, r2, rho1, rho2;
 #if defined (_VECTOR_ARCH)
-      vector<real_t>  work (5 * npts + 3 * Geometry::nPlane());
+      vector<real_t> work (5 * npts + 3 * Geometry::nPlane());
 #else
-      vector<real_t>  work (5 * npts + 4 * Geometry::nTotElmt());
+      vector<real_t> work (5 * npts + 4 * Geometry::nTotElmt());
 #endif
       real_t* r   = &work[0];
       real_t* p   = r + npts;
@@ -194,7 +195,7 @@ Field& Field::solve (AuxField*             f  ,
 
       Veclib::zero (nglobal, x, 1);
 
-      this -> getEssential (bc,x,B,A);  
+      this -> getEssential (bc,x,B,A);
       this -> constrain    (forcing,lambda2,betak2,x,A,wrk);
       this -> buildRHS     (forcing,bc,r,r+nglobal,0,nsolve,nzero,B,A,wrk);
 
@@ -204,12 +205,13 @@ Field& Field::solve (AuxField*             f  ,
       // -- Build globally-numbered x from element store.
 
       this -> local2global (unknown, x, A);
-  
+
       // -- Compute first residual using initial guess: r = b - Ax.
       //    And mask to get residual for the zero-BC problem.
 
       Veclib::zero (nzero, x + nsolve, 1);   
       Veclib::copy (npts,  x, 1, q, 1);
+
       this -> HelmholtzOperator (q, p, lambda2, betak2, mode, wrk);
 
       Veclib::zero (nzero, p + nsolve, 1);
@@ -277,12 +279,12 @@ Field& Field::solve (AuxField*             f  ,
 }
 
 
-void Field::constrain (real_t*          force  ,
-		       const real_t     lambda2,
- 		       const real_t     betak2 ,
-		       const real_t*    esstlbc,
+void Field::constrain (real_t*            force  ,
+		       const real_t       lambda2,
+ 		       const real_t       betak2 ,
+		       const real_t*      esstlbc,
 		       const AssemblyMap* N      ,
-		       real_t*          work   ) const
+		       real_t*            work   ) const
 /// --------------------------------------------------------------------------
 /// Replace f's data with constrained weak form of forcing: - M f - H g.
 /// On input, essential BC values (g) have been loaded into globally-numbered
@@ -350,6 +352,7 @@ void Field::HelmholtzOperator (const real_t* x      ,
   const int_t        next    = Geometry::nExtElmt();
   const int_t        nint    = Geometry::nIntElmt();
   const int_t        ntot    = Geometry::nPlane();
+
   const AssemblyMap* AM      = _nsys -> getMap (mode * Femlib::ivalue ("BETA"));
   const int_t*       gid     = AM -> btog();
   const int_t        nglobal = AM -> nGlobal() + Geometry::nInode();
@@ -392,6 +395,7 @@ void Field::HelmholtzOperator (const real_t* x      ,
   this -> local2globalSum (P, y, AM);
 
 #else
+
   const real_t *xint    = x + AM -> nGlobal();
   real_t       *yint    = y + AM -> nGlobal();
   real_t       *P = work, *tmp = work + npnp;

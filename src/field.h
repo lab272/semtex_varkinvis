@@ -162,7 +162,7 @@ private:
 			  const vector<Boundary*>&,
 			  const AssemblyMap*, real_t*)                  const;
   void HelmholtzOperator (const real_t*, real_t*, const real_t,
-			  const real_t, const int_t, real_t*)         const;
+			  const real_t, const int_t, real_t*)           const;
 };
 
 #endif
