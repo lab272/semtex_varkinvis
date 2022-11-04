@@ -47,8 +47,8 @@ void edgemaps (const int_t nk ,
 {
   char            routine[] = "edgemaps";
   const int_t     len = (dim == 2) ? nk * nk : nk;
-  register int_t  found = 0;
-  register Mapping* p;
+   int_t  found = 0;
+   Mapping* p;
 
   if (nk < 2)
     message (routine, "input nk < 2", ERROR);
@@ -60,9 +60,9 @@ void edgemaps (const int_t nk ,
     if (found = nk == p -> np && dim == p -> dim) break;
 
   if (!found) {
-    register int_t i, j, k, n;
+     int_t i, j, k, n;
     const    int_t nm = nk - 1;
-    register int_t *em, *pm;
+     int_t *em, *pm;
 
     p = (Mapping *) calloc (1, sizeof (Mapping));
     if (mHead) p -> next = mHead;

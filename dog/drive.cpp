@@ -8,7 +8,7 @@
 // 
 // Originally based on code "floK" by Dwight Barkley & Ron Henderson.
 //
-// Copyright (c) 1999 <--> $Date$, Hugh Blackburn
+// Copyright (c) 2000+, Hugh M Blackburn
 //
 // The eigenpairs computed in the subspace are related to the Ritz
 // estimates of those in the original space in a simple way: the
@@ -45,7 +45,7 @@
 //
 // AUTHOR:
 // ------
-// Hugh Blackburn
+// Hugh M Blackburn
 // Department of Mechanical & Aerospace Engineering
 // Monash University
 // Vic 3800
@@ -84,22 +84,23 @@
 //
 // REFERENCES
 // ----------
-// [1]  D Barkley & RD Henderson (1996), "Three-dimensional Floquet
-//      stability analysis of the wake of a circular cylinder",
-//      J Fluid Mech V322, 215--241.
-// [2]  Y Saad (1991), "Numerical methods for large eigenvalue problems"
-//      Wiley.
-// [3]  LS Tuckerman & D Barkley (2000), "Bifurcation analysis for
-//      timesteppers", in Numerical Methods for Bifurcation Problems,
-//      ed E Doedel & LS Tuckerman, Springer. 453--466.
-// [4]  HM Blackburn, F Marques & JM Lopez (2005), "Symmetry breaking of 
-//      two-dimensional time-periodic wakes", J Fluid Mech V522, 395--411.
-// [5]  D Barkley, HM Blackburn & SJ Sherwin (2008), "Direct optimal
-//      growth analysis for timesteppers", IJNMF V57, 1435--1458.
+// [1] Barkley & Henderson (1996), "Three-dimensional Floquet
+//     stability analysis of the wake of a circular cylinder",
+//     J Fluid Mech V322, 215--241.
+// [2] Saad (1991), "Numerical methods for large eigenvalue problems"
+//     Wiley.
+// [3] Tuckerman & Barkley (2000), "Bifurcation analysis for
+//     timesteppers", in Numerical Methods for Bifurcation Problems,
+//     ed E Doedel & LS Tuckerman, Springer. 453--466.
+// [4] Blackburn, Marques & Lopez (2005), "Symmetry breaking of 
+//     two-dimensional time-periodic wakes", J Fluid Mech V522, 395--411.
+// [5] Barkley, Blackburn & Sherwin (2008), "Direct optimal
+//     growth analysis for timesteppers", IJNMF V57, 1435--1458.
+// [6] Blackburn, Lee, Albrecht & Singh (2019) "Semtex: a spectral
+//     element--Fourier solver for the incompressible Navier--Stokes
+//     equations in cylindrical or Cartesian coordinates", CPC 245:106804.
 //
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <stab.h>
 
@@ -566,7 +567,8 @@ static void EV_small (real_t**      Kseq   ,
     runinfo << "R =" << endl;
     for (i = 0; i < kdim; i++) {
       for (j = 0; j < kdim; j++) 
-	runinfo << setw (14) << R[Veclib::col_major (i, j, kdimp)];
+	runinfo << setw (14)
+		<< static_cast<double>(R[Veclib::col_major (i, j, kdimp)]);
       runinfo << endl;
     }
   }
@@ -590,7 +592,8 @@ static void EV_small (real_t**      Kseq   ,
     runinfo << "H =" << endl;
     for (i = 0; i < kdim; i++) {
       for (j = 0; j < kdim; j++) 
-	runinfo << setw (14) << H[Veclib::col_major (i, j, kdim)];
+	runinfo << setw (14)
+		<< static_cast<double>(H[Veclib::col_major (i, j, kdim)]);
       runinfo << endl;
     }
   }
@@ -608,12 +611,17 @@ static void EV_small (real_t**      Kseq   ,
 
   if (verbose) {
     runinfo << "eval =" << endl;
-    for (i = 0; i < kdim; i++) runinfo << setw (14) << wr[i]; runinfo << endl;
-    for (i = 0; i < kdim; i++) runinfo << setw (14) << wi[i]; runinfo << endl;
+    for (i = 0; i < kdim; i++) runinfo << setw (14)
+				       << static_cast<double>(wr[i]);
+    runinfo << endl;
+    for (i = 0; i < kdim; i++) runinfo << setw (14)
+				       << static_cast<double>(wi[i]);
+    runinfo << endl;
     runinfo << "zvec =" << endl;
     for (i = 0; i < kdim; i++) {
       for (j = 0; j < kdim; j++) 
-	runinfo << setw (14) << zvec[Veclib::col_major (i, j, kdim)];
+	runinfo << setw (14) <<
+	  static_cast<double>(zvec[Veclib::col_major (i, j, kdim)]);
       runinfo << endl;
     }
   }
@@ -831,10 +839,10 @@ static void EV_post (const problem_t task,
 	  domain -> u[i] -> setPlane (k, src + (i*NZ + k)*NP);
       if (pressEV) // -- Generate the pressure by running LNSE.
 	switch (task) {
-	case PRIMAL: integrate  (linAdvect , domain, bman, analyst); break;
+	case PRIMAL:  integrate (linAdvect , domain, bman, analyst); break;
 	case ADJOINT: integrate (linAdvectT, domain, bman, analyst); break;
 	case SHRINK:
-	case GROWTH: break;
+	case GROWTH: break; 	// -- Pressure field not made.
 	}
       sprintf   (msg, ".eig.%1d", j);
       strcat    (strcpy (nom, domain -> name), msg);
@@ -1064,7 +1072,7 @@ static int_t preprocess (const char* session,
   for (i = 0; i < nel; i++) elmt[i] = new Element (i, np, mesh);
 
   bman   = new BCmgr  (file, elmt);
-  domain = new Domain (file, elmt, bman);
+  domain = new Domain (file, mesh, elmt, bman);
 
   // -- Load restart and base flow data.
 

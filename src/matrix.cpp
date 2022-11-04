@@ -5,9 +5,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-
 #include <sem.h>
-
 
 static vector<MatrixSys*> MS;
 
@@ -31,7 +29,8 @@ ModalMatrixSys::ModalMatrixSys (const real_t            lambda2 ,
 //   beta    : Fourier length scale = TWOPI / Lz,
 //   nmodes  : number of Fourier modes which will be solved,
 //   Elmt    : vector of Element*'s used to make local Helmholtz matrices,
-//   Bsys    : boundary system for this field.
+//   Bsys    : boundary system for this field,
+//   Nsys    : corresponding numbering system (set of AssemblyMaps), 
 //   method  : specify the kind of solver we want (Cholesky, PCG ...).
 // ---------------------------------------------------------------------------
 {
@@ -42,9 +41,6 @@ ModalMatrixSys::ModalMatrixSys (const real_t            lambda2 ,
   MatrixSys* M;
   vector<MatrixSys*>::iterator m;
 
-  // _fields = new char [strlen (Bsys -> Nsys (0) -> fields()) + 1];
-  // strcpy (_fields, Bsys -> Nsys (0) -> fields());
-  
   _Msys.resize (numModes);
 
   if (method == DIRECT) {
@@ -55,7 +51,7 @@ ModalMatrixSys::ModalMatrixSys (const real_t            lambda2 ,
 
   for (mode = baseMode; mode < baseMode + numModes; mode++) {
     const int_t        modeIndex = mode * Femlib::ivalue ("BETA");
-    const AssemblyMap* A         = Nsys -> getMap (modeIndex);
+    const AssemblyMap* Assy      = Nsys -> getMap (modeIndex);
     const real_t       betak2    = sqr  (Field::modeConstant(name,mode,beta));
     const int_t        localMode = mode - baseMode;
 
@@ -68,7 +64,7 @@ ModalMatrixSys::ModalMatrixSys (const real_t            lambda2 ,
 
     for (found = false, m = MS.begin(); !found && m != MS.end(); m++) {
       M     = *m;
-      found = M -> match (lambda2, betak2_svv, A, method);
+      found = M -> match (lambda2, betak2_svv, Assy, method);
     }
     if (found) {
       _Msys[localMode] = M;
@@ -76,11 +72,11 @@ ModalMatrixSys::ModalMatrixSys (const real_t            lambda2 ,
     } else {
       if (method == MIXED)
 	_Msys[localMode] =
-	  new MatrixSys (lambda2, betak2_svv, modeIndex, Elmt, Bsys, Nsys,
+	  new MatrixSys (lambda2, betak2_svv, modeIndex, Elmt, Bsys, Assy,
 			 (mode == 0) ? DIRECT : JACPCG);
       else 
 	_Msys[localMode] =
-	  new MatrixSys (lambda2,betak2_svv,modeIndex, Elmt,Bsys,Nsys,method);
+	  new MatrixSys (lambda2,betak2_svv,modeIndex,Elmt, Bsys, Assy, method);
 
       MS.insert (MS.end(), _Msys[localMode]);
       if (method == DIRECT) { cout << '*'; cout.flush(); }
@@ -110,8 +106,6 @@ ModalMatrixSys::~ModalMatrixSys ()
     for (p = MS.begin(); p != MS.end(); p++)
       if (*p == _Msys[N]) { delete (_Msys[N]); MS.erase(p); break; }
   }
-
-  //  delete[] _fields;
 }
 
 
@@ -126,7 +120,7 @@ MatrixSys::MatrixSys (const real_t            lambda2,
 		      const int_t             mode   ,
 		      const vector<Element*>& elmt   ,
 		      const BoundarySys*      bsys   ,
-		      const NumberSys*        nsys   ,
+		      const AssemblyMap*      assy   ,
 		      const SolverKind        method ) :
 // ---------------------------------------------------------------------------
 // Initialize and factorise matrices in this system.
@@ -147,7 +141,7 @@ MatrixSys::MatrixSys (const real_t            lambda2,
   _HelmholtzConstant (lambda2),
   _FourierConstant   (betak2 ),
   _BC                (bsys -> getBCs (mode)),
-  _AM                (nsys -> getMap (mode)),
+  _AM                (assy),
   _nel               (Geometry::nElmt()),
   _nglobal           (_AM -> nGlobal()),
   _singular          ((_HelmholtzConstant + _FourierConstant) < EPSSP &&

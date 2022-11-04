@@ -96,7 +96,7 @@ void message_sync ()
 
 static int first (int n, const int* x)
 { 
-  register int i;
+   int i;
   for (i = 0; i < n; i++) if (x[i]) return i;
   return 0;
 }
@@ -135,7 +135,7 @@ void message_dexchange (double*     data,
 {
 #if defined(MPI)
 
-  register int   i, j;
+   int   i, j;
   const int      ip = (int) yy_interpret ("I_PROC");
   const int      np = (int) yy_interpret ("N_PROC");
   const int      nB = nP / np;	     /* Size of intra-processor block.     */
@@ -282,7 +282,7 @@ void message_sexchange (float*      data,
 {
 #if defined(MPI)
 
-  register int   i, j;
+   int   i, j;
   const int      ip = (int) yy_interpret ("I_PROC");
   const int      np = (int) yy_interpret ("N_PROC");
   const int      nB = nP / np;	     /* Size of intra-processor block.     */
@@ -426,7 +426,7 @@ void message_iexchange (int_t*      data,
 {
 #if defined(MPI)
 
-  register int   i, j;
+   int   i, j;
   const int      ip = (int) yy_interpret ("I_PROC");
   const int      np = (int) yy_interpret ("N_PROC");
   const int      nB = nP / np;	     /* Size of intra-processor block.     */

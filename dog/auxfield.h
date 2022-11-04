@@ -63,7 +63,9 @@ public:
   real_t probe       (const Element*, const real_t,
 		      const real_t, const real_t)   const;
 
-  AuxField& reverse     ();
+  AuxField&   reverse   ();
+  AuxField&   smooth    (const int_t, const int_t*, const real_t*);
+  
   static void swapData  (AuxField*, AuxField*);
   static void couple    (AuxField*, AuxField*, const int_t);
 

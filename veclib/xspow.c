@@ -14,7 +14,7 @@ void dspow (const int_t n, const double alpha,
 	    const double* x, int_t incx,
 	          double* y, int_t incy)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -27,7 +27,7 @@ void sspow (const int_t n, const float alpha,
 	    const float* x, int_t incx, 
 	          float* y, int_t incy)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;

@@ -30,10 +30,10 @@
 void dmxva(double* A, int_t iac, int_t iar, double* B, int_t ib,
 	   double* C, int_t ic,  int_t nra, int_t nca)
 {
-  register double  *a, *b,
+   double  *a, *b,
                    *c = C;
-  register double  sum;
-  register int_t i, j;
+   double  sum;
+   int_t i, j;
 
 
   for (i = 0; i < nra; ++i) {
@@ -56,10 +56,10 @@ void dmxva(double* A, int_t iac, int_t iar, double* B, int_t ib,
 void smxva (float* A, int_t iac, int_t iar, float* B, int_t ib,
 	    float* C, int_t ic,  int_t nra, int_t nca)
 {
-  register float   *a, *b,
+   float   *a, *b,
                    *c = C;
-  register float   sum;
-  register int_t i, j;
+   float   sum;
+   int_t i, j;
 
   for (i = 0; i < nra; ++i) {
     sum = 0.0F;

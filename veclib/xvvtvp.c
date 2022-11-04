@@ -18,11 +18,11 @@ void dvvtvp (int_t n,
 #if defined(__DECC)
   /* -- DEC OSF 1, with Loop unrolling from KAPC. */
 
-    register int i;
-    register unsigned int _Kii1;
-    register unsigned int _Kii2;
-    register unsigned int _Kii3;
-    register unsigned int _Kii4;
+     int i;
+     unsigned int _Kii1;
+     unsigned int _Kii2;
+     unsigned int _Kii3;
+     unsigned int _Kii4;
     int    _Kii5;
     double _Kdd1;
     double _Kdd2;
@@ -103,7 +103,7 @@ void dvvtvp (int_t n,
     } 
 
 #else
-  register int_t i;
+   int_t i;
 
   if (incw == 1 && incx == 1 && incy == 1 && incz == 1) 
    for (i = 0; i < n; i++) z[i] = (w[i] * x[i]) + y[i]; 
@@ -129,11 +129,11 @@ void svvtvp (int_t n,
 	           float* z, int_t incz)
 {
 #if defined(__DECC)
-    register int i;
-    register unsigned int _Kii1;
-    register unsigned int _Kii2;
-    register unsigned int _Kii3;
-    register unsigned int _Kii4;
+     int i;
+     unsigned int _Kii1;
+     unsigned int _Kii2;
+     unsigned int _Kii3;
+     unsigned int _Kii4;
     int _Kii5;
     float _Krr1;
     float _Krr2;
@@ -214,7 +214,7 @@ void svvtvp (int_t n,
     }
  
 #else
-  register int_t i;
+   int_t i;
 
   if (incw == 1 && incx == 1 && incy == 1 && incz == 1) 
    for (i = 0; i < n; i++) z[i] = w[i] * x[i] + y[i]; 

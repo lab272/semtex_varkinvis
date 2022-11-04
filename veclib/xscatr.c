@@ -14,7 +14,7 @@
   
 void dscatr (int_t n, const double* x, const int_t* y, double* z)
 {
-  register int_t i;
+   int_t i;
 
   for (i = 0; i < n; i++) z[y[i]] = x[i];
 }
@@ -22,7 +22,7 @@ void dscatr (int_t n, const double* x, const int_t* y, double* z)
 
 void iscatr (int_t n, const int_t* x, const int_t* y, int_t* z)
 {
-  register int_t i;
+   int_t i;
 
   for (i = 0; i < n; i++) z[y[i]] = x[i];
 }
@@ -30,7 +30,7 @@ void iscatr (int_t n, const int_t* x, const int_t* y, int_t* z)
 
 void sscatr (int_t n, const float* x, const int_t* y, float* z)
 {
-  register int_t i;
+   int_t i;
 
   for (i = 0; i < n; i++) z[y[i]] = x[i];
 }

@@ -13,7 +13,7 @@ void dvfloa (int_t n,
 	     const int_t* x, int_t incx,
 	           double*  y, int_t incy)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -26,7 +26,7 @@ void svfloa (int_t n,
 	     const int_t* x, int_t incx,
 	           float*   y, int_t incy)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;

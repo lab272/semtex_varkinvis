@@ -12,7 +12,7 @@
 
 void dfill (int_t n, double alpha, double* x, int_t incx)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
 
@@ -22,7 +22,7 @@ void dfill (int_t n, double alpha, double* x, int_t incx)
 
 void ifill (int_t n, int_t alpha, int_t* x, int_t incx)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
 
@@ -32,7 +32,7 @@ void ifill (int_t n, int_t alpha, int_t* x, int_t incx)
 
 void sfill (int_t n, float alpha, float* x, int_t incx)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
 

@@ -19,7 +19,8 @@ class Field : public AuxField
 friend class BCmgr;
 
 public:
-  Field  (BoundarySys*, real_t*, const int_t, vector<Element*>&, const char);
+  Field  (real_t*, BoundarySys*, NumberSys*, const int_t,
+	  vector<Element*>&, const char);
  ~Field  () { }
 
   Field& operator = (const AuxField& z) {AuxField::operator=(z); return *this;}
@@ -28,9 +29,6 @@ public:
 
   Field& solve  (AuxField*, const ModalMatrixSys*);
   Field& solve  (AuxField*, const MatrixSys*);
-
-  Field& smooth (AuxField* = NULL);
-  void   smooth (const int_t, real_t*) const;
 
   void evaluateBoundaries    (const Field*, const int_t, const bool = true);
   void evaluateM0Boundaries  (const Field*, const int_t);
@@ -44,19 +42,21 @@ private:
   real_t*      _sheet ;		// Wrap-around storage for data boundary.
   real_t**     _line  ;		// Single plane's worth of sheet.
   BoundarySys* _bsys  ;		// Boundary system information.
+  NumberSys*   _nsys  ; 	// Assembly mapping information.
 
   void getEssential      (const real_t*, real_t*,
-			  const vector<Boundary*>&, const NumberSys*)   const;
-  void setEssential      (const real_t*, real_t*, const NumberSys*);
-  void local2global      (const real_t*, real_t*, const NumberSys*)     const;
-  void global2local      (const real_t*, real_t*, const NumberSys*)     const;
+			  const vector<Boundary*>&, const AssemblyMap*) const;
+  void setEssential      (const real_t*, real_t*, const AssemblyMap*);
+  void local2global      (const real_t*, real_t*, const AssemblyMap*)   const;
+  void global2local      (const real_t*, real_t*, const AssemblyMap*)   const;
+  void local2globalSum   (const real_t*, real_t*, const AssemblyMap*)   const;
 
   void constrain         (real_t*, const real_t, const real_t,
-			  const real_t*, const NumberSys*, real_t*)     const;
+			  const real_t*, const AssemblyMap*, real_t*)   const;
   void buildRHS          (real_t*, const real_t*, real_t*, real_t*,
 			  const real_t**, const int_t, const int_t,
-			  const vector<Boundary*>&, const NumberSys*,
-			  real_t*)                                      const;
+			  const vector<Boundary*>&,
+			  const AssemblyMap*, real_t*)                  const;
   void HelmholtzOperator (const real_t*, real_t*, const real_t,
 			  const real_t, const int_t, real_t*)           const;
 };

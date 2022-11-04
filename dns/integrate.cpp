@@ -333,7 +333,7 @@ static Msys** preSolve (const Domain* D)
 
   vector<real_t> alpha (Integration::OrderMax + 1);
   Integration::StifflyStable (NORD, &alpha[0]);
-  real_t   lambda2 = alpha[0] / Femlib::value ("D_T * KINVIS");
+  real_t         lambda2 = alpha[0] / Femlib::value ("D_T * KINVIS");
 
   // -- Velocity systems.
 

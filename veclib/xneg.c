@@ -12,7 +12,7 @@
 
 void dneg (int_t n, double* x, int_t incx)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
 
@@ -26,7 +26,7 @@ void dneg (int_t n, double* x, int_t incx)
 
 void ineg (int_t n, int_t* x, int_t incx)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
 
@@ -40,7 +40,7 @@ void ineg (int_t n, int_t* x, int_t incx)
 
 void sneg (int_t n, float* x, int_t incx)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
 

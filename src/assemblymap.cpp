@@ -1,6 +1,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 // assemblymap.cpp: AssemblyMap class functions.
 //
+// See also the function prototypes in assemblymap.h --- which
+// e.g. return the assembly map vector _btog for use following its
+// creation creation here.
+//
 // Copyright (c) 2022+, Hugh M Blackburn
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -184,8 +188,8 @@ int_t AssemblyMap::sortGid (vector<int_t>&       bmap,
 // Return number of globally-numbered nodes at which solution is not
 // set by essential BCs.
 //
-// This code is essentially lifted straight from enumerate.cpp and is
-// some of the oldest in semtex.
+// This code is essentially lifted straight from (old) enumerate.cpp
+// and is some of the oldest in semtex.
 // ---------------------------------------------------------------------------
 {
   vector<int_t> work (2 * _nbndry + 3 * _nglobal);
@@ -371,7 +375,7 @@ void AssemblyMap::RCMnumbering ()
 
   const int_t verbose = Femlib::ivalue ("VERBOSE");
 
-  VERBOSE cout << "RCM bandwidth optimisation level: " << _optlev ;
+  VERBOSE cout << "    RCM bandwidth optimisation level : " << _optlev ;
 
   int_t         i, root, nlvl;
   vector<int_t> adjncy, xadj;
@@ -416,7 +420,7 @@ void AssemblyMap::RCMnumbering ()
       if (BWtest < BWmin) {
 	BWmin = BWtest;
 	best  = rtest;
-	VERBOSE cout << "root = " << root << ", BW = " << BWmin << endl;
+	VERBOSE cout << "      root = " << root << ", BW = " << BWmin << endl;
       }
     }
 
@@ -442,7 +446,7 @@ void AssemblyMap::RCMnumbering ()
       if (BWtest < BWmin) {
 	BWmin = BWtest;
 	best  = root;
-	VERBOSE cout << "root = " << root << ", BW = " << BWmin << endl;
+	VERBOSE cout << "      root = " << root << ", BW = " << BWmin << endl;
       }
     }
 
@@ -459,7 +463,6 @@ void AssemblyMap::RCMnumbering ()
   for (i = 0; i < _nsolve; i++) invperm[perm[i]] = i;
   Veclib::gathr (_nbndry, invperm, bsave, &_btog[0]);
 
-  VERBOSE cout << endl;
 }
 
 

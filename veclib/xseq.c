@@ -13,7 +13,7 @@ void iseq (int_t n, int_t alpha,
 	   const int_t* x, int_t incx,
 	         int_t* y, int_t incy)
 {
-  register int_t  i;
+   int_t  i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;

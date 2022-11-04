@@ -116,7 +116,7 @@ Field2DF::Field2DF (const int_t nR  ,
 // Field2DF constructor. 
 // ---------------------------------------------------------------------------
 {
-  register int_t i;
+   int_t i;
   
   nplane = nrns * nel;
   if (nplane > 1 && nplane & 1) nplane++;
@@ -164,8 +164,8 @@ Field2DF& Field2DF::operator = (const Field2DF& rhs)
 
   else {			// -- Perform projection.
 
-    register int_t  i, k;
-    register real_t *LHS, *RHS;
+     int_t  i, k;
+     real_t *LHS, *RHS;
     const real_t    *IN,  *IT;
     const int_t     nzm = min (rhs.nz, nz);
     vector<real_t>  work (rhs.nr * nr);

@@ -66,7 +66,7 @@ void StabAnalyser::analyse (AuxField** work0,
 
   // -- Output BASE history point data.
 
-  register int_t    j, k;      
+   int_t    j, k;      
   const int_t       NBH = base_history.size();
   const int_t       NBF = Geometry::nBase();
   HistoryPoint*     HB;

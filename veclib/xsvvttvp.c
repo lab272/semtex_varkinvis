@@ -15,7 +15,7 @@ void dsvvttvp (int_t n, const double  alpha,
 	       const double* y, int_t incy,
 	             double* z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   if (incw == 1 && incx == 1 && incy == 1 && incz == 1) 
    for (i = 0; i < n; i++) 
@@ -40,7 +40,7 @@ void ssvvttvp (int_t n, const float  alpha,
 	       const float* y, int_t incy,
 	             float* z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   if (incw == 1 && incx == 1 && incy == 1 && incz == 1) 
    for (i = 0; i < n; i++) 

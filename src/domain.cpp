@@ -3,7 +3,9 @@
 //
 // A Domain amounts to a collection of Fields whose data are each to
 // be computed by solution of an elliptic (Laplace, Poisson,
-// Helmholtz) problem.
+// Helmholtz) problem.  In turn each Field contains an AuxField, but
+// supplements it with boundary condition and assembly mapping
+// information.
 //
 // Copyright (c) 1994+, Hugh M Blackburn
 //
@@ -403,21 +405,6 @@ void Domain::makeAssemblyMaps (FEML*       file,
   }
 }
 
-#if 0
-
-const AssemblyMap* Domain::getNsys (const char  name,
-				    const int_t mode) const
-// ---------------------------------------------------------------------------
-// Automate retrieval of assembly mapping scheme allocated for a particular
-// Field name and (global) Fourier mode index.
-// ---------------------------------------------------------------------------
-{
-  return
-    _globalNumbering.at (name)
-    [clamp (mode, static_cast<int_t>(0), static_cast<int_t>(2))];
-}
-
-#endif
 
 void Domain::report ()
 // ---------------------------------------------------------------------------

@@ -40,7 +40,7 @@ void cpreft(int K, complex *Wtab, int Sign)
  * Recipes; use 1 to get their definition).                                  *
  * ========================================================================= */
 {
-  register i;
+   i;
   double   theta;
 
   Wtab[0].Re = 1.0;
@@ -64,8 +64,8 @@ void zpreft(int K, zomplex *Wtab, int Sign)
  * Recipes; use 1 to get their definition).                                  *
  * ========================================================================= */
 {
-  register int     i;
-  register double  theta;
+   int     i;
+   double  theta;
 
   Wtab[0].Re = 1.0;
   Wtab[0].Im = 0.0;
@@ -217,7 +217,7 @@ void scfft(int N, complex *Data, int TabLen, const complex *Wtab, int Forward)
  * No normalization done; divide by N as appropriate.                        *
  * ========================================================================= */
 {
-  register  k, revk, Non2 = N>>1;
+    k, revk, Non2 = N>>1;
   float     c1=0.5, c2, h1r, h1i, h2r, h2i;
   
   if (Forward) {
@@ -276,7 +276,7 @@ void dzfft(int N, zomplex *Data, int TabLen, const zomplex *Wtab, int Forward)
  * No normalization done; divide by N as appropriate.                        *
  * ========================================================================= */
 {
-  register  k, revk, Non2 = N>>1;
+    k, revk, Non2 = N>>1;
   double    c1=0.5, c2, h1r, h1i, h2r, h2i;
   
   if (Forward) {
@@ -351,7 +351,7 @@ void dzpfft(int N, zomplex *Zbuf, int Forward)
  * References: Numerical Recipes sect 12.3, Bendat & Piersol 1971 sect 9.84. *
  * ========================================================================= */
 {
-  register  k, revk, Non2 = N>>1;
+    k, revk, Non2 = N>>1;
   double    s1, s2, s3;
   zomplex   A, B;
 
@@ -425,7 +425,7 @@ void scpfft(int N, complex *Zbuf, int Forward)
  * References: Numerical Recipes sect 12.3, Bendat & Piersol 1971 sect 9.84. *
  * ========================================================================= */
 {
-  register  k, revk, Non2 = N>>1;
+    k, revk, Non2 = N>>1;
   float     s1, s2, s3;
   complex   A, B;
 

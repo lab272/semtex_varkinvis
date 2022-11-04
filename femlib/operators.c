@@ -313,8 +313,8 @@ void dglldpc (const int_t    np,
  * -------------------------------------------------------------------------
  * */
 {
-  register int_t    found = 0;
-  register legCoef* p;
+   int_t    found = 0;
+   legCoef* p;
 
   for (p = lChead; p; p = p->next) {
     found = p -> np == np;
@@ -322,7 +322,7 @@ void dglldpc (const int_t    np,
   }
 
   if (!found) {		/* -- Make more storage and operators. */
-    register int_t i, j, k;
+     int_t i, j, k;
     const int_t    nm = np - 1;
     const real_t*  z;
 
@@ -409,8 +409,8 @@ void dglldpt (const int_t    np,
  * Matrices are supplied 1D, with row-major ordering.
  * ------------------------------------------------------------------------- */
 {
-  register int_t    found = 0;
-  register legTran* p;
+   int_t    found = 0;
+   legTran* p;
 
   for (p = lThead; p; p = p->next) {
     found = p -> np == np;
@@ -418,7 +418,7 @@ void dglldpt (const int_t    np,
   }
 
   if (!found) {		/* -- Make more storage and operators. */
-    register int_t i, j, k, l, r, s;
+     int_t i, j, k, l, r, s;
     const int_t    np2 = np * np;
     const real_t   *tab, *w;
     real_t         ci;
@@ -517,8 +517,8 @@ void dglmdpc (const int_t    np,
  * where J is a Jacobi polynomial.
  * ------------------------------------------------------------------------- */
 {
-  register int_t    found = 0;
-  register modCoef* p;
+   int_t    found = 0;
+   modCoef* p;
 
   for (p = mChead; p; p = p->next) {
     found = p -> np == np;
@@ -526,7 +526,7 @@ void dglmdpc (const int_t    np,
   }
 
   if (!found) {		/* -- Make more storage and operators. */
-    register int_t i, j, k;
+     int_t i, j, k;
     const real_t   *z;
 
     p = (modCoef*) calloc (1, sizeof (modCoef));
@@ -625,8 +625,8 @@ void dglmdpt (const int_t    np,
 {
   const char routine[] = "dglmdpt";
 
-  register int_t    found = 0;
-  register modTran* p;
+   int_t    found = 0;
+   modTran* p;
 
   for (p = mThead; p; p = p->next) {
     found = p -> np == np;
@@ -634,7 +634,7 @@ void dglmdpt (const int_t    np,
   }
 
   if (!found) {		/* -- Make more storage and operators. */
-    register int_t i, j, k, l, r, s;
+     int_t i, j, k, l, r, s;
     const int_t    np2 = np * np;
     const real_t   *B, *W;
     real_t         *work, *BtW, *BtWB, *rwrk;

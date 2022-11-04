@@ -36,7 +36,7 @@
 void dspline (int_t n, double yp1, double ypn,
 	      const double* x, const double* y, double* y2)
 {
-  register int_t i, k;
+   int_t i, k;
   double           h  = x[1] - x[0], 
                    *u = dvector (0, n-2);
   double           p, qn, sig, un, hh;
@@ -75,8 +75,8 @@ void dspline (int_t n, double yp1, double ypn,
 double dsplint (int_t n, double x, const double* xa, const double* ya,
 	                                               const double* y2a)
 {
-  register int_t k;
-  register double  h, b, a;
+   int_t k;
+   double  h, b, a;
   static   int_t klo = -1, khi = -1;
 
   /* check the results of the previous search */
@@ -106,7 +106,7 @@ double dsplint (int_t n, double x, const double* xa, const double* ya,
 void sspline (int_t n, float yp1, float ypn, const float* x, const float* y,
                                                                      float* y2)
 {
-  register int_t i, k;
+   int_t i, k;
   float            h  = x[1] - x[0], 
                    *u = svector(0, n-2);
   float            p, qn, sig, un, hh;
@@ -145,8 +145,8 @@ void sspline (int_t n, float yp1, float ypn, const float* x, const float* y,
 float ssplint (int_t n, float x, const float* xa, const float* ya,
 	                                            const float* y2a)
 {
-  register int_t k;
-  register float   h, b, a;
+   int_t k;
+   float   h, b, a;
   static   int_t klo = -1, khi = -1;
 
   /* check the results of the previous search */

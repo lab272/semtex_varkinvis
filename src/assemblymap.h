@@ -40,9 +40,9 @@ class AssemblyMap
 // _bmask/_emask hierarchy, since if their difference is non-zero then
 // at least one _bmask value (and _emask value) will be 1.
 // 
-// _Btog gives global node numbers to Element-boundary nodes, same
-// length as _bmask (i.e. _nbndry).  The optimization level describes
-// the scheme used to build _btog.
+// _Btog gives global node numbers (i.e. assembly map) to
+// Element-boundary nodes, same length as _bmask (i.e. _nbndry).  The
+// optimization level describes the scheme used to build _btog.
 //
 // An AssemblyMap may be uniquely identified by the entries in _btog,
 // or equivalently the entries of _bmask, together with optimization
@@ -66,7 +66,7 @@ public:
 
   const int_t* bmask () const { return &_bmask[0];         }
   const int_t* emask () const { return &_emask[0];         }
-  const int_t* btog  () const { return &_btog[0];          }
+  const int_t* btog  () const { return &_btog[0];          }  // Assembly map.
   int_t        fmask () const { return _nglobal - _nsolve; }
   
 private:

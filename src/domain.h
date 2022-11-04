@@ -2,7 +2,7 @@
 #define DOMAIN_H
 
 class Domain
-// ===========================================================================
+
 // Physical domain storage class for Navier--Stokes and elliptic type
 // problems.
 //
@@ -55,7 +55,7 @@ private:
   int_t                _nglobal;     // Number of unique element-edge nodes.
   vector<int_t>        _bmapNaive;   // BC-agnostic assembly map.
   vector<real_t>       _imassNaive;  // Corresp. inverse mass matrix, _nglobal.
-  vector<AssemblyMap*> _allMappings; // Complete set of AssemblyMaps for domain.
+  vector<AssemblyMap*> _allMappings; // Complete set of domain AssemblyMaps.
 };
 
 #endif

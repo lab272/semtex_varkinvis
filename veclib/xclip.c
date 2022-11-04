@@ -19,7 +19,7 @@ void dclip (int_t n,  const double alpha, const double beta,
 	    const double* x, int_t incx,
 	          double* y, int_t incy)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -32,7 +32,7 @@ void iclip (int_t n,  const int_t alpha, const int_t beta,
 	    const int_t* x, int_t incx,
 	          int_t* y, int_t incy)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -45,7 +45,7 @@ void sclip (int_t n,  const float alpha, const float beta,
 	    const float* x, int_t incx,
 	          float* y, int_t incy)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -58,7 +58,7 @@ void dclipup (int_t n,  const double alpha,
 	      const double* x, int_t incx,
 	            double* y, int_t incy)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -71,7 +71,7 @@ void iclipup (int_t n,  const int_t alpha,
 	      const int_t* x, int_t incx,
 	            int_t* y, int_t incy)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -84,7 +84,7 @@ void sclipup (int_t n,  const float alpha,
 	      const float* x, int_t incx,
 	            float* y, int_t incy)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -97,7 +97,7 @@ void dclipdn (int_t n,  const double alpha,
 	      const double* x, int_t incx,
 	            double* y, int_t incy)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -110,7 +110,7 @@ void iclipdn (int_t n,  const int_t alpha,
 	      const int_t* x, int_t incx,
 	            int_t* y, int_t incy)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -123,7 +123,7 @@ void sclipdn (int_t n,  const float alpha,
 	      const float* x, int_t incx,
 	            float* y, int_t incy)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;

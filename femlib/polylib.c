@@ -189,7 +189,7 @@ void zwgj (double* z    ,
 	   double  alpha,
 	   double  beta )
 {
-  register int_t i;
+   int_t i;
   double           fac;
   const double     one = 1.0, two = 2.0, apb = alpha + beta;
 
@@ -225,7 +225,7 @@ void zwgrjm (double* z    ,
     z[0] = 0.0;
     w[0] = 2.0;
   } else {
-    register int_t i;
+     int_t i;
     double           fac;
     const double     one = 1.0, two = 2.0, apb = alpha + beta;
     
@@ -265,7 +265,7 @@ void zwgrjp (double* z    ,
     z[0] = 0.0;
     w[0] = 2.0;
   } else {
-    register int_t i;
+     int_t i;
     double fac, one = 1.0, two = 2.0, apb = alpha + beta;
     
     jacobz  (np-1,z,alpha+1,beta);
@@ -301,7 +301,7 @@ void zwglj (double* z    ,
     z[0] = 0.0;
     w[0] = 2.0;
   } else {
-    register int_t i;
+     int_t i;
     double           fac;
     const double     one = 1.0, apb = alpha + beta, two = 2.0;
   
@@ -346,7 +346,7 @@ void Dgj (double* D    ,
   if (np <= 0) {
     D[0] = Dt[0] = 0.0;
   } else {
-    register int_t i,j; 
+     int_t i,j; 
     double*          pd;
     
     pd = (double *)malloc(np*sizeof(double));
@@ -392,7 +392,7 @@ void Dgrjm(double* D    ,
   if (np <= 0) {
     D[0] = Dt[0] = 0.0;
   } else {
-    register int_t i, j; 
+     int_t i, j; 
     const double     one = 1.0, two = 2.0;
     double*          pd;
 
@@ -447,7 +447,7 @@ void Dgrjp (double* D    ,
   if (np <= 0) {
     D[0] = Dt[0] = 0.0;
   } else {
-    register int_t i, j; 
+     int_t i, j; 
     const double     one = 1.0, two = 2.0;
     double*          pd;
 
@@ -502,7 +502,7 @@ void Dglj (double* D    ,
   if (np <= 0) {
     D[0] = Dt[0] = 0.0;
   } else {
-    register int_t i, j; 
+     int_t i, j; 
     const double     one = 1.0, two = 2.0;
     double*          pd;
 
@@ -736,7 +736,7 @@ void Imgj (double* im   ,
 	   double  beta )
 {
   double           zp;
-  register int_t i, j;
+   int_t i, j;
 
   for (i = 0; i < mz; ++i) {
     zp = zm[i];
@@ -769,7 +769,7 @@ void Imgrjm (double* im   ,
 	     double  beta )
 {
   double           zp;
-  register int_t i, j;
+   int_t i, j;
 
   for (i = 0; i < mz; i++) {
     zp = zm[i];
@@ -802,7 +802,7 @@ void Imgrjp (double* im   ,
 	     double  beta )
 {
   double           zp;
-  register int_t i, j;
+   int_t i, j;
 
   for (i = 0; i < mz; i++) {
     zp = zm[i];
@@ -836,7 +836,7 @@ void Imglj (double* im  ,
 	    double  beta )
 {
   double           zp;
-  register int_t i, j;
+   int_t i, j;
   
   for (i = 0; i < mz; i++) {
     zp = zm[i];
@@ -896,7 +896,7 @@ void jacobfd (int_t np     ,
 	      double alpha   ,
 	      double beta    )
 {
-  register int_t i;
+   int_t i;
   const double     zero = 0.0, one = 1.0, two = 2.0;
 
   if(!np)
@@ -919,7 +919,7 @@ void jacobfd (int_t np     ,
 	polyd[i] = 0.5*(alpha + beta + two);
   }
   else{
-    register int_t k;
+     int_t k;
     double           a1,a2,a3,a4;
     const double     two = 2.0, apb = alpha + beta;
     double           *poly, *polyn1,*polyn2;
@@ -1001,7 +1001,7 @@ void jacobd (int_t np   ,
 	     double  alpha,
 	     double  beta )
 {
-  register int_t i;
+   int_t i;
 
   if(n == 0)
     for(i = 0; i < np; ++i) polyd[i] = 0.0;
@@ -1070,7 +1070,7 @@ static void Jacobz (int_t n,
 		    double  alpha,
 		    double  beta )
 {
-  register int_t i,j,k;
+   int_t i,j,k;
   double   dth = M_PI/(2.0*(double)n);
   double   poly,pder,rlast=0.0;
   double   sum,delr,r;

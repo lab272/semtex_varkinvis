@@ -14,7 +14,7 @@
   
 void dscatr_sum (int_t n, const double* x, const int_t* y, double* z)
 {
-  register int_t i;
+   int_t i;
 
 #if defined(__uxp__)
 #pragma loop novrec z
@@ -28,7 +28,7 @@ void dscatr_sum (int_t n, const double* x, const int_t* y, double* z)
 
 void iscatr_sum (int_t n, const int_t* x, const int_t* y, int_t* z)
 {
-  register int_t i;
+   int_t i;
 
 #if defined(__uxp__)
 #pragma loop novrec z
@@ -42,7 +42,7 @@ void iscatr_sum (int_t n, const int_t* x, const int_t* y, int_t* z)
 
 void sscatr_sum (int_t n, const float* x, const int_t* y, float* z)
 {
-  register int_t i;
+   int_t i;
 
 #if defined(__uxp__)
 #pragma loop novrec z

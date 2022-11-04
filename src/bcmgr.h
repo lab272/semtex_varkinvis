@@ -18,9 +18,6 @@ public:
   const char*        field        () const { return _fields; }
   const char*        groupInfo    (const char) const;
   const Condition*   getCondition (const char, const char, const int_t = 0);
-#if 0  
-  NumberSys*         getNumberSys (const char, const int_t = 0);
-#endif  
   vector<BCtriple*>& getBCedges   () { return _elmtbc; }
   int_t              nBCedges     () const { return _elmtbc.size(); }
   int_t              nWall        (); // Why not const: OSX compiler bug?
@@ -58,9 +55,6 @@ private:
   vector<char*>            _descript; // Group name strings.
   vector<CondRecd*>  _cond    ; // Conditions in storage.
   vector<BCtriple*>  _elmtbc  ; // Group tags for each element-side BC.
-#if 0  
-  vector<NumberSys*> _numsys  ; // Numbering schemes in storage.
-#endif  
   bool               _axis    ; // Session file declared an axis BC group.
   bool               _open    ; // Session file declared an open BC group.
 

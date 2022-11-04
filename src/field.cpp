@@ -487,7 +487,7 @@ void Field::local2global (const real_t*      src,
 			  const AssemblyMap* A  ) const
 /// --------------------------------------------------------------------------
 /// Load a plane of data (src) into globally-numbered tgt, with element-
-/// boundary values in the first N -> nGlobal() places, followed by
+/// boundary values in the first A -> nGlobal() places, followed by
 /// element-internal locations in emap ordering.
 // ---------------------------------------------------------------------------
 {

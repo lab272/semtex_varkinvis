@@ -324,9 +324,9 @@ static void dswap (const int n,
  * Byte-reversal routine.
  * ------------------------------------------------------------------------- */
 {
-  register double *cx = x;
-  register char   *c  = (char*) x;
-  register int    i,j;
+   double *cx = x;
+   char   *c  = (char*) x;
+   int    i,j;
 
   for (i = 0; i < n; i++, cx++, c = (char*) cx)
      for (j = 0; j < 4; j++){
@@ -426,7 +426,7 @@ static void get_data (FILE*        fp      ,
  * not the selected set.
  * ------------------------------------------------------------------------- */
 {
-  register int i, j;
+   int i, j;
   char         err[FILENAME_MAX];
   const int    swap = format != machine;
 
@@ -488,7 +488,7 @@ static void put_data (FILE*        fp     ,
  * ------------------------------------------------------------------------- */
 {
   char         err[FILENAME_MAX];
-  register int i, j;
+   int i, j;
   const int    swap = outputF != architecture ();
 
   switch (outputF) {

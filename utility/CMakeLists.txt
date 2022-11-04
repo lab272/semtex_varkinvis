@@ -159,7 +159,6 @@ target_include_directories (rectmesh   PUBLIC veclib femlib src)
 target_include_directories (mapmesh    PUBLIC veclib femlib src)
 target_include_directories (repmesh    PUBLIC veclib femlib src)
 target_include_directories (nonlin     PUBLIC veclib femlib src)
-target_include_directories (nonlin     PUBLIC veclib femlib src)
 target_include_directories (wavestress PUBLIC veclib femlib)
 
 # -- Copy (non-compiled) shell scripts.

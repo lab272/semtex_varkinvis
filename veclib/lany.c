@@ -7,7 +7,7 @@
 
 int_t lany (int_t n, const int_t* x, int_t incx)
 { 
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
 

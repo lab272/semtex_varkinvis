@@ -22,11 +22,11 @@ void dmxm (double* A, int_t nra,
 	   double* B, int_t nca,
 	   double* C, int_t ncb)
 {
-  register double  *a = A,
+   double  *a = A,
                    *b = B,
                    *c = C;
-  register double  sum;
-  register int_t i, j, k;
+   double  sum;
+   int_t i, j, k;
 
   for (i = 0; i < nra; i++) {
     for (j = 0; j < ncb; j++) {
@@ -48,11 +48,11 @@ void smxm (float* A, int_t nra,
 	   float* B, int_t nca,
 	   float* C, int_t ncb)
 {
-  register float   *a = A,
+   float   *a = A,
                    *b = B,
                    *c = C;
-  register float   sum;
-  register int_t i, j, k;
+   float   sum;
+   int_t i, j, k;
 
   for (i = 0; i < nra; i++) {
     for (j = 0; j < ncb; j++) {

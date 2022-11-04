@@ -11,7 +11,7 @@
 
 void dramp (int_t n, double alpha, double beta, double* x, int_t incx)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
 
@@ -21,7 +21,7 @@ void dramp (int_t n, double alpha, double beta, double* x, int_t incx)
 
 void iramp (int_t n, int_t alpha, int_t beta, int_t* x, int_t incx)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
 
@@ -31,7 +31,7 @@ void iramp (int_t n, int_t alpha, int_t beta, int_t* x, int_t incx)
 
 void sramp (int_t n, float alpha, float beta, float* x, int_t incx)
 {
-  register int_t i;
+   int_t i;
   
   x += (incx<0) ? (-n+1)*incx : 0;
 

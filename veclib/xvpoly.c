@@ -17,8 +17,8 @@ void dvpoly (int_t n,
 	     const double* c, int_t incc, 
 	           double* y, int_t incy)
 {
-  register int_t i, j;
-  register double  sum, xval;
+   int_t i, j;
+   double  sum, xval;
   const    double  *csave, *cp;
 
   csave = c;
@@ -41,8 +41,8 @@ void svpoly (int_t n,
 	     const float* c, int_t incc, 
 	           float* y, int_t incy)
 {
-  register int_t i, j;
-  register float   sum, xval;
+   int_t i, j;
+   float   sum, xval;
   const    float   *csave, *cp;
 
   csave = c;

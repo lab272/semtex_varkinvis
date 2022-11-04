@@ -52,9 +52,9 @@ void dDFTr (double*     data,
   const char      routine[] = "dDFTr";
   char            err[STR_MAX];
   const int_t     ntot = tlen * ntrn;
-  register int_t  i;
+   int_t  i;
   int_t           dum, ip, iq, ir, ipqr2, *ifax;
-  register double *work, *Wtab, *ptr;
+   double *work, *Wtab, *ptr;
 
   if (tlen < 2 || !ntrn) return;
 

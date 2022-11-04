@@ -17,7 +17,7 @@ void dgathr_scatr_sum (int_t n,
 		       const int_t* x, const int_t* y,
 		             double*  z)
 {
-  register int_t i;
+   int_t i;
 
 #if defined(__uxp__)
 #pragma loop novrec z
@@ -34,7 +34,7 @@ void igathr_scatr_sum (int_t n,
 		       const int_t* x, const int_t* y,
 		             int_t* z)
 {
-  register int_t i;
+   int_t i;
 
 #if defined(__uxp__)
 #pragma loop novrec z
@@ -51,7 +51,7 @@ void sgathr_scatr_sum (int_t n,
 		       const int_t* x, const int_t* y,
 		             float*   z)
 {
-  register int_t i;
+   int_t i;
 
 #if defined(__uxp__)
 #pragma loop novrec z

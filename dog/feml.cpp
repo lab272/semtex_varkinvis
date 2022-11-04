@@ -1,26 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
-// feml.C:  Finite Element Markup Language (FEML) routines.
+// feml.cpp:  Finite Element Markup Language (FEML) routines.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
-//
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
-// --
+// Copyright (c) 1994+ Hugh M Blackburn
 //
 // After initialization, FEML files are prescanned to find locations of
 // keywords.  These locations are stored, and reset by the seek function.
@@ -44,8 +25,6 @@
 // TO DO: move to XML.
 ///////////////////////////////////////////////////////////////////////////////
 
-static char RCS[] = "$Id$";
-
 #include <cstdlib>		// -- C standard headers.
 #include <cstdio>
 #include <cstring>
@@ -59,8 +38,6 @@ using namespace std;
 #include <utility.h>
 #include <feml.h>
 #include <femlib.h>
-
-#define VERBOSE if (verbose)
 
 
 FEML::FEML (const char* session) :
@@ -76,7 +53,6 @@ FEML::FEML (const char* session) :
 // ---------------------------------------------------------------------------
 {
   const char  routine[] = "FEML::FEML";
-  const int_t verbose = Femlib::ivalue ("VERBOSE");
   char        c, err[STR_MAX], key[STR_MAX], yek[STR_MAX];
   char*       u;
   int_t       i, N;
@@ -93,12 +69,9 @@ FEML::FEML (const char* session) :
     "CURVES",
     "USER",
     "HISTORY",
-    "CUT",
     "BASE_HIST",
     0
   };
-
-  VERBOSE cout << routine << ": Parsing session file ... " ;
 
   _feml_file.open (session);
 
@@ -113,7 +86,7 @@ FEML::FEML (const char* session) :
 
   for (i = 0; reserved[i] && i < FEML_KEYWORD_MAX; i++) {
     _keyWord[i] = strcpy ((new char [strlen (reserved[i]) + 1]), reserved[i]);
-    _keyPosn[i] = NULL;
+    _keyPosn[i] = 0;
   }
   _keyWord[i] = NULL;
 
@@ -207,8 +180,6 @@ FEML::FEML (const char* session) :
   _feml_file.seekg (0);		// -- And rewind.
 
   tokens ();			// -- Initialize Femlib parser.
-  
-  VERBOSE cout << "done" << endl;
 }
 
 
@@ -313,7 +284,7 @@ bool FEML::tokens ()
 {
   const char     routine[] = "FEML::tokens";
   char           buf[STR_MAX];
-  register char* u;
+   char* u;
 
   if (seek ("TOKENS")) {
     _feml_file.ignore (STR_MAX, '\n');
@@ -432,4 +403,142 @@ bool FEML::echo (ostream&    stream,
   return true;
 }
 
-#undef VERBOSE
+
+bool FEML::valueFromSection (real_t     *value  ,
+			     const char *section,
+                             const char *token  )
+// ---------------------------------------------------------------------------
+// Search for 'token' in 'section' of input file. If found, parse and
+// install in 'value', otherwise, 'value' is unchanged. 
+//
+// Returns TRUE on sucess, FALSE if section or token not found.
+// ---------------------------------------------------------------------------
+{
+  char routine[] = "FEML::valueFromSection";
+  char endsection[StrMax], s[StrMax], *tok;
+
+  sprintf (endsection, "</%s>", section);
+
+  if (seek (section)) {
+    stream().ignore (StrMax, '\n');
+    while (!stream().eof()) {
+      stream().getline(s, StrMax);
+      if (s[0] == '#') continue;
+      if (strstr (s, endsection)) break;
+      if ((tok = strtok (s, "=")) == NULL) continue;
+      if (strstr (tok, token)) {
+        tok = strtok (NULL, "\0");
+        *value = Femlib::value (tok);
+        return true;
+      }
+    }
+    return false;
+  } else {
+    sprintf (s, "%s section not found", section);
+    message (routine, s, ERROR);
+  }
+
+  return false;
+}
+
+
+bool FEML::valueFromSection (int_t      *value  ,
+			     const char *section,
+			     const char *token  )
+// ---------------------------------------------------------------------------
+// As above, integer version.  Note that zero values, if present, return true.
+// ---------------------------------------------------------------------------
+{
+  char routine[] = "FEML::valueFromSection";
+  char endsection[StrMax], s[StrMax], *tok;
+
+  sprintf (endsection, "</%s>", section);
+
+  if (seek (section)) {
+    stream().ignore (StrMax, '\n');
+    while (!stream().eof()) {
+      stream().getline(s, StrMax);
+      if (s[0] == '#') continue;
+      if (strstr (s, endsection)) break;
+      if ((tok = strtok (s, "=")) == NULL) continue;
+      if (strstr (tok, token)) {
+        tok = strtok (NULL, "\0");
+        *value = Femlib::ivalue (tok);
+        return true;
+      }
+    }
+    return false;
+  } else {
+    sprintf (s, "%s section not found", section);
+    message (routine, s, ERROR);
+  }
+
+  return false;
+}
+
+
+bool FEML::valueFromSection (char       *buf    ,
+			     const char *section,
+			     const char *token  )
+// ---------------------------------------------------------------------------
+// As above, string version.
+// ---------------------------------------------------------------------------
+{
+  char routine[] = "FEML::valueFromSection";
+  char endsection[StrMax], s[StrMax], *tok;
+
+
+  sprintf (endsection, "</%s>", section);
+
+  if (seek (section)) {
+    stream().ignore (StrMax, '\n');
+    while (!stream().eof()) {
+      stream().getline (s, StrMax);
+      if (s[0] == '#') continue;
+      if (strstr (s, endsection)) break;
+      if ((tok = strtok (s, "=")) == NULL) continue;
+      if (strstr (tok, token)) {
+        tok = strtok (NULL, "\0");
+        strcpy (buf, tok);
+        return true;
+      }
+    }
+    return false;
+  } else {
+    sprintf (s, "%s section not found", section);
+    message (routine, s, ERROR);
+  }
+
+  return false;
+}
+
+
+bool FEML::isStringInSection (const char *section,
+			      const char *string )
+// ---------------------------------------------------------------------------
+// Check if string exists in nominated section.  Return true if it
+// does, otherwise false.  Leave stream positioned at start of next
+// line.
+// ---------------------------------------------------------------------------
+{
+  char routine[] = "FEML::isStringInSection";
+  char endsection[StrMax], s[StrMax];
+
+  sprintf (endsection, "</%s>", section);
+
+  if (seek (section)) {
+    stream().ignore (StrMax, '\n');
+    while (!stream().eof()) {
+      stream().getline (s, StrMax);
+      if (s[0] == '#') continue;
+      if (strstr (s, endsection)) break;
+      if (strstr (s, string)) return true;
+    }
+    return false;
+  } else {
+    sprintf (s, "%s section not found", section);
+    message (routine, s, REMARK);
+  }
+
+  return false;
+}

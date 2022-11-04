@@ -17,8 +17,8 @@ void diclip (int_t n, const double alpha, const double beta,
 	     const double* x, int_t incx,
 	           double* y, int_t incy)
 {
-  register int_t i;
-  register double  xtmp;
+   int_t i;
+   double  xtmp;
   const double     mval = 0.5*(alpha + beta);
 
   x += (incx<0) ? (-n+1)*incx : 0;
@@ -35,7 +35,7 @@ void iiclip (int_t n, const int_t alpha, const int_t beta,
 	     const int_t* x, int_t incx,
 	           int_t* y, int_t incy)
 {
-  register int_t i, xtmp;
+   int_t i, xtmp;
   const int_t    mval = (alpha + beta)/2;
 
   x += (incx<0) ? (-n+1)*incx : 0;
@@ -52,8 +52,8 @@ void siclip (int_t n, const float alpha, const float beta,
 	     const float* x, int_t incx,
 	           float* y, int_t incy)
 {
-  register int_t i;
-  register float   xtmp;
+   int_t i;
+   float   xtmp;
   const float      mval=0.5*(alpha + beta);
 
   x += (incx<0) ? (-n+1)*incx : 0;

@@ -90,5 +90,7 @@ const char* Geometry::symmetry ()
   case SO2_2D:     return "SO(2), 2D"; break;
   case SO2_3D:     return "SO(2), 3D"; break;
   }
+
+  return "Never happen";
 }
 

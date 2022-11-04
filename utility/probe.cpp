@@ -822,8 +822,8 @@ static void Finterp (vector<AuxField*>& u    ,
 // Carry out 2DxFourier interpolation.
 // ---------------------------------------------------------------------------
 {
-  register int_t  i, k, Re, Im;
-  register real_t phase;
+   int_t  i, k, Re, Im;
+   real_t phase;
   const int_t     NF    = u.size();
   const int_t     NZH   = NZ >> 1;
   const int_t     NHM   = NZH - 1;

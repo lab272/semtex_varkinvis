@@ -13,7 +13,7 @@ friend class Field;
 //friend istream& operator >> (istream&, MatrixSys&);
 public:
   MatrixSys  (const real_t, const real_t, const int_t, const vector<Element*>&,
-	      const BoundarySys*, const NumberSys*, const SolverKind);
+	      const BoundarySys*, const AssemblyMap*, const SolverKind);
  ~MatrixSys  ();
   bool match (const real_t, const real_t, const AssemblyMap*,
 	      const SolverKind) const;

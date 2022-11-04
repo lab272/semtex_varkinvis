@@ -278,7 +278,7 @@ Vector Edge::tangTraction (const char*   grp,
   Vector Force = {0.0, 0.0, 0.0};
 
   if (strcmp (grp, _group) == 0) {
-    register int_t i;
+     int_t i;
     real_t         *ux = wrk + 2 * _np, *uy = wrk + 3 * _np;
 
     _elmt -> sideGrad (_side, u + _eoffset, ux, uy, wrk);
@@ -338,11 +338,11 @@ real_t Edge::scalarFlux (const char*   grp,
 // assumed we are dealing with a scalar!
 // ---------------------------------------------------------------------------
 {
-  register real_t dcdn = 0.0;
+   real_t dcdn = 0.0;
   
   if (strcmp (grp, _group) == 0) {
-    register int_t  i;
-    register real_t *cx = wrk, *cy = wrk + _np, *r = wrk + _np + _np;
+     int_t  i;
+     real_t *cx = wrk, *cy = wrk + _np, *r = wrk + _np + _np;
 
     _elmt -> sideGrad (_side, src + _eoffset, cx, cy, r);
     for (i = 0; i < _np; i++)
@@ -414,7 +414,7 @@ void Edge::divY (real_t* tgt) const
 // Divide tgt by y (typically, radius) along this edge.
 // ---------------------------------------------------------------------------
 {
-  register int_t i;
+   int_t i;
   real_t         invr;
 
   for (i = 0; i < _np; i++) {

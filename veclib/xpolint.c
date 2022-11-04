@@ -41,11 +41,11 @@ float spoly (int_t n, float  x, const float* xp, const float* yp)
 void dpolint (const double *xa, const double *ya, int_t n,
 	            double x,         double *y,  double *dy)
 {
-  register int_t ns  = 1;
+   int_t ns  = 1;
   double           dif = fabs (x - xa[1]),
                    *c  = dvector (1, n),
                    *d  = dvector (1, n);
-  register int_t i, m;
+   int_t i, m;
   double           den, dift, ho, hp, w;
 
   for (i = 1; i <= n; i++) {
@@ -80,7 +80,7 @@ void dpolint (const double *xa, const double *ya, int_t n,
 void spolint (const float *xa, const float *ya, int_t n,
 	            float x,         float *y,  float *dy)
 {
-  register int_t ns  = 1;
+   int_t ns  = 1;
 #if  defined(__uxp__) || defined(_SX)
   float            dif = (float) fabs (x - xa[1]),
 #else
@@ -88,7 +88,7 @@ void spolint (const float *xa, const float *ya, int_t n,
 #endif
                    *c  = svector(1, n),
                    *d  = svector(1, n);
-  register int_t i, m;
+   int_t i, m;
   float            den, dift, ho, hp, w;
 
   for (i = 1; i <= n; i++) {

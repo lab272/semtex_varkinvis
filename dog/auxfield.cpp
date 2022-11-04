@@ -25,7 +25,7 @@ AuxField::AuxField (real_t*           alloc,
 {
   const char     routine[] = "AuxField::AuxField";
   const int_t    nP = Geometry::planeSize();
-  register int_t k;
+   int_t k;
 
   if (Geometry::nElmt() != _elmt.size())
     message (routine, "conflicting number of elements in input data", ERROR);
@@ -163,7 +163,7 @@ AuxField& AuxField::operator = (const char* function)
   const int_t    np2 = Geometry::nTotElmt();
   const int_t    kb  = Geometry::basePlane();
   const real_t   dz  = Femlib::value ("TWOPI / BETA / N_Z");
-  register int_t i, k;
+   int_t i, k;
   real_t*        p;
 
   for (k = 0; k < _nz; k++) {
@@ -414,7 +414,7 @@ ostream& operator << (ostream& strm,
   const int_t    NP    = Geometry::planeSize();
   const int_t    nP    = Geometry::nPlane();
   const int_t    nProc = Geometry::nProc();
-  register int_t i, k;
+   int_t i, k;
 
   if (nProc > 1) {
 
@@ -462,7 +462,7 @@ istream& operator >> (istream& strm,
   const int_t    nP    = Geometry::nPlane();
   const int_t    NP    = Geometry::planeSize();
   const int_t    nProc = Geometry::nProc();
-  register int_t i, k;
+   int_t i, k;
 
   if (nProc > 1) {
 
@@ -596,8 +596,8 @@ void AuxField::swapData (AuxField* x,
 // ---------------------------------------------------------------------------
 {
   const char       routine[] = "AuxField::swapData";
-  register int_t   k;
-  register real_t* tmp;
+   int_t   k;
+   real_t* tmp;
 
   if (x -> _size != y -> _size)
     message (routine, "non-congruent inputs", ERROR);
@@ -705,8 +705,8 @@ AuxField& AuxField::divY ()
 {
   const int_t      nel  = Geometry::nElmt();
   const int_t      npnp = Geometry::nTotElmt();
-  register int_t   i, k;
-  register real_t* p;
+   int_t   i, k;
+   real_t* p;
 
   for (k = 0; k < _nz; k++)
     for (p = _plane[k], i = 0; i < nel; i++, p += npnp)
@@ -723,8 +723,8 @@ AuxField& AuxField::mulY ()
 {
   const int_t      nel  = Geometry::nElmt();
   const int_t      npnp = Geometry::nTotElmt();
-  register int_t   i, k;
-  register real_t* p;
+   int_t   i, k;
+   real_t* p;
 
   for (k = 0; k < _nz; k++)
     for (p = _plane[k], i = 0; i < nel; i++, p += npnp)
@@ -775,11 +775,11 @@ real_t AuxField::probe (const Element* E,
   const int_t      offset = E -> ID() * Geometry::nTotElmt();
   const real_t     betaZ  = z * Femlib::value ("BETA");
 
-  register int_t   k, Re, Im;
-  register real_t  value, phase;
+   int_t   k, Re, Im;
+   real_t  value, phase;
   vector<real_t>   work (nZ + _nz + 3 * np);
-  register real_t* fbuf = &work[0];
-  register real_t* lbuf = fbuf + nZ;
+   real_t* fbuf = &work[0];
+   real_t* lbuf = fbuf + nZ;
   real_t*          ewrk = lbuf + _nz;
 
   if (nP > 1) {
@@ -841,8 +841,8 @@ real_t AuxField::CFL (const int_t dir,
   const real_t     alpha    = 0.723;		  // -- Indicative max eigval.
   const real_t     c_lambda = 0.2;                // -- See reference.
   const int_t      P        = Geometry::nP() - 1; // -- Polynomial order.
-  register int_t   i, k;
-  register real_t* p;
+   int_t   i, k;
+   real_t* p;
   vector<real_t>   work (npnp);
   real_t           cfl, CFL = -FLT_MAX;
  
@@ -951,6 +951,64 @@ AuxField& AuxField::update (const int_t   nSlice  ,
       Blas::axpy (nPlane,  cos(phase), basedata +  i   *nPlane, 1, _data, 1);
       Blas::axpy (nPlane, -sin(phase), basedata + (i+1)*nPlane, 1, _data, 1);
     }
+  }
+
+  return *this;
+}
+
+
+AuxField& AuxField::smooth (const int_t   nglobal    ,
+			    const int_t*  assemblymap,
+			    const real_t* inversemass)
+// ---------------------------------------------------------------------------
+// Smooth internal data along element boundaries using mass-average
+// smoothing.
+//
+// The operation is equivalent to finding
+//
+//            -1
+//   {u} = [M]   Sum [M] {u}  ,
+//      g     g     e   e   e
+//
+// where g ==> global, e ==> elemental, [M] ==> mass matrix, and the
+// summation is a "direct stiffness summation", or matrix assembly.
+//
+// This operation only does anything if the data isn't C0 (which it
+// e.g. is if it has resulted from solution of an elliptic problem,
+// since semtex is continuous-Galerkin).
+//
+// The inputs used by the operator are typically held in Domain
+// storage and are determined without any renumbering, masking, BCs
+// etc.  Thus, while an AuxField "knows nothing" about connectivity,
+// we here cheat a little and pass it data associated with that
+// information, but in a way that is BC-agnostic.
+// ---------------------------------------------------------------------------
+{
+  const int_t     nel  = Geometry::nElmt();
+  const int_t     npnp = Geometry::nTotElmt();
+  const int_t     next = Geometry::nExtElmt();
+  const int_t*    gid;
+  vector<real_t>  dssum (nglobal); // To do: speed up by passing in work vector.
+  int_t           i, k;
+  real_t*         src;
+
+  for (k = 0; k < _nz; k++) {
+
+    Veclib::zero (nglobal, &dssum[0], 1);
+    
+    src = _plane[k];
+    gid = assemblymap;
+
+    for (i = 0; i < nel; i++, src += npnp, gid += next)
+      _elmt[i] -> bndryDsSum (gid, src, &dssum[0]);
+
+    Veclib::vmul (nglobal, &dssum[0], 1, inversemass, 1, &dssum[0], 1);
+    
+    src = _plane[k];
+    gid = assemblymap;
+
+    for (i = 0; i < nel; i++, src += npnp, gid += next)
+      _elmt[i] -> bndryInsert (gid, &dssum[0], src);
   }
 
   return *this;
