@@ -1,7 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % A user guide for dog stability analysis code.
 %
-% $Id$
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \documentclass[11pt,a4paper]{report}
 
@@ -352,8 +351,6 @@ flow. There are a number of example session files in the
         Same format as \texttt{session.fld}\\
 \texttt{session.fld}  \>
         Solution/field file.  Binary format by default.\\
-\texttt{session.num}  \>
-        Global node numbers, produced by enumerate utility.\\
 \undertext{\texttt{session.run}}  \>
         Runtime information including PID, command line arguments, etc.\\
 \texttt{session.rst}  \>
@@ -1592,19 +1589,6 @@ parse the strings in the \verb+USER+ section.
 pressure is not used and could in fact be omitted).
 
 %-----------------------------------------------------------------------------
-\subsection{Make an enumeration file}
-
-We have retained the standard \Semtex\ requirement that a
-\verb+session.num+ file must be produced. If not explicitly created,
-one will be generated on the fly, but it is usually better to make one
-`by hand' in order to ensure that the highest-level RCM numbering
-optimisation level (3) is obtained.  {\small
-\begin{verbatim}
-[mec-aquila]$ enumerate -O3 channel > channel.num
-\end{verbatim}
-}
-
-%-----------------------------------------------------------------------------
 \subsection{Running \texttt{dog}}
 
 Now we are ready. I'll assume commands from \Dog\ (like all the
@@ -1920,8 +1904,7 @@ break symmetry (and are anti-symmetric).
 
 We run \verb+dns+ to generate the base flow for $\Rey=50$:
 \begin{verbatim}
-[mec-aquila]$ enumerate -O3 semicyl02-base > semicyl02-base.num; \
- dns semicyl02-base > /dev/null
+[mec-aquila]$ dns semicyl02-base > /dev/null
 \end{verbatim}
 \noindent
 The resulting contours of $U$ are shown in figure~\ref{fig.semibase}.
@@ -2030,7 +2013,6 @@ eigenmode will be oscillatory in time, so we will ask for a pair of
 eigenmodes to be converged:
 \begin{verbatim}
 [mec-aquila]$ ln -sf Re50.bse semicyl02.bse; \
-enumerate -O3 semicyl02 > semicyl02.num; \
 dog -k 10 -n 2 -m 100 semicyl02 > /dev/null &
 tail -f semicyl02.evl
 \end{verbatim}
@@ -2360,7 +2342,6 @@ to zero.
 Now we are ready to run the stability analysis:
 \begin{verbatim}
 [mec-aquila]$ ln -sf stenosis-base.fld stenosis.bse; \
-enumerate -O3 stenosis > stenosis.num; \
 dog -k 8 -n 1 -m 100 -t 1e-8 stenosis > /dev/null &
 tail -f stenosis.evl
 \end{verbatim}
@@ -2596,8 +2577,7 @@ in this time span.  Note that we have included three history points at
 various locations inside the wake.
 
 \begin{verbatim}
-[mec-aquila]$ enumerate -O3 m32-base > m32-base.num ; \
-dns m32-base > /dev/null ; \
+[mec-aquila]$ dns m32-base > /dev/null ; \
 save m32-base
 \end{verbatim}
 \noindent
@@ -2805,8 +2785,7 @@ reconstruction, but it can be a useful diagnostic aid.)
 
 So now we are ready to carry out the analysis.
 \begin{verbatim}
-[mec-aquila]$ enumerate -O3 m32 > m32.num ;\
-dog -k 21 -n 1 -m 200 m32 > /dev/null &
+[mec-aquila]$ dog -k 21 -n 1 -m 200 m32 > /dev/null &
 tail -f m32.evl
 \end{verbatim}
 \noindent producing
@@ -3036,7 +3015,6 @@ type on all \verb+SURFACES+ by the simple expedient of placing them
 all in the \verb+w+ (wall) group.
 \begin{verbatim}
 [mec-aquila]$ ln -s bfs12-base.fld bfs12.bse
-[mec-aquila]$ enumerate -O3 bfs12 > bfs12.num
 [mec-aquila]$ dog -g -k 4 -n 2 -m 20 -t1e-5 bfs12 > /dev/null &
 [mec-aquila]$ tail -f bfs12.evl
 \end{verbatim}
@@ -3091,8 +3069,7 @@ artifacts can sometimes introduce spurious dynamics \citep[see \eg
   \S\,4.1 of][]{bbs08b}.
 \item
 Have you used the correct boundary conditions for the base flow and
-stability analysis (they are different)?  If you have changed the
-boundary conditions while testing, did you re-run \texttt{enumerate}?
+stability analysis (they are different)?
 \item
 How many velocity components are present in your base flow?  If there
 are three (i.e.\ there is a $w$ velocity component in the base flow),
