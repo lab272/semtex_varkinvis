@@ -7,7 +7,6 @@
 # script is basically redundant since the serial and parallel codes
 # should get almost exactly the same outcomes.
 #
-# $Id$
 
 case $# in
 0) echo "usage: testregress_mp new_code_version"; exit 0
@@ -28,7 +27,6 @@ do
   then
     rm -f $i.num
   fi
-  enumerate -O3 $i > $i.num 2> /dev/null
   compare $i > $i.rst
   $MPIRUN $CODE -chk $i > /dev/null 2>&1
   compare -n $i $i.fld > /dev/null 2> $i.new

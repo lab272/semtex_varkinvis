@@ -1,7 +1,7 @@
 #!/bin/sh
 ##############################################################################
 # Run Navier--Stokes solver regression checks.
-# $Id$
+#
 
 case $# in
 0) echo "usage: testregress new_code_version"; exit 0
@@ -19,7 +19,6 @@ do
     cp $MESHDIR/$i .
   fi
   compare $i > $i.rst
-  enumerate -O3 $i > $i.num
   $CODE -chk $i >/dev/null 2>&1
   compare -n $i $i.fld > /dev/null 2> $i.new
   cmp -s $i.new ../regress/$i.ok
