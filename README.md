@@ -315,8 +315,8 @@ probe     Probe field file at specified points.
 noiz      Add a random perturbation to a field file.  
 calc      An interactive calculator that calls the built-in function parser.  
 rstress   Compute a Reynolds stresses from a .avg file, subtract averages.  
-rectmesh  Generate a start-out session file from a list of x and y values.
-assemble  Generate global node numbering, with RCM optimization, for info.
+rectmesh  Generate a start-out session file from a list of x and y values.  
+assemble  Generate global node numbering, with RCM optimization, for info.  
 
 
 Most executables have a -h command line option which gives a help
