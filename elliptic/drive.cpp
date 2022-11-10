@@ -33,10 +33,14 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-
 #include <sem.h>
 
-static char prog[] = "elliptic";
+#ifdef MPI
+  static char prog[] = "elliptic_mp";
+#else
+  static char prog[] = "elliptic";
+#endif
+
 static void getargs    (int, char**, char*&);
 static void getoptions (FEML*, char*&, char*&);
 static void preprocess (const char*, FEML*&, Mesh*&, vector<Element*>&,
