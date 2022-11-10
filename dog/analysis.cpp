@@ -123,7 +123,7 @@ void Analyser::analyse (AuxField** work,
 
     // -- Output history point data.
       
-    register int_t    i, j;
+     int_t    i, j;
     const int_t       NH = _history.size();
     const int_t       NF = _src -> u.size();
     HistoryPoint*     H;

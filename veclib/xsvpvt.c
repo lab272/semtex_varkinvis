@@ -1,7 +1,5 @@
 /*****************************************************************************
  * xsvpvt:  z[i] = (alpha + x[i]) * y[i].
- *
- * $Id$
  *****************************************************************************/
 
 #include <cfemdef.h>
@@ -16,7 +14,7 @@ void dsvpvt (int_t n, double alpha,
 	     const double* y, int_t incy,
 	           double* z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -31,7 +29,7 @@ void ssvpvt (int_t n, float alpha,
 	     const float* y, int_t incy,
 	           float* z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;

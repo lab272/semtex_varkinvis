@@ -1,8 +1,6 @@
 /*****************************************************************************
  * xsplquad.c: use cubic spline coefficients to compute definite integral
  * of a piecewise polynomial representation.
- *
- * $Id$
  *****************************************************************************/
 
 #include <cfemdef.h>
@@ -28,8 +26,8 @@ double dsplquad (const double* xa ,
  * xa[n - 1].  If xlo > xhi, or if xlo or xhi are out of range, return 0.0.
  * ------------------------------------------------------------------------- */
 {
-  register int_t k, kk, kp, nint_t;
-  register double  h, sum = 0.0;
+   int_t k, kk, kp, nint_t;
+   double  h, sum = 0.0;
   int_t          jlo, jhi, klo, khi;
   double           a1, a2, a3, a4, c1, c2, c3, c4, aa1, aa2, aa3, aa4;
 
@@ -143,8 +141,8 @@ float ssplquad (const float*  xa ,
  * xa[n - 1].  If xlo > xhi, or if xlo or xhi are out of range, return 0.0.
  * ------------------------------------------------------------------------- */
 {
-  register int_t k, kk, kp, nint_t;
-  register float   h, sum = 0.0;
+   int_t k, kk, kp, nint_t;
+   float   h, sum = 0.0;
   int_t          jlo, jhi, klo, khi;
   float            a1, a2, a3, a4, c1, c2, c3, c4, aa1, aa2, aa3, aa4;
 

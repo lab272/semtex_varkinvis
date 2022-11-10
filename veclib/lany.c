@@ -1,7 +1,5 @@
 /*****************************************************************************
  * lany: return 1 if any x are true: iany = 0; if (x[i]) lany = 1.
- *
- * $Id$
  *****************************************************************************/
 
 #include <cfemdef.h>
@@ -9,7 +7,7 @@
 
 int_t lany (int_t n, const int_t* x, int_t incx)
 { 
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
 

@@ -305,7 +305,7 @@ Vector Edge::tangTraction (const char*   grp,
   Vector Force = {0.0, 0.0, 0.0};
 
   if (strcmp (grp, _group) == 0) {
-    register int_t i;
+    int_t i;
     real_t         *ux = wrk + 2 * _np, *uy = wrk + 3 * _np;
 
     _elmt -> sideGrad (_side, u + _eoffset, ux, uy, wrk);

@@ -12,25 +12,24 @@ friend class Field;
 //friend ostream& operator << (ostream&, MatrixSys&);
 //friend istream& operator >> (istream&, MatrixSys&);
 public:
-  MatrixSys     (const real_t, const real_t, const int_t,
-		 const vector<Element*>&, const BoundarySys*,
-		 const SolverKind);
- ~MatrixSys     ();
-  bool match    (const real_t, const real_t, const NumberSys*,
-		 const SolverKind) const;
+  MatrixSys  (const real_t, const real_t, const int_t, const vector<Element*>&,
+	      const BoundarySys*, const AssemblyMap*, const SolverKind);
+ ~MatrixSys  ();
+  bool match (const real_t, const real_t, const AssemblyMap*,
+	      const SolverKind) const;
 
 private:
   real_t  _HelmholtzConstant;	// Same for all modes.
   real_t  _FourierConstant  ;	// Varies with mode number.
  
   const vector<Boundary*>& _BC;	// Internal copy of Boundary conditions.
-  const NumberSys*         _NS;	// Internal copy of NumberSys.
+  const AssemblyMap*       _AM;	// Internal copy of assembly information.
 
   int_t    _nel     ;		// Number of elemental matrices.
   int_t    _nglobal ;		// Number of unique element-boundary nodes.
   int_t    _singular;		// If system is potentially singular.
   int_t    _nsolve  ;		// System-specific number of global unknowns.
-  SolverKind _method  ;		// Flag specifies direct or iterative solver.
+  SolverKind _method;		// Flag specifies direct or iterative solver.
 
   // -- For _method == DIRECT:
 
@@ -59,14 +58,14 @@ class ModalMatrixSys
 {
 public:
   ModalMatrixSys (const real_t, const real_t, const int_t, const int_t,
-		  const vector<Element*>&, const BoundarySys*, 
+		  const vector<Element*>&, const BoundarySys*, const NumberSys*,
 		  const SolverKind);
  ~ModalMatrixSys ();
 
   const MatrixSys* operator [] (const int_t i) const { return _Msys[i]; }
 
 private:
-  char*              _fields;	// Character field tags for this system.
+  //  char*              _fields;	// Character field tags for this system.
   vector<MatrixSys*> _Msys  ;	// One MatrixSys for each Fourier mode.
 };
 

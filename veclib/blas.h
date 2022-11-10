@@ -13,8 +13,6 @@
 //     BLAS2 dgemv & sgemv.
 // 4.  mxm computes matrix-matrix product for contiguously-stored row-major
 //     matrices; it aliases calls to BLAS3 dgemm & sgemm.  Conforming assumed.
-//
-// $Id$
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cfemdef.h>

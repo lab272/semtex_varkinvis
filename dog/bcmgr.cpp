@@ -9,7 +9,7 @@
 // consideration. Rather than only allow this BC type only for 2D
 // analysis, it seems easier to remove it completely.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// Copyright (c) 1994+ Hugh M Blackburn
 //
 // SYNOPSIS
 // --------
@@ -25,7 +25,6 @@
 // periodic.  The sections below are given as examples.
 //
 // <GROUPS NUMBER=5>
-
 // #	tag	name	descriptor
 // #    Note that name "axis" is reserved and must be associated with 
 // #    the BC character tag 'A'.
@@ -191,26 +190,7 @@
 // [2] Blackburn & Sherwin, JCP 197:759-778 (2004)
 // [3] Dong, Karniadakis & Chryssostomides JCP 261:83-105, (2014)
 //
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
@@ -225,7 +205,9 @@ BCmgr::BCmgr (FEML*             file,
 // In addition, it reads in prebuilt numbering schemes from file
 // session.num for later retrieval.
 // ---------------------------------------------------------------------------
-  _axis (false)
+  _axis   (false),
+  _open   (false),
+  _toggle (false)
 {
   const char  routine[] = "BCmgr::BCmgr";
   char        buf[StrMax], err[StrMax], tag[StrMax], gat[StrMax];
@@ -256,12 +238,6 @@ BCmgr::BCmgr (FEML*             file,
   } else   message (routine, "FIELDS section not found",  ERROR);
 
   strcpy ((_fields = new char [strlen (buf) + 1]), buf);
-
-  VERBOSE cout << routine << ": Installing numbering systems ... ";
-
-  buildnum (file -> root(), elmt);
-
-  VERBOSE cout << "done" << endl;
 
   if (!file -> seek ("GROUPS")) {
     if (verbose)
@@ -446,15 +422,15 @@ BCmgr::BCmgr (FEML*             file,
 
   VERBOSE cout << "  Building internal list of BC edges ... ";
 
-  buildsurf (file, elmt);
+  this -> buildsurf (file, elmt);
 
   VERBOSE cout << "done" << endl;
 }
 
 
-Condition* BCmgr::getCondition (const char  group,
-				const char  field,
-				const int_t mode )
+const Condition* BCmgr::getCondition (const char  group,
+				      const char  field,
+				      const int_t mode )
 // ---------------------------------------------------------------------------
 // Search internal list of Conditions for appropriate one, such that
 // the stored internal variables match input group & field names.
@@ -526,283 +502,6 @@ const char* BCmgr::groupInfo (const char name) const
   sprintf (err, "unknown group: %c", name);
   message (routine, err, WARNING);
   return 0;
-}
-
-
-NumberSys* BCmgr::getNumberSys (const char  name,
-				const int_t mode)
-// ---------------------------------------------------------------------------
-// Return the NumberSys corresponding to the input field name and
-// Fourier mode.  Mode numbers begin at zero, and are not expressed
-// modulo number of modes per process.
-// ---------------------------------------------------------------------------
-{
-  const char  routine[] = "BCmgr::getNumberSys";
-  const int_t nsys  = _numsys.size();
-  const int_t cmode = clamp (mode,static_cast<int_t>(0),static_cast<int_t>(2));
-  char        err[StrMax], selectname = name;
-  NumberSys*  N = 0;
-
-  // -- Switch the name for selected cylindrical coordinate modes.
-
-  if (Geometry::cylindrical() && Geometry::nDim() == 3 && _axis)
-    if      (name == 'u' && (cmode == 1 || cmode == 2)) selectname = 'U';
-    else if (name == 'w' && (cmode == 1))               selectname = 'W';
-    else if (name == 'p' && (cmode == 1 || cmode == 2)) selectname = 'P';
-    else if (name == 'c' && (cmode == 1 || cmode == 2)) selectname = 'C';
-
-  // -- Now search.
-  
-  for (int_t i = 0; i < nsys; i++)
-    if (strchr (_numsys[i] -> fields(), selectname)) { N = _numsys[i]; break; }
-
-  if (!N) {
-    sprintf (err, "can't find scheme for field %c, mode %1d", name, mode);
-    message (routine, err, ERROR);
-  }
-  
-  return N;
-}
-
-
-void BCmgr::buildnum (const char*       session,
-		      vector<Element*>& elmt   )
-// ---------------------------------------------------------------------------
-// Private member function.
-//
-// Retrieve numbering schemes (btog and bmsk values) from file
-// "session.num": this is created by running the "enumerate" utility
-// on root processor.
-//
-// The names of fields and their numbering schemes are significant.
-// The convention employed is that the fields have lower-case
-// single-character names.  Numbering schemes have the same names,
-// *except* in the case of cylindrical coordinate systems where the
-// domain includes the symmetry axis.  See top of this file for
-// mode-related significance for upper-cased names of numbering
-// schemes.
-//
-// After the numbering schemes have been set up, create the
-// corresponding inverse mass matrices.
-// ---------------------------------------------------------------------------
-{
-  const char     routine[] = "BCmgr::buildnum";
-  const int_t    np   = Geometry::nP();
-  const int_t    NP   = Geometry::nPlane();
-  const int_t    nel  = Geometry::nElmt();
-  const int_t    npnp = Geometry::nTotElmt();
-  const int_t    next = Geometry::nExtElmt();
-  const int_t    ntot = Geometry::nBnode();
-  char           buf[StrMax], err[StrMax], file[StrMax];
-  ifstream       num;
-  vector<real_t> work (npnp);
-  real_t         *mass, *unity = &work[0];
-  register int_t i, j, nset, nglobal;
-  register int_t *gid, *q;
-
-  // -- Read in NumberSystems.
-
-  strcat   (strcpy (file, session), ".num");
-  num.open (file);
-
-  if (!num) {
-    ROOTONLY {
-      sprintf (buf, "enumerate -O1 %s > %s", session, file);
-      if (system (buf)) {
-        sprintf (err, "couldn't open session file %s, or %s", session, file);
-        message (routine, err, ERROR);
-      }
-    }
-
-    Femlib::synchronize();      // -- Ensure creation has completed.
-    num.clear ();
-    num.open  (file);
-
-    if (!num) {
-      sprintf (err, "couldn't find or create number file %s", file);
-      message (routine, err, ERROR);
-    }
-  }
-
-  num >> buf >> buf >> buf >> buf;
-  j = strlen (buf);
-  for (i = 0; i < j; i++)
-    if (!strchr (_fields, tolower (buf[i]))) {
-      sprintf (err, "Fields nominated in %s.num (\"%s\") don't match \"%s\"",
-	       session, buf, _fields);
-      message (routine, err, ERROR);
-    }
-
-  num.getline(buf, StrMax).getline(buf, StrMax);
-
-  num >> buf >> nset >> buf >> buf >> buf;
-
-  _numsys.resize (nset);
-  for (i = 0; i < nset; i++) {
-    num >> buf;
-    _numsys[i] = new NumberSys;
-    _numsys[i] -> _fields = new char [strlen (buf) + 1];
-    strcpy (_numsys[i] -> _fields, buf);
-  }
-
-  for (i = 0; i < nset; i++)
-    for (j = 0; j < nset; j++) {
-      if (i == j) continue;
-      if (strpbrk (_numsys[i] -> _fields, _numsys[j] -> _fields)) {
-	sprintf (err, "Field name duplication: %s <--> %s",
-		 _numsys[i] -> _fields, _numsys[j] -> _fields);
-	message (routine, err, ERROR);
-      }
-    }
-
-  num >> buf >> buf;
-  if (strcmp (buf, "NEL")) {
-    sprintf (err, "expected \"NEL\", found %s", buf);
-    message (routine, err, ERROR);
-  }
-  num >> buf;
-  for (i = 0; i < nset; i++) {
-    num >> j;
-    if (j != nel) {
-      sprintf (err, "mismatch in number of elements: %1d vs. %1d", j, nel);
-      message (routine, err, ERROR);
-    }
-  }
-
-  num >> buf >> buf;
-  if (strcmp (buf, "NP_MAX")) {
-    sprintf (err, "expected \"NP_MAX\", found %s", buf);
-    message (routine, err, ERROR);
-  }
-  num >> buf;
-  for (i = 0; i < nset; i++) {
-    num >> j;
-    if (j != np) {
-      sprintf (err, "mismatch in element order: %1d vs. %1d", j, np);
-      message (routine, err, ERROR);
-    }
-  }
-
-  num >> buf >> buf;
-  if (strcmp (buf, "NEXT_MAX")) {
-    sprintf (err, "expected \"NEXT_MAX\", found %s", buf);
-    message (routine, err, ERROR);
-  }
-  num >> buf;
-  for (i = 0; i < nset; i++) num >> j;
-
-  num >> buf >> buf;
-  if (strcmp (buf, "NINT_MAX")) {
-    sprintf (err, "expected \"NINT_MAX\", found %s", buf);
-    message (routine, err, ERROR);
-  }
-  num >> buf;
-  for (i = 0; i < nset; i++) num >> j;
-
-  num >> buf >> buf;
-  if (strcmp (buf, "NTOTAL")) {
-    sprintf (err, "expected \"NTOTAL\", found %s", buf);
-    message (routine, err, ERROR);
-  }
-  num >> buf;
-  for (i = 0; i < nset; i++) {
-    num >> j;
-    if (j != NP) {
-      sprintf (err, "mismatch in Field storage requirements: %1d vs %1d",j,NP);
-      message (routine, err, ERROR);
-    }
-  }
-
-  num >> buf >> buf;
-  if (strcmp (buf, "NBOUNDARY")) {
-    sprintf (err, "expected \"NBOUNDARY\", found %s", buf);
-    message (routine, err, ERROR);
-  }
-  num >> buf;
-  for (i = 0; i < nset; i++) {
-    num >> j;
-    if (j != ntot) {
-      sprintf (err,"mismatch in number of boundary nodes: %1d vs. %1d",j,ntot);
-      message (routine, err, ERROR);
-    }
-    _numsys[i] -> _btog  = new int_t [ntot];
-    _numsys[i] -> _bmask = new int_t [ntot];
-  }
-
-  num >> buf >> buf;
-  if (strcmp (buf, "NGLOBAL")) {
-    sprintf (err, "expected \"NGLOBAL\", found %s", buf);
-    message (routine, err, ERROR);
-  }
-  num >> buf;
-  for (i = 0; i < nset; i++) num >> _numsys[i] -> _nglobal;
-
-  num >> buf >> buf;
-  if (strcmp (buf, "NSOLVE")) {
-    sprintf (err, "expected \"NSOLVE\", found %s", buf);
-    message (routine, err, ERROR);
-  }
-  num >> buf;
-  for (i = 0; i < nset; i++) num >> _numsys[i] -> _nsolve;
-
-  num >> buf >> buf;
-  if (strcmp (buf, "OPTIMIZATION")) {
-    sprintf (err, "expected \"OPTIMIZATION\", found %s", buf);
-    message (routine, err, ERROR);
-  }
-  num >> buf;
-  for (i = 0; i < nset; i++) num >> _numsys[i] -> _optlev;
-
-  num >> buf >> buf;
-  if (strcmp (buf, "BANDWIDTH")) {
-    sprintf (err, "expected \"BANDWIDTH\", found %s", buf);
-    message (routine, err, ERROR);
-  }
-  num >> buf;
-  for (i = 0; i < nset; i++) num >> _numsys[i] -> _nbandw;
-
-  num.getline(buf, StrMax).getline(buf, StrMax).getline(buf, StrMax);
-
-  // -- Consistency checks passed.  Now read in node numbers & BC masks.
-  //    A bmask value of 1 implies an essential BC will be imposed at node.
-
-  for (i = 0; i < ntot; i++) {
-    num >> buf >> buf >> buf;
-    for (j = 0; j < nset; j++) 
-      num >> _numsys[j] -> _btog[i] >> _numsys[j] -> _bmask [i];
-  }
-
-  if (num.bad())
-    message (routine, "failed reading to end of node-number file", ERROR);
-
-  // -- Build emasks by inspecting bmasks for each element.
-  //    An emask of 1 implies the element has at least one essential BC node.
-
-  for (j = 0; j < nset; j++) {
-    NumberSys* N = _numsys[j];
-    N -> _emask = new int_t [nel];
-    for (q = N -> _bmask, i = 0; i < nel; i++, q += next)
-      N -> _emask[i] = Veclib::any (next, q, 1);
-  }
-
-  // -- Create inverse mass matrices, avoid division by zero on axis.
-
-  for (j = 0; j < nset; j++) {
-    
-    // -- Create diagonal global mass matrix.
-
-    nglobal = _numsys[j] -> _nglobal;
-    mass    = _numsys[j] -> _imass = new real_t [nglobal];
-    Veclib::zero (nglobal, mass, 1);
-    for (gid = _numsys[j] -> _btog, i = 0; i < nel; i++, gid += next) {
-      Veclib::fill (npnp, 1.0, unity, 1);
-      elmt[i] -> bndryDsSum (gid, unity, mass);
-    }
-
-    // -- Invert.
-
-    for (i = 0; i < nglobal; i++) mass[i] = 1.0 / mass[i];
-  }
 }
 
 
@@ -888,6 +587,43 @@ int_t BCmgr::nWall ()
   for (b = _elmtbc.begin(); b != _elmtbc.end(); b++) {
     BCT = *b;
     if (strstr (groupInfo (BCT -> group), "wall")) count++;
+  }
+
+  return count;
+}
+
+
+int_t BCmgr::nAxis ()
+// ---------------------------------------------------------------------------
+// Count up the number of surfaces/element edges that have "axis" descriptor.
+// ---------------------------------------------------------------------------
+{
+  vector<BCtriple*>::const_iterator b;
+  int_t                             count = 0;
+  BCtriple*                         BCT;
+
+  for (b = _elmtbc.begin(); b != _elmtbc.end(); b++) {
+    BCT = *b;
+    if (strstr (groupInfo (BCT -> group), "axis")) count++;
+  }
+
+  return count;
+}
+
+
+int_t BCmgr::nMatching (const char* descript)
+// ---------------------------------------------------------------------------
+// Count up the number of surfaces/element edges that have given
+//  string descriptor.
+// ---------------------------------------------------------------------------
+{
+  vector<BCtriple*>::const_iterator b;
+  int_t                             count = 0;
+  BCtriple*                         BCT;
+
+  for (b = _elmtbc.begin(); b != _elmtbc.end(); b++) {
+    BCT = *b;
+    if (strstr (groupInfo (BCT -> group), descript)) count++;
   }
 
   return count;
@@ -994,7 +730,7 @@ void BCmgr::maintainFourier (const int_t      step   ,
   const AuxField* Nx = Uf[0];
   const AuxField* Ny = Uf[1];
 
-  const vector<Boundary*>& BC = master -> _bsys -> BCs (0);
+  const vector<Boundary*>& BC = master -> _bsys -> getBCs (0);
 
   Boundary*       B;
   int_t           i, j, k, q, offset, skip, Je;
@@ -1178,7 +914,7 @@ void BCmgr::accelerate (const Vector& a,
 // Yes, this is a HACK!
 // ---------------------------------------------------------------------------
 {
-  const vector<Boundary*>& BC = u -> _bsys -> BCs (0);
+  const vector<Boundary*>& BC = u -> _bsys -> getBCs (0);
   int_t                    i;
 
   for (i = 0; i < u->_nbound; i++)

@@ -78,28 +78,7 @@
  * @file utility/addfield.cpp
  * @ingroup group_utility
  *****************************************************************************/
-// Copyright (c) 1998 <--> $Date$, 
-//   Hugh Blackburn, Murray Rudman, Jagmohan Singh
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-//////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
+// Copyright (c) 1998+, Hugh M Blackburn, Murray Rudman, Jagmohan Singh
 
 #include <sem.h>
 #include <tensorcalcs.h>
@@ -210,7 +189,7 @@ int main (int    argc,
   }
   
   B = new BCmgr  (F, elmt);
-  D = new Domain (F, elmt, B);
+  D = new Domain (F, M, elmt, B);
 
   // -- From the requested fields, flag dependencies.
   // -- First, only allow the "coherent structures" measures for flows
@@ -371,7 +350,8 @@ int main (int    argc,
     if (smooth)
       for (map<char,AuxField*>::iterator k = addfield.begin();
 	   k != addfield.end(); k++, i++)
-	D -> u[0] -> smooth(addfield[k-> first]);
+	addfield[k -> first] -> smooth
+	  (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
     
     outbuf_len = input.size()+addfield.size();
 

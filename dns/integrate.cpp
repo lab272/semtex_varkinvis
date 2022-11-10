@@ -22,7 +22,7 @@
 //
 // Optionally integrate concentration of advected scalar field c.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
 // REFERENCES
 // ----------
@@ -34,33 +34,15 @@
 //     element--Fourier method for three-dimensional incompressible flows
 //     in cylindrical geometries", JCP 179:759-778
 // [4] Dong (2015) "A convective-like energy-stable open boundary condition
-//     for simulations of incompressible flows.  JCP 302:300-328.
+//     for simulations of incompressible flows", JCP 302:300-328.
 // [5] Blackburn, Lee, Albrecht & Singh (2019) "Semtex: a spectral
 //     element--Fourier solver for the incompressible Navier--Stokes
 //     equations in cylindrical or Cartesian coordinates", CPC 245:106804.
 // [6] Blackburm, Lopez, Singh & Smits (2021) "On the Boussinesq
-//     approximation in arbitrarily accelerating frames of reference" JFM.
+//     approximation in arbitrarily accelerating frames of reference",
+//     JFM 924:R1.
 //   
-// --
-// This file is part of Semtex.
-//
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-//
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <dns.h>
 
@@ -160,7 +142,7 @@ void integrate (void (*advection) (Domain*    ,
   for (i = 0; i < NADV; i++) *D -> u[i] = *Uf[0][i];
   A -> analyse (Us[0], Uf[0]);
 
-#else  // -- Normal timstepping.
+#else  // -- Normal timestepping.
   
   // -- The following timestepping loop implements equations (15--18) in [5].
 
@@ -226,9 +208,9 @@ void integrate (void (*advection) (Domain*    ,
       AuxField::couple (D -> u[1], D -> u[2], FORWARD);
     }
 
+    
     for (i = 0; i < NADV; i++) Solve (D, i, Uf[0][i], MMS[i]);
-    if (C3D)
-      AuxField::couple (D -> u[1], D -> u[2], INVERSE);
+    if (C3D) AuxField::couple (D -> u[1], D -> u[2], INVERSE);
 
     // -- Process results of this step.
 
@@ -342,7 +324,8 @@ static Msys** preSolve (const Domain* D)
 // ---------------------------------------------------------------------------
 {
   const int_t             nmodes = Geometry::nModeProc();
-  const int_t             base   = Geometry::baseMode(); const int_t             itLev  = Femlib::ivalue ("ITERATIVE");
+  const int_t             base   = Geometry::baseMode();
+  const int_t             itLev  = Femlib::ivalue ("ITERATIVE");
   const real_t            beta   = Femlib:: value ("BETA");
   const vector<Element*>& E = D -> elmt;
   Msys**                  M = new Msys* [static_cast<size_t>(NADV + 1)];
@@ -350,30 +333,32 @@ static Msys** preSolve (const Domain* D)
 
   vector<real_t> alpha (Integration::OrderMax + 1);
   Integration::StifflyStable (NORD, &alpha[0]);
-  real_t   lambda2 = alpha[0] / Femlib::value ("D_T * KINVIS");
+  real_t         lambda2 = alpha[0] / Femlib::value ("D_T * KINVIS");
 
   // -- Velocity systems.
 
   for (i = 0; i < NCOM; i++)
     M[i] = new Msys
-      (lambda2, beta, base, nmodes, E, D -> b[i], (itLev) ? JACPCG : DIRECT);
+      (lambda2, beta, base, nmodes, E, D -> b[i], D -> n[i],
+       (itLev) ? JACPCG : DIRECT);
 
   // -- Scalar system.
 
   if (NADV != NCOM) {
     lambda2 = alpha[0] / Femlib::value ("D_T * KINVIS / PRANDTL");
     M[NCOM] = new Msys
-      (lambda2, beta, base, nmodes, E, D -> b[NCOM],(itLev < 1)?DIRECT:JACPCG);
+      (lambda2, beta, base, nmodes, E, D -> b[NCOM], D -> n[NCOM],
+       (itLev < 1)?DIRECT:JACPCG);
   }
 
   // -- Pressure system.
 
   if (itLev > 1)
     M[NADV] = new Msys
-      (0.0, beta, base, nmodes, E, D -> b[NADV], MIXED);
+      (0.0, beta, base, nmodes, E, D -> b[NADV], D -> n[NADV], MIXED);
   else
     M[NADV] = new Msys
-      (0.0, beta, base, nmodes, E, D -> b[NADV], DIRECT);
+      (0.0, beta, base, nmodes, E, D -> b[NADV], D -> n[NADV], DIRECT);
 
   return M;
 }
@@ -384,7 +369,7 @@ static void Solve (Domain*     D,
 		   AuxField*   F,
 		   Msys*       M)
 // ---------------------------------------------------------------------------
-// Solve Helmholtz problem for D->u[i], using F as a forcing Field.
+// Solve Helmholtz problem for D -> u[i], using F as a forcing Field.
 // Iterative or direct solver selected on basis of field type, step,
 // time order and command-line arguments.
 // ---------------------------------------------------------------------------
@@ -404,7 +389,8 @@ static void Solve (Domain*     D,
     const real_t   beta    = Femlib::value ("BETA");
 
     Msys* tmp = new Msys
-      (lambda2, beta, base, nmodes, D -> elmt, D -> b[i], JACPCG);
+      (lambda2, beta, base, nmodes, D -> elmt, D -> b[i], D -> n[i], JACPCG);
+
     D -> u[i] -> solve (F, tmp);
     delete tmp;
 

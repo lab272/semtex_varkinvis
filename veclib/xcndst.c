@@ -1,7 +1,5 @@
 /*****************************************************************************
  * xcndst:  conditional assignment:  if (y[i]) z[i] = x[i].
- *
- * $Id$
  *****************************************************************************/
 
 #include <cfemdef.h>
@@ -16,7 +14,7 @@ void dcndst (int_t n,
 	     const int_t* y, int_t incy,
 	           double*  z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -31,7 +29,7 @@ void icndst (int_t n,
 	     const int_t* y, int_t incy,
 	           int_t* z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -46,7 +44,7 @@ void scndst (int_t n,
 	     const int_t* y, int_t incy,
 	           float*   z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;

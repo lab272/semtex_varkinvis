@@ -20,7 +20,6 @@ C     NB: the angular factors in xPREFT and xPASS1 have had the signs
 C     of the sines reversed compared to the published versions.
 C     This makes the forward DFT have exp(-TWOPIijk/N).
 C
-C     $Id$
 C     ==================================================================
 C
 C

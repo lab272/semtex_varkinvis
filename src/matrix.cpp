@@ -1,31 +1,11 @@
 //////////////////////////////////////////////////////////////////////////////
 // matrix.cpp: routines that generate solvers for Helmholtz problems.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 ///////////////////////////////////////////////////////////////////////////////
 
-static char RCS[] = "$Id$";
-
 #include <sem.h>
-
 
 static vector<MatrixSys*> MS;
 
@@ -36,6 +16,7 @@ ModalMatrixSys::ModalMatrixSys (const real_t            lambda2 ,
 				const int_t             numModes,
 				const vector<Element*>& Elmt    ,
 				const BoundarySys*      Bsys    ,
+				const NumberSys*        Nsys    ,
 				const SolverKind        method  )
 // ---------------------------------------------------------------------------
 // Generate or retrieve from internal database MS the vector of
@@ -48,7 +29,8 @@ ModalMatrixSys::ModalMatrixSys (const real_t            lambda2 ,
 //   beta    : Fourier length scale = TWOPI / Lz,
 //   nmodes  : number of Fourier modes which will be solved,
 //   Elmt    : vector of Element*'s used to make local Helmholtz matrices,
-//   Bsys    : boundary system for this field.
+//   Bsys    : boundary system for this field,
+//   Nsys    : corresponding numbering system (set of AssemblyMaps), 
 //   method  : specify the kind of solver we want (Cholesky, PCG ...).
 // ---------------------------------------------------------------------------
 {
@@ -59,8 +41,6 @@ ModalMatrixSys::ModalMatrixSys (const real_t            lambda2 ,
   MatrixSys* M;
   vector<MatrixSys*>::iterator m;
 
-  _fields = new char [strlen (Bsys -> Nsys (0) -> fields()) + 1];
-  strcpy (_fields, Bsys -> Nsys (0) -> fields());
   _Msys.resize (numModes);
 
   if (method == DIRECT) {
@@ -70,21 +50,21 @@ ModalMatrixSys::ModalMatrixSys (const real_t            lambda2 ,
   }
 
   for (mode = baseMode; mode < baseMode + numModes; mode++) {
-    const int_t      modeIndex = mode * Femlib::ivalue ("BETA");
-    const NumberSys* N         = Bsys -> Nsys(modeIndex);
-    const real_t     betak2    = sqr (Field::modeConstant(name,mode,beta));
-    const int_t      localMode = mode - baseMode;
+    const int_t        modeIndex = mode * Femlib::ivalue ("BETA");
+    const AssemblyMap* Assy      = Nsys -> getMap (modeIndex);
+    const real_t       betak2    = sqr  (Field::modeConstant(name,mode,beta));
+    const int_t        localMode = mode - baseMode;
 
     // -- Multiply Helmholtz constant with SVV-specific weight:
-    //   betak2_svv = betak2 * (1 + eps_N/nu * Q) for modes k > SVV_MZ
-    //   and lambda2 > 0 (i.e. only for the velocity components)
+    //    betak2_svv = betak2 * (1 + eps_N/nu * Q) for modes k > SVV_MZ
+    //    and lambda2 > 0 (i.e. only for the velocity components).
  
     const real_t* S = SVV::coeffs_z (numModes);
     const real_t  betak2_svv = (lambda2>EPSDP)?(betak2*S[localMode]) : betak2; 
 
     for (found = false, m = MS.begin(); !found && m != MS.end(); m++) {
       M     = *m;
-      found = M -> match (lambda2, betak2_svv, N, method);
+      found = M -> match (lambda2, betak2_svv, Assy, method);
     }
     if (found) {
       _Msys[localMode] = M;
@@ -92,11 +72,12 @@ ModalMatrixSys::ModalMatrixSys (const real_t            lambda2 ,
     } else {
       if (method == MIXED)
 	_Msys[localMode] =
-	  new MatrixSys (lambda2, betak2_svv, modeIndex, Elmt, Bsys, 
+	  new MatrixSys (lambda2, betak2_svv, modeIndex, Elmt, Bsys, Assy,
 			 (mode == 0) ? DIRECT : JACPCG);
       else 
 	_Msys[localMode] =
-	  new MatrixSys (lambda2, betak2_svv, modeIndex, Elmt, Bsys, method);
+	  new MatrixSys (lambda2,betak2_svv,modeIndex,Elmt, Bsys, Assy, method);
+
       MS.insert (MS.end(), _Msys[localMode]);
       if (method == DIRECT) { cout << '*'; cout.flush(); }
     }
@@ -125,8 +106,6 @@ ModalMatrixSys::~ModalMatrixSys ()
     for (p = MS.begin(); p != MS.end(); p++)
       if (*p == _Msys[N]) { delete (_Msys[N]); MS.erase(p); break; }
   }
-
-  delete[] _fields;
 }
 
 
@@ -141,6 +120,7 @@ MatrixSys::MatrixSys (const real_t            lambda2,
 		      const int_t             mode   ,
 		      const vector<Element*>& elmt   ,
 		      const BoundarySys*      bsys   ,
+		      const AssemblyMap*      assy   ,
 		      const SolverKind        method ) :
 // ---------------------------------------------------------------------------
 // Initialize and factorise matrices in this system.
@@ -160,15 +140,15 @@ MatrixSys::MatrixSys (const real_t            lambda2,
 // definition!:
   _HelmholtzConstant (lambda2),
   _FourierConstant   (betak2 ),
-  _BC                (bsys -> BCs  (mode)),
-  _NS                (bsys -> Nsys (mode)),
+  _BC                (bsys -> getBCs (mode)),
+  _AM                (assy),
   _nel               (Geometry::nElmt()),
-  _nglobal           (_NS -> nGlobal()),
+  _nglobal           (_AM -> nGlobal()),
   _singular          ((_HelmholtzConstant + _FourierConstant) < EPSSP &&
-		      !_NS -> fmask() && !bsys -> mixBC()),
-  _nsolve            ((_singular) ? _NS -> nSolve() - 1 : _NS -> nSolve()),
+		      !_AM -> fmask() && !bsys -> mixBC()),
+  _nsolve            ((_singular) ? _AM -> nSolve() - 1 : _AM -> nSolve()),
   _method            (method),
-  _nband             (_NS -> nBand()),
+  _nband             (_AM -> nBand()),
   _npack             (_nband * _nsolve),
   _H                 (0),
   _hbi               (0),
@@ -185,7 +165,7 @@ MatrixSys::MatrixSys (const real_t            lambda2,
   const int_t    nint      = Geometry::nIntElmt();
   const int_t    npnp      = Geometry::nTotElmt();
   const int_t*   bmap;
-  register int_t i, j, k, m, n;
+  int_t i, j, k, m, n;
 
   if (verbose && _singular)
     cout << endl
@@ -223,7 +203,7 @@ MatrixSys::MatrixSys (const real_t            lambda2,
 
     // -- Loop over elements, creating & posting elemental Helmholtz matrices.
 
-    for (bmap = _NS -> btog(), j = 0; j < _nel; j++, bmap += next) {
+    for (bmap = _AM -> btog(), j = 0; j < _nel; j++, bmap += next) {
       _bipack[j] = next * nint;
       _iipack[j] = nint * nint;
 
@@ -253,7 +233,7 @@ MatrixSys::MatrixSys (const real_t            lambda2,
 
       if (bsys -> mixBC()) {
 	const int_t  nbound = bsys -> nSurf();
-	const int_t* bmap   = _NS  -> btog();
+	const int_t* bmap   = _AM  -> btog();
 	for (i = 0; i < nbound; i++)
 	  _BC[i] -> augmentSC (_nband, _nsolve, bmap, rwrk, _H);
       }
@@ -293,8 +273,8 @@ MatrixSys::MatrixSys (const real_t            lambda2,
 
     Veclib::zero (_npts, _PC, 1);
 
-    PCi  = _PC + _NS -> nGlobal();
-    bmap = _NS -> btog();
+    PCi  = _PC + _AM -> nGlobal();
+    bmap = _AM -> btog();
 
     // -- Mixed BC contributions.
 
@@ -327,10 +307,10 @@ MatrixSys::MatrixSys (const real_t            lambda2,
 }
 
 
-bool MatrixSys::match (const real_t     lambda2,
-		       const real_t     betak2 ,
-		       const NumberSys* nScheme,
-		       const SolverKind method ) const
+bool MatrixSys::match (const real_t       lambda2,
+		       const real_t       betak2 ,
+		       const AssemblyMap* nScheme,
+		       const SolverKind   method ) const
 // ---------------------------------------------------------------------------
 // The unique identifiers of a MatrixSys are presumed to be given
 // by the constants and the numbering system used.  Other things that
@@ -340,9 +320,9 @@ bool MatrixSys::match (const real_t     lambda2,
 {
   if (fabs (_HelmholtzConstant - lambda2) < EPSDP                       &&
       fabs (_FourierConstant   - betak2 ) < EPSDP                       &&
-      _NS -> nGlobal() == nScheme -> nGlobal()                          &&
-      _NS -> nSolve()  == nScheme -> nSolve()                           &&
-      Veclib::same (_NS->nGlobal(), _NS->btog(), 1, nScheme->btog(), 1) &&
+      _AM -> nGlobal() == nScheme -> nGlobal()                          &&
+      _AM -> nSolve()  == nScheme -> nSolve()                           &&
+      Veclib::same (_AM->nGlobal(), _AM->btog(), 1, nScheme->btog(), 1) &&
       _method == method                                                  )
     return true;
 

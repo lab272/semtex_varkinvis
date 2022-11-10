@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // statistics.cpp: routines for statistical analysis of AuxFields.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
 // The collection of statistics is controlled by the setting of the
 // AVERAGE token. Legal values are 0 (default), 1, 2, 3. The routines
@@ -80,26 +80,7 @@
 // for cylindrical coordinates. They are probably OK provided the
 // domain is invariant in the axial direction (e.g. a straight tube).
 //
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
@@ -239,7 +220,6 @@ void Statistics::update (AuxField** wrka,
   
   char   key;
   int_t  i, j;
-  Field* master = _base -> u[0];
   map<char, AuxField*>::iterator k;
 
   // -- Weight old running averages.
@@ -447,7 +427,8 @@ void Statistics::update (AuxField** wrka,
   // -- Normalise and smooth running averages.
 
   for (k = _avg.begin(); k != _avg.end(); k++) {
-    master -> smooth (k -> second);
+    k -> second -> smooth
+      (_base -> nGlobal(), _base -> assemblyNaive(), _base -> invMassNaive());
     *(k -> second) /= static_cast<real_t>(_navg + 1);
   }
 

@@ -2,8 +2,6 @@
  * xcopy:  y[i] = x[i].
  *
  * Use memcpy for cases where both skips are unity.
- *
- * $Id$
  *****************************************************************************/
 
 #include <string.h>
@@ -18,7 +16,7 @@
 void dcopy (int_t n, const double* x, int_t incx,
                              double* y, int_t incy)
 {
-  register int_t i;
+   int_t i;
 
   if (incx == 1 && incy == 1)
     memcpy (y, x, n * sizeof (double));
@@ -35,7 +33,7 @@ void dcopy (int_t n, const double* x, int_t incx,
 void icopy (int_t n, const int_t* x, int_t incx,
                              int_t* y, int_t incy)
 {
-  register int_t i;
+   int_t i;
 
   if (incx == 1 && incy == 1)
     memcpy (y, x, n * sizeof (int_t));
@@ -52,7 +50,7 @@ void icopy (int_t n, const int_t* x, int_t incx,
 void scopy (int_t n, const float* x, int_t incx,
                              float* y, int_t incy)
 {
-  register int_t i;
+   int_t i;
 
   if (incx == 1 && incy == 1)
     memcpy (y, x, n * sizeof (float));

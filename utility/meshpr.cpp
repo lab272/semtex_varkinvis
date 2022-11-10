@@ -121,7 +121,7 @@ int main (int    argc,
     const int_t     NEL  = M.nEl();
     const int_t     NTOT = np * np;
     const real_t    dz   = Femlib::value ("TWOPI/BETA") / nz;
-    register int_t  ID, j, k;
+     int_t  ID, j, k;
     vector<real_t>  x (np*np), y (np*np), unimesh (np);
     real_t           *mesh_r, *mesh_s;
     const real_t    *zero_r, *zero_s;

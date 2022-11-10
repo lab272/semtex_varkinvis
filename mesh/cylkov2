@@ -42,7 +42,7 @@ p = (1-exp(LAMBDA*x))/2
 	N_STEP=200
 	N_TIME=1
 	D=0.1
-	A=PI/4
+	A=0.75
 </TOKENS>
 
 <GROUPS NUMBER=2>

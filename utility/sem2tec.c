@@ -352,7 +352,7 @@ static void interpolate (void)
  * Interpolate from the GLL mesh to an evenly-spaced mesh.
  * ------------------------------------------------------------------------- */
 {
-  register int k, m, nplane_new;
+   int k, m, nplane_new;
   const int    nplane_old = nr * ns * nel;
   const double *imr, *itmr, *ims, *itms;
   double       *mesh_x, *mesh_y;
@@ -415,7 +415,7 @@ static double* do_interp (const double* imr ,
  * Wrapper for 2D tensor-product interpolation.
  * ------------------------------------------------------------------------- */
 {
-  register int k;
+   int k;
   const int    nrns = nr * ns;
   const int    ntot = np * np;
   double       *new  = dvector (0, ntot * nel - 1),
@@ -436,7 +436,7 @@ static void wrap (void)
  * Extend data in the (periodic) z-direction so that it wraps around.
  * ------------------------------------------------------------------------- */
 {
-  register int i;
+   int i;
   const int    nplane_new = nr * ns * nel;
 
   if (nzp == nz) return;
@@ -451,7 +451,7 @@ static void write_tec (FILE *fp)
  * Write in ASCII to temporary file, tecplot ASCII format.
  * ------------------------------------------------------------------------- */
 {
-  register int i, j, k, m;
+   int i, j, k, m;
   const int    nrns = nr * ns, nplane = nr * ns * nel;
  
   fprintf (fp, "VARIABLES = \"X\" \"Y\" ");

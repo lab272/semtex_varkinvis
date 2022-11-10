@@ -411,7 +411,7 @@ static int_t preprocess (const char* session,
   for (i = 0; i < nel; i++) elmt[i] = new Element (i, np, mesh);
 
   bman   = new BCmgr  (file, elmt);
-  domain = new Domain (file, elmt, bman);
+  domain = new Domain (file, mesh, elmt, bman);
 
   // -- Load restart and base flow data.
 

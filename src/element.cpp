@@ -3,26 +3,7 @@
 //
 // Copyright (c) 1994 <--> $Date$, Hugh Blackburn
 //
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
@@ -181,7 +162,7 @@ void Element::HelmholtzSC (const real_t lambda2,
 //  --------------------------------------------------------------------------
 {
   const char     routine[] = "Element::HelmholtzSC";
-  register int_t i, j, eq, info, ij = 0;
+  int_t i, j, eq, info, ij = 0;
 
   // -- Construct hbb, hbi, hii partitions of elemental Helmholtz matrix.
   
@@ -301,7 +282,7 @@ void Element::Helmholtz (const real_t lambda2,
 /// + rmat: vector, length np*np;
 //  --------------------------------------------------------------------------
 {
-  register int_t i, j, ij = 0;
+  int_t i, j, ij = 0;
 
   for (i = 0; i < _np; i++)
     for (j = 0; j < _np; j++, ij++) {
@@ -471,8 +452,8 @@ void Element::bndryDsSum (const int_t*  btog,
 //  --------------------------------------------------------------------------
 {
   const int_t     loopcnt = _next; // -- Workaround for NEC vectorisation.
-  register int_t  i, e;
-  register real_t w;
+  int_t  i, e;
+  real_t w;
 
   if (_cyl)
 #if defined(__uxp__)
@@ -515,7 +496,7 @@ void Element::bndryMask (const int_t*  bmsk,
 /// not used and may be zero also.
 //  --------------------------------------------------------------------------
 {
-  register int_t i, e;
+  int_t i, e;
   const int_t    loopcnt = _next;
 
   if (src) {
@@ -526,7 +507,7 @@ void Element::bndryMask (const int_t*  bmsk,
 
   } else {
     vector<real_t>   work (_npnp);
-    register real_t* tmp = &work[0];
+    real_t* tmp = &work[0];
 
     Veclib::gathr (_npnp, tgt, _emap, tmp);
     for (i = 0; i < loopcnt; i++)
@@ -633,7 +614,7 @@ void Element::sideEval (const int_t  side,
 //  --------------------------------------------------------------------------
 {
   vector<real_t> work(_np + _np);
-  register int_t estart, skip;
+  int_t estart, skip;
   real_t         *x, *y;
 
   this -> terminal (side, estart, skip);
@@ -666,7 +647,7 @@ void Element::sideGrad (const int_t   side,
 /// Work vector is 2 * _np long.
 //  --------------------------------------------------------------------------
 {
-  register int_t d, estart, skip;
+  int_t d, estart, skip;
   real_t         *ddr, *dds;
 
   this -> terminal (side, estart, skip);
@@ -860,9 +841,9 @@ real_t Element::norm_L2 (const real_t* src) const
 /// Return L2-norm of Element value, using Element quadrature rule.
 //  --------------------------------------------------------------------------
 {
-  register int_t   i;
-  register real_t  L2 = 0.0;
-  register real_t* dA = _Q4;
+  int_t   i;
+  real_t  L2 = 0.0;
+  real_t* dA = _Q4;
 
   for (i = 0; i < _npnp; i++) L2 += src[i] * src[i] * dA[i];
 
@@ -875,10 +856,10 @@ real_t Element::norm_H1 (const real_t* src) const
 /// Return Sobolev-1 norm of Element value, using Element quadrature rule.
 //  --------------------------------------------------------------------------
 {
-  register real_t H1 = 0;
-  register int_t  i;
+  real_t H1 = 0;
+  int_t  i;
   vector<real_t>  work (3 * _npnp);
-  register real_t *dA = _Q4, *u = &work[0], *gw = u + _npnp;
+  real_t *dA = _Q4, *u = &work[0], *gw = u + _npnp;
 
   // -- Add in L2 norm of u.
 
@@ -906,9 +887,9 @@ void Element::divY (real_t* src) const
 //  --------------------------------------------------------------------------
 {
   const int_t      loopcnt = _npnp; // -- Workaround for NEC vectorisation.
-  register int_t   i;
-  register real_t  rad, rinv;
-  register real_t* y = _ymesh;
+  int_t   i;
+  real_t  rad, rinv;
+  real_t* y = _ymesh;
 
   for (i = 0; i < loopcnt; i++) {
     rad     = y[i];
@@ -942,7 +923,7 @@ void Element::sideGetY (const int_t side,
 /// Load r (i.e. y) values for side into tgt.
 //  --------------------------------------------------------------------------
 {
-  register int_t estart, skip;
+  int_t estart, skip;
 
   this -> terminal (side, estart, skip);
 
@@ -1049,9 +1030,9 @@ void Element::sideDivY2 (const int_t   side,
 /// by y^2 (i.e. r^2), take special action where r = 0.
 //  --------------------------------------------------------------------------
 {
-  register int_t        i, base, skip;
-  register real_t       r, rinv2, *y;
-  register const real_t *s;
+  int_t        i, base, skip;
+  real_t       r, rinv2, *y;
+  const real_t *s;
   const int_t           loopcnt = _np;
 
   switch (side) {
@@ -1261,7 +1242,7 @@ real_t Element::CFL (const real_t* u   ,
 //  --------------------------------------------------------------------------
 {
   const int_t    loopcnt = _npnp;
-  register int_t i;
+  int_t i;
 
   Veclib::zero (loopcnt, work, 1);
 
@@ -1477,7 +1458,7 @@ void Element::HelmholtzRow (const real_t lambda2,
   const real_t   r2   = sqr (_ymesh[Veclib::row_major(i,j,_np)]);
   const real_t   hCon = (_cyl && r2>EPSDP)?(betak2/r2+lambda2):betak2+lambda2;
   const real_t   *dtr, *dts, *dvr, *dvs;
-  register int_t m, n;
+  int_t m, n;
 
   // -- If we are setting up a viscous matrix, use SVV-stabilised operators.
 
@@ -1522,8 +1503,8 @@ void Element::HelmholtzDiag (const real_t lambda2,
 /// except that m, n = i, j.
 //  --------------------------------------------------------------------------
 {
-  register int_t  i, j, ij;
-  register real_t *dg = work, *tmp = work + _npnp;
+  int_t  i, j, ij;
+  real_t *dg = work, *tmp = work + _npnp;
   const real_t    *dtr, *dts, *dvr, *dvs;
   real_t          r2, HCon;
 
@@ -1575,9 +1556,9 @@ void Element::HelmholtzKern (const real_t lambda2,
 //  --------------------------------------------------------------------------
 {
   const int_t     loopcnt = _npnp; // -- Workaround for NEC vectorisation.
-  register int_t  ij;
-  register real_t tmp, r2, hCon;
-  register real_t *g1 = _Q1, *g2 = _Q2, *g3 = _Q3, *g4 = _Q4, *r = _ymesh;
+  int_t  ij;
+  real_t tmp, r2, hCon;
+  real_t *g1 = _Q1, *g2 = _Q2, *g3 = _Q3, *g4 = _Q4, *r = _ymesh;
 
   if (_cyl) {
     if (g3) {
@@ -1672,7 +1653,7 @@ void Element::sideGeom (const int_t side,
   if (side < 0 || side >= 4)
     message ("Element::sideGeom", "illegal side", ERROR);
 
-  register int_t low, skip;
+  int_t low, skip;
   real_t         *xr, *xs, *yr, *ys, *len;
   vector<real_t> work (_np + _np);
 

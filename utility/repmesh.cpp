@@ -249,7 +249,7 @@ static int_t getElements (FEML*           F    ,
 // ---------------------------------------------------------------------------
 {
   char           routine[] = "getElements", buf[StrMax], *c;
-  register int_t i, j, k;
+   int_t i, j, k;
   int_t          id, nel;
 
   nel = F -> attribute ("ELEMENTS", "NUMBER");
@@ -291,7 +291,7 @@ static void printUp (ostream&              S  ,
 {
   list<Node*>           U;
   list<Node*>::iterator p;
-  register int_t        i, j;
+   int_t        i, j;
   Node*                 n;
   int_t                 J;
   bool                  found;

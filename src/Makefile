@@ -1,7 +1,5 @@
 ##############################################################################
 # Makefile for spectral element foundation routines, and shared definitions.
-#
-# $Id$
 ##############################################################################
 
 ifdef DEBUG
@@ -68,7 +66,7 @@ else
 endif
 CFLAGS   = $(DEFINES) $(OPT)
 CXXFLAGS = $(DEFINES) $(OPT)  \
-	-Wno-unused-value -Wno-parentheses -Wno-switch
+	-Wno-unused-value -Wno-parentheses -Wno-switch -std=c++11
 FFLAGS   = $(DEFINES) $(OPT)
 LDFLAGS  = $(OPT) $(LIBDIR) -lfem -lvec $(F77LIBS)
 F77LIBS  = -framework Accelerate -lgfortran
@@ -403,10 +401,11 @@ endif
 # Installation of header files.
 #
 default:
-	cp -f sem.h analysis.h auxfield.h bcmgr.h boundary.h bsys.h	\
-	condition.h data2df.h domain.h edge.h element.h family.h feml.h	\
-	field.h flowrate.h geometry.h history.h integration.h matrix.h 	\
-	mesh.h misc.h numbersys.h particle.h statistics.h svv.h 	\
+	cp -f sem.h analysis.h assemblymap.h auxfield.h bcmgr.h boundary.h \
+	boundarysys.h condition.h data2df.h domain.h edge.h element.h \
+	family.h feml.h field.h flowrate.h geometry.h history.h \
+	integration.h matrix.h mesh.h misc.h numbersys.h particle.h \
+	statistics.h svv.h \
 	../include
 
 #-----------------------------------------------------------------------------

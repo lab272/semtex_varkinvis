@@ -10,23 +10,6 @@ class BCmgr
 // and returns NumberSys objects from session.num.  Also, it contains
 // code for maintenance and evaluation of computed BC types.
 //
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 // ===========================================================================
 {
 public:
@@ -34,11 +17,12 @@ public:
 
   const char*        field        () const { return _fields; }
   const char*        groupInfo    (const char) const;
-  Condition*         getCondition (const char, const char, const int_t = 0);
-  NumberSys*         getNumberSys (const char, const int_t = 0);
+  const Condition*   getCondition (const char, const char, const int_t = 0);
   vector<BCtriple*>& getBCedges   () { return _elmtbc; }
   int_t              nBCedges     () const { return _elmtbc.size(); }
-  int_t              nWall        (); // Should be const: OSX compiler bug?
+  int_t              nWall        (); // Why not const: OSX compiler bug?
+  int_t              nAxis        ();
+  int_t              nMatching    (const char*);
 
   class CondRecd {
   public: 
@@ -66,12 +50,11 @@ public:
   void accelerate       (const Vector&, const Field*);
 
 private:
-  char*              _fields  ; // String containing field names.
-  vector<char>       _group   ; // Single-character group tags.
-  vector<char*>      _descript; // Group name strings.
+  char*                    _fields  ; // String containing field names.
+  vector<char>             _group   ; // Single-character group tags.
+  vector<char*>            _descript; // Group name strings.
   vector<CondRecd*>  _cond    ; // Conditions in storage.
   vector<BCtriple*>  _elmtbc  ; // Group tags for each element-side BC.
-  vector<NumberSys*> _numsys  ; // Numbering schemes in storage.
   bool               _axis    ; // Session file declared an axis BC group.
   bool               _open    ; // Session file declared an open BC group.
 

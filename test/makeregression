@@ -3,8 +3,6 @@
 # Create regression test files for semtex solvers elliptic and dns.
 #
 # NB: Run only with known good versions of codes!
-#
-# $Id$
 
 #case $# in
 #0) echo "usage: makeregress good_code_version"; exit 0
@@ -15,7 +13,6 @@
 ELLIPTIC=../build/elliptic
 DNS=../build/dns
 COMPARE=../build/compare
-ENUMERATE=../build/enumerate
 MESHDIR=../mesh
 PATH=.:$PATH
 
@@ -40,7 +37,6 @@ do
     rm -f $i.num
   fi
   $COMPARE $i > $i.rst
-  $ENUMERATE -O3 $i > $i.num
   $CODE $i > /dev/null
   if test -f ../regress/$i.ok
   then
@@ -67,7 +63,6 @@ do
     rm -f $i.num
   fi
   $COMPARE $i > $i.rst
-  $ENUMERATE -O3 $i > $i.num
   $CODE $i > /dev/null
   if test -f ../regress/$i.ok
   then

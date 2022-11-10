@@ -4,8 +4,6 @@
 // Veclib.h:  C++ wrappers for veclib subroutine calls.
 //
 // Veclib is described in the iPSC/2 Programmer's Reference Manual.
-//
-// $Id$
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cfemdef.h>

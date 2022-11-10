@@ -177,7 +177,7 @@ static void a_to_a (int    np     ,
  * ASCII input.
  * ------------------------------------------------------------------------- */
 {
-  register int i, j, kr, ki;
+   int i, j, kr, ki;
   const int    nplane = np * np * nel,
                npts   = nz * nplane,
                ntot   = nfields * npts;
@@ -231,7 +231,7 @@ static void b_to_b (int    np     ,
  * Binary input.
  * ------------------------------------------------------------------------- */
 {
-  register int i, j, kr, ki;
+   int i, j, kr, ki;
   const int    nplane = np * np * nel,
                npts   = nz * nplane,
                ntot   = nfields * npts;
@@ -340,7 +340,7 @@ static double ran1 (long *idum)
  * Generate IUD random variates on (0, 1).  Numerical Recipes.
  * ------------------------------------------------------------------------- */
 {
-  register int j;
+   int j;
   long         k;
   static long  iy = 0;
   static long  iv[NTAB];
@@ -404,7 +404,7 @@ static void perturb (double*      data  ,
  * Add perturbation to data field.
  * ------------------------------------------------------------------------- */
 {
-  register int j;
+   int j;
   const int    npts = nz * nplane;
   const int    kr   = (2 * mode)     * nplane;
   const int    ki   = (2 * mode + 1) * nplane;

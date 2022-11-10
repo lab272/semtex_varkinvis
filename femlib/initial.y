@@ -50,23 +50,6 @@
  *             j0, j1, y0, y1, jn.
  * Procedures: jn, yn, rad, ang, rejn, imjn, jacobi, womcos, womsin.
  *
- * --
- * This file is part of Semtex.
- * 
- * Semtex is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- * 
- * Semtex is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with Semtex (see the file COPYING); if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA
  *****************************************************************************/
 
 #include <stdio.h>
@@ -258,8 +241,8 @@ void yy_initialize (void)
  * ------------------------------------------------------------------------- */
 {
   static   int_t   initialized = 0;
-  register int_t   i;
-  register Symbol* s;
+   int_t   i;
+   Symbol* s;
 
   if (!initialized) {
     for (i = 0; consts[i].name; i++)
@@ -364,7 +347,7 @@ void yy_vec_interp (const int_t ntot, ...)
  * ------------------------------------------------------------------------- */
 {
   char           routine[] = "yy_vec_interp";
-  register int_t i, n;
+   int_t i, n;
   double*        x[VEC_MAX];
   double*        fx = NULL;
   va_list        ap;
@@ -413,8 +396,8 @@ void yy_show (void)
  * Print details of installed variables to stderr.
  * ------------------------------------------------------------------------- */
 {
-  register int_t   i;
-  register Symbol* sp;
+   int_t   i;
+   Symbol* sp;
 
   for (i = 0; i < HASHSIZE; i++)
     for (sp = hashtab[i]; sp; sp = sp -> next)
@@ -423,15 +406,15 @@ void yy_show (void)
 }
 
 
-int_t yy_dump (char*         str,
-		 const int_t max)
+int_t yy_dump (char*       str,
+	       const int_t max)
 /* ------------------------------------------------------------------------- *
  * Load description of internal variables into string, to length max.
  * If string overflows, return 0, else 1.
  * ------------------------------------------------------------------------- */
 {
-  register int_t   i, n = 0;
-  register Symbol* sp;
+   int_t   i, n = 0;
+   Symbol* sp;
   char             buf[FILENAME_MAX];
 
   for (i = 0; i < HASHSIZE; i++)
@@ -454,7 +437,7 @@ static int yylex (void)
  * yy_interpret.
  * ------------------------------------------------------------------------- */
 {
-  register int_t c;
+   int_t c;
 
   while ((c = *cur_string++) == ' ' || c == '\t');
 
@@ -466,9 +449,9 @@ static int yylex (void)
   }
 
   if (isalpha (c)) {
-    register Symbol* s;
+     Symbol* s;
     char             sbuf[STR_MAX];
-    register char*   p = sbuf;
+     char*   p = sbuf;
     do {
       *p++ = c;
     } while ((c = *cur_string++) != EOF && (isalnum (c) || c == '_'));
@@ -497,7 +480,7 @@ static unsigned hash (const char* s)
  * Generate hash table index.
  * ------------------------------------------------------------------------- */
 {
-  register unsigned hashval;
+   unsigned hashval;
 
   for (hashval = 0; *s != '\0'; s++) hashval = *s + HASHSEED * hashval;
   
@@ -510,7 +493,7 @@ static Symbol* lookup (const char* s)
  * Find s in symbol hashtable.
  * ------------------------------------------------------------------------- */
 {
-  register Symbol* sp;
+   Symbol* sp;
   
   for (sp = hashtab[hash (s)]; sp; sp = sp->next)
     if (strcmp (s, sp->name) == 0) return sp;
@@ -526,8 +509,8 @@ static Symbol* install (const char*   s,
  * Install s in symbol hashtable.
  * ------------------------------------------------------------------------- */
 {
-  register Symbol*  sp;
-  register unsigned hashval;
+   Symbol*  sp;
+   unsigned hashval;
 
   if (!(sp = lookup (s))) {	/* -- Not found, install in hashtab. */
     sp = (Symbol *) emalloc (sizeof (Symbol));
@@ -573,7 +556,7 @@ static double Jacobi (double z, double n, double alpha, double beta)
  * ------------------------------------------------------------------------- */
 {
   const double     apb = alpha + beta;
-  register int_t i,k;
+   int_t i,k;
   double           a1,a2,a3,a4;
   double           poly, polyn1, polyn2;
   

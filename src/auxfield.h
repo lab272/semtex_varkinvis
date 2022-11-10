@@ -40,7 +40,7 @@ public:
   char          name     ()      const { return _name; }
   void          setName  (const char name) { _name = name; }
   void          describe (char*) const;
-  const real_t* data     ()      const { return _data; } // -- Hack alert!
+  const real_t* data     ()      const { return _data; }
 
   AuxField& operator  = (const real_t);
   AuxField& operator += (const real_t);
@@ -58,7 +58,7 @@ public:
   AuxField& operator  = (const char*);
   AuxField& axpy        (const real_t, const AuxField&);
 
-  AuxField& extractMode  (const AuxField&, const int_t);
+  AuxField& extractMode      (const AuxField&, const int_t);
   AuxField& innerProduct     (const vector<AuxField*>&,
 			      const vector<AuxField*>&,
 			      const int_t = 0);
@@ -119,6 +119,7 @@ public:
 
   AuxField& perturb     (const int_t, const real_t);
   AuxField& projStab    (const real_t, AuxField&);
+  AuxField& smooth      (const int_t, const int_t*, const real_t*);
 
   static void swapData  (AuxField*, AuxField*);
   static void couple    (AuxField*, AuxField*, const int_t);

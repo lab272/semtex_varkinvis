@@ -2,27 +2,8 @@
  * mapping.c: build/return integer mapping vectors used to gather/scatter
  * element storage formats from one to another.
  *
- * Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+ * Copyright (c) 1994+ Hugh M Blackburn
  *
- * -- 
- * This file is part of Semtex.
- * 
- * Semtex is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- * 
- * Semtex is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with Semtex (see the file COPYING); if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA
- *
- * $Id$
  *****************************************************************************/
 
 #include <stdio.h>
@@ -66,8 +47,8 @@ void edgemaps (const int_t nk ,
 {
   char            routine[] = "edgemaps";
   const int_t     len = (dim == 2) ? nk * nk : nk;
-  register int_t  found = 0;
-  register Mapping* p;
+   int_t  found = 0;
+   Mapping* p;
 
   if (nk < 2)
     message (routine, "input nk < 2", ERROR);
@@ -79,9 +60,9 @@ void edgemaps (const int_t nk ,
     if (found = nk == p -> np && dim == p -> dim) break;
 
   if (!found) {
-    register int_t i, j, k, n;
+     int_t i, j, k, n;
     const    int_t nm = nk - 1;
-    register int_t *em, *pm;
+     int_t *em, *pm;
 
     p = (Mapping *) calloc (1, sizeof (Mapping));
     if (mHead) p -> next = mHead;

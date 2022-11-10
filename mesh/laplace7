@@ -1,6 +1,8 @@
 # Laplace problem on unit square, essential BC u(x, y) = sin(x)*exp(-y)
 # which is also the analytical solution.  Use essential BC on upper edge,
 # natural BC on other edges.
+#
+# Iterative/PCG solver.
 
 <FIELDS>
 	c
@@ -12,9 +14,10 @@
 </USER>
 
 <TOKENS>
-	N_P      = 11
-	TOL_REL  = 1e-12
-	STEP_MAX = 1000
+	N_P       = 11
+	TOL_REL   = 1e-12
+	STEP_MAX  = 1000
+	ITERATIVE = 1
 </TOKENS>
 
 <GROUPS NUMBER=4>

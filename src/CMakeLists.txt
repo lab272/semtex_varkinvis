@@ -1,9 +1,10 @@
 set (semtex_src
   analysis.cpp
+  assemblymap.cpp
   auxfield.cpp
   bcmgr.cpp
   boundary.cpp
-  bsys.cpp
+  boundarysys.cpp
   condition.cpp
   data2df.cpp
   domain.cpp
@@ -18,6 +19,7 @@ set (semtex_src
   matrix.cpp
   mesh.cpp
   misc.cpp
+  numbersys.cpp
   particle.cpp
   statistics.cpp
   svv.cpp

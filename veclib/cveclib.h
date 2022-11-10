@@ -2,8 +2,6 @@
 #define VECLIB_H
 /*****************************************************************************
  *                           V E C L I B . H
- *
- * $Id$
  *****************************************************************************/
 
 #include <stdarg.h>
@@ -20,7 +18,7 @@
 
 #define NVREG  8		/* Registers reserved for FORTRAN linkage.   */
 
-extern int_t _vecIreg[NVREG];
+extern int_t   _vecIreg[NVREG];
 extern char    _vecCreg[NVREG];
 extern float   _vecSreg[NVREG];
 extern double  _vecDreg[NVREG];
@@ -60,8 +58,8 @@ extern double  _vecDreg[NVREG];
 #define EPSm20  1.0e-20
 #define EPSm30  1.0e-30
  
-typedef struct  {float  Re, Im;}         complex;
-typedef struct  {double Re, Im;}         zomplex;
+typedef struct  {float  Re, Im;} complex;
+typedef struct  {double Re, Im;} zomplex;
 enum    err_lev {WARNING, ERROR, REMARK};
 
 
@@ -69,7 +67,7 @@ enum    err_lev {WARNING, ERROR, REMARK};
  * UTILITIES:
  * ------------------------------------------------------------------------- */
 
-char buf[STR_MAX];
+extern char buf[STR_MAX]; /* -- Definition is in util.c */
 
 void    message (const char *routine, const char *txt, int level);
 FILE*   efopen  (const char *file,    const char *mode);
@@ -81,7 +79,7 @@ void    printDvector (FILE *fp,  int_t width, int_t prec,
 void    printIvector (FILE *fp,  int_t width,           
 		      int_t ntot,  int_t inc,   int_t nfield, ...);
 void    printSvector (FILE *fp,  int_t width, int_t prec,
-		       int_t ntot,  int_t inc,   int_t nfield, ...);
+		      int_t ntot,  int_t inc,   int_t nfield, ...);
 
 /* ------------------------------------------------------------------------- *
  * MEMORY MANAGEMENT:

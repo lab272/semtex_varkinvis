@@ -1,7 +1,5 @@
 /*****************************************************************************
  * xvvvtt:  z[i] = w[i] * x[i] * y[i]
- *
- * $Id$
  *****************************************************************************/
 
 #include <cfemdef.h>
@@ -17,7 +15,7 @@ void dvvvtt (int_t n,
 	     const double* y, int_t incy,
 	           double* z, int_t incz)
 {
-  register int_t  i;
+   int_t  i;
   
   w += (incw<0) ? (-n+1)*incw : 0;
   x += (incx<0) ? (-n+1)*incx : 0;
@@ -34,7 +32,7 @@ void svvvtt (int_t n,
 	     const float* y, int_t incy,
 	           float* z, int_t incz)
 {
-  register int_t  i;
+   int_t  i;
   
   w += (incw<0) ? (-n+1)*incw : 0;
   x += (incx<0) ? (-n+1)*incx : 0;

@@ -74,7 +74,7 @@ void Geometry::set (const int_t    NP,
 
   _np   = NP; _nz = NZ; _nel = NE; _csys = CS;
   _nzp  = _nz / _nproc;
-  _ndim = (_nz > 1) ? 3 : 2;
+  _ndim = (_nz > 2) ? 3 : 2;
 
   if (_nz > 1 && _nz & 1) {	// -- 3D problems must have NZ even.
     sprintf (err, "N_Z must be even (%1d)", _nz);

@@ -127,7 +127,7 @@ void FluidParticle::integrate ()
 #if defined (DEBUG)
   const char routine[] = "FluidParticle::integrate";
 #endif
-  register int_t i;
+  int_t i;
   const int_t    N     = min (++_step, _TORD);
   const int_t    NP    = N + 1;
   const int_t    NM    = N - 1;
