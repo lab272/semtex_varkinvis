@@ -38,9 +38,9 @@
 #include <dns.h>
 
 #ifdef MPI
-  static char prog[] = "dns";
-#else
   static char prog[] = "dns_mp";
+#else
+  static char prog[] = "dns";
 #endif
 
 static void getargs    (int, char**, bool&, char*&);
