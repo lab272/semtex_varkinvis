@@ -363,24 +363,25 @@ consult the accompanying COPYING file for details.
 List of major revisions
 -----------------------
 
-1995: Semtex-1:   ase 2D version of code completed in C.         
-1996: Semtex-2:   C --> C++ conversion completed.  
-1996: Semtex-3:   2D Cartesian/Fourier (i.e. 3D periodic) spaces.  
+1995: Semtex-1:    Base 2D version of code completed in C.         
+1996: Semtex-2:    C --> C++ conversion completed.  
+1996: Semtex-3:    2D Cartesian/Fourier (i.e. 3D periodic) spaces.  
 1997: (Scat, separate code) Heat/scalar transfer supported.  
-1997: Semtex-4.0: Cylindrical solutions in 2D or 3D supported.      
-1997: Semtex-4.1: Generalized prime factor FFT routines.  
-1997: Semtex-4.2: Massless particle tracking.  
-1997: Semtex-5.0: Concurrent execution with MPI.  
-1998: Semtex-5.1: Improved vectorization & IO performance.  
-1999: Semtex-5.3: Mixed/Robin BC type added.  
-2003: Semtex-5.5: Adopt standard C++ libraries wherever possible.       
-2004: Semtex-6:   Cylindrical coordinate/3D code exponentially convergent.  
-2004: Semtex-6:   Mac OSX port -- filenames no longer case-sensitive.  
-2010: Semtex-7:  "I do not now recall".  
-2016: Semtex-8:   Generalised body forces supported in DNS.  
-2018: Semtex-9:   Scalar transport and DNS code merged.  
-2019: Semtex-9.1: cmake adopted as baseline compilation system.          
+1997: Semtex-4.0:  Cylindrical solutions in 2D or 3D supported.      
+1997: Semtex-4.1:  Generalized prime factor FFT routines.  
+1997: Semtex-4.2:  Massless particle tracking.  
+1997: Semtex-5.0:  Concurrent execution with MPI.  
+1998: Semtex-5.1:  Improved vectorization & IO performance.  
+1999: Semtex-5.3:  Mixed/Robin BC type added.  
+2003: Semtex-5.5:  Adopt standard C++ libraries wherever possible.       
+2004: Semtex-6:    Cylindrical coordinate/3D code exponentially convergent.  
+2004: Semtex-6:    Mac OSX port -- filenames no longer case-sensitive.  
+2010: Semtex-7:   "I do not now recall".  
+2016: Semtex-8:    Generalised body forces supported in DNS.  
+2018: Semtex-9:    Scalar transport and DNS code merged.  
+2019: Semtex-9.1:  cmake adopted as baseline compilation system.
+2022: Semtex-9.4:  Dog (Direct Optimal Growth) stability analysis included.  
+2022: Semtex-10.1: Gitlab repository.  Enumerate utility deleted.  
 
 ------------------------------------------------------------------------------
 
-$Id$
