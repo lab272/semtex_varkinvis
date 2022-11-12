@@ -379,7 +379,7 @@ List of major revisions
 2010: Semtex-7:   "I do not now recall".  
 2016: Semtex-8:    Generalised body forces supported in DNS.  
 2018: Semtex-9:    Scalar transport and DNS code merged.  
-2019: Semtex-9.1:  cmake adopted as baseline compilation system.
+2019: Semtex-9.1:  cmake adopted as baseline compilation system.  
 2022: Semtex-9.4:  Dog (Direct Optimal Growth) stability analysis included.  
 2022: Semtex-10.1: Gitlab repository.  Enumerate utility deleted.  
 
