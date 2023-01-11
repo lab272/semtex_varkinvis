@@ -19,210 +19,6 @@
 #define _KE_HYDROSTAT 0
 
 
-void skewSymmetric (Domain*     D ,
-		    BCmgr*      B ,
-		    AuxField**  Us,
-		    AuxField**  Uf,
-		    FieldForce* FF)
-// ---------------------------------------------------------------------------
-// Velocity field data areas of D (which on entry contain velocity
-// data from the previous timestep, in Fourier space) and first level
-// of Us are swapped (so that subsequently Us stores the old velocity
-// data), then the next stage of nonlinear forcing terms N(u) are
-// computed from velocity fields and left in the first (i.e. the
-// supplied) level of Uf.
-//
-// Nonlinear terms N(u) in skew-symmetric form are
-//                 ~ ~
-//           N  = -0.5 ( u . grad u + div uu )
-//           ~           ~        ~       ~~
-//
-// i.e., in Cartesian component form
-//
-//           N  = -0.5 ( u  d(u ) / dx  + d(u u ) / dx ).
-//            i           j    i      j      i j      j
-//
-// in cylindrical coordinates
-//
-//           Nx = -0.5 {ud(u)/dx + vd(u)/dy +  d(uu)/dx + d(vu)/dy +
-//                 1/y [wd(u)/dz + d(uw)/dz + vu      ]}
-//           Ny = -0.5 {ud(v)/dx + vd(v)/dy +  d(uv)/dx + d(vv)/dy +
-//                 1/y [wd(v)/dz + d(vw)/dz + vv - 2ww]}
-//           Nz = -0.5 {ud(w)/dx + vd(w)/dy +  d(uw)/dx + d(vw)/dy +
-//                 1/y [wd(w)/dz + d(ww)/dz + 3wv     ]}
-//
-// NB: for the cylindrical coordinate formulation we actually here 
-// compute y*Nx, y*Ny, Nz, as outlined in Blackburn & Sherwin (2004).
-//
-// If a scalar, c, is present, also compute the advection term
-// -0.5*[u.grad(c)+div(uc)].  This is a straightforward extension to
-// the above for Cartesian coordinates (the loop over i is extended by
-// 1 and the last component of 'u_i' is c), whereas in cylindrical
-// coordinates we have
-//
-//           Nc = -0.5 {ud(c)/dx + vd(c)/dy + d(uc)/dx + d(vc)/dy +
-//                 1/y [wd(c)/dz + d(wc)/dz + cv ]}
-//
-// Data are transformed to physical space for most of the operations.
-// For gradients in the Fourier direction however, the data must be
-// transferred back to Fourier space prior to differention in z, then
-// trsnsformed back.  The final form of N delivered at the end of the
-// routine is in Fourier space.  Note that there is no (longer any)
-// provision for dealiasing in the Fourier direction and that all
-// storage areas of D->u (including pressure) are overwritten here.
-//  
-// NB: for the cylindrical coordinate formulation we actually here 
-// compute y*Nx, y*Ny, Nz, as outlined in Blackburn & Sherwin (2004).  
-// ---------------------------------------------------------------------------
-{
-  const int_t NDIM = Geometry::nDim();
-  const int_t NADV = D -> nAdvect();
-  const int_t NCOM = D -> nVelCmpt();
-
-  vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
-  AuxField*         tmp = D -> u[NADV]; // -- Pressure is used for scratch.
-  int_t             i, j;
-
-  for (i = 0; i < NADV; i++) {
-    Uphys[i] = D -> u[i];
-    N[i]     = Uf[i];
-    U[i]     = Us[i];
-    *N[i]    = 0.0;
-    *U[i]    = *Uphys[i];
-    Uphys[i] -> transform (INVERSE);
-  }
-
-  B -> maintainPhysical (D -> u[0], Uphys, NCOM);
-
-  if (Geometry::cylindrical()) {
-
-    for (i = 0; i < NADV; i++) {
-
-      if (i == 0) N[0] -> timesMinus (*Uphys[0], *Uphys[1]);
-      if (i == 1) N[1] -> timesMinus (*Uphys[1], *Uphys[1]);
-
-      // -- Terms involving azimuthal derivatives and frame components.
-
-      if (NCOM == 3) {
-        if (i == 1) {
-          tmp -> times (*Uphys[2], *Uphys[2]);
-          N[1] -> axpy ( 2.0, *tmp);
-        }
-
-        if (i == 2) {
-          tmp -> times (*Uphys[2], *Uphys[1]);
-          N[2] -> axpy (-3.0, *tmp);
-        }
-
-	if (i == 3)
-	  N[3] -> timesMinus (*Uphys[3], *Uphys[1]);
-	  
-        if (NDIM == 3) {
-          (*tmp = *U[i]) . gradient (2) . transform (INVERSE);
-          N[i] -> timesMinus (*Uphys[2], *tmp);
-
-          tmp -> times (*Uphys[i], *Uphys[2]);
-          (*tmp) . transform (FORWARD). gradient (2). transform (INVERSE);
-          *N[i] -= *tmp;
-        }
-      } else if (i == 2 && (NADV > NCOM))
-	N[2] -> timesMinus (*Uphys[1], *Uphys[2]);
-
-      if (i >= 2) N[i] -> divY ();
-      
-      // -- 2D convective derivatives.
-
-      for (j = 0; j < 2; j++) {
-        (*tmp = *Uphys[i]) . gradient (j);
-        if (i < 2) tmp -> mulY ();
-        N[i] -> timesMinus (*Uphys[j], *tmp);
-      }
-
-      // -- 2D conservative derivatives.
-
-      for (j = 0; j < 2; j++) {
-        (*tmp). times (*Uphys[j], *Uphys[i]) . gradient (j);
-        if (i < 2) tmp -> mulY ();
-        *N[i] -= *tmp;
-      }
-
-      *N[i] *= 0.5;      // -- Average the two forms to get skew-symmetric.
-
-      if (i < NCOM) FF -> addPhysical (N[i], tmp, i, Uphys);
-    }
-
-  } else {			// -- Cartesian coordinates.
-
-    for (i = 0; i < NADV; i++) {
-      for (j = 0; j < NDIM; j++) {
-
-        // -- Perform n_i -= u_j d(u_i) / dx_j.
-
-        if (j == 2) (*tmp = *U[i]) . gradient (j) . transform (INVERSE);
-        else    (*tmp = *Uphys[i]) . gradient (j);
-        N[i] -> timesMinus (*Uphys[j], *tmp);
-
-        // -- Perform n_i -= d(u_i u_j) / dx_j.
-
-        tmp -> times (*Uphys[i], *Uphys[j]);
-        if (j == 2) tmp -> transform (FORWARD);
-        tmp -> gradient (j);
-        if (j == 2) tmp -> transform (INVERSE);
-        *N[i] -= *tmp;
-      }
-
-      *N[i] *= 0.5;      // -- Average the two forms to get skew-symmetric.
-
-      if (i < NCOM) FF -> addPhysical (N[i], tmp, i, Uphys);
-    }
-  }
-
-  // -- Multiply in density variation (1 + rho'/rho_0) for LMA13 buoyancy.
-
-  if (D -> hasScalar() && (Femlib::value ("LMA_BETA_T") > EPSDP)) {
-    *tmp  = Femlib::value ("LMA_T_REF");
-    *tmp -= *Uphys[NCOM];
-    *tmp *= Femlib::value ("LMA_BETA_T");
-    *tmp += 1.0;
-    for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
-
-    // -- Subtract out background hydrostatic contributions.
-
-    // -- 1. Frame-acceleration (incl. gravity) terms.
-    
-    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
-
-#if _KE_HYDROSTAT
-    // -- 2. Localised centrifugal buoyancy terms.
-    
-    tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
-
-    if (Geometry::cylindrical())
-      for (i = 0; i < NCOM; i++)
-        if (i == 2) {
-	  if (NDIM == 3)
-	    *N[i] -= (*Uphys[0] = *tmp) .
-	      transform (FORWARD). gradient (i) . transform (INVERSE) . divY();
-        } else
-	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i) . mulY();
-    else
-      for (i = 0; i < NCOM; i++)
-        if (i == 2) {
-	  if (NDIM == 3)
-	    *N[i] -= (*Uphys[0] = *tmp) .
-	      transform (FORWARD). gradient (i) . transform (INVERSE);
-        } else
-	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
-#endif    
-  }
-
-  for (i = 0; i < NADV; i++) {
-    N[i] -> transform (FORWARD);
-    N[i] -> smooth (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
-  }
-}
-
-
 void altSkewSymmetric (Domain*     D ,
 		       BCmgr*      B ,
 		       AuxField**  Us,
@@ -230,9 +26,9 @@ void altSkewSymmetric (Domain*     D ,
 		       FieldForce* FF)
 // ---------------------------------------------------------------------------
 // This is a cheaper approximation to the full skew-symmetric
-// computation (see previous routine).  The formulation of nonlinear
-// terms used here is so-called "alternating skew symmetric" method
-// (first documented by Bob Kerr) which uses the non-conservative and
+// computation (see next routine).  The formulation of nonlinear terms
+// used here is so-called "alternating skew symmetric" method (first
+// documented by Bob Kerr) which uses the non-conservative and
 // conservative forms of the nonlinear terms on alternating
 // timesteps. This has shown in testing to be almost as robust as the
 // full skew symmetric method but costs half as much.
@@ -284,7 +80,7 @@ void altSkewSymmetric (Domain*     D ,
     Uphys[i] -> transform (INVERSE);
   }
 
-  B -> maintainPhysical (D -> u[0], Uphys, NCOM);
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM, NADV);
 
   if (Geometry::cylindrical()) {
 
@@ -437,6 +233,210 @@ void altSkewSymmetric (Domain*     D ,
 }
 
 
+void skewSymmetric (Domain*     D ,
+		    BCmgr*      B ,
+		    AuxField**  Us,
+		    AuxField**  Uf,
+		    FieldForce* FF)
+// ---------------------------------------------------------------------------
+// Velocity field data areas of D (which on entry contain velocity
+// data from the previous timestep, in Fourier space) and first level
+// of Us are swapped (so that subsequently Us stores the old velocity
+// data), then the next stage of nonlinear forcing terms N(u) are
+// computed from velocity fields and left in the first (i.e. the
+// supplied) level of Uf.
+//
+// Nonlinear terms N(u) in skew-symmetric form are
+//                 ~ ~
+//           N  = -0.5 ( u . grad u + div uu )
+//           ~           ~        ~       ~~
+//
+// i.e., in Cartesian component form
+//
+//           N  = -0.5 ( u  d(u ) / dx  + d(u u ) / dx ).
+//            i           j    i      j      i j      j
+//
+// in cylindrical coordinates
+//
+//           Nx = -0.5 {ud(u)/dx + vd(u)/dy +  d(uu)/dx + d(vu)/dy +
+//                 1/y [wd(u)/dz + d(uw)/dz + vu      ]}
+//           Ny = -0.5 {ud(v)/dx + vd(v)/dy +  d(uv)/dx + d(vv)/dy +
+//                 1/y [wd(v)/dz + d(vw)/dz + vv - 2ww]}
+//           Nz = -0.5 {ud(w)/dx + vd(w)/dy +  d(uw)/dx + d(vw)/dy +
+//                 1/y [wd(w)/dz + d(ww)/dz + 3wv     ]}
+//
+// NB: for the cylindrical coordinate formulation we actually here 
+// compute y*Nx, y*Ny, Nz, as outlined in Blackburn & Sherwin (2004).
+//
+// If a scalar, c, is present, also compute the advection term
+// -0.5*[u.grad(c)+div(uc)].  This is a straightforward extension to
+// the above for Cartesian coordinates (the loop over i is extended by
+// 1 and the last component of 'u_i' is c), whereas in cylindrical
+// coordinates we have
+//
+//           Nc = -0.5 {ud(c)/dx + vd(c)/dy + d(uc)/dx + d(vc)/dy +
+//                 1/y [wd(c)/dz + d(wc)/dz + cv ]}
+//
+// Data are transformed to physical space for most of the operations.
+// For gradients in the Fourier direction however, the data must be
+// transferred back to Fourier space prior to differention in z, then
+// trsnsformed back.  The final form of N delivered at the end of the
+// routine is in Fourier space.  Note that there is no (longer any)
+// provision for dealiasing in the Fourier direction and that all
+// storage areas of D->u (including pressure) are overwritten here.
+//  
+// NB: for the cylindrical coordinate formulation we actually here 
+// compute y*Nx, y*Ny, Nz, as outlined in Blackburn & Sherwin (2004).  
+// ---------------------------------------------------------------------------
+{
+  const int_t NDIM = Geometry::nDim();
+  const int_t NADV = D -> nAdvect();
+  const int_t NCOM = D -> nVelCmpt();
+
+  vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
+  AuxField*         tmp = D -> u[NADV]; // -- Pressure is used for scratch.
+  int_t             i, j;
+
+  for (i = 0; i < NADV; i++) {
+    Uphys[i] = D -> u[i];
+    N[i]     = Uf[i];
+    U[i]     = Us[i];
+    *N[i]    = 0.0;
+    *U[i]    = *Uphys[i];
+    Uphys[i] -> transform (INVERSE);
+  }
+
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM, NADV);
+
+  if (Geometry::cylindrical()) {
+
+    for (i = 0; i < NADV; i++) {
+
+      if (i == 0) N[0] -> timesMinus (*Uphys[0], *Uphys[1]);
+      if (i == 1) N[1] -> timesMinus (*Uphys[1], *Uphys[1]);
+
+      // -- Terms involving azimuthal derivatives and frame components.
+
+      if (NCOM == 3) {
+        if (i == 1) {
+          tmp -> times (*Uphys[2], *Uphys[2]);
+          N[1] -> axpy ( 2.0, *tmp);
+        }
+
+        if (i == 2) {
+          tmp -> times (*Uphys[2], *Uphys[1]);
+          N[2] -> axpy (-3.0, *tmp);
+        }
+
+	if (i == 3)
+	  N[3] -> timesMinus (*Uphys[3], *Uphys[1]);
+	  
+        if (NDIM == 3) {
+          (*tmp = *U[i]) . gradient (2) . transform (INVERSE);
+          N[i] -> timesMinus (*Uphys[2], *tmp);
+
+          tmp -> times (*Uphys[i], *Uphys[2]);
+          (*tmp) . transform (FORWARD). gradient (2). transform (INVERSE);
+          *N[i] -= *tmp;
+        }
+      } else if (i == 2 && (NADV > NCOM))
+	N[2] -> timesMinus (*Uphys[1], *Uphys[2]);
+
+      if (i >= 2) N[i] -> divY ();
+      
+      // -- 2D convective derivatives.
+
+      for (j = 0; j < 2; j++) {
+        (*tmp = *Uphys[i]) . gradient (j);
+        if (i < 2) tmp -> mulY ();
+        N[i] -> timesMinus (*Uphys[j], *tmp);
+      }
+
+      // -- 2D conservative derivatives.
+
+      for (j = 0; j < 2; j++) {
+        (*tmp). times (*Uphys[j], *Uphys[i]) . gradient (j);
+        if (i < 2) tmp -> mulY ();
+        *N[i] -= *tmp;
+      }
+
+      *N[i] *= 0.5;      // -- Average the two forms to get skew-symmetric.
+
+      if (i < NCOM) FF -> addPhysical (N[i], tmp, i, Uphys);
+    }
+
+  } else {			// -- Cartesian coordinates.
+
+    for (i = 0; i < NADV; i++) {
+      for (j = 0; j < NDIM; j++) {
+
+        // -- Perform n_i -= u_j d(u_i) / dx_j.
+
+        if (j == 2) (*tmp = *U[i]) . gradient (j) . transform (INVERSE);
+        else    (*tmp = *Uphys[i]) . gradient (j);
+        N[i] -> timesMinus (*Uphys[j], *tmp);
+
+        // -- Perform n_i -= d(u_i u_j) / dx_j.
+
+        tmp -> times (*Uphys[i], *Uphys[j]);
+        if (j == 2) tmp -> transform (FORWARD);
+        tmp -> gradient (j);
+        if (j == 2) tmp -> transform (INVERSE);
+        *N[i] -= *tmp;
+      }
+
+      *N[i] *= 0.5;      // -- Average the two forms to get skew-symmetric.
+
+      if (i < NCOM) FF -> addPhysical (N[i], tmp, i, Uphys);
+    }
+  }
+
+  // -- Multiply in density variation (1 + rho'/rho_0) for LMA13 buoyancy.
+
+  if (D -> hasScalar() && (Femlib::value ("LMA_BETA_T") > EPSDP)) {
+    *tmp  = Femlib::value ("LMA_T_REF");
+    *tmp -= *Uphys[NCOM];
+    *tmp *= Femlib::value ("LMA_BETA_T");
+    *tmp += 1.0;
+    for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
+
+    // -- Subtract out background hydrostatic contributions.
+
+    // -- 1. Frame-acceleration (incl. gravity) terms.
+    
+    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
+
+#if _KE_HYDROSTAT
+    // -- 2. Localised centrifugal buoyancy terms.
+    
+    tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
+
+    if (Geometry::cylindrical())
+      for (i = 0; i < NCOM; i++)
+        if (i == 2) {
+	  if (NDIM == 3)
+	    *N[i] -= (*Uphys[0] = *tmp) .
+	      transform (FORWARD). gradient (i) . transform (INVERSE) . divY();
+        } else
+	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i) . mulY();
+    else
+      for (i = 0; i < NCOM; i++)
+        if (i == 2) {
+	  if (NDIM == 3)
+	    *N[i] -= (*Uphys[0] = *tmp) .
+	      transform (FORWARD). gradient (i) . transform (INVERSE);
+        } else
+	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
+#endif    
+  }
+
+  for (i = 0; i < NADV; i++) {
+    N[i] -> transform (FORWARD);
+    N[i] -> smooth (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
+  }
+}
+
+
 void convective (Domain*     D ,
 		 BCmgr*      B ,
 		 AuxField**  Us,
@@ -487,7 +487,7 @@ void convective (Domain*     D ,
     Uphys[i] -> transform (INVERSE);
   }
 
-  B -> maintainPhysical (D -> u[0], Uphys, NCOM);
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM, NADV);
 
   if (Geometry::cylindrical()) {
 
@@ -630,7 +630,7 @@ void rotational1 (Domain*     D ,
     Uphys[i] -> transform (INVERSE);
   }
 
-  B -> maintainPhysical (D -> u[0], Uphys, NCOM);
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM, NADV);
 
   if (Geometry::cylindrical()) {
 
@@ -912,7 +912,7 @@ void rotational2 (Domain*     D ,
     Uphys[i] -> transform (INVERSE);
   }
 
-  B -> maintainPhysical (D -> u[0], Uphys, NCOM);
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM, NADV);
 
   if (Geometry::cylindrical()) {
 
@@ -1179,8 +1179,8 @@ void Stokes (Domain*     D ,
     *U[i]    = *Uphys[i];
     Uphys[i] -> transform (INVERSE);
   }
-
-  B -> maintainPhysical (D -> u[0], Uphys, NCOM);
+  
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM, NADV);
  
   for (i = 0; i < NCOM; i++) FF -> addPhysical (N[i], tmp, i, Uphys);
 

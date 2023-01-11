@@ -26,7 +26,7 @@ protected:
 
 class FieldForce
 // ---------------------------------------------------------------------------
-// Provides external access for applications. See e.g. calls in nonlinear.C.
+// Provides external access for applications. See e.g. calls in nonlinear.cpp.
 // ---------------------------------------------------------------------------
 {
 public:
@@ -34,7 +34,6 @@ public:
   void addPhysical      (AuxField*, AuxField*, const int, vector<AuxField*>);
   void subPhysical      (AuxField*, AuxField*, const int, vector<AuxField*>);  
   void addFourier       (AuxField*, AuxField*, const int, vector<AuxField*>);
-  void dump             ();
   void writeAux		(vector<AuxField*>);
 protected:
   bool			_enabled;

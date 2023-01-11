@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////
-// condition.cpp: functions used to evaluate & apply BCs.
+// condition.cpp: functions used to evaluate & apply BCs along element edges.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
 // All classes inherit the (semi-abstract) base class Condition.
 // Owing to the different behaviour of essential and natural BCs, a
@@ -25,37 +25,18 @@
 // mixed type, of form dc/dn + K( c - C ) = 0. See [2]. 
 
 // NB: if you invent a new BC which is of essential/Dirichlet type,
-// you also need to edit mesh.cpp/buildMask() so that enumerate sets the
-// global numbering mask to 1 for this type. Otherwise the BC won't be
-// correctly applied.  In this, Robin/mixed count as natural/Neumann.
+// you also need to edit mesh.cpp/buildLiftMask() so that assemblymap
+// sets the global numbering mask to 1 for this type.  Otherwise the
+// BC won't be correctly applied.  In this consideration, Robin/mixed
+// count as natural/Neumann.
 //
 // REFERENCES
 // ----------
-// [1] Karniadakis, Israeli & Orszag (1991) "High-order splitting methods
-//     for the incompressible Navier--Stokes equations", JCP 91(2).
-// [2] Blackburn (2001) "Dispersion and diffusion in coated tubes of 
-//     arbitrary cross-section", Comput Chem Eng 25(2/3).
-//
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
+// [1] Karniadakis, Israeli & Orszag (1991), JCP 91(2)
+// [2] Blackburn (2001), Comput Chem Eng 25(2/3)
+// [3] Dong (2015), JCP 302:300-328 
+// [4] Liu, Xie & Dong (2020), IJHFF 151:119355
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
@@ -70,7 +51,10 @@ void Essential::evaluate (const Field*   src    ,
 			  real_t*        tgt    ) const
 // ---------------------------------------------------------------------------
 // Load external value storage area tgt with installed constant.
-// Physical space.
+// Physical space.  The long list of inputs (most of which are not
+// used here) is required because the same argument list is shared
+// across all evaluation prototypes, which have diverse actions.
+// E.g. elmt and side are used by EssentialFunction::evaluate().
 // ---------------------------------------------------------------------------
 {
   if (!Fourier) Veclib::fill (Geometry::nP(), _value, tgt, 1);
@@ -110,6 +94,8 @@ void Essential::describe (char* tgt) const
   sprintf (tgt, "essential:\t%g", _value);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 EssentialFunction::EssentialFunction (const char* f)
 // ---------------------------------------------------------------------------
@@ -172,6 +158,8 @@ void EssentialFunction::describe (char* tgt) const
   sprintf (tgt, "essential-function:\t%s", _function);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 void Natural::evaluate (const Field*   src    ,
 			const int_t    id     , 
@@ -228,6 +216,8 @@ void Natural::describe (char* tgt) const
   sprintf (tgt, "natural:\t%g", _value);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 NaturalFunction::NaturalFunction (const char* f)
 // ---------------------------------------------------------------------------
@@ -294,6 +284,8 @@ void NaturalFunction::describe (char* tgt) const
   sprintf (tgt, "natural-function:\t%s", _function);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 Mixed::Mixed (const char* v)
 // ---------------------------------------------------------------------------
@@ -305,7 +297,6 @@ Mixed::Mixed (const char* v)
 // are only evaluated *once* at the beginning of execution).
 // ---------------------------------------------------------------------------
 {
-  const char routine[] = "Mixed::Mixed";
   const char sep[] = ";,";
   char       buf[StrMax], *tok;
 
@@ -323,7 +314,7 @@ void Mixed::sum (const int_t   side  ,
 		 real_t*       tgt   ) const
 // ---------------------------------------------------------------------------
 // Add boundary-integral terms into globally-numbered tgt.  This is
-// used to add K*C to RHS forcing.
+// used to add K*C to RHS forcing.  Input src is ignored.
 // ---------------------------------------------------------------------------
 { 
   const int_t  np    = Geometry::nP();
@@ -356,10 +347,10 @@ void Mixed::augmentSC (const int_t   side  ,
 // Add <K, w> terms to (banded LAPACK) matrix tgt.
 // ---------------------------------------------------------------------------
 {
-  const int_t    np    = Geometry::nP();
-  const int_t    nm    = np - 1;
-  const int_t*   start = bmap;
-  int_t i, k;
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  int_t        i, k;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -390,10 +381,10 @@ void Mixed::augmentOp (const int_t   side,
 // <K*src, w> to tgt.  Both src and tgt are globally-numbered vectors.
 // ---------------------------------------------------------------------------
 {
-  const int_t    np    = Geometry::nP();
-  const int_t    nm    = np - 1;
-  const int_t*   start = bmap;
-  int_t i;
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  int_t        i;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -420,10 +411,10 @@ void Mixed::augmentDg (const int_t   side,
 // BCs.  Add in diagonal terms <K, w> to globally-numbered tgt.
 // ---------------------------------------------------------------------------
 {
-  const int_t    np    = Geometry::nP();
-  const int_t    nm    = np - 1;
-  const int_t*   start = bmap;
-  int_t i;
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  int_t        i;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -463,7 +454,7 @@ void NaturalCBCp::evaluate (const Field*   src    ,
 			    const bool     Fourier,
 			    real_t*        tgt    ) const
 // ---------------------------------------------------------------------------
-// Load external via a call to BCmgr to compute terms.
+// Load external tgt via a call to BCmgr to compute terms.
 // ---------------------------------------------------------------------------
 {
   if (Fourier) _BCmgr -> evaluateCNBCp (id, plane, step, tgt); 
@@ -477,7 +468,7 @@ void NaturalCBCp::sum (const int_t   side  ,
 		       real_t*       work  ,
 		       real_t*       tgt   ) const
 // ---------------------------------------------------------------------------
-// Add boundary-integral terms into globally-numbered tgt.
+// Add boundary-integral src terms into globally-numbered tgt.
 // ---------------------------------------------------------------------------
 { 
   const int_t  np    = Geometry::nP();
@@ -507,6 +498,8 @@ void NaturalCBCp::describe (char* tgt) const
   sprintf (tgt, "computed-natural-pressure, see KIO91");
 }
 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 MixedCBCp::MixedCBCp (BCmgr* B) : _BCmgr (B)
 // ---------------------------------------------------------------------------
@@ -527,7 +520,7 @@ void MixedCBCp::evaluate (const Field*   src    ,
 			  const bool     Fourier,
 			  real_t*        tgt    ) const
 // ---------------------------------------------------------------------------
-// Load external via a call to BCmgr to compute terms.
+// Load external tgt via a call to BCmgr to compute terms.
 // ---------------------------------------------------------------------------
 {
   if (Fourier) _BCmgr -> evaluateCMBCp (src, id, plane, step, tgt); 
@@ -541,8 +534,9 @@ void MixedCBCp::sum (const int_t   side  ,
 		     real_t*       work  ,
 		     real_t*       tgt   ) const
 // ---------------------------------------------------------------------------
-// Add boundary-integral terms into globally-numbered tgt, the RHS of
-// Dong (2015) eq. (37).  
+// Add boundary-integral src terms into globally-numbered tgt, the RHS
+// of Dong (2015) eq. (37).  Input src (that was created by evaluate)
+// takes the place of K*C.
 // ---------------------------------------------------------------------------
 {
   const int_t  np    = Geometry::nP();
@@ -575,10 +569,10 @@ void MixedCBCp::augmentSC (const int_t   side  ,
 // Add <K, w> terms to (banded LAPACK) matrix tgt.
 // ---------------------------------------------------------------------------
 {
-  const int_t    np    = Geometry::nP();
-  const int_t    nm    = np - 1;
-  const int_t*   start = bmap;
-  int_t i, k;
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  int_t        i, k;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -609,10 +603,10 @@ void MixedCBCp::augmentOp (const int_t   side,
 // <K*src, w> to tgt.  Both src and tgt are globally-numbered vectors.
 // ---------------------------------------------------------------------------
 {
-  const int_t    np    = Geometry::nP();
-  const int_t    nm    = np - 1;
-  const int_t*   start = bmap;
-  int_t i;
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  int_t        i;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -639,10 +633,10 @@ void MixedCBCp::augmentDg (const int_t   side,
 // BCs.  Add in diagonal terms <K, w> to globally-numbered tgt.
 // ---------------------------------------------------------------------------
 {
-  const int_t    np    = Geometry::nP();
-  const int_t    nm    = np - 1;
-  const int_t*   start = bmap;
-  int_t i;
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  int_t        i;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -667,6 +661,8 @@ void MixedCBCp::describe (char* tgt) const
   sprintf (tgt, "computed-mixed-pressure, Dong15 eq. (37)");
 }
 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 MixedCBCu::MixedCBCu (BCmgr* B) : _BCmgr (B)
 // ---------------------------------------------------------------------------
@@ -682,8 +678,9 @@ MixedCBCu::MixedCBCu (BCmgr* B) : _BCmgr (B)
 {
   _alpha = new real_t [Integration::OrderMax];
   Integration::StifflyStable (Femlib::ivalue ("N_TIME"), _alpha);
-  
-  _K_ = _alpha[0] * Femlib::value ("DONG_DO/D_T");
+
+  _DoDt = Femlib::value ("DONG_DO/D_T");
+  _K_   = _alpha[0] * _DoDt;
 }
 
 
@@ -696,7 +693,7 @@ void MixedCBCu::evaluate (const Field*   src    ,
 			  const bool     Fourier,
 			  real_t*        tgt    ) const
 // ---------------------------------------------------------------------------
-// Load external via a call to BCmgr to compute terms.
+// Load external tgt via a call to BCmgr to compute terms.
 // ---------------------------------------------------------------------------
 {
   if (Fourier) _BCmgr -> evaluateCMBCu (src, id, plane, step, 'u', tgt); 
@@ -710,7 +707,7 @@ void MixedCBCu::sum (const int_t   side  ,
 		     real_t*       work  ,
 		     real_t*       tgt   ) const
 // ---------------------------------------------------------------------------
-// Add boundary-integral terms into globally-numbered tgt.
+// Add boundary-integral src terms into globally-numbered tgt.
 // ---------------------------------------------------------------------------
 { 
   const int_t  np    = Geometry::nP();
@@ -747,10 +744,10 @@ void MixedCBCu::augmentSC (const int_t   side  ,
 // steady-state timestepping order.
 // ---------------------------------------------------------------------------
 {
-  const int_t    np    = Geometry::nP();
-  const int_t    nm    = np - 1;
-  const int_t*   start = bmap;
-  int_t i, k;
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  int_t        i, k;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -789,7 +786,7 @@ void MixedCBCu::augmentOp (const int_t   side,
   i = clamp (Femlib::ivalue("STEP"), 1, Femlib::ivalue("N_TIME"));
 
   Integration::StifflyStable (i, _alpha);
-  real_t Kloc = _alpha[0] * Femlib::value ("DONG_DO/D_T");
+  const real_t Kloc = _alpha[0] * _DoDt;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -824,7 +821,7 @@ void MixedCBCu::augmentDg (const int_t   side,
   i = clamp (Femlib::ivalue("STEP"), 1, Femlib::ivalue("N_TIME"));
   
   Integration::StifflyStable (i, _alpha);
-  real_t Kloc = _alpha[0] * Femlib::value ("DONG_DO/D_T");
+  const real_t Kloc = _alpha[0] * _DoDt;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -849,6 +846,8 @@ void MixedCBCu::describe (char* tgt) const
   sprintf (tgt, "computed-mixed-velocity (u cmpt.), Dong15 eq. (38)");
 }
 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 MixedCBCv::MixedCBCv (BCmgr* B) : _BCmgr (B)
 // ---------------------------------------------------------------------------
@@ -864,8 +863,9 @@ MixedCBCv::MixedCBCv (BCmgr* B) : _BCmgr (B)
 {
   _alpha = new real_t [Integration::OrderMax];
   Integration::StifflyStable (Femlib::ivalue ("N_TIME"), _alpha);
-  
-  _K_ = _alpha[0] * Femlib::value ("DONG_DO/D_T");
+
+  _DoDt = Femlib::value ("DONG_DO/D_T");
+  _K_   = _alpha[0] * _DoDt;
 }
 
 
@@ -878,7 +878,7 @@ void MixedCBCv::evaluate (const Field*   src    ,
 			  const bool     Fourier,
 			  real_t*        tgt    ) const
 // ---------------------------------------------------------------------------
-// Load external via a call to BCmgr to compute terms.
+// Load external tgt via a call to BCmgr to compute terms.
 // ---------------------------------------------------------------------------
 {
   if (Fourier) _BCmgr -> evaluateCMBCu (src, id, plane, step, 'v', tgt); 
@@ -892,7 +892,7 @@ void MixedCBCv::sum (const int_t   side  ,
 		     real_t*       work  ,
 		     real_t*       tgt   ) const
 // ---------------------------------------------------------------------------
-// Add boundary-integral terms into globally-numbered tgt.
+// Add boundary-integral src terms into globally-numbered tgt.
 // ---------------------------------------------------------------------------
 { 
   const int_t  np    = Geometry::nP();
@@ -925,10 +925,10 @@ void MixedCBCv::augmentSC (const int_t   side  ,
 // Add <K, w> terms to (banded LAPACK) matrix tgt.
 // ---------------------------------------------------------------------------
 {
-  const int_t    np    = Geometry::nP();
-  const int_t    nm    = np - 1;
-  const int_t*   start = bmap;
-  int_t i, k;
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  int_t        i, k;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -967,7 +967,7 @@ void MixedCBCv::augmentOp (const int_t   side,
   i = clamp (Femlib::ivalue("STEP"), 1, Femlib::ivalue("N_TIME"));
 
   Integration::StifflyStable (i, _alpha);
-  real_t Kloc = _alpha[0] * Femlib::value ("DONG_DO/D_T");
+  const real_t Kloc = _alpha[0] * _DoDt;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -1002,7 +1002,7 @@ void MixedCBCv::augmentDg (const int_t   side,
   i = clamp (Femlib::ivalue("STEP"), 1, Femlib::ivalue("N_TIME"));
 
   Integration::StifflyStable (i, _alpha);
-  real_t Kloc = _alpha[0] * Femlib::value ("DONG_DO/D_T");
+  const real_t Kloc = _alpha[0] * _DoDt;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -1026,7 +1026,9 @@ void MixedCBCv::describe (char* tgt) const
 {
   sprintf (tgt, "computed-mixed-velocity (v cmpt.), Dong15 eq. (38)");
 }
-
+ 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 MixedCBCw::MixedCBCw (BCmgr* B) : _BCmgr (B)
 // ---------------------------------------------------------------------------
@@ -1042,8 +1044,9 @@ MixedCBCw::MixedCBCw (BCmgr* B) : _BCmgr (B)
 {
   _alpha = new real_t [Integration::OrderMax];
   Integration::StifflyStable (Femlib::ivalue ("N_TIME"), _alpha);
-  
-  _K_ = _alpha[0] * Femlib::value ("DONG_DO/D_T");
+
+  _DoDt = Femlib::value ("DONG_DO/D_T");
+  _K_   = _alpha[0] * _DoDt;
 }
 
 
@@ -1056,7 +1059,7 @@ void MixedCBCw::evaluate (const Field*   src    ,
 			  const bool     Fourier,
 			  real_t*        tgt    ) const
 // ---------------------------------------------------------------------------
-// Load external via a call to BCmgr to compute terms.
+// Load external tgt via a call to BCmgr to compute terms.
 // ---------------------------------------------------------------------------
 {
   if (Fourier) _BCmgr -> evaluateCMBCu (src, id, plane, step, 'w', tgt); 
@@ -1070,7 +1073,7 @@ void MixedCBCw::sum (const int_t   side  ,
 		     real_t*       work  ,
 		     real_t*       tgt   ) const
 // ---------------------------------------------------------------------------
-// Add boundary-integral terms (src) into globally-numbered tgt.
+// Add boundary-integral src terms into globally-numbered tgt.
 // ---------------------------------------------------------------------------
 { 
   const int_t  np    = Geometry::nP();
@@ -1103,10 +1106,10 @@ void MixedCBCw::augmentSC (const int_t   side  ,
 // Add <K, w> terms to (banded LAPACK) matrix tgt.
 // ---------------------------------------------------------------------------
 {
-  const int_t    np    = Geometry::nP();
-  const int_t    nm    = np - 1;
-  const int_t*   start = bmap;
-  int_t i, k;
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  int_t        i, k;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -1137,15 +1140,15 @@ void MixedCBCw::augmentOp (const int_t   side,
 // <K*src, w> to tgt.  Both src and tgt are globally-numbered vectors.
 // ---------------------------------------------------------------------------
 {
-  const int_t   np    = Geometry::nP();
-  const int_t   nm    = np - 1;
-  const int_t*  start = bmap;
-  int_t         i;
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  int_t        i;
 
   i = clamp (Femlib::ivalue("STEP"), 1, Femlib::ivalue("N_TIME"));
 
   Integration::StifflyStable (i, _alpha);
-  real_t Kloc = _alpha[0] * Femlib::value ("DONG_DO/D_T");
+  const real_t Kloc = _alpha[0] * _DoDt;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -1180,7 +1183,7 @@ void MixedCBCw::augmentDg (const int_t   side,
   i = clamp (Femlib::ivalue("STEP"), 1, Femlib::ivalue("N_TIME"));
 
   Integration::StifflyStable (i, _alpha);
-  real_t Kloc = _alpha[0] * Femlib::value ("DONG_DO/D_T");
+  const real_t Kloc = _alpha[0] * _DoDt;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -1205,6 +1208,8 @@ void MixedCBCw::describe (char* tgt) const
   sprintf (tgt, "computed-mixed-velocity (w cmpt.), Dong15 eq. (38)");
 }
 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 MixedCBCwIn::MixedCBCwIn (BCmgr* B) : _BCmgr (B)
 // ---------------------------------------------------------------------------
@@ -1221,8 +1226,9 @@ MixedCBCwIn::MixedCBCwIn (BCmgr* B) : _BCmgr (B)
 {
   _alpha = new real_t [Integration::OrderMax];
   Integration::StifflyStable (Femlib::ivalue ("N_TIME"), _alpha);
-  
-  _K_ = _alpha[0] * Femlib::value ("DONG_DO/D_T");
+
+  _DoDt = Femlib::value ("DONG_DO/D_T");
+  _K_   = _alpha[0] * _DoDt;
 }
 
 
@@ -1237,10 +1243,10 @@ void MixedCBCwIn::augmentSC (const int_t   side  ,
 // Add <K, w> terms to (banded LAPACK) matrix tgt.
 // ---------------------------------------------------------------------------
 {
-  const int_t    np    = Geometry::nP();
-  const int_t    nm    = np - 1;
-  const int_t*   start = bmap;
-  int_t i, k;
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  int_t        i, k;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -1279,7 +1285,7 @@ void MixedCBCwIn::augmentOp (const int_t   side,
   i = clamp (Femlib::ivalue("STEP"), 1, Femlib::ivalue("N_TIME"));
 
   Integration::StifflyStable (i, _alpha);
-  real_t Kloc = _alpha[0] * Femlib::value ("DONG_DO/D_T");
+  const real_t Kloc = _alpha[0] * _DoDt;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -1314,7 +1320,7 @@ void MixedCBCwIn::augmentDg (const int_t   side,
   i = clamp (Femlib::ivalue("STEP"), 1, Femlib::ivalue("N_TIME"));
 
   Integration::StifflyStable (i, _alpha);
-  real_t Kloc = _alpha[0] * Femlib::value ("DONG_DO/D_T");
+  const real_t Kloc = _alpha[0] * _DoDt;
   
   switch (side) {
   case 1: start += nm;           break;
@@ -1337,4 +1343,187 @@ void MixedCBCwIn::describe (char* tgt) const
 // ---------------------------------------------------------------------------
 {
   sprintf (tgt, "computed-mixed-velocity (w cmpt.), Dong15 eq. (38), but C=0");
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+MixedCBCc::MixedCBCc (BCmgr* B) : _BCmgr (B)
+// ---------------------------------------------------------------------------
+// Computed mixed/Robin velocity BC for open boundaries, Dong (2015) eq. (38).
+// For the LHS, our notation is du/dn + _K_u, where _K_ is set as below.
+//
+// NOTE: there is a potential problem here, since alpha[0] (and hence
+// _K_) depends on time-stepping order, so it will likely be incorrect
+// for the first time-step (or two).  However, it is fine for setting up 
+// matrices for the asymptotic timestep order.  For all other cases we will
+// evaluate _K_ based on the current time step.				  
+// ---------------------------------------------------------------------------
+{
+  _alpha = new real_t [Integration::OrderMax];
+  Integration::StifflyStable (Femlib::ivalue ("N_TIME"), _alpha);
+
+  _DoDt = Femlib::value ("DONG_DO/D_T");
+  _K_   = _alpha[0] * _DoDt;
+}
+
+
+void MixedCBCc::evaluate (const Field*   src    ,
+			  const int_t    id     , 
+			  const int_t    plane  , 
+			  const Element* elmt   ,
+			  const int_t    side   , 
+			  const int_t    step   ,
+			  const bool     Fourier,
+			  real_t*        tgt    ) const
+// ---------------------------------------------------------------------------
+// Load external tgt via a call to BCmgr to compute terms equivalent
+// to _K_*_C_ in a regular Mixed BC.
+// ---------------------------------------------------------------------------
+{
+  if (Fourier) _BCmgr -> evaluateCMBCc (id, plane, step, tgt);
+}
+
+
+void MixedCBCc::sum (const int_t   side  ,
+		     const int_t*  bmap  ,
+		     const real_t* src   ,
+		     const real_t* weight,
+		     real_t*       work  ,
+		     real_t*       tgt   ) const
+// ---------------------------------------------------------------------------
+// Add boundary-integral src terms (computed by evaluate into *its*
+// tgt, delivered here as src) into globally-numbered tgt.
+// ---------------------------------------------------------------------------
+{ 
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  
+  switch (side) {
+  case 1: start += nm;           break;
+  case 2: start += nm + nm;      break;
+  case 3: start += nm + nm + nm; break;
+  default: break;
+  }
+
+  Veclib::vmul (np, src, 1, weight, 1, work, 1);
+
+  Veclib::scatr_sum (nm, work, start, tgt);
+  if   (side == 3) tgt[bmap [ 0]] += work[nm];
+  else             tgt[start[nm]] += work[nm];  
+}
+
+
+void MixedCBCc::augmentSC (const int_t   side  ,
+			   const int_t   nband ,
+			   const int_t   nsolve,
+			   const int_t*  bmap  ,
+			   const real_t* area  ,
+			   real_t*       work  ,
+			   real_t*       tgt   )  const
+// ---------------------------------------------------------------------------
+// Add <K, w> terms to (banded LAPACK) matrix tgt.
+// ---------------------------------------------------------------------------
+{
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  int_t        i, k;
+  
+  switch (side) {
+  case 1: start += nm;           break;
+  case 2: start += nm + nm;      break;
+  case 3: start += nm + nm + nm; break;
+  default: break;
+  }
+
+  Veclib::smul (np, _K_, area, 1, work, 1);
+
+  for (i = 0; i < nm; i++)
+    if ((k = start[i]) < nsolve)
+      tgt[Lapack::band_addr (k, k, nband)] += work[i];
+
+  i = (side == 3) ? bmap[0] : start[nm];
+  if (i < nsolve) tgt[Lapack::band_addr (i, i, nband)] += work[nm];
+}
+
+
+void MixedCBCc::augmentOp (const int_t   side, 
+			   const int_t*  bmap,
+			   const real_t* area,
+			   const real_t* src ,
+			   real_t*       tgt ) const
+// ---------------------------------------------------------------------------
+// This operation is used to augment the element-wise Helmholtz
+// operations where there are mixed BCs.  Add in diagonal terms
+// <K*src, w> to tgt.  Both src and tgt are globally-numbered vectors.
+// ---------------------------------------------------------------------------
+{
+  const int_t   np    = Geometry::nP();
+  const int_t   nm    = np - 1;
+  const int_t*  start = bmap;
+  int_t         i;
+
+  i = clamp (Femlib::ivalue("STEP"), 1, Femlib::ivalue("N_TIME"));
+
+  Integration::StifflyStable (i, _alpha);
+  const real_t Kloc = _alpha[0] * _DoDt;
+  
+  switch (side) {
+  case 1: start += nm;           break;
+  case 2: start += nm + nm;      break;
+  case 3: start += nm + nm + nm; break;
+  default: break;
+  }
+
+  for (i = 0; i < nm; i++)
+    tgt[start[i]] += Kloc * area[i] * src[start[i]];
+
+  i = (side == 3) ? bmap[0] : start[nm];
+  tgt[i] += Kloc * area[nm] * src[i];
+}
+
+
+void MixedCBCc::augmentDg (const int_t   side, 
+			   const int_t*  bmap,
+			   const real_t* area,
+			   real_t*       tgt ) const
+// ---------------------------------------------------------------------------
+// This operation is used to augment the element-wise construction of
+// the diagonal of the global Helmholtz matrix where there are mixed
+// BCs.  Add in diagonal terms <K, w> to globally-numbered tgt.
+// ---------------------------------------------------------------------------
+{
+  const int_t  np    = Geometry::nP();
+  const int_t  nm    = np - 1;
+  const int_t* start = bmap;
+  int_t        i;
+
+  i = clamp (Femlib::ivalue("STEP"), 1, Femlib::ivalue("N_TIME"));
+
+  Integration::StifflyStable (i, _alpha);
+  const real_t Kloc = _alpha[0] * _DoDt;
+  
+  switch (side) {
+  case 1: start += nm;           break;
+  case 2: start += nm + nm;      break;
+  case 3: start += nm + nm + nm; break;
+  default: break;
+  }
+
+  for (i = 0; i < nm; i++)
+    tgt[start[i]] += Kloc * area[i];
+
+  i = (side == 3) ? bmap[0] : start[nm];
+  tgt[i] += Kloc * area[nm];
+}
+
+
+void MixedCBCc::describe (char* tgt) const
+// ---------------------------------------------------------------------------
+// Load descriptive/diagnostic material into tgt.
+// ---------------------------------------------------------------------------
+{
+  sprintf (tgt, "computed-mixed-scalar, Liu, Xie & Dong 2020 eq. (16b)");
 }

@@ -141,7 +141,7 @@ of the standard open-source software ports for OS X (macports,
 homebrew, or fink).  You might also wish to install an MPI setup, such
 as openmpi.  There is no need to install your own BLAS or LAPACK, as
 these usually come as a standard part of Xcode (in the Accelerate
-package).
+framework).
 
 Building - Introduction
 -----------------------
@@ -163,7 +163,7 @@ Intel's MKL or AMD's ACML may quite substantially improve the
 performance of the DNS code.  Most of the improvement comes from
 having a well-optimised version of DGEMM (matrix-matrix multiply),
 which is heavily used by dns.  Search GotoBLAS or OpenBLAS.  On OSX,
-you get this performance by default via the Xcode/Accelerate package;
+you get this performance by default via the Xcode/Accelerate framework;
 on Linux, try using ACML or MKL, depending on machine architecture.
 Speed improvements to be had by choosing a good BLAS version usually
 far outweigh what can be achieved via choice of compiler or compiler
@@ -186,11 +186,11 @@ will be built.  If cmake can find a working MPI installation, parallel
 versions will also be built (which are called dns_mp and elliptic_mp).
 All the other resulting files are for serial execution only.
 
-  %> mkdir build_dir
-  %> cd build_dir
-  %> cmake ..
-  %> make
-  %> ctest
+  %> mkdir build_dir  
+  %> cd build_dir  
+  %> cmake ..  
+  %> make  
+  %> ctest  
 
 You should find that all test regression tests are reported as passed.
 Because these tests exercise the solvers as well as a range of

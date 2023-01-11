@@ -2,7 +2,7 @@
 #define DOMAIN_H
 
 class Domain
-
+// ===========================================================================
 // Physical domain storage class for Navier--Stokes and elliptic type
 // problems.
 //

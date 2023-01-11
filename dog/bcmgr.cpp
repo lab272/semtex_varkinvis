@@ -9,7 +9,7 @@
 // consideration. Rather than only allow this BC type only for 2D
 // analysis, it seems easier to remove it completely.
 //
-// Copyright (c) 1994+ Hugh M Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
 // SYNOPSIS
 // --------
@@ -635,7 +635,8 @@ int_t BCmgr::nMatching (const char* descript)
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void BCmgr::buildComputedBCs (const Field* master)
+void BCmgr::buildComputedBCs (const Field* master    ,
+			      const bool   haveScalar)
 // ---------------------------------------------------------------------------
 // Build class-scope storage structures required for evaluation of various
 // kinds of computed Boundary conditions for Navier--Stokes type problems.
@@ -683,7 +684,8 @@ void BCmgr::buildComputedBCs (const Field* master)
 
 void BCmgr::maintainPhysical (const Field*             master,
 			      const vector<AuxField*>& Us    ,
-			      const int_t              nCom  )
+			      const int_t              nCom  ,
+			      const int_t              nAdv  )
 // ---------------------------------------------------------------------------
 // Just a stub for dog.  (Retained for compatibility with bcmgr.h.)
 // ---------------------------------------------------------------------------
@@ -695,6 +697,7 @@ void BCmgr::maintainFourier (const int_t      step   ,
 			     const AuxField** Us     ,
 			     const AuxField** Uf     ,
 			     const int_t      ncom   , // Unused in dog.
+			     const int_t      nadv   , // Ditto.
 			     const bool       timedep)
 // ---------------------------------------------------------------------------
 // Update storage for evaluation of internally computed pressure boundary
@@ -933,13 +936,23 @@ void BCmgr::evaluateCMBCp (const Field* master,
 { }
 
 
-void BCmgr::evaluateCMBCu (const Field* P    ,
-			   const int_t  id   ,
-			   const int_t  k    ,
-			   const int_t  step ,
-			   const char   cmpt ,
-			   real_t*      tgt  )
+void BCmgr::evaluateCMBCu (const Field* P   ,
+			   const int_t  id  ,
+			   const int_t  k   ,
+			   const int_t  step,
+			   const char   cmpt,
+			   real_t*      tgt )
 // ---------------------------------------------------------------------------
-// Just a stub for dog.  (Prototype is needed by semtex/src/condition.cpp.)
+// Another stub.
+// ---------------------------------------------------------------------------
+{ }
+
+
+void BCmgr::evaluateCMBCc (const int_t  id  ,
+			   const int_t  k   ,
+			   const int_t  step,
+			   real_t*      tgt )
+// ---------------------------------------------------------------------------
+// Another stub.
 // ---------------------------------------------------------------------------
 { }

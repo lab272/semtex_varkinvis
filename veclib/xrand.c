@@ -160,30 +160,6 @@ void dvnormal (int_t n, double mean, double sdev, double* x, int_t incx)
   x += (incx<0) ? (-n+1)*incx : 0;
 
   for (i=0; i<n; i++) x[i*incx] = GD (mean, sdev);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 

@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // integrate.cpp: Unsteady Navier--Stokes solver, using
 // "stiffly-stable" time integration [1,2].  Geometries may be 2- or
-// 3-dimensional, Cartesian or cylindrical [3].  Fourier expansions
+// 3-dimensional, Cartesian or cylindrical [3,5].  Fourier expansions
 // are used in the homogeneous (z) direction.  This file provides
 // integrate as a call-back routine; after initialisation, integrate
 // may be called repeatedly without reinitialising internal storage.
@@ -45,6 +45,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <dns.h>
+
+// -- This triggers computation of nonlinear terms for diagnostics.
+
+#define NONLIN_DIAGNOSTIC 0
+
 
 typedef ModalMatrixSys Msys;
 
@@ -118,7 +123,7 @@ void integrate (void (*advection) (Domain*    ,
 
     // -- Create multi-level storage for pressure BCS.
 
-    B -> buildComputedBCs (Pressure);
+    B -> buildComputedBCs (Pressure, D -> hasScalar());
 
     // -- Apply coupling to radial & azimuthal velocity BCs.
 
@@ -135,7 +140,9 @@ void integrate (void (*advection) (Domain*    ,
       *Uf[i][j] = 0.0;
     }
 
-#if 0 // -- Process input to generate nonlinear terms and quit (if 1).
+#if NONLIN_DIAGNOSTIC
+  
+  // -- Process input to generate nonlinear terms and quit (if nonzero).
   
   advection (D, B, Us[0], Uf[0], FF);
   D -> step += 1; D -> time += dt;
@@ -160,12 +167,13 @@ void integrate (void (*advection) (Domain*    ,
     Femlib::ivalue ("STEP", D -> step);
     Femlib::value  ("t",    D -> time);
 
-    // -- Update high-order pressure BC storage.
+    // -- Update high-order pressure BC storage, first in BCmgr, then
+    //    in pressure Field BC area.
 
     B -> maintainFourier (D -> step, Pressure,
 			  const_cast<const AuxField**>(Us[0]),
 			  const_cast<const AuxField**>(Uf[0]),
-			  NCOM);
+			  NCOM, NADV);
     Pressure -> evaluateBoundaries (Pressure, D -> step);
 
     // -- Complete unconstrained advective substep and compute
@@ -190,7 +198,12 @@ void integrate (void (*advection) (Domain*    ,
     for (i = 0; i < NADV; i++) *Us[0][i] = *D -> u[i];
     rollm (Us, NORD, NADV);
 
-    // -- Re-evaluate velocity (possibly time-dependent) BCs.
+    // -- Re-evaluate velocity (possibly time-dependent) BCs, some of
+    //    which get made in physical space and then Fourier
+    //    transformed, while others (e.g. some computed types) may get
+    //    directly evaluated in Fourier space.  Whatever the method,
+    //    the outcomes end up in the (Fourier-transformed) BC storage
+    //    areas for the relevant Field.
 
     for (i = 0; i < NADV; i++)  {
       D -> u[i] -> evaluateBoundaries (NULL,     D -> step, false);
@@ -396,3 +409,5 @@ static void Solve (Domain*     D,
 
   } else D -> u[i] -> solve (F, M);
 }
+
+#undef NONLIN_DIAGNOSTIC

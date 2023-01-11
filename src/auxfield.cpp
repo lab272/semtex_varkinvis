@@ -1841,18 +1841,18 @@ AuxField& AuxField::perturb (const int mode, const double pert)
 
     ROOTONLY {
       if      (mode == 0)
-        for (j = 0; j < nplane; j++) _data[j] += eps * drang ();
+        for (j = 0; j < nplane; j++) _data[j] += eps * Veclib::drang ();
 
       else if (mode == (_nz >> 1))
-        for (j = 0; j < nplane; j++) _data[nplane + j] += eps * drang ();
+        for (j = 0; j < nplane; j++) _data[nplane+j] += eps * Veclib::drang ();
       return *this;
     }
 
     // -- check if we hold said mode
     if ((relmode < 0) || (relmode < Geometry::nModeProc() )) return *this;
 
-    for (j = 0; j < nplane; j++) _data[kr + j] += eps * drang ();
-    for (j = 0; j < nplane; j++) _data[ki + j] += eps * drang ();
+    for (j = 0; j < nplane; j++) _data[kr + j] += eps * Veclib::drang ();
+    for (j = 0; j < nplane; j++) _data[ki + j] += eps * Veclib::drang ();
 
   } else                           // -- perturb all modes
     for (j = 0; j < _size; j++) _data[j] += pert * drang ();

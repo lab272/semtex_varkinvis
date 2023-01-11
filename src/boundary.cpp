@@ -1,35 +1,15 @@
 //////////////////////////////////////////////////////////////////////////////
 // boundary.cpp: implement Boundary class functions.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
 // SYNOPSIS
 // --------
 // Boundaries correspond to domain edges that have boundary conditions
 // applied (as opposed to periodic edges).  The ordering of internal
-// storage for condition values and geometric factors corresponds to
+// storage for condition values and geometric factors corresponds to a
 // CCW traverse of 2D element edges.
-//
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
@@ -86,10 +66,10 @@ void Boundary::augmentSC (const int_t  nband ,
 			  real_t*      H     ) const
 // ---------------------------------------------------------------------------
 // Add in diagonal terms <K, w> to (banded LAPACK) H on mixed BCs.
-// Work array must be np long.
+// Work array must be np long.  See p. 135 of HMB's Semtex notebook.
 // ---------------------------------------------------------------------------
 {
-  _bcond -> augmentSC (_side, nband, nsolve, b2g + bOff(), _area, work, H);
+  _bcond -> augmentSC (_side, nband, nsolve, b2g+this->bOff(), _area, work, H);
 }
 
 
@@ -102,7 +82,7 @@ void Boundary::augmentOp (const int_t*  b2g,
 // <K*src, w> to tgt.  Both src and tgt are globally-numbered vectors.
 // ---------------------------------------------------------------------------
 {
-  _bcond -> augmentOp (_side, b2g + bOff(), _area, src, tgt);
+  _bcond -> augmentOp (_side, b2g + this -> bOff(), _area, src, tgt);
 }
 
 
@@ -114,7 +94,7 @@ void Boundary::augmentDg (const int_t* b2g,
 // BCs.  Add in diagonal terms <K, w> to globally-numbered tgt.
 // ---------------------------------------------------------------------------
 {
-  _bcond -> augmentDg (_side, b2g + bOff(), _area, tgt);
+  _bcond -> augmentDg (_side, b2g + this -> bOff(), _area, tgt);
 }
 
 

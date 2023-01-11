@@ -11,7 +11,7 @@
 #endif
 
 void dvabs (int_t n, const double* x, int_t incx,
-                             double* y, int_t incy)
+                           double* y, int_t incy)
 {
    int_t i;
 
@@ -23,7 +23,7 @@ void dvabs (int_t n, const double* x, int_t incx,
 
 
 void ivabs (int_t n, const int_t* x, int_t incx,
-                             int_t* y, int_t incy)
+                           int_t* y, int_t incy)
 {
    int_t i;
 

@@ -1319,6 +1319,7 @@ void Mesh::describeBC (char  grp,
   }
 }
 
+#if 0				// -- Deprecated/unused.
 
 void Mesh::buildMask (const int_t np  , // -- input, N_P for field.
 		      const char  fld , // -- input, one of "cuvwpCUWP".
@@ -1428,6 +1429,7 @@ void Mesh::buildMask (const int_t np  , // -- input, N_P for field.
   }
 }
 
+#endif
 
 void Mesh::buildLiftMask (const int_t    np  , // -- input, N_P for field.
 		          const char     fld , // -- input, one of "cuvwp".
@@ -1435,7 +1437,7 @@ void Mesh::buildLiftMask (const int_t    np  , // -- input, N_P for field.
 		          int_t*         mask) // -- output, element-edge masks.
   const
 // ---------------------------------------------------------------------------
-// This routine generates an bool mask vector for element-boundary
+// This routine generates an int_t mask vector for element-boundary
 // nodes.  For any location that corresponds to a domain boundary with
 // an essential boundary condition and for field name "fld", the
 // corresponding mask value will be 1/true -- this tags the
@@ -1470,7 +1472,9 @@ void Mesh::buildLiftMask (const int_t    np  , // -- input, N_P for field.
 //      1 for field p (modes 1 and above);
 // <I>  1 for field c.
 //
-// BC information is obtained from session file.
+// BC information is obtained from session file.  The axial (<A>)
+// selections above enforce the choices set out in Blackburn & Sherwin
+// (2004), eq. (25).
 // ---------------------------------------------------------------------------
 {
   const char routine[] = "Mesh::buildLiftMask";

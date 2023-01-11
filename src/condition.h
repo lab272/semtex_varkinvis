@@ -19,6 +19,7 @@ class Condition
 // 8. MixedCBCu         : Open boundary u velocity BC, mixed, computed.
 // 9. MixedCBCv         : Open boundary v velocity BC, mixed, computed.
 // 10. MixedCBCw        : Open boundary w velocity BC, mixed, computed.
+// 11. MixedCBCc        : Open boundary scalar c BC, mixed, computed.
 //
 // Note that for supplied-value BC types, the value is a physical-space
 // description of the BC, and is now set once at run-time (cannot be reset).
@@ -31,6 +32,15 @@ class Condition
 // type.  Those stubs are indicated in the present header
 // file with the function body "{ };".
 //
+// All condition classes must provide an "evaluate" method: this is
+// used to install values in Field class BC storage area.  For
+// essential/Dirichlet condition types, this is the field value that
+// is lifted out of the solution (imposed).  For natural/Neumann
+// condition types, this is the desired normal derivative of the field
+// value along the boundary, which is not directly imposed, but
+// approximated by an integral.  This evaluation could take place in
+// either physical or Fourier space.
+//
 // For essential/Dirichlet BCs, the method "set" must be defined;
 // For natural/Neumann BCs, the method "sum" must be defined, while
 // For mixed/Robin BCs, the three methods "augmentSC", "augmentOp", 
@@ -39,24 +49,6 @@ class Condition
 // Values for computed BC types are manufactured by BCmgr class.
 //
 // See also boundary.h, edge.h, bcmgr.cpp mesh.cpp.
-//
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 // ===========================================================================
 {
 public:
@@ -75,7 +67,7 @@ public:
 			  const real_t*, real_t*)                      const=0;
   virtual void describe  (char* tgt)                                   const=0;
 
-  virtual ~Condition()   { }
+  virtual ~Condition() = default;
 };
 
 
@@ -86,25 +78,24 @@ class Essential : public Condition
 // ===========================================================================
 {
 public:
-  Essential              (const char* v) : _value (strtod (v, 0)) { }
-  virtual void evaluate  (const Field*, const int_t, const int_t,
-                          const Element*, const int_t, const int_t,
-			  const bool, real_t*)                           const;
-  virtual void set       (const int_t, const int_t*,
-			  const real_t*, real_t*)                        const;
-  virtual void sum       (const int_t, const int_t*, const real_t*,
-			  const real_t*, real_t*, real_t*)               const
-    { };
-  virtual void augmentSC (const int_t, const int_t, const int_t,
-			  const int_t*, const real_t*, real_t*, real_t*) const
-    { };
-  virtual void augmentOp (const int_t, const int_t*,
-			  const real_t*, const real_t*, real_t*)         const
-    { };
-  virtual void augmentDg (const int_t, const int_t*, 
-			  const real_t*, real_t*)                        const
-    { };
-  virtual void describe  (char*)                                         const;
+  Essential      (const char* v) : _value (strtod (v, 0)) { }
+  void evaluate  (const Field*, const int_t, const int_t,
+		  const Element*, const int_t, const int_t,
+		  const bool, real_t*)                           const override;
+  void set       (const int_t, const int_t*,
+		  const real_t*, real_t*)                        const override;
+  void describe  (char*)                                         const override;
+
+  // -- Other methods are empty stubs for essential BCs.
+  
+  void sum       (const int_t, const int_t*, const real_t*,
+		  const real_t*, real_t*, real_t*)               const { };
+  void augmentSC (const int_t, const int_t, const int_t,
+		  const int_t*, const real_t*, real_t*, real_t*) const { };
+  void augmentOp (const int_t, const int_t*,
+		  const real_t*, const real_t*, real_t*)         const { };
+  void augmentDg (const int_t, const int_t*, 
+		  const real_t*, real_t*)                        const { };
 private:
   real_t _value;
 };
@@ -334,7 +325,7 @@ public:
 private:
   BCmgr*  _BCmgr;
   real_t* _alpha;
-  real_t  _K_;
+  real_t  _K_, _DoDt;
 };
 
 
@@ -365,7 +356,7 @@ public:
 private:
   BCmgr*  _BCmgr;
   real_t* _alpha;
-  real_t  _K_;
+  real_t  _K_, _DoDt;
 };
 
 
@@ -396,7 +387,7 @@ public:
 private:
   BCmgr*  _BCmgr;
   real_t* _alpha;
-  real_t  _K_;
+  real_t  _K_, _DoDt;
 };
 
 
@@ -431,7 +422,38 @@ public:
 private:
   BCmgr*  _BCmgr;
   real_t* _alpha;
-  real_t  _K_;
+  real_t  _K_, _DoDt;
+};
+
+
+class MixedCBCc : public Condition
+// ===========================================================================
+// Computed mixed BC for scalar on open boundaries.
+//
+// Liu, Xie & Dong (2020), IJHFF 151.
+// ===========================================================================
+{
+public:
+  MixedCBCc              (BCmgr* B);
+  virtual void evaluate  (const Field*, const int_t, const int_t,
+                          const Element*, const int_t, const int_t,
+			  const bool, real_t*)                           const;
+  virtual void set       (const int_t, const int_t*,
+			  const real_t*, real_t*)                        const
+    { };
+  virtual void sum       (const int_t, const int_t*,
+			  const real_t*,const real_t*,real_t*,real_t*)   const;
+  virtual void augmentSC (const int_t, const int_t, const int_t,
+			  const int_t*, const real_t*, real_t*, real_t*) const;
+  virtual void augmentDg (const int_t, const int_t*, 
+			  const real_t*, real_t*)                        const;
+  virtual void augmentOp (const int_t, const int_t*,
+			  const real_t*, const real_t*, real_t*)         const;
+  virtual void describe  (char*)                                         const;
+private:
+  BCmgr*  _BCmgr;
+  real_t* _alpha;
+  real_t  _K_, _DoDt;
 };
 
 #endif

@@ -4,7 +4,6 @@
 /// See also field.h.
 //
 // Copyright (c) 1994+, Hugh M Blackburn
-//
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -637,15 +636,15 @@ void Field::evaluateBoundaries (const Field* P      ,
 /// 3D this evaluation is done in Fourier-transformed space if Fourier
 /// = true (the default).
 ///
-/// This routine is mainly intended to be used for boundary conditions
-/// that must be re-evaluated at every step, such as high-order
-/// pressure BCs or velocity and scalar fields that explicitly vary in
-/// time.
+/// This routine is mainly intended to be used for computed boundary
+/// conditions that must be re-evaluated at every step, such as
+/// high-order pressure BCs or mixed velocity and scalar fields that
+/// explicitly vary in time.
 ///
-/// Note that Field* P is eventually not used by Condition::evaluate()
-/// if Fourier is false, so we could alternatively use a test on
-/// existence (non-NULLness) of P to detect intention.
-// ---------------------------------------------------------------------------
+/// Note that if argument Fourier is false, Field* P is eventually not
+/// used by Condition::evaluate(), so that we could alternatively use a
+/// test on existence (non-NULLness) of P to detect intention.
+/// ---------------------------------------------------------------------------
 {
   const int_t  np    = Geometry::nP();
   const int_t  nz    = Geometry::nZProc();
@@ -658,7 +657,8 @@ void Field::evaluateBoundaries (const Field* P      ,
   if (Fourier) {
     for (k = 0; k < nz; k++) {
       mode = bmode + (k >> 1);
-      const vector<Boundary*>& BC = _bsys -> getBCs (mode*Femlib::ivalue("BETA"));
+      const vector<Boundary*>& BC =
+	_bsys -> getBCs (mode*Femlib::ivalue("BETA"));
       for (p = _line[k], i = 0; i < _nbound; i++, p += np)
 	BC[i] -> evaluate (P, k, step, true, p);
     }

@@ -21,29 +21,10 @@
 // Fourier space.  A specific forcing subclass implements whichever
 // suits best.
 //
-// Copyright (c) 2016 <--> $Date$,
-//                         Thomas Albrecht, Hugh Blackburn
+// Copyright (c) 2016+, Thomas Albrecht, Hugh M Blackburn
 //
-// --
-// This file is part of Semtex.
-//
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-//
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 //////////////////////////////////////////////////////////////////////////////
 
-static char RCS[]="$Id$";
 
 #include <sem.h>
 #include <fieldforce.h>
@@ -55,7 +36,7 @@ static int_t NCOM; // -- Number of velocity components.
 FieldForce::FieldForce (Domain* D   ,
                         FEML*   file)
 // ---------------------------------------------------------------------------
-// This constructor deals with <FORCING> section of FEML file
+// This constructor deals with <FORCING> section of FEML file.
 // It maintains a list of forcing subclasses, initialized here.
 //
 // On initialisation, create concrete forcing type subclasses, which
@@ -137,10 +118,6 @@ void FieldForce::addPhysical (AuxField*         Ni ,
   
   if (Geometry::cylindrical() && (com < 2)) buf -> mulY ();
   *Ni += *buf;
-
-#if 0
-  if (com == NCOM - 1) dump();
-#endif
 }
 
 
@@ -186,10 +163,6 @@ void FieldForce::addFourier (AuxField*         Ni ,
 
   if (Geometry::cylindrical() && (com <  2)) buf -> mulY ();
   *Ni += *buf;
-
-#if 0
-  if (com == NCOM - 1) dump();
-#endif
 }
 
 
@@ -213,41 +186,6 @@ void FieldForce::writeAux (vector<AuxField *> N)
 
   writeField(output, _D -> name, _D->step, _D->time, N);
   ROOTONLY output.close();
-}
-
-
-void FieldForce::dump()
-// ----------------------------------------------------------------------------
-// Dump internal physical and/or Fourier space storage to file.
-// ----------------------------------------------------------------------------
-{
-  const char routine[]  = "FieldForce::dump";
-  int        i, j = 0;
-  char       s[StrMax];
-  int_t      step  = _D -> step;
-  const bool periodic = !(step %  Femlib::ivalue ("IO_FLD"));
-  const bool initial  =   step == Femlib::ivalue ("IO_FLD");
-  const bool final    =   step == Femlib::ivalue ("N_STEP");
-
-  if (!_enabled || !(periodic || final)) return;
-
-/* -- FIXME: broken, since we no longer have all components for forcing
-             available. Fix by calling component-wise.
-
-  vector<AuxField*> vf(NCOM);
-  for (i = 0; i < NCOM; i++, j++) vf[j] = _fip[i];  // dump physical space forcing
-  //for (i = 0; i < NCOM; i++, j++) vf[j] = _fif[i];  // dump Fourier space forcing
-
-  ofstream output;
-  sprintf(s, "%s.ff.%03i.chk", _D->name, _D->step);
-  ROOTONLY {
-    output.open (s, ios::out);
-    if (!output) message (routine, "can't open force file", ERROR);
-  }
-  writeField(output, _D -> name, _D->step, _D->time, vf);
-  ROOTONLY output.close();
-*/
-  return;
 }
 
 

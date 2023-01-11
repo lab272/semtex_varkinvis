@@ -65,7 +65,7 @@ AssemblyMap::AssemblyMap (const int_t          n_p     , // Element N_P value.
   _btog  = naiveMap;
   _bmask = liftMask;
 
-  // -- _emask: says if any external nodes on an element are essential/Dirichet.
+  // -- _emask: says if any elemental external nodes are essential/Dirichet.
   
   for (i = 0; i < _nel; i++) {
     _emask[i] = 0;
@@ -144,7 +144,6 @@ void AssemblyMap::printTags (char* fields) const
   int_t i, j;
   for (i = 0, j = 0; i < _tag.size(); i++) {
     fields[j++] = _tag[i] -> first;
-    //    fields[j++] = '0' + _tag[i] -> second;
   }
   fields[j] = '\0';
 }
