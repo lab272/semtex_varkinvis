@@ -103,6 +103,7 @@ void Boundary::print () const
 // (Debugging) utility to print internal information.
 // ---------------------------------------------------------------------------
 {
+  //const char* info;
   char info[StrMax];
 
   cout << "** Boundary id: " << _id + 1 << " -> ";

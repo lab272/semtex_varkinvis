@@ -351,7 +351,7 @@ BCmgr::BCmgr (FEML*             file,
 	  message (routine, err, ERROR);
 	}
 	if   (*trailer != 0) C = new EssentialFunction (buf);
-	else                 C = new Essential         (buf);
+	else                 C = new EssentialConstant (buf);
 	break;
 
       case 'N':			// -- Neumann/Natural BC.
@@ -360,7 +360,7 @@ BCmgr::BCmgr (FEML*             file,
 	  message (routine, err, ERROR);
 	}
 	if   (*trailer != 0) C = new NaturalFunction (buf);
-	else                 C = new Natural         (buf);
+	else                 C = new NaturalConstant (buf);
 	break;
 
       case 'M':			// -- Mixed BC.
@@ -372,7 +372,7 @@ BCmgr::BCmgr (FEML*             file,
 	  sprintf (buf,"can't find multiplier and reference value in: %s",buf);
 	  message (routine, buf, ERROR);
 	}
-	C = new Mixed (buf);
+	C = new MixedConstant (buf);
 	break;
 
       case 'A':			// -- Axis BC.
@@ -388,7 +388,7 @@ BCmgr::BCmgr (FEML*             file,
 
 	strcpy (buf, "0.0");
 
-	C = new Natural (buf);
+	C = new NaturalConstant (buf);
 	
 	_cond.insert (_cond.end(), R = new CondRecd);
 	R -> grp    = groupc;
@@ -396,7 +396,7 @@ BCmgr::BCmgr (FEML*             file,
 	R -> bcn    = C;
 	strcpy ((R -> value = new char [strlen (buf) + 1]), buf);
 	
-	C = new Essential (buf);
+	C = new EssentialConstant (buf);
 	break;
 
       case 'H':		// -- "High Order" computed natural pressure BC.
@@ -404,7 +404,7 @@ BCmgr::BCmgr (FEML*             file,
 	  sprintf (err, "expected name 'p' with HOPBC, read '%c'", fieldc);
 	  message (routine, err, ERROR);
 	}
-	C = new NaturalCBCp (this);
+	C = new NaturalComputed (this, 'p');
 	break;
 
       case 'O':			// -- Open BC.
@@ -412,16 +412,16 @@ BCmgr::BCmgr (FEML*             file,
 	if (!strstr (groupInfo (groupc), "open"))
 	  message(routine,"type 'O' BC must belong to group \"open\"",ERROR);
 
-	if      (fieldc == 'u') C = new MixedCBCu (this);
-	else if (fieldc == 'v') C = new MixedCBCv (this);
-	else if (fieldc == 'w') C = new MixedCBCw (this);
-        else if (fieldc == 'p') C = new MixedCBCp (this);
+	if      (fieldc == 'u') C = new MixedComputed (this, 'u');
+	else if (fieldc == 'v') C = new MixedComputed (this, 'v');
+	else if (fieldc == 'w') C = new MixedComputed (this, 'w');
+        else if (fieldc == 'p') C = new MixedComputed (this, 'p');
 #if 0	
 	else if (fieldc == 'c') {
-	  strcpy (buf, "0.0"); C = new Natural (buf);
+	  strcpy (buf, "0.0"); C = new NaturalConstant (buf);
 	}
 #else
-        else if (fieldc == 'c') C = new MixedCBCc (this);
+        else if (fieldc == 'c') C = new MixedComputed (this, 'c');
 #endif
 	else {
 	  sprintf (err,"field name '%c'for open BC not in 'uvwpc'", fieldc);
@@ -438,15 +438,15 @@ BCmgr::BCmgr (FEML*             file,
 	if (!strstr (groupInfo (groupc), "inlet"))
 	  message(routine,"type 'I' BC must belong to group \"inlet\"",ERROR);
 
-	if      (fieldc == 'u') C = new MixedCBCu   (this);
-	else if (fieldc == 'v') C = new MixedCBCv   (this);
-	else if (fieldc == 'w') C = new MixedCBCwIn (this);
+	if      (fieldc == 'u') C = new MixedComputed (this, 'u');
+	else if (fieldc == 'v') C = new MixedComputed (this, 'v');
+	else if (fieldc == 'w') C = new MixedComputed (this, 'W');
 	
 //	else if (fieldc == 'w') {
 //	  C = new Essential ("W_INLET");
 //	  strcpy (buf, "1e12;W_INLET"); C = new  Mixed (buf);	  
 //	}      
-        else if (fieldc == 'p') C = new MixedCBCp (this);
+        else if (fieldc == 'p') C = new MixedComputed (this, 'p');
        	else if (fieldc == 'c') {
 	  // -- Allocate a set scalar value based on a magic token.
 	  strcpy (buf, "T_INLET");
@@ -1546,10 +1546,11 @@ void BCmgr::evaluateCMBCu (const Field* P   , // Pressure field.
 }
 
 
-void BCmgr::evaluateCMBCc (const int_t  id  , // Index of this boundary.
-			   const int_t  k   , // Index of Fourier plane.
-			   const int_t  step, // Time step.
-			   real_t*      tgt )
+void BCmgr::evaluateCMBCc (const Field* dummy, // Ignored.
+			   const int_t  id   , // Index of this boundary.
+			   const int_t  k    , // Index of Fourier plane.
+			   const int_t  step , // Time step.
+			   real_t*      tgt  )
 // ---------------------------------------------------------------------------
 // "CMBCc" is an acronym for "Computed Mixed BC scalar".  Refer Ref [5].
 //  

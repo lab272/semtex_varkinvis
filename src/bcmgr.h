@@ -56,7 +56,8 @@ public:
 			 const int_t, real_t*);
   void evaluateCMBCu    (const Field*, const int_t, const int_t, 
 			 const int_t, const char, real_t*);
-  void evaluateCMBCc    (const int_t, const int_t, const int_t, real_t*);
+  void evaluateCMBCc    (const Field*, const int_t, const int_t,
+			 const int_t, real_t*);
   void accelerate       (const Vector&, const Field*);
 
 private:
