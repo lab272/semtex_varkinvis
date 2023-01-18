@@ -243,28 +243,6 @@ Mesh::Mesh (FEML*      f    ,
   }
 }
 
-#if 0
-
-bool Mesh::cylindricalAxis () const
-// ---------------------------------------------------------------------------
-// Check if axial BCs will be applied.  This requires that the problem
-// is in cylindrical coordinates AND that axial BCs exist AND that at least
-// one surface uses them.
-//
-// NB: checking that axis BCs correspond to SURFACES with y=0 occurs
-// in BCmgr constructor.
-// ---------------------------------------------------------------------------
-{
-  const char routine[] = "Mesh::cylindricalAxis";
-
-  if (!_checked)
-    message (routine, "can't apply this method to an unchecked Mesh", ERROR);
-  
-  if (!Geometry::cylindrical()) return false;
-
-}
-
-#endif
 
 void Mesh::assemble (const bool printVacancy)
 // ---------------------------------------------------------------------------
@@ -621,11 +599,6 @@ void Mesh::checkAssembly()
   Side*       S;
   int_t       i, j;
   bool        OK = true;
-
-#if 0  
-  if (!_checked)
-    message (routine, "can't apply this method to an unchecked Mesh", ERROR);
-#endif
 
   for (i = 0; i < Ne; i++) {
     E = _elmtTable[i];
@@ -1319,122 +1292,11 @@ void Mesh::describeBC (char  grp,
   }
 }
 
-#if 0				// -- Deprecated/unused.
 
-void Mesh::buildMask (const int_t np  , // -- input, N_P for field.
-		      const char  fld , // -- input, one of "cuvwpCUWP".
-		      int_t*      mask) // -- output, element-edge masks.
-  const
-// ---------------------------------------------------------------------------
-// -- Called by enumerate utility.  This will be deprecated/deleted
-// once we stop using it.
-//  
-// This routine generates an bool mask vector for element-boundary
-// nodes.  For any location that corresponds to a domain boundary with
-// an essential boundary condition and for field name "fld", the
-// corresponding mask value will be 1 -- this tags the corresponding
-// node for lifting out of the field solution, since the field value
-// will be set, rather than solved as part of the system of equations
-// (i.e. it forms part of the RHS of a matrix system equation, rather
-// than the LHS).  All other domain locations will be 0 (i.e.,
-// unmasked) --- as appropriate for Natural or Mixed BCs --- as for
-// all domain-internal element boundaries.
-//
-// For quads, mask is 4 * nel * (np - 1) long, same as input for buildMap.
-// Use is made of the fact that on BCs, there are no mating sides, hence
-// no need to set mask on mating sides.
-//
-// NOTE that the default behaviour for any type of BC that is not <D>
-// or <A> is for the mask to be 0.
-//
-// If fld is 'U', 'v, 'w', 'P' or 'C', set mask for essential BCs on
-// symmetry axis.
-// ---------------------------------------------------------------------------
-{
-  const char routine[] = "Mesh::buildMask";
-
-  if (np < 2) message (routine, "need at least 2 knots", ERROR);
-
-  int_t i, j, k, ns, nb = 0;
-  const int_t    nel   = nEl(), ni = np - 2;
-  const int_t    axisE = strchr ("UvwPC", fld) != 0;
-  Elmt*          E;
-  Side*          S;
-
-  // -- Allocate space, unmask all gIDs.
-
-  for (i = 0; i < nel; i++) {
-    E  = _elmtTable[i];
-    ns = E -> nNodes();
-    for (j = 0; j < ns; j++) {
-      S = E -> side[j];
-      S -> gID.resize (ni);      
-      S -> startNode -> gID = 0;
-      S -> endNode   -> gID = 0;
-      if (ni) Veclib::fill (ni, 0, &S -> gID[0], 1);
-    } 
-  }
-
-  // -- Switch on gID in appropriate locations, for D, A, I <==> Dirichlet BCs.
-  //  
-  //    **NB** we may need to fix this for 'I' BCs, where type varies
-  //    with field (Dirichlet for scalar).  See bcmgr.cpp.
-
-  for (i = 0; i < nel; i++) {
-    E  = _elmtTable[i];
-    ns = E -> nNodes();
-    for (j = 0; j < ns; j++) {
-      S = E -> side[j];
-      if (!(S -> mateElmt)) {
-	if (
-	     this -> matchBC (S -> group, tolower (fld),   'D')          ||
-	    (axisE && this -> matchBC (S -> group, tolower (fld), 'A'))
-	    ) {
-	  S -> startNode -> gID = 1;
-	  S -> endNode   -> gID = 1;
-	  if (ni) Veclib::fill (ni, 1, &S -> gID[0], 1);
-	  if (S -> startNode -> periodic)
-	    S -> startNode -> periodic -> gID = 1;
-	  if (S -> endNode   -> periodic)
-	    S -> endNode   -> periodic -> gID = 1;
-	}
-      }
-    }
-  }
-
-  // -- Traverse mesh and load mask values.
-
-  for (i = 0; i < nel; i++) {
-    E  = _elmtTable[i];
-    ns = E -> nNodes();
-    for (j = 0; j < ns; j++) {
-      S = E -> side[j];
-      mask[nb++] = S -> startNode -> gID;
-      for (k = 0; k < ni; k++)
-	mask[nb++] = S -> gID[k];
-    }
-  }
-
-  // -- Deallocate internal knot number storage.
-
-  for (i = 0; i < nel; i++) {
-    E  = _elmtTable[i];
-    ns = E -> nNodes();
-    for (j = 0; j < ns; j++) {
-      S = E -> side[j];
-      S -> gID.resize (0);      
-      S -> startNode -> gID = UNSET;
-      S -> endNode   -> gID = UNSET;
-    }
-  }
-}
-
-#endif
-
-void Mesh::buildLiftMask (const int_t    np  , // -- input, N_P for field.
-		          const char     fld , // -- input, one of "cuvwp".
-			  const int_t    mode, // -- input, Fourier mode number.
-		          int_t*         mask) // -- output, element-edge masks.
+void Mesh::buildLiftMask (const int_t np  , // -- input, N_P for field.
+		          const char  fld , // -- input, one of "cuvwp".
+			  const int_t mode, // -- input, Fourier mode number.
+		          int_t*      mask) // -- output, element-edge masks.
   const
 // ---------------------------------------------------------------------------
 // This routine generates an int_t mask vector for element-boundary

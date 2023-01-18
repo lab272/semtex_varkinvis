@@ -6,7 +6,6 @@
 /// class, holds those kinds of extra data).
 //
 //  Copyright (c) 1994+, Hugh M Blackburn
-//
 //////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -1822,21 +1821,25 @@ AuxField& AuxField::mag (const vector <AuxField*>& a)
 }
 
 
-AuxField& AuxField::perturb (const int mode, const double pert)
+AuxField& AuxField::perturb (const real_t pert,
+			     const int_t  mode)
 /// --------------------------------------------------------------------------
-/// Add Guassian noise perturbation of standard deviation
-/// pert. Auxfield data are assumed be in Fourier space.
-//  --------------------------------------------------------------------------
+/// Add Gaussian noise perturbation of standard deviation
+/// pert. Auxfield data can be dealt with in Fourier space, but if
+/// mode = -1 perturb all locations (equivalent to physical space))
+//
+/// --------------------------------------------------------------------------
 {
-  int j;
-  const int    nplane  = Geometry::planeSize();
-  const int    relmode = mode - Geometry::baseMode ();
-  const int    kr   = (2 * relmode)     * nplane;
-  const int    ki   = (2 * relmode + 1) * nplane;
-  double       eps;
+  int_t       j;
+  const int_t nplane  = Geometry::planeSize();
+  const int_t relmode = mode - Geometry::baseMode ();
+  const int_t kr   = (2 * relmode)     * nplane;
+  const int_t ki   = (2 * relmode + 1) * nplane;
+  real_t      eps;
 
-  if (mode != PERTURB_UNSET)
-  {                             // -- Perturb only specified Fourier mode.
+  if (mode != -1)  {
+    // -- Perturb only specified Fourier mode.
+    
     eps = pert * Geometry::nZ();        // -- Account for scaling of modes.
 
     ROOTONLY {
@@ -1855,7 +1858,7 @@ AuxField& AuxField::perturb (const int mode, const double pert)
     for (j = 0; j < nplane; j++) _data[ki + j] += eps * Veclib::drang ();
 
   } else                           // -- perturb all modes
-    for (j = 0; j < _size; j++) _data[j] += pert * drang ();
+    for (j = 0; j < _size; j++) _data[j] += pert * Veclib::drang ();
 
   return *this;
 }

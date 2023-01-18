@@ -1,7 +1,6 @@
 #ifndef AUXFIELD_H
 #define AUXFIELD_H
 
-static const int PERTURB_UNSET = -1;
 
 class AuxField
 //  ==========================================================================
@@ -117,7 +116,7 @@ public:
   AuxField& reverse     ();
   AuxField& zeroNyquist ();
 
-  AuxField& perturb     (const int_t, const real_t);
+  AuxField& perturb     (const real_t, const int_t = -1);
   AuxField& projStab    (const real_t, AuxField&);
   AuxField& smooth      (const int_t, const int_t*, const real_t*);
 

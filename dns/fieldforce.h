@@ -10,17 +10,15 @@ class VirtualForce
 public:
   void      allocStorage       (Domain*);
   AuxField* allocAuxField      (Domain*, char);
-  void      readSteadyFromFile (char*, vector<AuxField*>);
+  void      readSteadyFromFile (char*, vector<AuxField*>&);
 
-  virtual void physical (AuxField*, const int, vector<AuxField*>) {};
-  virtual void subtract (AuxField*, const int, vector<AuxField*>) {};
-  virtual void fourier  (AuxField*, const int, vector<AuxField*>) {};
-
-  vector<AuxField*> _a;		// -- storage for pre-processed part
+  virtual void add      (AuxField*, const int_t, vector<AuxField*>&) {};
+  virtual void subtract (AuxField*, const int_t, vector<AuxField*>&) {};
 
 protected:
-  Domain* _D;
-  bool    _enabled;
+  Domain*           _D;
+  bool              _enabled;
+  vector<AuxField*> _a;		// -- storage for pre-processed part  
 };
 
 
@@ -30,15 +28,14 @@ class FieldForce
 // ---------------------------------------------------------------------------
 {
 public:
-  FieldForce            (Domain*, FEML*);
-  void addPhysical      (AuxField*, AuxField*, const int, vector<AuxField*>);
-  void subPhysical      (AuxField*, AuxField*, const int, vector<AuxField*>);  
-  void addFourier       (AuxField*, AuxField*, const int, vector<AuxField*>);
-  void writeAux		(vector<AuxField*>);
+  FieldForce       (Domain*, FEML*);
+  void addPhysical (AuxField*, AuxField*, const int_t, vector<AuxField*>&);
+  void subPhysical (AuxField*, AuxField*, const int_t, vector<AuxField*>&);  
+  void writeAux	   (vector<AuxField*>&);
 protected:
   bool			_enabled;
-  vector<VirtualForce*> _classes;   // -- vector of concrete forcing classes
   Domain*		_D;
+  vector<VirtualForce*> _classes;   // -- vector of concrete forcing classes
 };
 
 
@@ -48,15 +45,11 @@ class ConstForce : public VirtualForce
 // ---------------------------------------------------------------------------
 {
 public:
-  ConstForce            (Domain*, FEML*);
-#if 1
-  void physical         (AuxField*, const int, vector<AuxField*>);
-  void subtract         (AuxField*, const int, vector<AuxField*>);
-#else
-  void fourier          (AuxField*, const int, vector<AuxField*>);
-#endif
-protected:
-  real_t                _v[3];	// Force components
+  ConstForce    (Domain*, FEML*);
+  void add      (AuxField*, const int_t, vector<AuxField*>&);
+  void subtract (AuxField*, const int_t, vector<AuxField*>&);
+private:
+  real_t _v[3];	// Force components
 };
 
 
@@ -66,10 +59,9 @@ class SteadyForce : public VirtualForce
 // ---------------------------------------------------------------------------
 {
 public:
-  SteadyForce           (Domain*, FEML*);
-  void physical         (AuxField*, const int, vector<AuxField*>);
-  void subtract         (AuxField*, const int, vector<AuxField*>);
-protected:
+  SteadyForce   (Domain*, FEML*);
+  void add      (AuxField*, const int_t, vector<AuxField*>&);
+  void subtract (AuxField*, const int_t, vector<AuxField*>&);
 };
 
 
@@ -79,14 +71,12 @@ class WhiteNoiseForce : virtual public VirtualForce
 // ---------------------------------------------------------------------------
 {
 public:
-  WhiteNoiseForce       (Domain*, FEML*);
-#if 0
-  void fourier		(AuxField*, const int, vector<AuxField*>);
-#endif
-protected:
-  real_t                _eps[3];
-  int_t                 _mode;
-  int_t                 _apply_step; // apply force every _apply_step'th step.
+  WhiteNoiseForce (Domain*, FEML*);
+  void add        (AuxField*, const int_t, vector<AuxField*>&);
+private:
+  real_t _eps[3];
+  int_t  _mode;
+  int_t  _apply_step; // apply force every _apply_step'th step.
 };
 
 
@@ -97,10 +87,10 @@ class ModulatedForce : virtual public VirtualForce
 // ---------------------------------------------------------------------------
 {
 public:
-  ModulatedForce        (Domain*, FEML*);
-  void physical         (AuxField*, const int, vector<AuxField*>);
-protected:
-  char                  _alpha[3][StrMax]; // -- temporally varying part.
+  ModulatedForce (Domain*, FEML*);
+  void add       (AuxField*, const int_t, vector<AuxField*>&);
+private:
+  char _alpha[3][StrMax]; // -- temporally varying part.
 };
 
 
@@ -110,10 +100,10 @@ class SpatioTemporalForce : virtual public VirtualForce
 // ---------------------------------------------------------------------------
 {
 public:
-  SpatioTemporalForce   (Domain*, FEML*);
-  void physical         (AuxField*, const int, vector<AuxField*>);
-protected:
-  char                  _alpha[3][StrMax]; // -- spatio-temporal-varying part.
+  SpatioTemporalForce (Domain*, FEML*);
+  void add            (AuxField*, const int_t, vector<AuxField*>&);
+private:
+  char _alpha[3][StrMax]; // -- spatio-temporal-varying part.
 };
 
 
@@ -124,13 +114,13 @@ class SpongeForce : virtual public VirtualForce
 // ---------------------------------------------------------------------------
 {
 public:
-  SpongeForce           (Domain*, FEML*);
-  void physical         (AuxField*, const int, vector<AuxField*>);
-protected:
-  vector<AuxField*>     _Uref;
-  AuxField*             _mask;
-  char                  _mask_func[StrMax]; // -- mask function, f(x,y,z,t)
-  int                   _update; // mask update frequency
+  SpongeForce (Domain*, FEML*);
+  void add    (AuxField*, const int_t, vector<AuxField*>&);
+private:
+  vector<AuxField*> _Uref;
+  AuxField*         _mask;
+  char              _mask_func[StrMax]; // -- mask function, f(x,y,z,t)
+  int               _update; // mask update frequency
 };
 
 
@@ -140,11 +130,11 @@ class DragForce : virtual public VirtualForce
 // ---------------------------------------------------------------------------
 {
 public:
-  DragForce             (Domain*, FEML*);
-  void physical         (AuxField*, const int, vector<AuxField*>);
-protected:
-  AuxField		*_mask;
-  AuxField		*_umag;
+  DragForce (Domain*, FEML*);
+  void add  (AuxField*, const int_t, vector<AuxField*>&);
+private:
+  AuxField *_mask;
+  AuxField *_umag;
 };
 
 
@@ -154,17 +144,16 @@ class CoriolisForce : virtual public VirtualForce
 // ---------------------------------------------------------------------------
 {
 public:
-  CoriolisForce         (Domain*, FEML*);
-  void physical         (AuxField*, const int, vector<AuxField*>);
-  void OmegaTimesOmegaTimesX();
-protected:
-  char                  _omega[3][StrMax];    // -- angular velocity = f(t) ..
-  char                  _DomegaDt[3][StrMax]; // -- and its time derivative
-  vector<real_t>        _o;		      // -- evaluated at current time
-  vector<real_t>        _minus_o;	      // -- - omega
-  vector<real_t>        _minus_2o;	      // -- - 2 * omega
-  vector<real_t>        _DoDt;		      // -- evaluated at current time
-  int_t                 _unsteady;            // -- 1 if omega is unsteady
+  CoriolisForce (Domain*, FEML*);
+  void add      (AuxField*, const int_t, vector<AuxField*>&);
+private:
+  char           _omega[3][StrMax];    // -- angular velocity = f(t) ..
+  char           _DomegaDt[3][StrMax]; // -- and its time derivative
+  vector<real_t> _o;		       // -- evaluated at current time
+  vector<real_t> _minus_o;	       // -- - omega
+  vector<real_t> _minus_2o;	       // -- - 2 * omega
+  vector<real_t> _DoDt;		       // -- evaluated at current time
+  int_t          _unsteady;            // -- 1 if omega is unsteady
 };
 
 
@@ -179,10 +168,10 @@ class SFDForce : virtual public VirtualForce
 // ---------------------------------------------------------------------------
 {
 public:
-  SFDForce              (Domain*, FEML*);
-  void physical         (AuxField*, const int, vector<AuxField*>);
-protected:
-  real_t                _SFD_DELTA, _SFD_CHI;
+  SFDForce (Domain*, FEML*);
+  void add (AuxField*, const int_t, vector<AuxField*>&);
+private:
+  real_t _SFD_DELTA, _SFD_CHI;
 };
 
 
@@ -192,11 +181,11 @@ class BuoyancyForce : virtual public VirtualForce
 // ---------------------------------------------------------------------------
 {
 public:
-  BuoyancyForce         (Domain*, FEML*);
-  void physical         (AuxField*, const int, vector<AuxField*>);
-protected:
-  real_t                _TREF, _BETAT, _gx, _gy, _omega;
-  int_t                 _centrifugal, _kineticgrad;
+  BuoyancyForce (Domain*, FEML*);
+  void add      (AuxField*, const int_t, vector<AuxField*>&);
+private:
+  real_t _TREF, _BETAT, _gx, _gy, _omega;
+  int_t  _centrifugal, _kineticgrad;
 };
 
 #endif
