@@ -195,8 +195,13 @@ void FieldForce::canonicalSteadyBoussinesq (AuxField*          work ,
 					    vector<AuxField*>& Uphys,
 					    vector<AuxField*>& N    )
 // ---------------------------------------------------------------------------
+// See Blackburn, Lopez, Singh & Smits (2021) "On the Boussinesq
+// approximation in arbitrarily accelerating frames of reference", JFM
+// 924:R1.
 //
-// ---------------------------------------------------------------------------
+//  This method re-implements what was previously in nonlinear.cpp
+//  within the FieldForce class.
+//  ---------------------------------------------------------------------------
 {
   if (!_CSB_enabled) return;
 

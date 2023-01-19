@@ -38,10 +38,10 @@
 // [5] Blackburn, Lee, Albrecht & Singh (2019) "Semtex: a spectral
 //     element--Fourier solver for the incompressible Navier--Stokes
 //     equations in cylindrical or Cartesian coordinates", CPC 245:106804.
-// [6] Blackburm, Lopez, Singh & Smits (2021) "On the Boussinesq
+// [6] Blackburn, Lopez, Singh & Smits (2021) "On the Boussinesq
 //     approximation in arbitrarily accelerating frames of reference",
 //     JFM 924:R1.
-//   
+//w   
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <dns.h>
