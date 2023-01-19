@@ -55,6 +55,8 @@ add_test(tc1     ${CMAKE_SOURCE_DIR}/test/testregression ""
 		 ${CMAKE_CURRENT_BINARY_DIR} dns tc1    )
 add_test(cylkov2 ${CMAKE_SOURCE_DIR}/test/testregression ""
 		 ${CMAKE_CURRENT_BINARY_DIR} dns cylkov2)
+add_test(PMC2    ${CMAKE_SOURCE_DIR}/test/testregression ""
+		 ${CMAKE_CURRENT_BINARY_DIR} dns PMC2)
 
 # -- Parallel tests of elliptic and dns for 3D problems:
 

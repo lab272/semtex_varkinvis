@@ -31,7 +31,8 @@ static int_t NCOM; // -- Number of velocity components.
 
 
 FieldForce::FieldForce (Domain* D   ,
-                        FEML*   file)
+                        FEML*   file) :
+  _D (D)
 // ---------------------------------------------------------------------------
 // This constructor deals with <FORCING> section of FEML file.
 // It maintains a list of forcing subclasses, initialized here.
@@ -41,14 +42,8 @@ FieldForce::FieldForce (Domain* D   ,
 // their respective data from the session file.
 // ---------------------------------------------------------------------------
 {
-  const char  routine[] = "FieldForce::FieldForce";
-  const int_t nTotP     = Geometry::nTotProc();
-  const int_t nzP       = Geometry::nZProc();
-  const int_t verbose   = Femlib::ivalue ("VERBOSE");
-  char        s[StrMax];
-  int_t       i;
-
-  _D = D;
+  const char routine[] = "FieldForce::FieldForce";
+  const int_t verbose  = Femlib::ivalue ("VERBOSE");
   
   NCOM = _D -> nVelCmpt();
 
@@ -61,8 +56,41 @@ FieldForce::FieldForce (Domain* D   ,
   }
   _enabled = true;
 
-  // -- init classes
-  //    NB: Sponge must be first in list.  See applicator later in file.
+  // -- Initialise data for "Canonical Steady Boussinesq" (CSB) type
+  //    buoyancy.  This isn't a standard body force (rather, it
+  //    pre-multiplies all nonlinear and forcing terms), but it seems
+  //    cleanest to bury it within the FieldForce class.  See
+  //    Blackburn, Lopez, Singh and Smits (2021).
+
+  _CSB_enabled  = false;
+  _CSB_T_REF    = 0.0;
+  _CSB_BETA_T   = 0.0;
+  _CSB_no_hydro = 1;
+
+  if (_D -> hasScalar()) {
+    VERBOSE cout << "  " << routine <<
+      ": Canonical Steady Boussinesq initialisation" << endl;
+    
+    if (file -> valueFromSection (&_CSB_T_REF, "FORCE", "CSB_T_REF"))
+      VERBOSE cout << "    CSB_T_REF = "        << _CSB_T_REF << endl;
+    if (file -> valueFromSection (&_CSB_BETA_T, "FORCE", "CSB_BETA_T"))
+      VERBOSE cout << "    CSB_BETA_T = "       << _CSB_BETA_T << endl; 
+    if (file -> valueFromSection (&_CSB_no_hydro, "FORCE", "CSB_REMOVE_HYDRO"))
+      VERBOSE cout << "    CSB_REMOVE_HYDRO = " << _CSB_no_hydro << endl;
+
+    if (fabs(_CSB_BETA_T) > EPSDP) {
+      _CSB_enabled = true;
+      VERBOSE cout << "    ENABLED" << endl;
+    }
+
+    real_t dummy;
+    if (_CSB_enabled &&
+	file -> valueFromSection (&dummy, "FORCE", "BOUSSINESQ_TREF"))
+	  message (routine, "cannot select regular Boussinesq and CSB", ERROR);
+  }
+
+  // -- Init body force classes.  NB: Sponge must be first in list
+  //    because it initialises rather than adds to forcing.
 
   _classes.push_back (new SpongeForce         (_D, file));
   _classes.push_back (new CoriolisForce       (_D, file));
@@ -160,6 +188,34 @@ void FieldForce::writeAux (vector<AuxField *>& N)
 
   writeField(output, _D -> name, _D->step, _D->time, N);
   ROOTONLY output.close();
+}
+
+
+void FieldForce::canonicalSteadyBoussinesq (AuxField*          work ,
+					    vector<AuxField*>& Uphys,
+					    vector<AuxField*>& N    )
+// ---------------------------------------------------------------------------
+//
+// ---------------------------------------------------------------------------
+{
+  if (!_CSB_enabled) return;
+
+  int_t i;
+
+  *work  = _CSB_T_REF;
+  *work -= *Uphys[NCOM];
+  *work *= _CSB_BETA_T;
+  *work += 1.0;
+  
+  for (i = 0; i < NCOM; i++) *N[i] *= *work;
+
+  if (_CSB_no_hydro) {
+
+    // -- Subtract out hydrostatic pressure for steady forcing.
+
+    for (i = 0; i < NCOM; i++) this -> subPhysical (N[i], work, i, Uphys);
+
+  }
 }
 
 
@@ -745,8 +801,8 @@ SFDForce::SFDForce (Domain* D   ,
 // ---------------------------------------------------------------------------
 // Constructor.
 // 
-// Internal storage _a plays the role of qbar in Akervik at al.'s
-// description. 
+// Internal storage _a plays the role of qbar in Akervik et al.'s
+// description.  See Akervik et al. (2006), Phys Fluids V18.
 // ---------------------------------------------------------------------------
 {
   const char  routine[] = "SFDForce::SFDForce";

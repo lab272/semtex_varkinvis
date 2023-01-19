@@ -4,7 +4,7 @@
 
 class VirtualForce
 // ---------------------------------------------------------------------------
-// Virtual base class for various types of forcing.
+// Virtual base class for various types of body forcing.
 // ---------------------------------------------------------------------------
 {
 public:
@@ -24,24 +24,34 @@ protected:
 
 class FieldForce
 // ---------------------------------------------------------------------------
-// Provides external access for applications. See e.g. calls in nonlinear.cpp.
+// Provides external access for applications. See e.g. calls in
+// nonlinear.cpp.
 // ---------------------------------------------------------------------------
 {
 public:
   FieldForce       (Domain*, FEML*);
+  
   void addPhysical (AuxField*, AuxField*, const int_t, vector<AuxField*>&);
-  void subPhysical (AuxField*, AuxField*, const int_t, vector<AuxField*>&);  
+  void subPhysical (AuxField*, AuxField*, const int_t, vector<AuxField*>&);
   void writeAux	   (vector<AuxField*>&);
+
+  void canonicalSteadyBoussinesq (AuxField*,
+				  vector<AuxField*>&, vector<AuxField*>&);
+  
 protected:
-  bool			_enabled;
   Domain*		_D;
-  vector<VirtualForce*> _classes;   // -- vector of concrete forcing classes
+  bool			_enabled;
+  vector<VirtualForce*> _classes;   // -- Concrete body forcing classes.
+private:
+  real_t _CSB_T_REF, _CSB_BETA_T;
+  int_t  _CSB_no_hydro;
+  bool   _CSB_enabled;
 };
 
 
 class ConstForce : public VirtualForce
 // ---------------------------------------------------------------------------
-// A force constant in both space in time, applied in Fourier space.
+// A force constant in both space in time.
 // ---------------------------------------------------------------------------
 {
 public:
@@ -55,7 +65,7 @@ private:
 
 class SteadyForce : public VirtualForce
 // ---------------------------------------------------------------------------
-// Constant in time but a function of space, applied in physical space.
+// Constant in time but a function of space.
 // ---------------------------------------------------------------------------
 {
 public:
@@ -67,7 +77,7 @@ public:
 
 class WhiteNoiseForce : virtual public VirtualForce
 // ---------------------------------------------------------------------------
-// Forcing stochastic in space and time, applied in Fourier space.
+// Forcing stochastic in space and time.
 // ---------------------------------------------------------------------------
 {
 public:
@@ -83,7 +93,7 @@ private:
 class ModulatedForce : virtual public VirtualForce
 // ---------------------------------------------------------------------------
 // Forcing which is a constant function of space (may be read from
-// file) modulated by a function of time.  Applied in physical space.
+// file) modulated by a function of time.
 // ---------------------------------------------------------------------------
 {
 public:
@@ -96,7 +106,7 @@ private:
 
 class SpatioTemporalForce : virtual public VirtualForce
 // ---------------------------------------------------------------------------
-// Forcing that is an arbitrary function of space-time. Physical space.
+// Forcing that is an arbitrary function of space-time.
 // ---------------------------------------------------------------------------
 {
 public:
@@ -110,7 +120,7 @@ private:
 class SpongeForce : virtual public VirtualForce
 // ---------------------------------------------------------------------------
 // Forcing penalises difference between velocity field and a given
-// function of spatial position. Physical space.
+// function of spatial position.
 // ---------------------------------------------------------------------------
 {
 public:
@@ -126,7 +136,7 @@ private:
 
 class DragForce : virtual public VirtualForce
 // ---------------------------------------------------------------------------
-// Forcing acts against velocity field according to its magnitude. Physical.
+// Forcing acts against velocity field according to its magnitude.
 // ---------------------------------------------------------------------------
 {
 public:

@@ -52,7 +52,7 @@ done
 CODE=$DNS
 
 for i in taylor2 kovas1 taylor3 taylor4 taylor5 kovas2 kovas3 \
-         kovas4 kovas5 tube1 tube2 tube3 tube4 sbr tc1 cylkov2
+         kovas4 kovas5 tube1 tube2 tube3 tube4 sbr tc1 cylkov2 PMC2
 do
   if test ! -f $i 
   then
