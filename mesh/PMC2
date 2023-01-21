@@ -47,12 +47,12 @@
 </TOKENS>
 
 <FORCE>
+	CSB_T_REF          = T_REF
+	CSB_BETA_T         = BETA_T
 	CORIOLIS_UNSTEADY  = 0
 	CORIOLIS_OMEGA_Z   = OMEGA
 	STEADY_X           = OMEGA*OMEGA*x
 	STEADY_Y           = OMEGA*OMEGA*y
-	CSB_T_REF          = T_REF
-	CSB_BETA_T         = BETA_T
 </FORCE>
 
 <FIELDS>
