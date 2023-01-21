@@ -3292,13 +3292,16 @@ standard treatment of Boussinesq buoyancy (\S\,\ref{sec.bous}) the
 relative density variation
 $\rho'/\rho_0=\beta_T(T_\text{ref}-T)\equiv\beta_T(c_\text{ref}-c)$.
 Equation \eqref{eq.denacc1} is the `canonical steady Boussinesq'
-treatment of buoyancy terms.  As explained in \citeauthor{blss21}, it is a
-robust treatment of Boussinesq buoyancy and fulfils the original
-intention in the case of steady flows. As outlined there, a
-gravitational field $\bm{g}$ would be included as a frame acceleration
-term $\bm{A}\equiv-\bm{g}$ and dealt with using the approach described
-in \S\,\ref{sec.constant}.  Any frame-rotation terms would be dealt
-with as described in \S\,\ref{sec.rotating}.
+treatment of buoyancy terms.  As explained in \citeauthor{blss21}, it
+is a robust treatment of Boussinesq buoyancy and fulfils the original
+intention in the case of steady flows --- and the omission of effect
+of density variation on the local acceleration term is also a part of
+standard Boussinesq treatments, so in effect it is a more complete
+treatment.  As outlined in \citeauthor{blss21}, a gravitational field
+$\bm{g}$ would be included as a frame acceleration term
+$\bm{A}\equiv-\bm{g}$ and dealt with using the approach described in
+\S\,\ref{sec.constant}.  Any frame-rotation terms would be dealt with
+as described in \S\,\ref{sec.rotating}.
 
 \begin{figure}
   \begin{center}
@@ -3310,7 +3313,7 @@ with as described in \S\,\ref{sec.rotating}.
     \end{tabular}
   \end{center}
   \caption{
-    Canonical buoyancy test case examples from \citet{blss21}.
+    Canonical steady buoyancy test case examples from \citet{blss21}.
     See supplied session files \texttt{MMBL} and \texttt{PMC2}.
   }
   \label{fig.csb}
