@@ -983,7 +983,7 @@ directory.  Here is a summary of the most-used utilities:
         Convert field files to VTK format (\emph{VisIt, ParaView}).\\
 \texttt{transform} \>      
         Take Fourier, Legendre, modal basis transform of a field
-	file. Invertable.\\
+	file. Invertible.\\
 \texttt{wallmesh} \>      
         Extract the mesh nodes corresponding to surfaces with the
 	\verb+wall+ group.
@@ -1169,7 +1169,7 @@ not have to lie exactly on the splined curve\,---\,if they do not,
 those vertices get shifted to the intersection of the projection of
 the straight line joining the original vertex position and its
 neighbouring `curve-normal' vertex, and the cubic spline joining the
-points in the file. On the other hand, it is good practise to ensure
+points in the file. On the other hand, it is good practice to ensure
 that the declared vertex locations lie close to the spline, and to
 visually check the mesh that is produced.
 
@@ -2401,7 +2401,7 @@ stability for flows in short open domains, where the use of the
 'stress-free' condition described in \S\,\ref{sec.stressfree} can lead
 to catastrophe if significant inflow occurs over an outflow boundary,
 or for allowing inflows on ingestion boundaries (such as outboard of a
-jet issing from a wall).  Type \verb|O| boundaries must set the string
+jet issuing from a wall).  Type \verb|O| boundaries must set the string
 \verb|open| in their associated \verb|GROUP|.  In addition one may set
 the tokens \verb+DONG_UODELTA+ and \verb+DONG_DO+ \citep[see][these
   are $U_o\delta$ and $D_o$]{dong15}, with default values 0.05 and 1.0
@@ -2566,7 +2566,7 @@ complex (has real and imaginary parts), must be even, and must be
 congruent with the 2-3-5 prime-factor FFT used.  (Don't be too
 concerned: if you choose an inappropriate value, an error message will
 be issued and execution will be terminated!).  Generally, parallel
-speed-up will be intially somewhat linear with number of processors
+speed-up will be initially somewhat linear with number of processors
 used, but will eventually decay (see figure~\ref{fig:scaling}).
 
 \begin{figure}
@@ -3068,7 +3068,7 @@ Be aware that we use the previous time step's velocity $\bm{u}^{n}$ here.
 Similar to the \verb+noiz+ tool, this continuously adds random
 perturbation $\bm{f} = (\epsilon_x, \epsilon_y, \epsilon_z)^T\,G$ in
 specified direction, where $G$ is a normally distributed random
-variable.  It is now only possible to apply the forcing uinformly in
+variable.  It is now only possible to apply the forcing uniformly in
 physical space.
 %Setting $\verb+WHITE_MODE+ \ge 0$ perturbs the given mode
 %only, \ie \verb+WHITE_MODE = 2+ will perturb mode 2 only. Omitting
@@ -3249,13 +3249,13 @@ responds to gravity fields.
 
 As of 2022, this kind of gradient-based Boussinesq treatment has been
 deprecated in favour of the more complete approach described in the
-folllowing section.
+following section.
 
 %----------------------------------------------------------------------------
 \subsection{Canonical steady Boussinesq buoyancy}
 \label{sec.csb}
 
-This is the treatment of Boussinesq buoyancy decribed in
+This is the treatment of Boussinesq buoyancy described in
 \citet{blss21}, whereby density fluctuation is applied to all the
 advective and frame-acceleration terms in the \NavSto\ equations.  In
 fact, here, it is applied to the advective, frame acceleration and any
@@ -3287,7 +3287,7 @@ equation above is approximated as
 \label{eq.denacc1}  
 \end{equation}
 where now $\bm{u}$ is measured relative to the origin of the
-arbitarily accelarating and rotating frame of reference.  As in our
+arbitrarily accelerating and rotating frame of reference.  As in our
 standard treatment of Boussinesq buoyancy (\S\,\ref{sec.bous}) the
 relative density variation
 $\rho'/\rho_0=\beta_T(T_\text{ref}-T)\equiv\beta_T(c_\text{ref}-c)$.
@@ -3326,7 +3326,7 @@ and~\ref{sec.rotating}.
 For example, consider the case dealt with in \citet{blss21} \S\,3.1,
 see the present figure~\ref{fig.csb}(\textit{a}).  This is an
 axisymmetric rotating flow dealt with in cylindrical coordinates.  It
-has frame accerelation in the $-x$ direction, which is equivalent to a
+has frame acceleration in the $-x$ direction, which is equivalent to a
 steady body force in the $+x$ direction.  As explained in
 \S\,\ref{sec.rotating}, we can set \verb|CORIOLIS_UNSTEADY=0| and
 explicitly add a steady (centrifugal) body force $|\bm{\Omega}|^2r$
@@ -3928,7 +3928,7 @@ solvers used in \Semtex.  However, this utility is provided mostly for
 verification purposes, as the numbering schemes are computed on the
 fly by the executable that require them, like \verb+elliptic+ and
 \verb+dns+.  It replaces the old utility called \verb+enumerate+,
-which genarated an assembly map or numbering file that the executables
+which generated an assembly map or numbering file that the executables
 read in.
 %
 {\small
@@ -4045,7 +4045,7 @@ Usage: mapmesh [options] session
 
 \verb|Meshplot| generates a PostScript description of the 2D mesh
 information generated by \verb|meshpr|.  This output can be converted
-to PDF or displayed on a screen using external utilites such as
+to PDF or displayed on a screen using external utilities such as
 \verb|ps2pdf| and \verb|gv|.  Optionally, if an appropriate viewer is
 installed, \verb|meshplot| can directly call for display of a named
 output file.  It can read from standard input (\eg output of
