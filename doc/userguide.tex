@@ -3259,7 +3259,7 @@ This is the treatment of Boussinesq buoyancy described in
 \citet{blss21}, whereby density fluctuation is applied to all the
 advective and frame-acceleration terms in the \NavSto\ equations.  In
 fact, here, it is applied to the advective, frame acceleration and any
-other forcing terms.  (It is usual in GFD applications to apply
+other forcing terms.  (It is usual in GFD Boussinesq applications to apply
 density variation only to gravitational body force, on the assumption
 that this is typically large compared to the fluid acceleration
 terms.)
@@ -3323,9 +3323,9 @@ frame-rotation terms would be dealt with as described in
 To use canonical steady Boussinesq (CSB) buoyancy, one needs to define
 \verb|CSB_BETA_T| and \verb|CSB_T_REF| in the \verb|FORCE| section.
 These are equivalent to the regular Boussinesq tokens outlined in the
-previous section. In addition, one needs to apply frame acceleration
-terms as outlined above in \S\S\,\ref{sec.constant}, \ref{sec.steady}
-and~\ref{sec.rotating}.  
+previous section. In addition, one may need to apply frame
+acceleration terms as outlined above in \S\S\,\ref{sec.constant},
+\ref{sec.steady} and~\ref{sec.rotating}.
 
 For example, consider the case dealt with in \citet{blss21} \S\,3.1,
 see the present figure~\ref{fig.csb}(\textit{a}).  This is an
