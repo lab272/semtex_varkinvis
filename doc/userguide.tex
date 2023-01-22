@@ -943,7 +943,7 @@ directory.  Here is a summary of the most-used utilities:
         \> The output of this utility is no longer directly used by
         simulation codes \\ 
         \> (since they now generate assembly mappings at runtime), \\
-        but is supplied for checking purposes.  It replaces the \\
+        \> but is supplied for checking purposes.  It replaces the \\
         \> former utility called \verb+enumerate+.\\
 \texttt{integral} \>
         Obtain the 2D integral of fields over the
@@ -1302,7 +1302,8 @@ also be supplied in the \verb|USER| section with a line of the type
 \verb|Exact <string>| where again \verb|<string>| is ASCII text which
 can be parsed.  The outcomes are compared to the computed numerical
 solutions and various error norms are reported, as we saw in
-\S\,\ref{sec.runell}.
+\S\,\ref{sec.runell}.  An analytical solution isn't required to run
+the solver, so this line is optional.
 
 Various session files for elliptic problems can be found in the
 \verb|mesh| subdirectory, with fairly obvious names. One of these,
@@ -3339,7 +3340,9 @@ $-\bm{\Omega}\times(\bm{\Omega}\times\bm{x})$ at every timestep.  We
 still need to set \verb|CORIOLIS_OMEGA_X| to ensure the Coriolis body
 force terms $-2\bm{\Omega}\times\bm{u}$ are computed.  Here is the
 \verb|FORCE| section for that example (see also session file
-\verb|MMBL| in the \verb|mesh| directory).
+\verb|MMBL| in the \verb|mesh| directory).  The supplied values in
+various of the assignments below correspond to user-defined
+\verb|TOKENS|.
 
 \begin{verbatim}
 <FORCE>
