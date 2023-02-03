@@ -102,7 +102,7 @@ directories:
 
 elliptic:   elliptic (Laplace, Poisson, Helmholtz) solver.  
 dns:        Navier--Stokes DNS solver (uses same elliptic solver routines).  
-utility/*:  various utility programs.
+utility/*:  various utility programs.  
 dog:        Linear stability and optimal growth analysis (with its own manual). 
 
 A semtex user guide and HTML documentation is provided in the doc directory.
