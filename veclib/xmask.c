@@ -1,7 +1,5 @@
 /*****************************************************************************
  * xmask:  conditional assignment:  if (y[i]) z[i] = w[i]; else z[i] = x[i].
- *
- * $Id$
  *****************************************************************************/
 
 #include <cfemdef.h>
@@ -17,7 +15,7 @@ void dmask (int_t n,
 	    const int_t* y, int_t incy,
 	          double*  z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   w += (incw < 0) ? (-n + 1) * incw : 0;
   x += (incx < 0) ? (-n + 1) * incx : 0;
@@ -34,7 +32,7 @@ void imask (int_t n,
 	    const int_t* y, int_t incy,
 	          int_t* z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   w += (incw < 0) ? (-n + 1) * incw : 0;
   x += (incx < 0) ? (-n + 1) * incx : 0;
@@ -51,7 +49,7 @@ void smask (int_t n,
 	    const int_t* y, int_t incy,
 	          float*   z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   w += (incw < 0) ? (-n + 1) * incw : 0;
   x += (incx < 0) ? (-n + 1) * incx : 0;

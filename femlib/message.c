@@ -7,27 +7,8 @@
  *  simulation of turbulent non-Newtonian flow using a spectral
  *  element method, Appl Math Mod, V30N11: 1229-1248.
  *
- * Copyright (c) 1996 <--> $Date$, Hugh Blackburn
+ * Copyright (c) 1996+ Hugh M Blackburn
  *
- * --
- * This file is part of Semtex.
- * 
- * Semtex is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- * 
- * Semtex is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with Semtex (see the file COPYING); if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA
- *
- * $Id$
  *****************************************************************************/
 
 #include <stdio.h>
@@ -115,7 +96,7 @@ void message_sync ()
 
 static int first (int n, const int* x)
 { 
-  register int i;
+   int i;
   for (i = 0; i < n; i++) if (x[i]) return i;
   return 0;
 }
@@ -154,7 +135,7 @@ void message_dexchange (double*     data,
 {
 #if defined(MPI)
 
-  register int   i, j;
+   int   i, j;
   const int      ip = (int) yy_interpret ("I_PROC");
   const int      np = (int) yy_interpret ("N_PROC");
   const int      nB = nP / np;	     /* Size of intra-processor block.     */
@@ -301,7 +282,7 @@ void message_sexchange (float*      data,
 {
 #if defined(MPI)
 
-  register int   i, j;
+   int   i, j;
   const int      ip = (int) yy_interpret ("I_PROC");
   const int      np = (int) yy_interpret ("N_PROC");
   const int      nB = nP / np;	     /* Size of intra-processor block.     */
@@ -445,7 +426,7 @@ void message_iexchange (int_t*      data,
 {
 #if defined(MPI)
 
-  register int   i, j;
+   int   i, j;
   const int      ip = (int) yy_interpret ("I_PROC");
   const int      np = (int) yy_interpret ("N_PROC");
   const int      nB = nP / np;	     /* Size of intra-processor block.     */

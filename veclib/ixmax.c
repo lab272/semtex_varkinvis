@@ -1,7 +1,5 @@
 /*****************************************************************************
  * ixmax: index of maximum value in x.
- *
- * $Id$
  *****************************************************************************/
 
 #include <cfemdef.h>
@@ -9,8 +7,8 @@
 
 int_t idmax (int_t n, const double* x, int_t incx)
 {
-  register int_t i, imax;
-  register double  xmax;
+   int_t i, imax;
+   double  xmax;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   xmax = x[0];
@@ -28,7 +26,7 @@ int_t idmax (int_t n, const double* x, int_t incx)
 
 int_t iimax (int_t n, const int_t* x, int_t incx)
 {
-  register int_t i, xmax, imax;
+   int_t i, xmax, imax;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   xmax = x[0];
@@ -46,8 +44,8 @@ int_t iimax (int_t n, const int_t* x, int_t incx)
 
 int_t ismax (int_t n, const float* x, int_t incx)
 {
-  register int_t i, imax;
-  register float   xmax;
+   int_t i, imax;
+   float   xmax;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   xmax = x[0];

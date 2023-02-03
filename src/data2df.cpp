@@ -3,28 +3,9 @@
 // geometric information.  Also included in this file are Header class
 // definitions for IO & maintenance of input file information.
 //
-// Copyright (c) 2004 <--> $Date$, Hugh Blackburn
+// Copyright (c) 2004+, Hugh M Blackburn
 //
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 #include <data2df.h>
@@ -157,7 +138,7 @@ Data2DF& Data2DF::F_shift (const real_t alpha,
 {
   const int_t    N = _nz >> 1;
   const int_t    first = (zero) ? 0 : 1;
-  register int_t i;
+  int_t i;
   int_t          k;
   real_t         cosA, sinA, tmp;
   real_t         *Re, *Im;
@@ -201,8 +182,8 @@ Data2DF& Data2DF::operator = (const Data2DF& rhs)
 
   else {			// -- Perform projection.
 
-    register int_t  i, k;
-    register real_t *LHS, *RHS;
+    int_t  i, k;
+    real_t *LHS, *RHS;
     const real_t    *IN,  *IT;
     const int_t     nzm = min (rhs._nz, _nz);
     vector<real_t>  work (rhs._np * _np);

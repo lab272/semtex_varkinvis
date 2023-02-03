@@ -1,31 +1,8 @@
 /*****************************************************************************
  * operators.c: operators for mesh points, derivatives, quadratures.
  *
- * Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+ * Copyright (c) 1994+ Hugh M Blackburn
  *
- * This file is part of Semtex.
- * 
- * Semtex is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- * 
- * Semtex is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with Semtex (see the file COPYING); if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA
- *
- *
- * All 2D matrices have row-major ordering (but we have moved to flat storage).
- * All routines are real_t (i.e. double) precision.
- * For definitions of constants (LL, GLL, etc) see cfemdef.h.
- *
- * $Id$
  *****************************************************************************/
 
 #include <stdio.h>
@@ -336,8 +313,8 @@ void dglldpc (const int_t    np,
  * -------------------------------------------------------------------------
  * */
 {
-  register int_t    found = 0;
-  register legCoef* p;
+   int_t    found = 0;
+   legCoef* p;
 
   for (p = lChead; p; p = p->next) {
     found = p -> np == np;
@@ -345,7 +322,7 @@ void dglldpc (const int_t    np,
   }
 
   if (!found) {		/* -- Make more storage and operators. */
-    register int_t i, j, k;
+     int_t i, j, k;
     const int_t    nm = np - 1;
     const real_t*  z;
 
@@ -432,8 +409,8 @@ void dglldpt (const int_t    np,
  * Matrices are supplied 1D, with row-major ordering.
  * ------------------------------------------------------------------------- */
 {
-  register int_t    found = 0;
-  register legTran* p;
+   int_t    found = 0;
+   legTran* p;
 
   for (p = lThead; p; p = p->next) {
     found = p -> np == np;
@@ -441,7 +418,7 @@ void dglldpt (const int_t    np,
   }
 
   if (!found) {		/* -- Make more storage and operators. */
-    register int_t i, j, k, l, r, s;
+     int_t i, j, k, l, r, s;
     const int_t    np2 = np * np;
     const real_t   *tab, *w;
     real_t         ci;
@@ -540,8 +517,8 @@ void dglmdpc (const int_t    np,
  * where J is a Jacobi polynomial.
  * ------------------------------------------------------------------------- */
 {
-  register int_t    found = 0;
-  register modCoef* p;
+   int_t    found = 0;
+   modCoef* p;
 
   for (p = mChead; p; p = p->next) {
     found = p -> np == np;
@@ -549,7 +526,7 @@ void dglmdpc (const int_t    np,
   }
 
   if (!found) {		/* -- Make more storage and operators. */
-    register int_t i, j, k;
+     int_t i, j, k;
     const real_t   *z;
 
     p = (modCoef*) calloc (1, sizeof (modCoef));
@@ -648,8 +625,8 @@ void dglmdpt (const int_t    np,
 {
   const char routine[] = "dglmdpt";
 
-  register int_t    found = 0;
-  register modTran* p;
+   int_t    found = 0;
+   modTran* p;
 
   for (p = mThead; p; p = p->next) {
     found = p -> np == np;
@@ -657,7 +634,7 @@ void dglmdpt (const int_t    np,
   }
 
   if (!found) {		/* -- Make more storage and operators. */
-    register int_t i, j, k, l, r, s;
+     int_t i, j, k, l, r, s;
     const int_t    np2 = np * np;
     const real_t   *B, *W;
     real_t         *work, *BtW, *BtWB, *rwrk;

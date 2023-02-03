@@ -1,8 +1,6 @@
 ##############################################################################
-# Makefile for dns, spectral element solver for unsteady
-# Navier--Stokes problems with generalised body forcing.
-#
-# $Id$
+# Makefile for in-source build of dns, spectral element solver for
+# unsteady Navier--Stokes problems with generalised body forcing.
 ##############################################################################
 
 PROG = dns
@@ -17,23 +15,25 @@ endif
 # ----------------------------------------------------------------------------
 # Semtex standard sources.
 #
-SEMFILES = analysis auxfield bcmgr boundary bsys condition domain   \
-	   edge element family feml field geometry history  \
-           integration matrix mesh misc particle statistics \
-           fieldforce data2df svv
+SEMFILES = analysis assemblymap auxfield bcmgr boundary boundarysys \
+           condition domain  edge element family feml field geometry \
+           history integration matrix mesh misc numbersys particle \
+           statistics data2df svv
 SEMOBJ   = $(addsuffix .o,$(SEMFILES))
 SEMHDR   = $(addsuffix .h,$(SEMFILES)) sem.h
 
 # ----------------------------------------------------------------------------
 # Default build for Navier--Stokes solver.
 #
-NS_FILES = drive integrate integrates nonlinear dnsanalysis
+NS_FILES = drive integrate integrates nonlinear dnsanalysis fieldforce
 NS_OBJ   = $(addsuffix .o,$(NS_FILES))
+NS_HDR   = dns.h fieldforce.h
 
 $(PROG): sem $(SEMOBJ) $(NS_OBJ)
 	$(LD) -o $@ $(NS_OBJ) $(SEMOBJ) $(LDFLAGS)
 
 $(SEMOBJ): $(SEMHDR)
+$(NS_OBJ): $(NS_HDR)
 
 # ----------------------------------------------------------------------------
 # Standard rules and definitions.

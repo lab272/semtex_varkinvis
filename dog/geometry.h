@@ -24,7 +24,6 @@ class Geometry
 // This version adds a number of functions that are used in
 // eigensystem analysis.
 //
-// $Id$
 // ===========================================================================
 {
 public:

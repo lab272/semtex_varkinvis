@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////
 // analysis.cpp: implement Analyser class for NS-type solvers.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
 // This deals with output of runtime information such as step numbers,
 // CFL estimation, modal energies, etc. If set, also output history
@@ -11,26 +11,7 @@
 // It is assumed that the first 2 or 3 (for 3D) entries in the Domain
 // u vector are velocity fields.
 //
-// --
-// This file is part of Semtex.
-//
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-//
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
@@ -351,7 +332,7 @@ void Analyser::modalEnergy ()
   const int_t    base  = Geometry::baseMode();
   const int_t    nProc = Geometry::nProc();
   const int_t    NCOM  = _src -> nField() - 1;
-  register int_t i, m;
+  int_t i, m;
   vector<real_t> ek (N);
 
   for (m = 0; m < N; m++) {

@@ -4,8 +4,6 @@
  * xvhypot:  z[i] = sqrt(SQR(x[i]) + SQR(y[i])).
  *
  * xvmag:    z[i] = sqrt(SQR(w[i]) + SQR(x[i]) + SQR(y[i])).
- *
- * $Id$
  *****************************************************************************/
 
 #include <math.h>
@@ -23,7 +21,7 @@ void dvhypot (int_t n,
 	      const double* y, int_t incy,
 	            double* z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -38,7 +36,7 @@ void svhypot (int_t n,
 	      const float* y, int_t incy,
 	            float* z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -58,7 +56,7 @@ void dvmag (int_t n,
 	    const double* y, int_t incy,
 	          double* z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   w += (incw<0) ? (-n+1)*incw : 0;
   x += (incx<0) ? (-n+1)*incx : 0;
@@ -76,7 +74,7 @@ void svmag (int_t n,
 	    const float* y, int_t incy,
 	          float* z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   w += (incw<0) ? (-n+1)*incw : 0;
   x += (incx<0) ? (-n+1)*incx : 0;

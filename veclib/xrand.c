@@ -7,8 +7,6 @@
  * normally-distributed RVs has been implemented.
  *
  * Source: Numerical Recipes 2nd edn.
- *
- * $Id$
  *****************************************************************************/
 
 #include <math.h>
@@ -105,7 +103,7 @@ void dvrandom (int_t n, double* x, int_t incx)
  * Randomize vector x, UD on (0, 1).
  * ------------------------------------------------------------------------- */
 {
-  register int_t i;
+   int_t i;
   
   x += (incx<0) ? (-n+1)*incx : 0;
 
@@ -118,7 +116,7 @@ void svrandom (int_t n, float* x, int_t incx)
  * Randomize vector x, UD on (0, 1).
  * ------------------------------------------------------------------------- */
 {
-  register int_t i;
+   int_t i;
   
   x += (incx<0) ? (-n+1)*incx : 0;
 
@@ -131,7 +129,7 @@ void dvgauss (int_t n, double* x, int_t incx)
  * Randomize vector x, Normal (0, 1).
  * ------------------------------------------------------------------------- */
 {
-  register int_t i;
+   int_t i;
   
   x += (incx<0) ? (-n+1)*incx : 0;
 
@@ -144,7 +142,7 @@ void svaguss (int_t n, float* x, int_t incx)
  * Randomize vector x, Normal (0, 1).
  * ------------------------------------------------------------------------- */
 {
-  register int_t i;
+   int_t i;
   
   x += (incx<0) ? (-n+1)*incx : 0;
 
@@ -157,35 +155,11 @@ void dvnormal (int_t n, double mean, double sdev, double* x, int_t incx)
  * Randomize vector x, Normal(mean, sdev).
  * ------------------------------------------------------------------------- */
 {
-  register int_t i;
+   int_t i;
   
   x += (incx<0) ? (-n+1)*incx : 0;
 
   for (i=0; i<n; i++) x[i*incx] = GD (mean, sdev);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 
@@ -194,7 +168,7 @@ void svnormal (int_t n, float mean, float sdev, float* x, int_t incx)
  * Randomize vector x, Normal(mean, sdev).
  * ------------------------------------------------------------------------- */
 {
-  register int_t i;
+   int_t i;
   
   x += (incx<0) ? (-n+1)*incx : 0;
 

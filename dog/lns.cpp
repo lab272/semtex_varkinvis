@@ -2,7 +2,7 @@
 // lns.cpp: control spectral element DNS for incompressible flows.
 // This version drives linear evolution of a single Fourier mode.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// Copyright (c) 1994+, Hugh Blackburn
 //
 // USAGE:
 // -----
@@ -16,15 +16,13 @@
 //
 // AUTHOR:
 // ------
-// Hugh Blackburn
+// Hugh M Blackburn
 // Department of Mechanical and Aerospace Engineering
 // Monash University
 // Vic 3800
 // Australia
 // hugh.blackburn@monash.edu
 //////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <stab.h>
 
@@ -199,7 +197,7 @@ static void preprocess (const char*       session,
 
   VERBOSE cout << "Building domain ..." << endl;
 
-  domain = new Domain (file, elmt, bman);
+  domain = new Domain (file, mesh, elmt, bman);
 
   VERBOSE cout << "done" << endl;
 }

@@ -4,10 +4,9 @@
 // and session files need to have velocity and pressure (and
 // optionally, scalar).
 //
-// Copyright (C) 2010 <--> $Date$, Hugh Blackburn.
+// Copyright (c) 2010+, Hugh M Blackburn.
+//
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <dns.h>
 
@@ -268,7 +267,7 @@ static void advect (Domain*   D ,
   // -- Transform to Fourier space and smooth.
       
   N -> transform32 (FORWARD, n32);
-  master -> smooth (N);
+  N -> smooth (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
 
   toggle = 1 - toggle;
 
@@ -314,17 +313,18 @@ static Msys* preSolve (const Domain* D)
 // Set up ModalMatrixSystem for scalar c.
 // ---------------------------------------------------------------------------
 {
-  const int_t             itLev  = Femlib::ivalue ("ITERATIVE");
-  const int_t             nmodes = Geometry::nModeProc();
-  const int_t             base   = Geometry::baseMode();
-  const real_t            beta   = Femlib::value ("BETA");
-  const vector<Element*>& E      = D -> elmt;
-  vector<real_t>          alpha (Integration::OrderMax + 1);
+  const int_t                itLev  = Femlib::ivalue ("ITERATIVE");
+  const int_t                nmodes = Geometry::nModeProc();
+  const int_t                base   = Geometry::baseMode();
+  const real_t               beta   = Femlib::value ("BETA");
+  const vector<Element*>&    E      = D -> elmt;
+  vector<real_t>             alpha (Integration::OrderMax + 1);
   Integration::StifflyStable (NORD, &alpha[0]);
-  real_t                  lambda2 = 
-                            alpha[0]/Femlib::value ("D_T * KINVIS / PRANDTL");
+  real_t                     lambda2 = 
+                               alpha[0]/Femlib::value ("D_T * KINVIS / PRANDTL");
   return new Msys
-    (lambda2, beta, base, nmodes, E, D -> b[NCOM], (itLev<1) ? DIRECT:JACPCG);
+    (lambda2, beta, base, nmodes, E, D -> b[NCOM], D -> n[NCOM],
+     (itLev<1) ? DIRECT:JACPCG);
 }
 
 
@@ -350,7 +350,8 @@ static void Solve (Domain*   D,
     real_t         lambda2 = alpha[0]/Femlib::value ("D_T * KINVIS / PRANDTL");
 
     Msys* tmp = new Msys
-      (lambda2, beta, base, nmodes, D -> elmt, D -> b[NCOM], JACPCG);
+      (lambda2, beta, base, nmodes, D -> elmt, D -> b[NCOM], D -> n[NCOM],
+       JACPCG);
     D -> u[NCOM] -> solve (F, tmp);
     delete tmp;
 

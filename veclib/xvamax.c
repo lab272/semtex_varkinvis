@@ -1,7 +1,5 @@
 /*****************************************************************************
  * xvamax:  z[i] = MAX(ABS(x[i]), ABS(y[i])).
- *
- * $Id$
  *****************************************************************************/
 
 #include <stdlib.h>
@@ -21,8 +19,8 @@ void dvamax (int_t n,
 	     const double* y, int_t incy,
 	           double* z, int_t incz)
 {
-  register int_t i;
-  register double  absx, absy;
+   int_t i;
+   double  absx, absy;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -41,7 +39,7 @@ void ivamax (int_t n,
 	     const int_t* y, int_t incy,
 	           int_t* z, int_t incz)
 {
-  register int_t i, absx, absy;
+   int_t i, absx, absy;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -60,8 +58,8 @@ void svamax (int_t n,
 	     const float* y, int_t incy,
 	           float* z, int_t incz)
 {
-  register int_t i;
-  register float   absx, absy;
+   int_t i;
+   float   absx, absy;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;

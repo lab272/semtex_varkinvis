@@ -19,27 +19,6 @@
  * @file utility/rectmesh.cpp
  * @ingroup group_utility
  *****************************************************************************/
-// Copyright (c) 2000 <--> $Date$, Hugh Blackburn
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
@@ -280,7 +259,7 @@ static void header ()
   cout << "</BCS>"                    << endl << endl;
 
   cout << "<TOKENS>"                << endl;
-  cout << "\tKINVIS    = 2e-6"      << endl;
+  cout << "\tKINVIS    = 1e-3"      << endl;
   cout << "\tD_T       = 0.005"     << endl;
   cout << "\tN_STEP    = 100"       << endl;
   cout << "\tN_TIME    = 2"         << endl;

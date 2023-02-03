@@ -1,7 +1,5 @@
 /*****************************************************************************
  * xvdiv:   z[i] = x[i] / y[i].
- *
- * $Id$
  *****************************************************************************/
 
 #include <cfemdef.h>
@@ -16,7 +14,7 @@ void dvdiv (int_t n,
 	    const double* y, int_t incy,
 	          double* z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -31,7 +29,7 @@ void svdiv (int_t n,
 	    const float* y, int_t incy,
 	          float* z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;

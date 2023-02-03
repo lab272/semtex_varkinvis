@@ -1,32 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 // integration.cpp: supply coefficients for discrete time integration schemes.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
 // Maximum time order supported is 3 (4 for implicit Adams--Moulton methods).
 // Coefficients for all schemes can be found in Gear's book, "Numerical
 // Initial Value Problems in Ordinary Differential Equations", 1971.
-//
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
@@ -44,7 +24,8 @@ void Integration::StifflyStable (const int_t n    ,
 // NB: Karniadakis, Israeli & Orszag JCP 97 (1991), KIO91, also use
 // these coefficients but their nomenclature differs. Their gamma_0 is
 // the same as coeff[0], and their alpha vector holds the *negatives*
-// of the remaining coefficients.
+// of the remaining coefficients.  We just add together the
+// multipliers below ti,es the value in each time level.
 // ---------------------------------------------------------------------------
 {
   char routine[] = "Integration::StifflyStable";

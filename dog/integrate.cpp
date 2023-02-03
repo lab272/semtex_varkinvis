@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////
-// integrate.C: integrate unsteady linearised Navier--Stokes problem
+// integrate.cpp: integrate unsteady linearised Navier--Stokes problem
 // forward in time (or its adjoint, backwards in time).
 //
-// Copyright (c) 2000 <--> $Date$, Hugh Blackburn
+// Copyright (c) 2000+ Hugh M Blackburn
 //
 // This version implements linearised forward and adjoint advection
 // terms and evolves a single Fourier mode.  Both the number of
@@ -16,8 +16,6 @@
 //   v <==> radial    velocity,  y <==> radial    coordinate direction,
 //   w <==> azimuthal velocity,  z <==> azimuthal coordinate direction.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <stab.h>
 
@@ -135,7 +133,7 @@ void integrate (void      (*Advection)(Domain*, BCmgr*, AuxField**, AuxField**),
 
     B -> maintainFourier (D -> step, Pressure, 
 			  const_cast<const AuxField**>(Us[0]),
-			  const_cast<const AuxField**>(Uf[0]), NPERT);
+			  const_cast<const AuxField**>(Uf[0]), NPERT, NPERT);
     Pressure -> evaluateBoundaries (Pressure, D -> step);
 
     if (Geometry::cylindrical()) { Us[0][0] -> mulY(); Us[0][1] -> mulY(); }
@@ -262,7 +260,7 @@ void linAdvect (Domain*    D ,
     }
 
   for (i = 0; i < NPERT; i++) {
-    T -> smooth (N[i]);
+    N[i] -> smooth (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
     *N[i] *= -1.0;
   }
 }
@@ -328,7 +326,7 @@ void linAdvectT (Domain*    D ,
     }
 
   for (i = 0; i < NPERT; i++) {
-    T -> smooth (N[i]);
+    N[i] -> smooth (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
     *N[i] *= -1.0;
   }
 }
@@ -436,22 +434,24 @@ static MatrixSys** preSolve (const Domain* D)
   Integration::StifflyStable (NORD, &alpha[0]);
   const real_t   lambda2 = alpha[0] / Femlib::value ("D_T * KINVIS");
 
-  MatrixSys**      system = new MatrixSys* [static_cast<size_t>(NPERT + 1)];
-  MatrixSys*       M;
-  bool             found;
-  solver_kind      method;
-  real_t           betak2;
-  const NumberSys* N;
+  MatrixSys**        system = new MatrixSys* [static_cast<size_t>(NPERT + 1)];
+  MatrixSys*         M;
+  const AssemblyMap* A;
+  bool               found;
+  solver_kind        method;
+  real_t             betak2;
 
   cout << "-- Installing matrices     : " << flush;
 
   method = (itLev < 1) ? DIRECT : JACPCG;
 
   // -- Velocities, starting with u.
-
-  N      = D -> b[0] -> Nsys (bmode);
+  cout << "*** Extracting AssemblyMap" << endl;
+  A = D -> n[0] -> getMap (bmode);
   betak2 = sqr (Field::modeConstant (D -> u[0] -> name(), mode, beta));
-  M = new MatrixSys (lambda2, betak2, bmode, D -> elmt, D -> b[0], method);
+  cout << "*** Creating MatrixSys" << endl;
+  M = new MatrixSys (lambda2, betak2, bmode,
+		     D -> elmt, D -> b[0], A, method);
   MSS.insert (MSS.end(), M);
   system[0] = M;
   cout << ((method == DIRECT) ? '*' : '&') << flush;
@@ -460,17 +460,18 @@ static MatrixSys** preSolve (const Domain* D)
 
   // -- v.
 
-  N      = D -> b[1] -> Nsys (bmode);
+  A = D -> n[1] -> getMap (bmode);
   betak2 = sqr (Field::modeConstant (D -> u[1] -> name(), mode, beta));
 
   for (found = false, m = MSS.begin(); !found && m != MSS.end(); m++) {
-    M = *m; found = M -> match (lambda2, betak2, N, method);
+    M = *m; found = M -> match (lambda2, betak2, A, method);
   }
   if (found) {
     system[1] = M;
     cout << "." << flush;
   } else {
-    M = new MatrixSys (lambda2, betak2, bmode, D -> elmt, D -> b[1], method);
+    M = new MatrixSys (lambda2, betak2, bmode,
+		       D -> elmt, D -> b[1], A, method);
     MSS.insert (MSS.end(), M);
     system[1] = M;
     cout << ((method == DIRECT) ? '*' : '&') << flush;
@@ -479,29 +480,32 @@ static MatrixSys** preSolve (const Domain* D)
   // -- w.
 
   if (NPERT == 3) {
-    N      = D -> b[2] -> Nsys (bmode);
+    A = D -> n[2] -> getMap (bmode);
     betak2 = sqr (Field::modeConstant (D -> u[2] -> name(), mode, beta));
 
     for (found = false, m = MSS.begin(); !found && m != MSS.end(); m++) {
-      M = *m; found = M -> match (lambda2, betak2, N, method);
+      M = *m; found = M -> match (lambda2, betak2, A, method);
     }
     if (found) {
       system[2] = M;
       cout << "." << flush;
     } else {
-      M = new MatrixSys (lambda2, betak2, bmode, D -> elmt, D -> b[2], method);
+      M = new MatrixSys (lambda2, betak2, bmode,
+			 D -> elmt, D -> b[2], A, method);
       MSS.insert (MSS.end(), M);
       system[2] = M;
       cout <<  ((method == DIRECT) ? '*' : '&') << flush;
     }
   }
     
-  // -- Pressure.
+  // -- Pressure.  No search because no installed MatrixSys has lambda2 = 0.
 
   method = (itLev < 2) ? DIRECT : JACPCG;
 
   betak2 = sqr (Field::modeConstant (D -> u[NPERT] -> name(), mode, beta));
-  M      = new MatrixSys (0.0, betak2,bmode, D -> elmt, D -> b[NPERT], method);
+  A      = D -> n[NPERT] -> getMap (bmode);
+  M      = new MatrixSys (0.0, betak2, bmode,
+			  D -> elmt, D -> b[NPERT], A, method);
   MSS.insert (MSS.end(), M);
   system[NPERT] = M;
   cout << ((method == DIRECT) ? '*' : '&') << endl;
@@ -534,9 +538,10 @@ static void Solve (Domain*     D,
     Integration::StifflyStable (Je, &alpha[0]);
     const real_t betak2  = sqr(Field::modeConstant(D->u[i]->name(),mode,beta));
     const real_t lambda2 = alpha[0] / Femlib::value ("D_T * KINVIS");
+    const AssemblyMap* A = D -> n[i] -> getMap (bmode);
 
     MatrixSys* tmp =
-      new MatrixSys (lambda2, betak2, bmode, D -> elmt, D -> b[i], JACPCG);
+      new MatrixSys (lambda2, betak2, bmode, D -> elmt, D -> b[i], A, JACPCG);
 
     D -> u[i] -> solve (F, tmp);
     delete tmp;

@@ -9,7 +9,7 @@ also [3] and [4] for a description of the numerical techniques.
 
 See also the Dog user guide on the Semtex web page.
 
-Copyright (c) 1999 <--> $Date$, Hugh Blackburn.
+Copyright (c) 1999+, Hugh Blackburn.
 
 There are two main codes here: lns and dog. Lns is equivalent to
 semtex/dns: it evolves the linearised Navier--Stokes equations.  Dog
@@ -156,12 +156,11 @@ records in it.
 Files
 -----
 
-In addition to standard semtex files (session, session.num,
-session.rst), a file containing the base flow (session.bse) is also
-required.  An additional information file called session.run,
-containing the machine name and run pid, is also produced. For
-dog-H, the file session.map (produced by the flipmap utility) is
-needed as well.
+In addition to standard semtex files (session, session.rst), a file
+containing the base flow (session.bse) is also required.  An
+additional information file called session.run, containing the machine
+name and run pid, is also produced. For dog-H, the file session.map
+(produced by the flipmap utility) is needed as well.
 
 Output
 ------

@@ -8,8 +8,6 @@
 //     routines.  Overloading is used to resolve single or double precision.
 // 2.  General matrices are assumed to have column-major (FORTRAN) ordering,
 //     packed forms are described in LAPACK documentation.
-//
-// $Id$
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cfemdef.h>

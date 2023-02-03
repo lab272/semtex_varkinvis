@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // history.cpp: deal with history point (probe) data.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
 // Routines to provide history point information at x, y, z locations.
 //
@@ -18,26 +18,7 @@
 //
 // Output to a file called session.his.
 //
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
@@ -52,7 +33,7 @@ const Element* HistoryPoint::locate (const real_t      x   ,
 // an element E, and return its location in r, s coordinates within E.
 // ---------------------------------------------------------------------------
 {
-  register int_t i;
+  int_t i;
   const int_t    NEL   = Esys.size();
   const bool     guess = true;
   const Element* E;
@@ -72,7 +53,7 @@ void HistoryPoint::extract (vector<AuxField*>& u  ,
 // assumed to have sufficient storage to suit.
 // ---------------------------------------------------------------------------
 {
-  register int_t i;
+  int_t i;
   const int_t    N = u.size();
 
   for (i = 0; i < N; i++) tgt[i] = u[i] -> probe (_E, _r, _s, _z);

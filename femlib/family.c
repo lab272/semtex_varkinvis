@@ -12,7 +12,6 @@
  * NB: if another pointer is pre-aliased to input pointer, remember to reset
  * it to the pointer returned after adoption routines are called.
  *
- * $Id$
  *****************************************************************************/
 
 #include <stdio.h>
@@ -96,8 +95,8 @@ static int_t* iAdopted (const int_t  size,
  * occurrence of the entries of src also update nrep, number of replications.
  * ------------------------------------------------------------------------- */
 {
-  register iVect* p;
-  register int_t  found = 0;
+   iVect* p;
+   int_t  found = 0;
 
   for (p = iHead; p; p = p -> next) {
     if (p -> size != size)
@@ -120,9 +119,9 @@ void iabandon (int_t** vect)
  * nrep and release last copy of internal storage (and list item) if nrep == 0.
  * ------------------------------------------------------------------------- */
 {
-  register iVect* p;
-  register iVect* o = 0;
-  register int_t  found = 0;
+   iVect* p;
+   iVect* o = 0;
+   int_t  found = 0;
 
   if (!active) return;
 
@@ -174,8 +173,8 @@ static double* dAdopted (const int_t   size,
  * See comments for iAdopted.
  * ------------------------------------------------------------------------- */
 {
-  register dVect* p;
-  register int_t  found = 0;
+   dVect* p;
+   int_t  found = 0;
 
   for (p = dHead; p; p = p -> next) {
     if (p -> size != size)
@@ -197,9 +196,9 @@ void dabandon (double** vect)
  * See comments for iabandon.
  * ------------------------------------------------------------------------- */
 {
-  register dVect* p;
-  register dVect* o = 0;
-  register int_t  found = 0;
+   dVect* p;
+   dVect* o = 0;
+   int_t  found = 0;
 
   if (!active) return;
 
@@ -251,8 +250,8 @@ static float* sAdopted (const int_t  size,
  * See comments for iAdopted;
  * ------------------------------------------------------------------------- */
 {
-  register sVect* p;
-  register int_t  found = 0;
+   sVect* p;
+   int_t  found = 0;
 
   for (p = sHead; p; p = p -> next) {
     if (p -> size != size)
@@ -274,9 +273,9 @@ void sabandon (float** vect)
  * See comments for iabandon.
  * ------------------------------------------------------------------------- */
 {
-  register sVect* p;
-  register sVect* o = 0;
-  register int_t  found = 0;
+   sVect* p;
+   sVect* o = 0;
+   int_t  found = 0;
 
   if (!active) return;
 

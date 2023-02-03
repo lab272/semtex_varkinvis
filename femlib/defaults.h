@@ -1,8 +1,6 @@
 /*****************************************************************************
  * DEFAULTS.H:  default parameter initializations for initial.y.
  * All parameters are now in a single table, everything is double precision.
- *
- * $Id$
  *****************************************************************************/
 
 #include <cfemdef.h>
@@ -75,7 +73,6 @@ static struct {
   "RANSEED"     ,   0   ,       /* -- Set wall-clock random seeding.      */
   "CENT_BUOY"   ,   0   ,       /* -- Set centrifugal buoyancy on/off.    */
   "ADVECTION"   ,   1   ,       /* -- Alternating skew-symmetric scheme.  */
-
   
   /* -- Default integer values. */
 
@@ -94,6 +91,7 @@ static struct {
   "N_PROC"      ,   1   ,	/* -- Number of processes for parallel.  */
   "STEP_MAX"    ,   500 ,	/* -- Max number of iterations for PCG.  */
   "NR_MAX"      ,   20  ,       /* -- Max iterations for Newton-Raphson. */
+  "ENUMERATION" ,   2   ,       /* -- Default RCM renumbering level.     */
   
   0             ,   0.0
 };

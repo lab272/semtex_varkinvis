@@ -22,8 +22,9 @@ set (dog_src
 
 # -- Standard semtex/src files:
 
+     ${CMAKE_SOURCE_DIR}/src/assemblymap.cpp
      ${CMAKE_SOURCE_DIR}/src/boundary.cpp
-     ${CMAKE_SOURCE_DIR}/src/bsys.cpp
+     ${CMAKE_SOURCE_DIR}/src/boundarysys.cpp
      ${CMAKE_SOURCE_DIR}/src/condition.cpp
      ${CMAKE_SOURCE_DIR}/src/data2df.cpp		 
      ${CMAKE_SOURCE_DIR}/src/element.cpp
@@ -33,6 +34,7 @@ set (dog_src
      ${CMAKE_SOURCE_DIR}/src/matrix.cpp
      ${CMAKE_SOURCE_DIR}/src/mesh.cpp
      ${CMAKE_SOURCE_DIR}/src/misc.cpp
+     ${CMAKE_SOURCE_DIR}/src/numbersys.cpp     
      ${CMAKE_SOURCE_DIR}/src/particle.cpp
      ${CMAKE_SOURCE_DIR}/src/svv.cpp
 )
@@ -64,8 +66,6 @@ if (WITH_ARPACK)
   			     ${ARPACK_LIBRARY})	
 endif (WITH_ARPACK)  
 
-
-
 # option (WITH_FLIP   "Build dog with half-period map"                 OFF)
 #  include (dog/BH-arnoldi/CMakeLists.txt)       
 #  if (WITH_FLIP)
@@ -96,8 +96,9 @@ set (lns_src
 
 # -- Standard semtex/src files:
 
+     ${CMAKE_SOURCE_DIR}/src/assemblymap.cpp
      ${CMAKE_SOURCE_DIR}/src/boundary.cpp
-     ${CMAKE_SOURCE_DIR}/src/bsys.cpp
+     ${CMAKE_SOURCE_DIR}/src/boundarysys.cpp
      ${CMAKE_SOURCE_DIR}/src/condition.cpp
      ${CMAKE_SOURCE_DIR}/src/data2df.cpp		 
      ${CMAKE_SOURCE_DIR}/src/element.cpp
@@ -107,6 +108,7 @@ set (lns_src
      ${CMAKE_SOURCE_DIR}/src/matrix.cpp
      ${CMAKE_SOURCE_DIR}/src/mesh.cpp
      ${CMAKE_SOURCE_DIR}/src/misc.cpp
+     ${CMAKE_SOURCE_DIR}/src/numbersys.cpp     
      ${CMAKE_SOURCE_DIR}/src/particle.cpp
      ${CMAKE_SOURCE_DIR}/src/svv.cpp
 )

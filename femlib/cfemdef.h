@@ -2,8 +2,6 @@
 #define FEMDEF_H
 /*****************************************************************************
  * Common names and typedefs for finite-element codes.
- *
- * $Id$
  *****************************************************************************/
 
 #if defined(_SX)		/* NEC SX-4.        */
@@ -42,6 +40,7 @@ typedef enum quadrature_kind {
 
 typedef enum solver_kind {
   DIRECT,	/* Cholesky back-substitution.                           */
+  NESTED,       /* Nested dissection.                                    */
   JACPCG,	/* Conjugate gradient, Jacobi (diagonal) preconditioner. */
   MIXED         /* Direct for mode 0, iterative for all others.          */
 } SolverKind;

@@ -93,4 +93,3 @@ initial.y.
   parser.  These are contained in file defaults.h.
 
 ______________________________________________________________________________
-$Id$

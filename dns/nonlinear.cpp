@@ -8,28 +8,9 @@
 // vector of body force per unit mass (with possible space-time
 // dependency).
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
-// --
-// This file is part of Semtex.
-//
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-//
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <dns.h>
 
@@ -99,8 +80,7 @@ void skewSymmetric (Domain*     D ,
   const int_t NCOM = D -> nVelCmpt();
 
   vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
-  AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
-  Field*            master = D -> u[0];	   // -- For smoothing operations.
+  AuxField*         tmp = D -> u[NADV]; // -- Pressure is used for scratch.
   int_t             i, j;
 
   for (i = 0; i < NADV; i++) {
@@ -112,7 +92,7 @@ void skewSymmetric (Domain*     D ,
     Uphys[i] -> transform (INVERSE);
   }
 
-  B -> maintainPhysical (master, Uphys, NCOM);
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM, NADV);
 
   if (Geometry::cylindrical()) {
 
@@ -197,6 +177,13 @@ void skewSymmetric (Domain*     D ,
     }
   }
 
+#if 1
+  // -- Multiply in density variation (1 + rho'/rho_0) for CSB buoyancy.
+
+  if (D -> hasScalar()) FF -> canonicalSteadyBoussinesq (tmp, Uphys, N);
+
+#else
+  
   // -- Multiply in density variation (1 + rho'/rho_0) for LMA13 buoyancy.
 
   if (D -> hasScalar() && (Femlib::value ("LMA_BETA_T") > EPSDP)) {
@@ -233,12 +220,13 @@ void skewSymmetric (Domain*     D ,
 	      transform (FORWARD). gradient (i) . transform (INVERSE);
         } else
 	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
-#endif    
+#endif
   }
-
+#endif
+  
   for (i = 0; i < NADV; i++) {
-    N[i]   -> transform (FORWARD);
-    master -> smooth    (N[i]);
+    N[i] -> transform (FORWARD);
+    N[i] -> smooth (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
   }
 }
 
@@ -250,12 +238,12 @@ void altSkewSymmetric (Domain*     D ,
 		       FieldForce* FF)
 // ---------------------------------------------------------------------------
 // This is a cheaper approximation to the full skew-symmetric
-// computation (see previous routine).  The formulation of nonlinear
-// terms used here is so-called "alternating skew symmetric" method
-// (first documented by Bob Kerr) which uses the non-conservative and
+// computation (see next routine).  The formulation of nonlinear terms
+// used here is so-called "alternating skew symmetric" method (first
+// documented by Bob Kerr) which uses the non-conservative and
 // conservative forms of the nonlinear terms on alternating
-// timesteps. This has shown in testing to be as robust as the full
-// skew symmetric method but costs half as much.
+// timesteps. This has shown in testing to be almost as robust as the
+// full skew symmetric method but costs half as much.
 //
 // NB: this is now used as the default advection scheme.  As noted, it
 // is about as robust but computationally cheaper than full
@@ -291,8 +279,7 @@ void altSkewSymmetric (Domain*     D ,
   const int_t NCOM = D -> nVelCmpt();
   
   vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
-  AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
-  Field*            master = D -> u[0];	   // -- For smoothing operations.
+  AuxField*         tmp = D -> u[NADV]; // -- Pressure is used for scratch.
   int_t             i, j;
   static int        toggle = 1;            // -- Switch u.grad(u) or div(uu).
   
@@ -305,7 +292,7 @@ void altSkewSymmetric (Domain*     D ,
     Uphys[i] -> transform (INVERSE);
   }
 
-  B -> maintainPhysical (master, Uphys, NCOM);
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM, NADV);
 
   if (Geometry::cylindrical()) {
 
@@ -410,7 +397,14 @@ void altSkewSymmetric (Domain*     D ,
     }
   }
 
-  // -- Multiply in density variation (1 + rho'/rho_0) for LMA buoyancy.
+#if 1
+  // -- Multiply in density variation (1 + rho'/rho_0) for CSB buoyancy.
+
+  if (D -> hasScalar()) FF -> canonicalSteadyBoussinesq (tmp, Uphys, N);
+
+#else
+  
+  // -- Multiply in density variation (1 + rho'/rho_0) for LMA13 buoyancy.
 
   if (D -> hasScalar() && (Femlib::value ("LMA_BETA_T") > EPSDP)) {
     *tmp  = Femlib::value ("LMA_T_REF");
@@ -419,10 +413,10 @@ void altSkewSymmetric (Domain*     D ,
     *tmp += 1.0;
     for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
 
-    // -- Subtract out any hydrostatic contributions.
+    // -- Subtract out background hydrostatic contributions.
 
     // -- 1. Frame-acceleration (incl. gravity) terms.
-
+    
     for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
 
 #if _KE_HYDROSTAT
@@ -448,10 +442,11 @@ void altSkewSymmetric (Domain*     D ,
 	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
 #endif
   }
-
+#endif
+ 
   for (i = 0; i < NADV; i++) {
-    N[i]   -> transform (FORWARD);
-    master -> smooth    (N[i]);
+    N[i] -> transform (FORWARD);
+    N[i] -> smooth (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
   }
   
   toggle = 1 - toggle;
@@ -496,8 +491,7 @@ void convective (Domain*     D ,
   const int_t NCOM = D -> nVelCmpt();
 
   vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
-  AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
-  Field*            master = D -> u[0];	   // -- For smoothing operations.
+  AuxField*         tmp = D -> u[NADV]; // -- Pressure is used for scratch.
   int_t             i, j;
 
   for (i = 0; i < NADV; i++) {
@@ -509,7 +503,7 @@ void convective (Domain*     D ,
     Uphys[i] -> transform (INVERSE);
   }
 
-  B -> maintainPhysical (master, Uphys, NCOM);
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM, NADV);
 
   if (Geometry::cylindrical()) {
 
@@ -553,8 +547,15 @@ void convective (Domain*     D ,
       if (i < NCOM) FF -> addPhysical (N[i], tmp, i, Uphys);
     }
   }
+
+#if 1
+  // -- Multiply in density variation (1 + rho'/rho_0) for CSB buoyancy.
+
+  if (D -> hasScalar()) FF -> canonicalSteadyBoussinesq (tmp, Uphys, N);
+
+#else
   
-  // -- Multiply in density variation (1 + rho'/rho_0) for LMA buoyancy.
+  // -- Multiply in density variation (1 + rho'/rho_0) for LMA13 buoyancy.
 
   if (D -> hasScalar() && (Femlib::value ("LMA_BETA_T") > EPSDP)) {
     *tmp  = Femlib::value ("LMA_T_REF");
@@ -563,7 +564,7 @@ void convective (Domain*     D ,
     *tmp += 1.0;
     for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
 
-    // -- Subtract out any hydrostatic contributions.
+    // -- Subtract out background hydrostatic contributions.
 
     // -- 1. Frame-acceleration (incl. gravity) terms.
     
@@ -571,7 +572,7 @@ void convective (Domain*     D ,
 
 #if _KE_HYDROSTAT
     // -- 2. Localised centrifugal buoyancy terms.
-
+    
     tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
 
     if (Geometry::cylindrical())
@@ -590,12 +591,13 @@ void convective (Domain*     D ,
 	      transform (FORWARD). gradient (i) . transform (INVERSE);
         } else
 	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
-#endif    
+#endif
   }
+#endif
 
   for (i = 0; i < NADV; i++) {
-    N[i]   -> transform (FORWARD);
-    master -> smooth    (N[i]);
+    N[i] -> transform (FORWARD);
+    N[i] -> smooth (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
   }
 }
 
@@ -640,8 +642,7 @@ void rotational1 (Domain*     D ,
   const bool  scalar = NADV > NCOM;
 
   vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
-  AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
-  Field*            master = D -> u[0];	   // -- For smoothing operations.
+  AuxField*         tmp = D -> u[NADV]; // -- Pressure is used for scratch.
   int_t             i, j;
 
   for (i = 0; i < NADV; i++) {
@@ -653,7 +654,7 @@ void rotational1 (Domain*     D ,
     Uphys[i] -> transform (INVERSE);
   }
 
-  B -> maintainPhysical (master, Uphys, NCOM);
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM, NADV);
 
   if (Geometry::cylindrical()) {
 
@@ -820,17 +821,59 @@ void rotational1 (Domain*     D ,
     }
   }
 
-  // -- Multiply in density variation (1 + rho'/rho_0) for LMA buoyancy.
+#if 1
+  // -- Multiply in density variation (1 + rho'/rho_0) for CSB buoyancy.
+
+  if (D -> hasScalar()) FF -> canonicalSteadyBoussinesq (tmp, Uphys, N);
+
+#else
+  
+  // -- Multiply in density variation (1 + rho'/rho_0) for LMA13 buoyancy.
 
   if (D -> hasScalar() && (Femlib::value ("LMA_BETA_T") > EPSDP)) {
     *tmp  = Femlib::value ("LMA_T_REF");
     *tmp -= *Uphys[NCOM];
-    *tmp *= Femlib::value ("LMA_BETA_T"); // -- rho'/rho_0.
+    *tmp *= Femlib::value ("LMA_BETA_T");
     *tmp += 1.0;
     for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
 
+    // -- Subtract out background hydrostatic contributions.
+
+    // -- 1. Frame-acceleration (incl. gravity) terms.
+    
+    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
+
+#if _KE_HYDROSTAT
+    // -- 2. Localised centrifugal buoyancy terms.
+    
+    tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
+
+    if (Geometry::cylindrical())
+      for (i = 0; i < NCOM; i++)
+        if (i == 2) {
+	  if (NDIM == 3)
+	    *N[i] -= (*Uphys[0] = *tmp) .
+	      transform (FORWARD). gradient (i) . transform (INVERSE) . divY();
+        } else
+	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i) . mulY();
+    else
+      for (i = 0; i < NCOM; i++)
+        if (i == 2) {
+	  if (NDIM == 3)
+	    *N[i] -= (*Uphys[0] = *tmp) .
+	      transform (FORWARD). gradient (i) . transform (INVERSE);
+        } else
+	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
+#endif
+  }
+#endif
+  
+
+#if 0
     // -- In Rot-1 form we have to explicitly add back terms
     //    associated with non-frame centrifugal buoyancy.
+
+    // -- Leaving this code here as a reminder it has been cut out...
     
     tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
 
@@ -862,20 +905,13 @@ void rotational1 (Domain*     D ,
 	  (*Uphys[0] = *tmp) . gradient (i);
 	  N[i] -> timesMinus (*Uphys[1], *Uphys[0]);
 	}
-
-    // -- Subtract out any hydrostatic contributions.
-
-    // -- 1. Frame-acceleration (incl. gravity) terms.
-    
-    for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
-
     // -- 2. Localised centrifugal buoyancy terms (none present in Rot-1 form).
     
-  }
+#endif
 
   for (i = 0; i < NADV; i++) {
-    N[i]   -> transform (FORWARD);
-    master -> smooth    (N[i]);
+    N[i] -> transform (FORWARD);
+    N[i] -> smooth (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
   }  
 }
 
@@ -923,8 +959,7 @@ void rotational2 (Domain*     D ,
   const bool  scalar = NADV > NCOM;
 
   vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
-  AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
-  Field*            master = D -> u[0];	   // -- For smoothing operations.
+  AuxField*         tmp = D -> u[NADV]; // -- Pressure is used for scratch.
   int_t             i, j;
 
   for (i = 0; i < NADV; i++) {
@@ -936,7 +971,7 @@ void rotational2 (Domain*     D ,
     Uphys[i] -> transform (INVERSE);
   }
 
-  B -> maintainPhysical (master, Uphys, NCOM);
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM, NADV);
 
   if (Geometry::cylindrical()) {
 
@@ -1131,7 +1166,14 @@ void rotational2 (Domain*     D ,
     }
   }
 
-  // -- Multiply in density variation (1 + rho'/rho_0) for LMA buoyancy.
+#if 1
+  // -- Multiply in density variation (1 + rho'/rho_0) for CSB buoyancy.
+
+  if (D -> hasScalar()) FF -> canonicalSteadyBoussinesq (tmp, Uphys, N);
+
+#else
+  
+  // -- Multiply in density variation (1 + rho'/rho_0) for LMA13 buoyancy.
 
   if (D -> hasScalar() && (Femlib::value ("LMA_BETA_T") > EPSDP)) {
     *tmp  = Femlib::value ("LMA_T_REF");
@@ -1140,7 +1182,7 @@ void rotational2 (Domain*     D ,
     *tmp += 1.0;
     for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
 
-    // -- Subtract out any hydrostatic contributions.
+    // -- Subtract out background hydrostatic contributions.
 
     // -- 1. Frame-acceleration (incl. gravity) terms.
     
@@ -1167,12 +1209,13 @@ void rotational2 (Domain*     D ,
 	      transform (FORWARD). gradient (i) . transform (INVERSE);
         } else
 	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
-#endif    
+#endif
   }
+#endif
 
   for (i = 0; i < NADV; i++) {
-    N[i]   -> transform (FORWARD);
-    master -> smooth    (N[i]);
+    N[i] -> transform (FORWARD);
+    N[i] -> smooth (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
   }  
 }
 
@@ -1193,7 +1236,6 @@ void Stokes (Domain*     D ,
 
   vector<AuxField*> U (NADV), N (NADV), Uphys (NADV);
   AuxField*         tmp    = D -> u[NADV]; // -- Pressure is used for scratch.
-  Field*            master = D -> u[0];	   // -- For smoothing operations.
   int_t             i, j;
 
   for (i = 0; i < NADV; i++) {
@@ -1204,12 +1246,19 @@ void Stokes (Domain*     D ,
     *U[i]    = *Uphys[i];
     Uphys[i] -> transform (INVERSE);
   }
-
-  B -> maintainPhysical (master, Uphys, NCOM);
+  
+  B -> maintainPhysical (D -> u[0], Uphys, NCOM, NADV);
  
   for (i = 0; i < NCOM; i++) FF -> addPhysical (N[i], tmp, i, Uphys);
 
-  // -- Multiply in density variation (1 + rho'/rho_0) for LMA buoyancy.
+#if 1
+  // -- Multiply in density variation (1 + rho'/rho_0) for CSB buoyancy.
+
+  if (D -> hasScalar()) FF -> canonicalSteadyBoussinesq (tmp, Uphys, N);
+
+#else
+  
+  // -- Multiply in density variation (1 + rho'/rho_0) for LMA13 buoyancy.
 
   if (D -> hasScalar() && (Femlib::value ("LMA_BETA_T") > EPSDP)) {
     *tmp  = Femlib::value ("LMA_T_REF");
@@ -1218,9 +1267,14 @@ void Stokes (Domain*     D ,
     *tmp += 1.0;
     for (i = 0; i < NCOM; i++) *N[i] *= *tmp;
 
-    // -- Subtract out any hydrostatic contributions.
+    // -- Subtract out background hydrostatic contributions.
 
+    // -- 1. Frame-acceleration (incl. gravity) terms.
+    
     for (i = 0; i < NCOM; i++) FF -> subPhysical (N[i], tmp, i, Uphys);
+
+#if _KE_HYDROSTAT
+    // -- 2. Localised centrifugal buoyancy terms.
     
     tmp -> innerProduct (Uphys, Uphys, NCOM) *= 0.5;
 
@@ -1240,11 +1294,13 @@ void Stokes (Domain*     D ,
 	      transform (FORWARD). gradient (i) . transform (INVERSE);
         } else
 	  *N[i] -= (*Uphys[0] = *tmp) . gradient (i);
+#endif
   }
+#endif
 
   for (i = 0; i < NADV; i++) {
-    N[i]   -> transform (FORWARD);
-    master -> smooth    (N[i]);
+    N[i] -> transform (FORWARD);
+    N[i] -> smooth (D -> nGlobal(), D -> assemblyNaive(), D -> invMassNaive());
   }  
 }
 

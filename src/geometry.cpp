@@ -1,31 +1,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 // geometry.cpp: define geometrical properties for 2D quad X Fourier spaces.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
-//
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
-// --
+// Copyright (c) 1994+, Hugh M Blackburn
 //
 // Most routines are inlined in header file geometry.h
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <cstdio>
 #include <iostream>
@@ -74,7 +53,7 @@ void Geometry::set (const int_t    NP,
 
   _np   = NP; _nz = NZ; _nel = NE; _csys = CS;
   _nzp  = _nz / _nproc;
-  _ndim = (_nz > 1) ? 3 : 2;
+  _ndim = (_nz > 2) ? 3 : 2;
 
   if (_nz > 1 && _nz & 1) {	// -- 3D problems must have NZ even.
     sprintf (err, "N_Z must be even (%1d)", _nz);

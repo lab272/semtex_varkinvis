@@ -590,13 +590,15 @@ C     can be used for repetitious calls to DRFFTF and DRFFTB.
       NF = 0
       J = 0
   101 J = J+1
-      IF (J-4) 102,102,103
+C     *** HMB replaced arithmetic IF (J-4) 102,102,103 with: 
+      IF (J-4 .GT. 0) GOTO 103
   102 NTRY = NTRYH(J)
       GO TO 104
   103 NTRY = NTRY+2
   104 NQ = NL/NTRY
       NR = NL-NTRY*NQ
-      IF (NR) 101,105,101
+C     *** HMB replaced aritmetic if IF (NR) 101,105,101 with
+      IF (NR .NE. 0) GOTO 101
   105 NF = NF+1
       IFAC(NF+2) = NTRY
       NL = NQ
@@ -785,9 +787,14 @@ C
       DO 101 K=1,L1
          CH(1,1,K) = CC(1,K,1)+CC(1,K,2)
          CH(IDO,2,K) = CC(1,K,1)-CC(1,K,2)
-  101 CONTINUE
-      IF (IDO-2) 107,105,102
-  102 IDP2 = IDO+2
+ 101  CONTINUE
+C     *** HMB replaced arithmetic IF (IDO-2) 107,105,102 with
+      IF (IDO-2 .LT. 0) THEN
+         GOTO 107
+      ELSE IF (IDO-2 .EQ. 0) THEN
+         GOTO 105
+      END IF
+ 102  IDP2 = IDO+2
       DO 104 K=1,L1
          DO 103 I=3,IDO,2
             IC = IDP2-I
@@ -797,14 +804,14 @@ C
             CH(IC,2,K) = TI2-CC(I,K,1)
             CH(I-1,1,K) = CC(I-1,K,1)+TR2
             CH(IC-1,2,K) = CC(I-1,K,1)-TR2
-  103    CONTINUE
-  104 CONTINUE
+ 103     CONTINUE
+ 104  CONTINUE
       IF (MOD(IDO,2) .EQ. 1) RETURN
-  105 DO 106 K=1,L1
+ 105  DO 106 K=1,L1
          CH(1,2,K) = -CC(IDO,K,2)
          CH(IDO,1,K) = CC(IDO,K,1)
-  106 CONTINUE
-  107 RETURN
+ 106  CONTINUE
+ 107  RETURN
       END
 C
 C
@@ -816,7 +823,12 @@ C
          CH(1,K,1) = CC(1,1,K)+CC(IDO,2,K)
          CH(1,K,2) = CC(1,1,K)-CC(IDO,2,K)
   101 CONTINUE
-      IF (IDO-2) 107,105,102
+C     *** HMB replaced arithmetic IF (IDO-2) 107,105,102 with
+      IF (IDO-2 .LT. 0) THEN
+         GOTO 107
+      ELSE IF (IDO-2 .EQ. 0) THEN
+         GOTO 105
+      END IF      
   102 IDP2 = IDO+2
       DO 104 K=1,L1
          DO 103 I=3,IDO,2
@@ -930,9 +942,14 @@ C
          CH(IDO,4,K) = TR2-TR1
          CH(IDO,2,K) = CC(1,K,1)-CC(1,K,3)
          CH(1,3,K) = CC(1,K,4)-CC(1,K,2)
-  101 CONTINUE
-      IF (IDO-2) 107,105,102
-  102 IDP2 = IDO+2
+ 101  CONTINUE
+C     *** HMB replaced arithmetic IF (IDO-2) 107,105,102 with
+      IF (IDO-2 .LT. 0) THEN
+         GOTO 107
+      ELSE IF (IDO-2 .EQ. 0) THEN
+         GOTO 105
+      END IF
+ 102  IDP2 = IDO+2
       DO 104 K=1,L1
          DO 103 I=3,IDO,2
             IC = IDP2-I
@@ -988,8 +1005,13 @@ C
          CH(1,K,2) = TR1-TR4
          CH(1,K,3) = TR2-TR3
          CH(1,K,4) = TR1+TR4
-  101 CONTINUE
-      IF (IDO-2) 107,105,102
+ 101  CONTINUE
+C     *** HMB replaced arithmetic IF (IDO-2) 107,105,102 with
+      IF (IDO-2 .LT. 0) THEN
+         GOTO 107
+      ELSE IF (IDO-2 .EQ. 0) THEN
+         GOTO 105
+      END IF      
   102 IDP2 = IDO+2
       DO 104 K=1,L1
          DO 103 I=3,IDO,2

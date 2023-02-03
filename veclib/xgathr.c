@@ -1,7 +1,5 @@
 /*****************************************************************************
  * xgathr:  vector gather:  z[i] = x[y[i]].
- *
- * $Id$
  *****************************************************************************/
 
 #include <cfemdef.h>
@@ -13,7 +11,7 @@
 
 void dgathr (int_t n, const double* x, const int_t* y, double* z)
 {
-  register int_t i;
+   int_t i;
   
   for (i = 0; i < n; i++) z[i] = x[y[i]];
 }
@@ -21,7 +19,7 @@ void dgathr (int_t n, const double* x, const int_t* y, double* z)
 
 void igathr (int_t n, const int_t* x, const int_t* y, int_t* z)
 {
-  register int_t i;
+   int_t i;
   
   for (i = 0; i < n; i++) z[i] = x[y[i]];
 }
@@ -29,7 +27,7 @@ void igathr (int_t n, const int_t* x, const int_t* y, int_t* z)
 
 void sgathr (int_t n, const float* x, const int_t* y, float* z)
 {
-  register int_t i;
+   int_t i;
   
   for (i = 0; i < n; i++) z[i] = x[y[i]];
 }

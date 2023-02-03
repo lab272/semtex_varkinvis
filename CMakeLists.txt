@@ -4,8 +4,48 @@
 # -- Set up is for out-of-source builds, typically run from within the
 #    build subdirectory, e.g.: cd build; cmake ..; make
 
-project (semtex C CXX Fortran)
 cmake_minimum_required (VERSION 3.0)
+
+# -- Vendor-specific switches:
+
+if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
+
+# -- Using Apple's C and C++ compilers may produce faster executables,
+#    but the choices gcc and g++ below generate fewer warnings, and so
+#    are the default for development.  Comment out these compiler
+#    definitions otherwise:
+
+#   set (CMAKE_C_COMPILER       "gcc")
+#   set (CMAKE_CXX_COMPILER     "g++")
+#   set (CMAKE_Fortran_COMPILER "gfortran")
+
+   set (BLA_VENDOR "Generic")
+   message (STATUS "Building with Apple Accelerate BLAS and LAPACK.")
+
+# -- N.B.: we can/have turn/ed off all warnings via the -w flag.  Use with care!
+
+   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+     -w \
+     -Wno-parentheses \
+     -Wno-unused-value \
+     -Wno-format \
+     -Wno-format-security \
+     -Wno-switch \
+     -Wno-deprecated-declarations" )
+   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
+     -w \
+     -Wno-parentheses \
+     -Wno-implicit-function-declaration \
+     -Wno-format \
+     -Wno-format-security \
+     -Wno-deprecated-declarations" )
+   set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -std=legacy" )
+   
+elseif (DEFINED ENV{BLA_VENDOR})
+   message (STATUS "Building with vendor BLAS and LAPACK: " "$ENV{BLA_VENDOR}")
+endif()	   
+
+project (semtex C CXX Fortran)
 
 # -- Static linkage (comment out for dynamic linkage/default).
 
@@ -27,27 +67,7 @@ else ()
   message (STATUS "Building code with standard release optimizations.")
 endif ()
 
-# -- Vendor-specific switches:
-
-if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
-   set (BLA_VENDOR "Generic")
-   message (STATUS "Building with Apple Accelerate BLAS and LAPACK.")
-   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-     -Wno-parentheses \
-     -Wno-unused-value \
-     -Wno-implicit-function-declaration \
-     -Wno-format \
-     -Wno-format-security -Wno-switch")
-   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
-     -Wno-parentheses \
-     -Wno-format \
-     -Wno-format-security")
-elseif (DEFINED ENV{BLA_VENDOR})
-   message (STATUS "Building with vendor BLAS and LAPACK: " "$ENV{BLA_VENDOR}")
-endif()	   
-
-# -- External package dependencies, assumed to be supplied by vendor
-#    or package manager: 
+# -- External package dependencies.
 
 find_package   (BISON  REQUIRED)
 find_package   (BLAS   REQUIRED)

@@ -2,28 +2,9 @@
 // misc.cpp: miscellaneous routines for I/O, memory management, service
 // routines that don't fit class structures.
 //
-// Copyright (c) 1994 <--> $Date$ Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 #include <data2df.h>
@@ -62,8 +43,8 @@ ostream& printVector (ostream&    strm,
     va_start (ap, ntot);
     for (int_t k = 0; k < nvect; k++) u[k] = va_arg (ap, int_t*);
     va_end (ap);
-    for (register int_t l = 0; l < ntot; l++) {
-      for (register int_t j = 0; j < nvect; j++)
+    for (int_t l = 0; l < ntot; l++) {
+      for (int_t j = 0; j < nvect; j++)
 	strm << setw(15) << u[j][l];
       strm << endl;
     }
@@ -75,8 +56,8 @@ ostream& printVector (ostream&    strm,
     va_start (ap, ntot);
     for (int_t k = 0; k < nvect; k++) u[k] = va_arg (ap, real_t*);
     va_end (ap);
-    for (register int_t l = 0; l < ntot; l++) {
-      for (register int_t j = 0; j < nvect; j++)
+    for (int_t l = 0; l < ntot; l++) {
+      for (int_t j = 0; j < nvect; j++)
 	strm << setw(15) << u[j][l];
       strm << endl;
     }

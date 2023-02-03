@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////
 // edge.cpp: implement element-edge operators.
 //
-// Copyright (c) 2003 <--> $Date$, Hugh Blackburn
+// Copyright (c) 2003+, Hugh M Blackburn
 //
 // Edges, like boundaries (to which they contribute) typically belong
 // to a named group -- regular element sides generally do not.  This
@@ -9,26 +9,7 @@
 // boundary, since in fact the constructor just needs a string as the
 // first argument.
 //
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA.
 //////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
@@ -305,7 +286,7 @@ Vector Edge::tangTraction (const char*   grp,
   Vector Force = {0.0, 0.0, 0.0};
 
   if (strcmp (grp, _group) == 0) {
-    register int_t i;
+    int_t i;
     real_t         *ux = wrk + 2 * _np, *uy = wrk + 3 * _np;
 
     _elmt -> sideGrad (_side, u + _eoffset, ux, uy, wrk);

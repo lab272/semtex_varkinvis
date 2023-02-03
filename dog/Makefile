@@ -3,7 +3,6 @@
 # Navier--Stokes problems, and dog, a Krylov-method solver for
 # stability problems (including Floquet and transient-growth problems).
 #
-# $Id$
 ##############################################################################
 
 SEM   = ..
@@ -24,9 +23,9 @@ endif
 # ----------------------------------------------------------------------------
 # Semtex standard sources.
 #
-SEMFILES = analysis auxfield bcmgr boundary bsys condition data2df	\
-	   domain edge element family feml field geometry history	\
-           integration matrix mesh misc particle svv
+SEMFILES = analysis assemblymap auxfield bcmgr boundary boundarysys condition \
+	   data2df domain edge element family feml field geometry history     \
+           integration matrix mesh misc numbersys particle svv
 SEMOBJ   = $(addsuffix .o,$(SEMFILES))
 SEMHDR   = $(addsuffix .h,$(SEMFILES)) sem.h
 

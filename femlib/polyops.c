@@ -3,24 +3,7 @@
  *
  * All spectral polynomial routines used by semtex are contained in this file.
  *
- * Copyright (c) 1994 <--> $Date$, Hugh Blackburn
- *
- * This file is part of Semtex.
- * 
- * Semtex is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- * 
- * Semtex is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with Semtex (see the file COPYING); if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA
+ * Copyright (c) 1994+ Hugh M Blackburn
  *
  * Summary of routines:
  * --------------------
@@ -92,9 +75,9 @@ void dermat_g (const int_t   K   ,
  * Reference: Abramowitz & Stegun 25.3.2.
  * ------------------------------------------------------------------------- */
 {
-  register int_t i, j, k, l;
-  register real_t* a;
-  register real_t  sum, prod;
+   int_t i, j, k, l;
+   real_t* a;
+   real_t  sum, prod;
 
   a = dvector (0, K-1);
   dfill (K, 1.0, a, 1);
@@ -147,9 +130,9 @@ void dermat_k (const int_t   K   ,
  *   pseudospectral methods".  JCP 81, 239--276
  * ------------------------------------------------------------------------- */
 {
-  register int_t   j, k, l;
-  register real_t* a;
-  register real_t  sum, prod;
+   int_t   j, k, l;
+   real_t* a;
+   real_t  sum, prod;
 
   a = dvector (0, K-1);
   dfill (K, 1.0, a, 1);
@@ -196,9 +179,9 @@ void intmat_g (const int_t   K   ,
  * Reference: Abramowitz & Stegun 25.2.2.
  * ------------------------------------------------------------------------- */
 {
-  register int_t   i, j, k, l;
-  register real_t* a;
-  register real_t  prod;
+   int_t   i, j, k, l;
+   real_t* a;
+   real_t  prod;
 
   a = dvector (0, K-1);
   dfill (K, 1.0, a, 1);
@@ -245,9 +228,9 @@ static void JACOBF (const int_t  n     ,
  *   "FORTRAN Routines for Spectral Methods", D. Funaro, 1993
  * ------------------------------------------------------------------------- */
 {
-  register int_t  i;
-  register real_t y, ym, yp, dy, dym, dyp, ys, dys, apb;
-  register real_t di, c0, c1, c2, c3, c4;
+   int_t  i;
+   real_t y, ym, yp, dy, dym, dyp, ys, dys, apb;
+   real_t di, c0, c1, c2, c3, c4;
 
   *poly = y  = 1.0;
   *pder = dy = 0.0;
@@ -301,8 +284,8 @@ void JACG (const int_t  n    ,
  * Alpha, beta = 0.0 => Gauss-Legendre; = -0.5 => Chebyshev.
  * ------------------------------------------------------------------------- */
 {
-  register int_t  i, j, k, np, nh;
-  register real_t dth, recsum, x, delx;
+   int_t  i, j, k, np, nh;
+   real_t dth, recsum, x, delx;
   real_t          poly, pder, polym1, pderm1, polym2, pderm2;
 
   np  = n + 1;
@@ -346,8 +329,8 @@ void JACGR (const int_t  n    ,
  * Alpha, beta = 0.0 => Gauss-Legendre; = -0.5 => Chebyshev.
  * ------------------------------------------------------------------------- */
 {
-  register int_t  np, i, j, k;
-  register real_t x, delx, con, recsum;
+   int_t  np, i, j, k;
+   real_t x, delx, con, recsum;
   real_t          pn, pdn, pnp1, pdnp1, pnm1, pdnm1, func, funcd;
 
   np  = n + 1;
@@ -385,8 +368,8 @@ void JACGL (const int_t  n    ,
  * Alpha, beta = 0.0 => Gauss-Legendre, = -0.5 => Chebyshev.
  * ------------------------------------------------------------------------- */
 {
-  register int_t  i, j, k, np, jm, nh;
-  register real_t a, b, det, con, rp, rm, x, delx, recsum;
+   int_t  i, j, k, np, jm, nh;
+   real_t a, b, det, con, rp, rm, x, delx, recsum;
   real_t          poly, pder, pnp1p, pdnp1p, pnp, pdnp, pnm1p, pdnm1;
   real_t          pnp1m, pdnp1m, pnm, pdnm, pnm1m;
 
@@ -439,7 +422,7 @@ void ZWGL (real_t*     z ,
  * Reference: Canuto et al., eq (2.3.10).
  * ------------------------------------------------------------------------- */
 {
-  register int_t i, n;
+   int_t i, n;
   real_t         poly, pder, polym1, pderm1, polym2, pderm2;
 
   if (np < 2) { z[0] = 0.0;  w[0] = 2.0; return; }
@@ -466,7 +449,7 @@ void ZWGRL (real_t*     z ,
  * Reference: Canuto et al., eq (2.3.11).
  * ------------------------------------------------------------------------- */
 {
-  register int_t i, n;
+   int_t i, n;
   real_t         poly, pder, polym1, pderm1, polym2, pderm2, con;
 
   if (np < 2) { z[0] = 0.0; w[0] = 2.0; return; }
@@ -497,7 +480,7 @@ void ZWGLL (real_t*     z ,
  * Reference: Canuto et al., eq (2.3.12).
  * ------------------------------------------------------------------------- */
 {
-  register int_t i, n;
+   int_t i, n;
   real_t         poly, pder, polym1, pderm1, polym2, pderm2, con;
 
   if (np  < 2) { z[0] = w[0] = 0.0; return; }
@@ -530,7 +513,7 @@ void ZWGLJ (real_t*      z    ,
  * Reference: Canuto et al., eq (2.3.12).
  * ------------------------------------------------------------------------- */
 {
-  register int_t i, n;
+   int_t i, n;
   real_t         poly, pder, polym1, pderm1, polym2, pderm2, con;
   const real_t   apb = alpha + beta;
 
@@ -558,8 +541,8 @@ real_t PNLEG (const real_t z,
  * recursion formula for Legendre polynomials.
  * ------------------------------------------------------------------------- */
 {
-  register int_t k;
-  register real_t  dk, p1, p2, p3;
+   int_t k;
+   real_t  dk, p1, p2, p3;
  
   if (n < 1) return 1.0;
 
@@ -584,8 +567,8 @@ real_t PNDLEG (const real_t z,
  * at z, based on the recursion formula for Legendre polynomials.
  * ------------------------------------------------------------------------- */
 {
-  register int_t  k;
-  register real_t dk, p1, p2, p3, p1d, p2d, p3d;
+   int_t  k;
+   real_t dk, p1, p2, p3, p1d, p2d, p3d;
 
   if (n < 1) return 0.0;
 
@@ -636,8 +619,8 @@ void DGLL (const int_t   nz,
  * NB: D & DT are both nz x nz.  Canuto et al. eq (2.3.25).
  * ------------------------------------------------------------------------- */
 {
-  register int_t  i, j, n;
-  register real_t d0;
+   int_t  i, j, n;
+   real_t d0;
 
   if (nz < 2) { D[0][0] = DT[0][0] = 0.0; return; }
   
@@ -697,8 +680,8 @@ void uniknot (const int_t nk,
  * Return nk knot points with uniform spacing on [-1, 1].
  * ------------------------------------------------------------------------- */
 {
-  register int_t  i, nh;
-  register real_t dx;
+   int_t  i, nh;
+   real_t dx;
 
   if (nk < 2) { *k = 0.0; return; }
 

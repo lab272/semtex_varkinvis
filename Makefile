@@ -1,7 +1,6 @@
-##############################################################################
+##############################################################################e
 # (GNU) Makefile for spectral element solvers.
 #
-# $Id$
 ##############################################################################
 
 # -- $MAKE supplies the path to GNU make. Since it's typical that make
@@ -19,7 +18,6 @@ test:  libs
 	cd dns; $(MAKE) -s clean; $(MAKE) -s;
 	cd test ; \
 	rm -f compare;   ln -s ../utility/compare   . ;	\
-	rm -f enumerate; ln -s ../utility/enumerate . ; \
 	rm -f dns;       ln -s ../dns/dns . ; \
 	./testregress dns
 

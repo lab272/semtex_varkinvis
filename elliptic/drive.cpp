@@ -2,7 +2,7 @@
 // drive.cpp: compute solution to elliptic problem, optionally compare to
 // exact solution (see getoptions(), below).
 //
-// Copyright (c) 1994<-->$Date$, Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
 // USAGE:
 // -----
@@ -31,30 +31,16 @@
 // element-Fourier solver for the incompressible Navier-Stokes
 // equations in cylindrical or Cartesian coordinates", CPC 245:106804
 //
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
 //////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
-static char prog[] = "elliptic";
+#ifdef MPI
+  static char prog[] = "elliptic_mp";
+#else
+  static char prog[] = "elliptic";
+#endif
+
 static void getargs    (int, char**, char*&);
 static void getoptions (FEML*, char*&, char*&);
 static void preprocess (const char*, FEML*&, Mesh*&, vector<Element*>&,
@@ -207,7 +193,7 @@ static void preprocess (const char*       session,
 
   VERBOSE cout << "Building domain ..." << endl;
 
-  domain = new Domain (file, elmt, bman);
+  domain = new Domain (file, mesh, elmt, bman);
 
   VERBOSE cout << "done" << endl;
 

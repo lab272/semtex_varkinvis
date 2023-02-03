@@ -7,8 +7,6 @@
 #include "cveclib.h"
 
 
-
-
 int ispow2(int k)
 /* ========================================================================= *
  * Is k a strictly positive int_t power of two?                            *
@@ -18,9 +16,6 @@ int ispow2(int k)
   if (k != 2) return 0;
   else        return 1;
 }
-
-
-
 
 
 int irpow2(int k)
@@ -34,9 +29,6 @@ int irpow2(int k)
   return k;
 }
 
-
-
-
  
 void cpreft(int K, complex *Wtab, int Sign)
 /* ========================================================================= *
@@ -48,7 +40,7 @@ void cpreft(int K, complex *Wtab, int Sign)
  * Recipes; use 1 to get their definition).                                  *
  * ========================================================================= */
 {
-  register i;
+   i;
   double   theta;
 
   Wtab[0].Re = 1.0;
@@ -62,9 +54,6 @@ void cpreft(int K, complex *Wtab, int Sign)
 }
 
 
-
-
- 
 void zpreft(int K, zomplex *Wtab, int Sign)
 /* ========================================================================= *
  * Make angular factors for FFT, put in Wtab[0..N-1].                        *
@@ -75,8 +64,8 @@ void zpreft(int K, zomplex *Wtab, int Sign)
  * Recipes; use 1 to get their definition).                                  *
  * ========================================================================= */
 {
-  register int     i;
-  register double  theta;
+   int     i;
+   double  theta;
 
   Wtab[0].Re = 1.0;
   Wtab[0].Im = 0.0;
@@ -87,9 +76,6 @@ void zpreft(int K, zomplex *Wtab, int Sign)
     Wtab[i].Im = Sign * sin(theta);
   }
 }
-
-
-
 
 
 void cfft(int N, complex *Data, int TabLen, const complex *Wtab, int Forward)
@@ -156,9 +142,6 @@ void cfft(int N, complex *Data, int TabLen, const complex *Wtab, int Forward)
 }
 
 
-
-
-
 void zfft(int N, zomplex *Data, int TabLen, const zomplex *Wtab, int Forward)
 /* ========================================================================= *
  * Zomplex-zomplex FFT.   Forward = 1 ==> forward FFT, 0 ==> inverse.        *
@@ -223,9 +206,6 @@ void zfft(int N, zomplex *Data, int TabLen, const zomplex *Wtab, int Forward)
 }
 
 
-
-
-
 void scfft(int N, complex *Data, int TabLen, const complex *Wtab, int Forward)
 /* ========================================================================= *
  * Perform FFT of real-stored-as-complex data (Real-complex FFT).            *
@@ -237,7 +217,7 @@ void scfft(int N, complex *Data, int TabLen, const complex *Wtab, int Forward)
  * No normalization done; divide by N as appropriate.                        *
  * ========================================================================= */
 {
-  register  k, revk, Non2 = N>>1;
+    k, revk, Non2 = N>>1;
   float     c1=0.5, c2, h1r, h1i, h2r, h2i;
   
   if (Forward) {
@@ -285,9 +265,6 @@ void scfft(int N, complex *Data, int TabLen, const complex *Wtab, int Forward)
 }
 
 
-
-
-
 void dzfft(int N, zomplex *Data, int TabLen, const zomplex *Wtab, int Forward)
 /* ========================================================================= *
  * Perform FFT of double-stored-as-zomplex data (double-zomplex FFT).        *
@@ -299,7 +276,7 @@ void dzfft(int N, zomplex *Data, int TabLen, const zomplex *Wtab, int Forward)
  * No normalization done; divide by N as appropriate.                        *
  * ========================================================================= */
 {
-  register  k, revk, Non2 = N>>1;
+    k, revk, Non2 = N>>1;
   double    c1=0.5, c2, h1r, h1i, h2r, h2i;
   
   if (Forward) {
@@ -347,9 +324,6 @@ void dzfft(int N, zomplex *Data, int TabLen, const zomplex *Wtab, int Forward)
 }
 
 
-
-
-
 void dzpfft(int N, zomplex *Zbuf, int Forward)
 /* ========================================================================= *
  * Double-zomplex FFT of two lots of real data.                              *
@@ -377,7 +351,7 @@ void dzpfft(int N, zomplex *Zbuf, int Forward)
  * References: Numerical Recipes sect 12.3, Bendat & Piersol 1971 sect 9.84. *
  * ========================================================================= */
 {
-  register  k, revk, Non2 = N>>1;
+    k, revk, Non2 = N>>1;
   double    s1, s2, s3;
   zomplex   A, B;
 
@@ -424,9 +398,6 @@ void dzpfft(int N, zomplex *Zbuf, int Forward)
 }
 
 
-
-
-
 void scpfft(int N, complex *Zbuf, int Forward)
 /* ========================================================================= *
  * Real-complex FFT of two lots of real data.                                *
@@ -454,7 +425,7 @@ void scpfft(int N, complex *Zbuf, int Forward)
  * References: Numerical Recipes sect 12.3, Bendat & Piersol 1971 sect 9.84. *
  * ========================================================================= */
 {
-  register  k, revk, Non2 = N>>1;
+    k, revk, Non2 = N>>1;
   float     s1, s2, s3;
   complex   A, B;
 

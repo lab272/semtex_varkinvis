@@ -5,19 +5,22 @@
 
 <TOKENS>
 	CYLINDRICAL = 1
-	ADVECTION   = 3
+	ADVECTION   = 0
 
 	PRANDTL     = 7.0
-	T_MAX       = 0.25
-	T_MIN       = -0.25
+	T_MAX       = 0.5
+	T_MIN       = -0.5
 	T_REF       = 0.0
-	OMEGA       = 1.0
+	BETA_T      = 62.857e-3
+	GRAVITY     = 2.5
+	omega       = 1.0
+	OMEGA       = 0.0
 	KINVIS      = 0.01
 
 	T_FINAL     = 4000
 	D_T         = 0.1
 	N_STEP      = int(T_FINAL/D_T)
-	n_STEP      = 2
+	n_STEP      = 1
 	N_TIME      = 1
 	N_P         = 11
 	N_Z         = 1
@@ -29,19 +32,18 @@
 <USER>
 	u = 0.0
 	v = 0.0
-	w = 0.0
+	w = omega*y
 	c = (T_MAX-T_MIN)*(x-0.5)
 	p = 0.0
 </USER>
 
 <FORCE>
-	BOUSSINESQ_TREF    = T_REF
-	BOUSSINESQ_BETAT   = 62.857e-3
-	BOUSSINESQ_GRAVITY = 2.5
-	BOUSSINESQ_GX      = 1.0
-	BOUSSINESQ_KINETIC = 1
-	BOUSSINESQ_CENTRIF = 1
+	CSB_BETA_T         = BETA_T
+	CSB_T_REF          = T_REF
+	CORIOLIS_UNSTEADY  = 0
 	CORIOLIS_OMEGA_X   = OMEGA
+	STEADY_Y           = OMEGA*OMEGA*y
+	CONST_X            = GRAVITY
 </FORCE>
 
 <FIELDS>
@@ -59,19 +61,19 @@
 	1	h	5
 			<D>	u = 0.0		</D>
 			<D>	v = 0.0		</D>
-			<D>	w = 0.0		</D>
+			<D>	w = omega*y		</D>
 			<D>	c = T_MAX	</D>
 			<H>	p 		</H>
 	2	c	5
 			<D>	u = 0.0		</D>
 			<D>	v = 0.0		</D>
-			<D>	w = 0.0		</D>
+			<D>	w = omega*y		</D>
 			<D>	c = T_MIN	</D>
 			<H>	p		</H>
 	3	i	5
 			<D>	u = 0.0		</D>
 			<D>	v = 0.0		</D>
-			<D>	w = 0.0		</D>
+			<D>	w = omega*y		</D>
 			<N>	c = 0.0		</N>
 			<H>	p   		</H>
 	4	a	5

@@ -1,7 +1,5 @@
 /*****************************************************************************
  * xvatn2:  z[i] = atan2(x[i], y[i]).
- *
- * $Id$
  *****************************************************************************/
 
 #include <math.h>
@@ -17,7 +15,7 @@ void dvatn2 (int_t n,
 	     const double* y, int_t incy,
 	           double* z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;
@@ -32,7 +30,7 @@ void svatn2 (int_t n,
 	     const float* y, int_t incy,
 	           float* z, int_t incz)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
   y += (incy<0) ? (-n+1)*incy : 0;

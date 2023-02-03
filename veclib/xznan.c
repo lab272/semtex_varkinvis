@@ -1,7 +1,5 @@
 /*****************************************************************************
  * xznan:  x[i] = isnan(x[i]) ? 0.0 : x[i]
- *
- * $Id$
  *****************************************************************************/
 
 #include <math.h>
@@ -15,7 +13,7 @@
 
 void dznan (int_t n, double* x, int_t incx)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
 
@@ -29,7 +27,7 @@ void dznan (int_t n, double* x, int_t incx)
 
 void sznan (int_t n, float* x, int_t incx)
 {
-  register int_t i;
+   int_t i;
 
   x += (incx<0) ? (-n+1)*incx : 0;
 

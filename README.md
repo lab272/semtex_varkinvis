@@ -1,4 +1,4 @@
-# Semtex top-level README file (semtex/README)
+# Semtex top-level README file (semtex/README.md)
 
 # List of other sub-pages
 
@@ -38,7 +38,9 @@ References
 
 The first of these is the recommended starting point; it provides an
 introductory overview of the code and its utilities.  The second gives
-details of the cylindrical-coordinate formulation.
+details of the cylindrical-coordinate formulation.  The third gives an
+overview of the capabilities and methodology of the stability analysis
+package which is included in the distribution.
 
 1. Blackburn HM, Lee D, Albrecht T & Singh, J (2019) Semtex: a
 spectral element–Fourier solver for the incompressible Navier–Stokes
@@ -49,6 +51,10 @@ Communications V245: 106804-1–13.
 element–Fourier method for three-dimensional incompressible flows in
 cylindrical geometries. Journal of Computational Physics V197N2:
 759–778.
+
+3. Barkley D, Blackburn HM & Sherwin SJ (2008) Direct optimal growth
+analysis for timesteppers.  Int J Numerical Methods in Fluids.  V57:
+1435–1458.
 
 Technical details
 -----------------
@@ -91,14 +97,19 @@ files in eponymous directories) contain low-level algebraic,
 polynomial, string parsing and message-passing routines.  The
 upper-level codes are written in C++.
 
-Source for application programs can be found in three upper-level
+Source for application programs can be found in four upper-level
 directories:
 
-elliptic:   elliptic (Laplace, Poisson, Helmholtz) solver.  
-dns:        Navier--Stokes DNS solver (uses same elliptic solver routines).  
-utility/*:  various utility programs.
+1. elliptic:   elliptic (Laplace, Poisson, Helmholtz) solver.
 
-A user guide and HTML documentation is provided in the doc directory.
+2. dns:        Navier--Stokes DNS solver (uses same elliptic solver routines).
+
+3. utility/*:  various utility programs.
+
+4. dog:        linear stability and optimal growth analysis for incompressible
+               flows both steady and time-periodic (with its own user guide). 
+
+A semtex user guide and HTML documentation is provided in the doc directory.
 
 Required third-party software
 -----------------------------
@@ -141,7 +152,7 @@ of the standard open-source software ports for OS X (macports,
 homebrew, or fink).  You might also wish to install an MPI setup, such
 as openmpi.  There is no need to install your own BLAS or LAPACK, as
 these usually come as a standard part of Xcode (in the Accelerate
-package).
+framework).
 
 Building - Introduction
 -----------------------
@@ -163,7 +174,7 @@ Intel's MKL or AMD's ACML may quite substantially improve the
 performance of the DNS code.  Most of the improvement comes from
 having a well-optimised version of DGEMM (matrix-matrix multiply),
 which is heavily used by dns.  Search GotoBLAS or OpenBLAS.  On OSX,
-you get this performance by default via the Xcode/Accelerate package;
+you get this performance by default via the Xcode/Accelerate framework;
 on Linux, try using ACML or MKL, depending on machine architecture.
 Speed improvements to be had by choosing a good BLAS version usually
 far outweigh what can be achieved via choice of compiler or compiler
@@ -186,11 +197,11 @@ will be built.  If cmake can find a working MPI installation, parallel
 versions will also be built (which are called dns_mp and elliptic_mp).
 All the other resulting files are for serial execution only.
 
-  %> mkdir build_dir
-  %> cd build_dir
-  %> cmake ..
-  %> make
-  %> ctest
+  %> mkdir build_dir  
+  %> cd build_dir  
+  %> cmake ..  
+  %> make  
+  %> ctest  
 
 You should find that all test regression tests are reported as passed.
 Because these tests exercise the solvers as well as a range of
@@ -221,11 +232,11 @@ From the top-level directory (contains this file, README), do
   %> make test
 
 That will build libraries veclib.a, femlib.a and a few core
-executables (enumerate, compare, and dns), then run regression tests
-on dns.  If everything is fine, compilation will proceed without a
-hitch and at the end, various tests will run and report as passed.
-Again, successful conclusion of this stage that you have a working set
-of (in this case, serial-only) executables.
+executables (compare, and dns), then run regression tests on dns.  If
+everything is fine, compilation will proceed without a hitch and at
+the end, various tests will run and report as passed.  Again,
+successful conclusion of this stage that you have a working set of (in
+this case, serial-only) executables.
 
 If compilation does not complete then the likely alternatives are that
 (a) you are missing some required 3rd-party software or (b)
@@ -251,9 +262,9 @@ compiling both the veclib and femlib libraries by running make in
 their directories (this will also show you the compiler flags being
 used).  If the libraries can be compiled and archived (to produce
 libvec.a and libfem.a) the most likely issue is the final linking of
-the executables for dns, enumerate and compare.  Once you can get the
-libraries to compile "by hand", go back up to this (README) directory
-and do "make clean; make libs".  When that completes OK, go to the dns
+the executables for dns and compare.  Once you can get the libraries
+to compile "by hand", go back up to this (README) directory and do
+"make clean; make libs".  When that completes OK, go to the dns
 directory and do "make clean; make", with the aim of compiling and
 linking the executable "dns".  If dns is not produced, you will need
 to change the linking options in src/Makefile.  Check and edit the
@@ -288,7 +299,6 @@ have called FEML (for Finite Element Markup Language).  There are a
 number of example session files in the mesh directory.  Other files
 have standard extensions:
 
-session.num  Global node numbers, produced by enumerate utility.  
 session.fld  Solution/field file.  Binary format by default.  
 session.rst  Restart file.  Read in to initialise solution if present.  
 session.avg  Average file.  Used to store time-mean averages.
@@ -305,7 +315,6 @@ Utilities
 
 Can be found in the utility directory, including:
 
-enumerate Generate global node numbering, with RCM optimization.  
 compare   Generate restart files, compare solutions to a function.  
 convert   Convert field file formats (IEEE-big/little, ASCII).  
 meshpr    Generate 2D mesh locations for plotting or checking.  
@@ -318,6 +327,8 @@ noiz      Add a random perturbation to a field file.
 calc      An interactive calculator that calls the built-in function parser.  
 rstress   Compute a Reynolds stresses from a .avg file, subtract averages.  
 rectmesh  Generate a start-out session file from a list of x and y values.  
+assemble  Generate global node numbering, with RCM optimization, for info.  
+
 
 Most executables have a -h command line option which gives a help
 prompt.  If that is insufficient help, please read the header section
@@ -363,24 +374,25 @@ consult the accompanying COPYING file for details.
 List of major revisions
 -----------------------
 
-1995: Semtex-1:   ase 2D version of code completed in C.         
-1996: Semtex-2:   C --> C++ conversion completed.  
-1996: Semtex-3:   2D Cartesian/Fourier (i.e. 3D periodic) spaces.  
+1995: Semtex-1:    Base 2D version of code completed in C.         
+1996: Semtex-2:    C --> C++ conversion completed.  
+1996: Semtex-3:    2D Cartesian/Fourier (i.e. 3D periodic) spaces.  
 1997: (Scat, separate code) Heat/scalar transfer supported.  
-1997: Semtex-4.0: Cylindrical solutions in 2D or 3D supported.      
-1997: Semtex-4.1: Generalized prime factor FFT routines.  
-1997: Semtex-4.2: Massless particle tracking.  
-1997: Semtex-5.0: Concurrent execution with MPI.  
-1998: Semtex-5.1: Improved vectorization & IO performance.  
-1999: Semtex-5.3: Mixed/Robin BC type added.  
-2003: Semtex-5.5: Adopt standard C++ libraries wherever possible.       
-2004: Semtex-6:   Cylindrical coordinate/3D code exponentially convergent.  
-2004: Semtex-6:   Mac OSX port -- filenames no longer case-sensitive.  
-2010: Semtex-7:  "I do not now recall".  
-2016: Semtex-8:   Generalised body forces supported in DNS.  
-2018: Semtex-9:   Scalar transport and DNS code merged.  
-2019: Semtex-9.1: cmake adopted as baseline compilation system.          
+1997: Semtex-4.0:  Cylindrical solutions in 2D or 3D supported.      
+1997: Semtex-4.1:  Generalized prime factor FFT routines.  
+1997: Semtex-4.2:  Massless particle tracking.  
+1997: Semtex-5.0:  Concurrent execution with MPI.  
+1998: Semtex-5.1:  Improved vectorization & IO performance.  
+1999: Semtex-5.3:  Mixed/Robin BC type added.  
+2003: Semtex-5.5:  Adopt standard C++ libraries wherever possible.       
+2004: Semtex-6:    Cylindrical coordinate/3D code exponentially convergent.  
+2004: Semtex-6:    Mac OSX port -- filenames no longer case-sensitive.  
+2010: Semtex-7:   "I do not now recall".  
+2016: Semtex-8:    Generalised body forces supported in DNS.  
+2018: Semtex-9:    Scalar transport and DNS code merged.  
+2019: Semtex-9.1:  cmake adopted as baseline compilation system.  
+2022: Semtex-9.4:  Dog (Direct Optimal Growth) stability analysis included.  
+2022: Semtex-10.1: Gitlab repository.  Enumerate utility deleted.  
 
 ------------------------------------------------------------------------------
 
-$Id$

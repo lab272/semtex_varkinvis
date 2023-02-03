@@ -81,41 +81,20 @@
  * @file utility/stressdiv.cpp
  * @ingroup group_utility
  *****************************************************************************/
-//
-// Copyright (c) 2010 <--> $Date$, Hugh Blackburn
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-//////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
 static char  prog[] = "stressdiv";
 static void  getargs (int,char**,const char*&,const char*&);
 static int_t preScan (ifstream&, int_t&);
-static void  getMesh (const char*,vector<Element*>&,BoundarySys*&,const int_t);
-static void  makeBuf (map<char,AuxField*>&, Field*&, vector<Element*>&, 
-		      BoundarySys*&, const int_t);
+static void  getMesh (const char*,vector<Element*>&,
+		      vector<int_t>&, vector<real_t>&, const int_t);
+static void  makeBuf (map<char,AuxField*>&, AuxField*&, vector<Element*>&, 
+		      const int_t);
 static bool  getDump (ifstream&,map<char, AuxField*>&,vector<Element*>&);
 static bool  doSwap  (const char*);
-static void  stress  (map<char,AuxField*>&,map<char,AuxField*>&, Field*, 
-		      const int);
+static void  stress  (map<char,AuxField*>&, map<char,AuxField*>&, AuxField*, 
+		      const vector<int_t>&, const vector<real_t>&, const int);
 static const char* fieldNames(map<char, AuxField*>&);
 
 
@@ -130,8 +109,9 @@ int main (int    argc,
   vector<Element*>     elmt;
   map<char, AuxField*> input, output;
   vector<AuxField*>    outbuf;
-  Field*               work;	// -- Needs to be a Field to allow smoothing.
-  BoundarySys*         bsys;	// -- Arbitrary choice can contruct work.
+  AuxField*            work;
+  vector<int_t>        bmap;
+  vector<real_t>       massInv;
   int_t                NDIM;
   int_t                NCOM;
 
@@ -142,8 +122,8 @@ int main (int    argc,
   if (!avgfile) message (prog, "no field file", ERROR);
   NDIM = preScan (avgfile, NCOM);
   
-  getMesh (session,      elmt, bsys, NDIM);
-  makeBuf (output, work, elmt, bsys, NCOM);
+  getMesh (session,      elmt, bmap, massInv, NDIM);
+  makeBuf (output, work, elmt, NCOM);
 
   // -- Need to link outbuf to output so we can use writeField.
   //    Maybe in the longer term we should overload writeField.
@@ -153,7 +133,7 @@ int main (int    argc,
        k != output.end(); k++, i++) outbuf[i] = k -> second;
   
   while (getDump (avgfile, input, elmt)) {
-    stress     (input, output, work, NCOM);
+    stress     (input, output, work, bmap, massInv, NCOM);
     writeField (cout, session, 0, 0.0, outbuf);
   }
   
@@ -248,7 +228,8 @@ static int_t preScan (ifstream& file, int_t& ncom)
 
 static void getMesh (const char*       session,
 		     vector<Element*>& elmt   ,
-		     BoundarySys*&     bsys   ,
+		     vector<int_t>&    bmap   ,
+		     vector<real_t>&   imass  ,
 		     const int_t       ndim   )
 // ---------------------------------------------------------------------------
 // Set up 2D mesh information. Note that parser tokens and Geometry
@@ -259,28 +240,43 @@ static void getMesh (const char*       session,
 {
   FEML* F = new FEML (session);
   Mesh* M = new Mesh (F);
-  
+
   const int_t nel = M -> nEl();  
   const int_t np  = Femlib::ivalue ("N_P");
   const int_t nz  = (ndim == 2) ? 1 : Femlib::ivalue ("N_Z");
-
+  int_t       k, *gid;
+  
   Geometry::CoordSys space = (Femlib::ivalue ("CYLINDRICAL")) ?
     Geometry::Cylindrical : Geometry::Cartesian;
   
   Geometry::set (np, nz, nel, space);
   elmt.resize   (nel);
+  
+  for (k = 0; k < nel; k++) elmt[k] = new Element (k, np, M);
 
-  for (int_t k = 0; k < nel; k++) elmt[k] = new Element (k, np, M);
+  const int_t nbndry = Geometry::nBnode();
+  
+  bmap.resize (nbndry);
+  M -> buildAssemblyMap (Geometry::nP(), &bmap[0]);
+  const int_t nglobal = bmap[Veclib::imax (nbndry, &bmap[0], 1)] + 1;
+  imass.resize (nglobal);
 
-  BCmgr* B = new BCmgr       (F, elmt);
-  bsys     = new BoundarySys (B, elmt, 'u'); // -- This Field should exist!
+  const int_t npnp = Geometry::nTotElmt();
+  const int_t next = Geometry::nExtElmt();
+  
+  vector <real_t> unity (npnp, 1.0);
+  
+  Veclib::zero (nglobal, &imass[0], 1);
+
+  for (gid = &bmap[0], k = 0; k < nel; k++, gid += next)
+    elmt[k] -> bndryDsSum (gid, &unity[0], &imass[0]);
+  Veclib::vrecp (nglobal, &imass[0], 1, &imass[0], 1);
 }
 
 
 static void makeBuf (map<char, AuxField*>& output,
-		     Field*&               work  ,
+		     AuxField*&            work  ,
 		     vector<Element*>&     elmt  ,
-		     BoundarySys*&         bsys  ,
 		     const int             ncom  )
 // ---------------------------------------------------------------------------
 // Note that we only set up the output and work buffers here. The
@@ -299,7 +295,7 @@ static void makeBuf (map<char, AuxField*>& output,
     output['w'] = new AuxField (new real_t[ntot], nz, elmt, 'w');
   }
 
-  work = new Field (bsys, new real_t[ntot], nz, elmt, '\0');
+  work = new AuxField (new real_t[ntot], nz, elmt, '\0');
 }
 
 
@@ -317,7 +313,6 @@ static const char* fieldNames (map<char, AuxField*>& u)
 
   return buf;
 }
-
 
 
 static bool getDump (ifstream&             file,
@@ -402,10 +397,12 @@ static bool doSwap (const char* ffmt)
 }
 
 
-static void stress  (map<char, AuxField*>& in  ,
-		     map<char, AuxField*>& out ,
-		     Field*                work,
-		     const int             ncom)
+static void stress  (map<char, AuxField*>& in   ,
+		     map<char, AuxField*>& out  ,
+		     AuxField*             work ,
+		     const vector<int_t>&  bmap ,
+		     const vector<real_t>& imass,
+		     const int             ncom )
 // ---------------------------------------------------------------------------
 // This does the actual work of building stress divergence terms.
 //
@@ -537,8 +534,8 @@ static void stress  (map<char, AuxField*>& in  ,
     }
   }
 
-  work -> smooth (out['u']);
-  work -> smooth (out['v']);
-  if (ncom == 3) work -> smooth (out['w']);
+  out['u'] -> smooth (imass.size(), &bmap[0], &imass[0]);
+  out['v'] -> smooth (imass.size(), &bmap[0], &imass[0]);
+  if (ncom == 3) out['w'] -> smooth (imass.size(), &bmap[0], &imass[0]);
 }
 
