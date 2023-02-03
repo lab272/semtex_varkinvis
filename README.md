@@ -106,7 +106,7 @@ directories:
 
 3. utility/*:  various utility programs.
 
-4. dog:        Linear stability and optimal growth analysis for incompressible
+4. dog:        linear stability and optimal growth analysis for incompressible
                flows both steady and time-periodic (with its own user guide). 
 
 A semtex user guide and HTML documentation is provided in the doc directory.
