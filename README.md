@@ -38,7 +38,9 @@ References
 
 The first of these is the recommended starting point; it provides an
 introductory overview of the code and its utilities.  The second gives
-details of the cylindrical-coordinate formulation.
+details of the cylindrical-coordinate formulation.  The third gives an
+overview of the capabilities and methodology of the stability analysis
+package which is included in the distribution.
 
 1. Blackburn HM, Lee D, Albrecht T & Singh, J (2019) Semtex: a
 spectral element–Fourier solver for the incompressible Navier–Stokes
@@ -49,6 +51,10 @@ Communications V245: 106804-1–13.
 element–Fourier method for three-dimensional incompressible flows in
 cylindrical geometries. Journal of Computational Physics V197N2:
 759–778.
+
+3. Barkley D, Blackburn HM & Sherwin SJ (2008) Direct optimal growth
+analysis for timesteppers.  Int J Numerical Methods in Fluids.  V57:
+1435–1458.
 
 Technical details
 -----------------
@@ -91,14 +97,15 @@ files in eponymous directories) contain low-level algebraic,
 polynomial, string parsing and message-passing routines.  The
 upper-level codes are written in C++.
 
-Source for application programs can be found in three upper-level
+Source for application programs can be found in four upper-level
 directories:
 
 elliptic:   elliptic (Laplace, Poisson, Helmholtz) solver.  
 dns:        Navier--Stokes DNS solver (uses same elliptic solver routines).  
 utility/*:  various utility programs.
+dog:        Linear stability and optimal growth analysis (with its own manual). 
 
-A user guide and HTML documentation is provided in the doc directory.
+A semtex user guide and HTML documentation is provided in the doc directory.
 
 Required third-party software
 -----------------------------
