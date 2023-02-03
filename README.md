@@ -100,10 +100,14 @@ upper-level codes are written in C++.
 Source for application programs can be found in four upper-level
 directories:
 
-elliptic:   elliptic (Laplace, Poisson, Helmholtz) solver.  
-dns:        Navier--Stokes DNS solver (uses same elliptic solver routines).  
-utility/*:  various utility programs.  
-dog:        Linear stability and optimal growth analysis (with its own manual). 
+1. elliptic:   elliptic (Laplace, Poisson, Helmholtz) solver.
+
+2. dns:        Navier--Stokes DNS solver (uses same elliptic solver routines).
+
+3. utility/*:  various utility programs.
+
+4. dog:        Linear stability and optimal growth analysis for incompressible
+               flows both steady and time-periodic (with its own user guide). 
 
 A semtex user guide and HTML documentation is provided in the doc directory.
 
