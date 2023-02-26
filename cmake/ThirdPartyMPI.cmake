@@ -8,8 +8,8 @@ INCLUDE(ExternalProject)
 
 EXTERNALPROJECT_ADD(
     gsmpi-1.2.1
-    URL ${TPURL}/gsmpi-1%2E2%2E1%2Etar%2Ebz2/raw?ref=main
-    URL_MD5 "18dcb4cd1dcc7876173465c404b1142d"
+    URL ${TPURL}/gsmpi-1%2E2%2E1%2Etgz/raw?ref=main
+    URL_MD5 "d02c149ef6c8e5a9fb7112a46812ea49"
     STAMP_DIR ${TPBUILD}/stamp
     DOWNLOAD_EXTRACT_TIMESTAMP false
     DOWNLOAD_DIR ${TPSRC}
