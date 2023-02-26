@@ -81,6 +81,7 @@ IF (NEKTAR_USE_SCOTCH)
             URL ${TPURL}/scotch_6.0.4.tar.gz
             URL_MD5 "d58b825eb95e1db77efe8c6ff42d329f"
             STAMP_DIR ${TPBUILD}/stamp
+	    DOWNLOAD_EXTRACT_TIMESTANP false
             DOWNLOAD_DIR ${TPSRC}
             SOURCE_DIR ${TPBUILD}/scotch-6.0.4
             BINARY_DIR ${TPBUILD}/scotch-6.0.4

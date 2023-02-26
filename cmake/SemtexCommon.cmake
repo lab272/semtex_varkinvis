@@ -1,5 +1,5 @@
 ##
-## NektarCommon.cmake
+## SemtexCommon.cmake (adopted from Nektar++ NektarCommon.cmake).
 ##
 ## Frequently used Nektar++ CMake configuration macros and functions
 ##
