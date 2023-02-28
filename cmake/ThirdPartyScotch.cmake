@@ -43,7 +43,7 @@ IF (NEKTAR_USE_SCOTCH)
 
         # Note that scotch is compiled in the source-tree, so we unpack the
         # source code in the ThirdParty builds directory.
-        SET(SCOTCH_SRC ${TPBUILD}/scotch-6.0.4/src)
+        SET(SCOTCH_SRC ${TPBUILD}/scotch_6.0.4/src)
 
         IF (APPLE)
             SET(SCOTCH_MAKE Makefile.inc.i686_mac_darwin8)
@@ -76,16 +76,16 @@ IF (NEKTAR_USE_SCOTCH)
 
         INCLUDE(ExternalProject)
         EXTERNALPROJECT_ADD(
-            scotch-6.0.4
+            scotch_6.0.4
             PREFIX ${TPSRC}
-            URL ${TPURL}/scotch_6.0.4.tar.gz
-            URL_MD5 "d58b825eb95e1db77efe8c6ff42d329f"
+            URL ${TPURL}/scotch_6.0.4.tar.gz/raw?ref=main
+            URL_MD5 "dab71ef3be80dc01b1b34b887d53cff1"
             STAMP_DIR ${TPBUILD}/stamp
-	    DOWNLOAD_EXTRACT_TIMESTANP false
+	    DOWNLOAD_EXTRACT_TIMESTAMP false
             DOWNLOAD_DIR ${TPSRC}
-            SOURCE_DIR ${TPBUILD}/scotch-6.0.4
-            BINARY_DIR ${TPBUILD}/scotch-6.0.4
-            TMP_DIR ${TPBUILD}/scotch-6.0.4-tmp
+            SOURCE_DIR ${TPBUILD}/scotch_6.0.4
+            BINARY_DIR ${TPBUILD}/scotch_6.0.4
+            TMP_DIR ${TPBUILD}/scotch_6.0.4-tmp
             INSTALL_DIR ${TPDIST}
             CONFIGURE_COMMAND rm -f ${SCOTCH_SRC}/Makefile.inc
                 COMMAND ln -s
@@ -121,7 +121,7 @@ IF (NEKTAR_USE_SCOTCH)
         ENDIF()
         SET(SCOTCH_CONFIG_INCLUDE_DIR ${TPINC})
     ELSE (THIRDPARTY_BUILD_SCOTCH)
-        ADD_CUSTOM_TARGET(scotch-6.0.4 ALL)
+        ADD_CUSTOM_TARGET(scotch_6.0.4 ALL)
         SET(SCOTCH_CONFIG_INCLUDE_DIR ${SCOTCH_INCLUDE_DIR})
     ENDIF (THIRDPARTY_BUILD_SCOTCH)
 
