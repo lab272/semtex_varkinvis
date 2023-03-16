@@ -3728,6 +3728,17 @@ $(r,s,t)$.\footnote{The convention in \Semtex\ is that scalar fields
 \verb|convert| utility (see \S\,\ref{sec.convert}) to convert a binary
 field file to ASCII for human readability.
 
+There is a point of note when you are using cylindrical coordinates.
+While, as explained in \citet{blsh04} and \citet{blas19}, primitive
+variable results computed by \verb+dns+ and \verb+elliptic+ display
+spectral convergence at all locations including the coordinate system
+axis, the same cannot be said of results involving spatial derivatives
+computed by \verb+addfield+, since it does not employ l'Hopital's rule
+when taking derivatives at the axis.  Usually it will set derivatives
+to zero on the axis; hence, things such as divergence or vorticity may
+appear strange there.  If the primitive variables look OK (smooth),
+very likely all is well.
+
 %=============================================================================
 \section{\texttt{calc}}
 \label{sec.calc}
