@@ -40,7 +40,11 @@ The first of these is the recommended starting point; it provides an
 introductory overview of the code and its utilities.  The second gives
 details of the cylindrical-coordinate formulation.  The third gives an
 overview of the capabilities and methodology of the stability analysis
-package which is included in the distribution.
+package which is included in the distribution.  Implicit large-eddy
+simulation is available withing semtex using the Spectral Vanishing
+Viscosity (SVV) approach; the fourth and fifth references provide
+description and applications of this technique.
+
 
 1. Blackburn HM, Lee D, Albrecht T & Singh, J (2019) Semtex: a
 spectral element–Fourier solver for the incompressible Navier–Stokes
@@ -55,6 +59,16 @@ cylindrical geometries. Journal of Computational Physics V197N2:
 3. Barkley D, Blackburn HM & Sherwin SJ (2008) Direct optimal growth
 analysis for timesteppers.  Int J Numerical Methods in Fluids.  V57:
 1435–1458.
+
+4. Koal K, Stiller J & Blackburn HM (2012) Adapting the spectral
+vanishing viscosity method for large-eddy simulations in cylindrical
+configurations.  Journal of Computational Physics V231: 3389–3405.
+
+5. Chin C, Ng HCH, Blackburn HM, Monty J & Ooi ASH (2015) Turbulent
+pipe flow at Re_tau=1000: a comparison of wall-resolved large-eddy
+simulation, direct numerical simulation and hot-wire experiment.
+Computers and Fluids V122: 26–33.
+
 
 Technical details
 -----------------
