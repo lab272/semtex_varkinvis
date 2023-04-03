@@ -41,7 +41,7 @@ introductory overview of the code and its utilities.  The second gives
 details of the cylindrical-coordinate formulation.  The third gives an
 overview of the capabilities and methodology of the stability analysis
 package which is included in the distribution.  Implicit large-eddy
-simulation is available withing semtex using the Spectral Vanishing
+simulation is available within semtex using the Spectral Vanishing
 Viscosity (SVV) approach; the fourth and fifth references provide
 description and applications of this technique.
 
