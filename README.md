@@ -31,7 +31,8 @@ field).
 Spectral elements are used to discretise planar geometries, with
 solution variations in the third (homogeneous/periodic) direction
 accommodated via Fourier expansions (i.e. spatial discretisation is 2D
-spectral element X Fourier).
+spectral element X Fourier). Solutions to 3D problems may optionally
+be computed in parallel.
 
 References
 ----------
@@ -76,7 +77,7 @@ Technical details
 The code is designed to compile and run on Unix-based operating
 systems including Linux and OSX (and has been successfully compiled
 and run on a wide variety of such systems for over two decades).
-Optional multi-process parallelisation across Fourier modes is
+Optional multi-process parallelisation across 2D Fourier modes is
 supported via MPI.
 
 The method uses continuous-Galerkin Legendre--Gauss--Lobatto
