@@ -3298,11 +3298,15 @@ is a robust treatment of Boussinesq buoyancy and fulfils the original
 intention in the case of steady flows --- and the omission of effect
 of density variation on the local acceleration term is also a part of
 standard Boussinesq treatments, so in effect it is a more complete
-approach than the standard method.  As outlined in
-\citeauthor{blss21}, a gravitational field $\bm{g}$ would be included
-as a frame acceleration term $\bm{A}\equiv-\bm{g}$ and dealt with
-using the approach described in \S\,\ref{sec.constant}.  Any
-frame-rotation terms would be dealt with as described in
+approach than the standard method.  Note that the flows considered
+need not be steady; it is just the case that, as for standard
+Boussinesq treatments, the approximation is more complete when they
+are.
+
+As outlined in \citeauthor{blss21}, a gravitational field $\bm{g}$
+would be included as a frame acceleration term $\bm{A}\equiv-\bm{g}$
+and dealt with using the approach described in \S\,\ref{sec.constant}.
+Any frame-rotation terms would be dealt with as described in
 \S\,\ref{sec.rotating}.
 
 \begin{figure}
@@ -3314,10 +3318,9 @@ frame-rotation terms would be dealt with as described in
     \includegraphics[height=0.21\textheight]{PCM2}
     \end{tabular}
   \end{center}
-  \caption{
-    Canonical steady buoyancy test case examples from \citet{blss21}.
-    See supplied session files \texttt{MMBL} and \texttt{PMC2}.
-  }
+  \caption{ Canonical steady buoyancy test case examples from
+    \citet{blss21}.  Red/blue colours indicate warm/cool fluid.  See
+    supplied session files \texttt{MMBL} and \texttt{PMC2}. }
   \label{fig.csb}
 \end{figure}
 
