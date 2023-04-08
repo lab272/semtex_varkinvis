@@ -75,7 +75,7 @@ Technical details
 -----------------
 
 The code is designed to compile and run on Unix-based operating
-systems including Linux and OSX (and has been successfully compiled
+systems including Linux and OS X (and has been successfully compiled
 and run on a wide variety of such systems for over two decades).
 Optional multi-process parallelisation across 2D Fourier modes is
 supported via MPI.
