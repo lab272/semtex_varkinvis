@@ -352,6 +352,7 @@ public:
 			 real_t(*func)(const real_t&)) {
     F77NAME(braket) (ax, bx, cx, fa, fb, fc, func);
   }
+  
   static void DFTr (real_t*  data, const int_t nz, const int_t np,
 		    const int_t sign)
     { dDFTr (data, nz, np, sign); }

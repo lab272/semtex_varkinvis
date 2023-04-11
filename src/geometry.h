@@ -9,7 +9,7 @@ class Geometry
 // representation used for scalar fields.  Static functions make
 // information globally accessible.
 //
-// Copyright (c) 1994+, Hugh Blackburn
+// Copyright (c) 1994+, Hugh M Blackburn
 //
 // In all cases, 2D quad elements are employed, with a possible
 // extension by Fourier expansions in the third dimension.  While the

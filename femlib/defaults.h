@@ -87,11 +87,12 @@ static struct {
   "N_STEP"      ,   1   ,	/* -- Number of timesteps to integrate.  */
   "STEP"        ,   0   ,	/* -- Index of current time step.        */
   "N_Z"         ,   1   ,	/* -- Number of planes of data.          */
+  "N_PART"      ,   1   ,       /* -- Number of 2D domain partitions.    */
   "I_PROC"      ,   0   ,	/* -- Process index for parallel soln.   */
   "N_PROC"      ,   1   ,	/* -- Number of processes for parallel.  */
   "STEP_MAX"    ,   500 ,	/* -- Max number of iterations for PCG.  */
   "NR_MAX"      ,   20  ,       /* -- Max iterations for Newton-Raphson. */
-  "ENUMERATION" ,   2   ,       /* -- Default RCM renumbering level.     */
+  "ENUMERATION" ,   2   ,       /* -- Default RCM optimisation level.    */
   
   0             ,   0.0
 };

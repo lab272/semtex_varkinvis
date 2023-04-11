@@ -24,11 +24,11 @@ typedef Point                      Vector;
 */
 
 #if defined(CHEBYSHEV)
-#define JAC_ALFA -0.5
-#define JAC_BETA -0.5
+  #define JAC_ALFA -0.5
+  #define JAC_BETA -0.5
 #else
-#define JAC_ALFA  0.0
-#define JAC_BETA  0.0
+  #define JAC_ALFA  0.0
+  #define JAC_BETA  0.0
 #endif
 
 typedef enum quadrature_kind {

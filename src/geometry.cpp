@@ -14,7 +14,7 @@
 #include <geometry.h>
 #include <femlib.h>
 
-int_t Geometry::_pid   = 0;
+int_t Geometry::_pid   = 0;	// -- Initialise static private data.
 int_t Geometry::_nproc = 0;
 int_t Geometry::_ndim  = 0;
 int_t Geometry::_np    = 0;
@@ -22,7 +22,7 @@ int_t Geometry::_nz    = 0;
 int_t Geometry::_nzp   = 0;
 int_t Geometry::_nel   = 0;
 int_t Geometry::_psize = 0;
-Geometry::CoordSys Geometry::_csys  = Geometry::Cartesian;
+Geometry::CoordSys Geometry::_csys = Geometry::Cartesian;
 
 
 void Geometry::set (const int_t    NP,
@@ -35,15 +35,21 @@ void Geometry::set (const int_t    NP,
 // The number of processors is restricted: it must either be 1 or an
 // even number, and it must be less than or equal to the number of
 // planes / 2.  Furthermore, the number of planes on a processor must
-// be even, unless NZ == 1.
+// be even, unless NZ == 1 (because each Fourier mode is taken to have
+// both real and imaginary parts).  Hence, NZ is always even if NZ >
+// 1.
 //
-// NB: the value of psize is the value of nPlane, but rounded up if
-// necessary to be an even number and also an int_t multiple of the
-// number of processors.  The even number restriction is to simplify
-// the handling of Fourier transforms, which can be based on a
-// real--complex transform on some platforms.  The restriction to be
-// an int_t multiple of the number of processors is to simplify the
-// structure of memory exchanges required for Fourier transforms.
+// NB: the value of _psize (a.k.a. planeSize) is the value of nPlane
+// (nel*np*np), but rounded up if necessary to be an even number and
+// also an integer multiple of the number of processors.  The even
+// number restriction is to simplify the handling of Fourier
+// transforms, which is typically based on a real--complex transform
+// (done via the method of transform of two real functions
+// simultaneously, see e.g. Numerical Recipes or Bendat & Piersol).
+//  
+// The restriction to be an integer multiple of the number of
+// processors is to simplify the structure of memory exchanges
+// required for Fourier transforms when computing in parallel.
 // ---------------------------------------------------------------------------
 {
   static char routine[] = "Geometry::set", err[StrMax];

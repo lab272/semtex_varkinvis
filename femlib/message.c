@@ -3,12 +3,11 @@
  *
  * See the following for a description of what the exchange routines do:
  *
- * Rudman M & Blackburn HM (2006) Direct numerical
- *  simulation of turbulent non-Newtonian flow using a spectral
- *  element method, Appl Math Mod, V30N11: 1229-1248.
+ * Rudman M & Blackburn HM (2006) Direct numerical simulation of
+ *  turbulent non-Newtonian flow using a spectral element method, Appl
+ *  Math Mod, V30N11: 1229-1248.
  *
- * Copyright (c) 1996+ Hugh M Blackburn
- *
+ * Copyright (c) 1996+, Hugh M Blackburn
  *****************************************************************************/
 
 #include <stdio.h>
@@ -18,13 +17,15 @@
 
 #if defined(MPI)
 #include <mpi.h>
+/* -- File-scope) Cartesian communicators: */
+static MPI_Comm grid_comm, row_comm, col_comm;
 #endif
 
 #include <cfemdef.h>
 #include <cfemlib.h>
 #include <cveclib.h>
 
-#if defined (NUMA)
+#if defined(NUMA)
 /* Need this forward declaration for SGI/NUMA-specific routine. */
 extern void _fastbcopy(const void *src, void *dest, size_t n);
     #define __MEMCPY(dest, src, n) _fastbcopy(src, dest, n)
@@ -33,13 +34,13 @@ extern void _fastbcopy(const void *src, void *dest, size_t n);
 #endif
 
 
-
 void message_init (int*    argc,
 		   char*** argv)
-/* ------------------------------------------------------------------------- *
- * Do whatever is required to initialize message-passing.  Set up global 
- * variables.
- * ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------
+ * Do whatever is required to initialise message-passing.  Set up
+ * associated global variables; note that the parser gets initialised
+ * here too, even for serial execution.
+  * ------------------------------------------------------------------------- */
 {
 #if defined(MPI)
 
@@ -96,7 +97,7 @@ void message_sync ()
 
 static int first (int n, const int* x)
 { 
-   int i;
+  int i;
   for (i = 0; i < n; i++) if (x[i]) return i;
   return 0;
 }
@@ -135,7 +136,7 @@ void message_dexchange (double*     data,
 {
 #if defined(MPI)
 
-   int   i, j;
+  int            i, j;
   const int      ip = (int) yy_interpret ("I_PROC");
   const int      np = (int) yy_interpret ("N_PROC");
   const int      nB = nP / np;	     /* Size of intra-processor block.     */
@@ -282,7 +283,7 @@ void message_sexchange (float*      data,
 {
 #if defined(MPI)
 
-   int   i, j;
+  int            i, j;
   const int      ip = (int) yy_interpret ("I_PROC");
   const int      np = (int) yy_interpret ("N_PROC");
   const int      nB = nP / np;	     /* Size of intra-processor block.     */
@@ -426,7 +427,7 @@ void message_iexchange (int_t*      data,
 {
 #if defined(MPI)
 
-   int   i, j;
+  int            i, j;
   const int      ip = (int) yy_interpret ("I_PROC");
   const int      np = (int) yy_interpret ("N_PROC");
   const int      nB = nP / np;	     /* Size of intra-processor block.     */

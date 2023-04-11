@@ -11,9 +11,9 @@
 #include <sem.h>
 
 
-AuxField::AuxField (real_t*           alloc,
-		    const int_t       nz   ,
-		    vector<Element*>& elmt ,
+AuxField::AuxField (real_t*           alloc, // -- Amount of storage per proc.
+		    const int_t       nz   , // -- No. of z planes per proc.
+		    vector<Element*>& elmt , // -- Elements for this process.
 		    const char        name ) :
 /// --------------------------------------------------------------------------
 /// Install field storage area and size records.
