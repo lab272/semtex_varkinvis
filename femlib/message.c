@@ -45,10 +45,12 @@ void message_init (int*    argc,
 #if defined(MPI)
 
   int  n;
+  int  n_part, dim_sizes[1], wrap_around[1], reorder = 1, free_coords[1];
   char s[STR_MAX];
 
   MPI_Init      (argc, argv);
   yy_initialize ();
+
 
   MPI_Comm_rank (MPI_COMM_WORLD,   &n);
   sprintf       (s, "I_PROC = %1d", n);
@@ -56,6 +58,27 @@ void message_init (int*    argc,
 
   MPI_Comm_size (MPI_COMM_WORLD,   &n);
   sprintf       (s, "N_PROC = %1d", n);
+  yy_interpret  (s);
+
+  /* -- Allocate a Cartesian MPI grid.  For now, it will only have a
+     single column (a single 2D partition), and work the same as our
+     original parallel-across-modes semtex.
+  */
+
+  n_part = (int) yy_interpret ("N_PART");           /* -- Should be 1. */
+  dim_sizes[0]   = n;
+  wrap_around[0] = 0;
+  
+  MPI_Cart_create (MPI_COMM_WORLD,
+		   1, dim_sizes, wrap_around, reorder,
+		   &grid_comm);
+
+  free_coords[0] = 1;
+
+  MPI_Cart_sub (grid_comm, free_coords, &col_comm);
+
+  MPI_Comm_rank (col_comm,         &n);
+  sprintf       (s, "I_PROC = %1d", n);
   yy_interpret  (s);
 
 #else
@@ -210,13 +233,13 @@ void message_dexchange (double*     data,
 
     /* -- Inter-processor transpose, with NB blocks size nZ*nB / processor. */
 
-    MPI_Alltoall (data, NM, MPI_DOUBLE, tmp, NM, MPI_DOUBLE, MPI_COMM_WORLD);
+    MPI_Alltoall (data, NM, MPI_DOUBLE, tmp, NM, MPI_DOUBLE, col_comm);
     __MEMCPY     (data, tmp, nP * nZ * dsize);
 
 
   } else {			/* -- "Backwards" exchange. */
 
-    MPI_Alltoall (data, NM, MPI_DOUBLE, tmp, NM, MPI_DOUBLE, MPI_COMM_WORLD);
+    MPI_Alltoall (data, NM, MPI_DOUBLE, tmp, NM, MPI_DOUBLE, col_comm);
     __MEMCPY     (data, tmp, nP * nZ * dsize);
 
     if (NB == nZ) {
@@ -357,12 +380,12 @@ void message_sexchange (float*      data,
 
     /* -- Inter-processor transpose, with NB blocks size nZ*nB / processor. */
 
-    MPI_Alltoall (data, NM, MPI_FLOAT, tmp, NM, MPI_FLOAT, MPI_COMM_WORLD);
+    MPI_Alltoall (data, NM, MPI_FLOAT, tmp, NM, MPI_FLOAT, col_comm);
     __MEMCPY     (data, tmp, nP * nZ * dsize);
 
   } else {			/* -- "Backwards" exchange. */
 
-    MPI_Alltoall (data, NM, MPI_FLOAT, tmp, NM, MPI_FLOAT, MPI_COMM_WORLD);
+    MPI_Alltoall (data, NM, MPI_FLOAT, tmp, NM, MPI_FLOAT, col_comm);
     __MEMCPY     (data, tmp, nP * nZ * dsize);
 
     if (NB == nZ) {
@@ -501,12 +524,12 @@ void message_iexchange (int_t*      data,
 
     /* -- Inter-processor transpose, with NB blocks size nZ*nB / processor. */
 
-    MPI_Alltoall (data, NM, MPI_INT, tmp, NM, MPI_INT, MPI_COMM_WORLD);
+    MPI_Alltoall (data, NM, MPI_INT, tmp, NM, MPI_INT, col_comm);
     __MEMCPY     (data, tmp, nP * nZ * dsize);
 
   } else {			/* -- "Backwards" exchange. */
 
-    MPI_Alltoall (data, NM, MPI_INT, tmp, NM, MPI_INT, MPI_COMM_WORLD);
+    MPI_Alltoall (data, NM, MPI_INT, tmp, NM, MPI_INT, col_comm);
     __MEMCPY     (data, tmp, nP * nZ * dsize);
 
     if (NB == nZ) {
@@ -570,7 +593,7 @@ void message_dsend (double*     data,
 {
 #if defined(MPI)
 
-  MPI_Send (data, (int) N, MPI_DOUBLE, (int) tgt, 0, MPI_COMM_WORLD);
+  MPI_Send (data, (int) N, MPI_DOUBLE, (int) tgt, 0, col_comm);
 
 #endif
 }
@@ -587,7 +610,7 @@ void message_drecv (double*     data,
 
   MPI_Status status;
 
-  MPI_Recv (data, (int) N, MPI_DOUBLE, (int) src, 0, MPI_COMM_WORLD, &status);
+  MPI_Recv (data, (int) N, MPI_DOUBLE, (int) src, 0, col_comm, &status);
 
 #endif
 }
@@ -602,7 +625,7 @@ void message_ssend (float*      data,
 {
 #if defined(MPI)
 
-  MPI_Send (data, (int) N, MPI_FLOAT, (int) tgt, 0, MPI_COMM_WORLD);
+  MPI_Send (data, (int) N, MPI_FLOAT, (int) tgt, 0, col_comm);
 
 #endif
 }
@@ -619,7 +642,7 @@ void message_srecv (float*      data,
 
   MPI_Status status;
 
-  MPI_Recv (data, (int) N, MPI_FLOAT, (int) src, 0, MPI_COMM_WORLD, &status);
+  MPI_Recv (data, (int) N, MPI_FLOAT, (int) src, 0, col_comm, &status);
 
 #endif
 }
@@ -635,9 +658,9 @@ void message_isend (int_t*      data,
 #if defined(MPI)
 
   if (sizeof (int_t) == sizeof (int))
-    MPI_Send (data, (int) N, MPI_INT,  (int) tgt, 0, MPI_COMM_WORLD);
+    MPI_Send (data, (int) N, MPI_INT,  (int) tgt, 0, col_comm);
   else
-    MPI_Send (data, (int) N, MPI_LONG, (int) tgt, 0, MPI_COMM_WORLD);
+    MPI_Send (data, (int) N, MPI_LONG, (int) tgt, 0, col_comm);
 
 #endif
 }
@@ -655,9 +678,9 @@ void message_irecv (int_t*      data,
   MPI_Status status;
 
   if (sizeof (int_t) == sizeof (int))
-    MPI_Recv (data, (int) N, MPI_INT,  (int) src, 0, MPI_COMM_WORLD, &status);
+    MPI_Recv (data, (int) N, MPI_INT,  (int) src, 0, col_comm, &status);
   else
-    MPI_Recv (data, (int) N, MPI_LONG, (int) src, 0, MPI_COMM_WORLD, &status);
+    MPI_Recv (data, (int) N, MPI_LONG, (int) src, 0, col_comm, &status);
 
 #endif
 }
