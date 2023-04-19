@@ -2223,20 +2223,20 @@ $\Ra=\cg\beta_TL^3
 \label{sec.cfl}
 
 We have not yet touched upon the \verb|dns| output information
-regarding CFL limits and divergence (as listed in the example above).
-These are reported in \verb|dns| output every \verb|IO_CFL| steps.
-The CFL estimates are computed according to methods outlined in
-\S\,6.3 of \citet{kars05} based on velocity component values and mesh
-sizes, and are roughly proportional to $u\Delta t/\Delta x$.
-Typically, we need to keep CFL values below around unity to maintain
-stability with explicit time integration methods of the kind used here
-for advection based on nonlinear terms.  We see that at the end of
-integration, our CFL value is actually larger than this (1.4), though
-stable integration is achieved (partly since, as we are integrating
-towards a steady-state solution, we have used first-order timestepping
-rather than the second-order default).  Also, we see which velocity
-component ($v$) is the most critical with respect to CFL instability,
-and in which element (1) this occurs.
+regarding CFL (Courant--Friedrichs--Lewy) limits and divergence (as
+listed in the example above).  These are reported in \verb|dns| output
+every \verb|IO_CFL| steps.  The CFL estimates are computed according
+to methods outlined in \S\,6.3 of \citet{kars05} based on velocity
+component values and mesh sizes, and are roughly proportional to
+$u\Delta t/\Delta x$.  Typically, we need to keep CFL values below
+around unity to maintain stability with explicit time integration
+methods of the kind used here for advection based on nonlinear terms.
+We see that at the end of integration, our CFL value is actually
+larger than this (1.4), though stable integration is achieved (partly
+since, as we are integrating towards a steady-state solution, we have
+used first-order timestepping rather than the second-order default).
+Also, we see which velocity component ($v$) is the most critical with
+respect to CFL instability, and in which element (1) this occurs.
 
 On the lines following CFL estimate reports, we get another indication
 of solution robustness, the (average) divergence energy, which is
