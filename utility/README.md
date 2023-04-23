@@ -1,5 +1,3 @@
-# utility README {#utility_readme}
-
 utility README
 ==============
 

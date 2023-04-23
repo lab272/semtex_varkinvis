@@ -1,5 +1,3 @@
-# Veclib README {#veclib_readme}
-
 Veclib README
 =============
 
