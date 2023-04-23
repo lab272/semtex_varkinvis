@@ -15,7 +15,7 @@ Synopsis
 --------
 
 The semtex package is for spectral element solution of (incompressible
-Navier--Stokes) time-varying and elliptic PDEs.  Geometries
+Navier–Stokes) time-varying and elliptic PDEs.  Geometries
 accommodated are 2D Cartesian or cylindrical, and/or 3D
 (a.k.a. "2+1/2D", i.e. 2D X Fourier), again Cartesian or cylindrical.
 In fact, the main emphasis is on direct numerical simulation of
@@ -117,7 +117,7 @@ directories:
 
 1. elliptic:   elliptic (Laplace, Poisson, Helmholtz) solver.
 
-2. dns:        Navier--Stokes DNS solver (uses same elliptic solver routines).
+2. dns:        Navier–Stokes DNS solver (uses same elliptic solver routines).
 
 3. utility/*:  various utility programs.
 
