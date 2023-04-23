@@ -134,7 +134,7 @@ Required third-party software
 
 2. make (Gnu's version, which is usually now the standard supplied code);
 
-3. C++, C and Fortran compilers (OSX needs both vendor-supplied Xcode
+3. C++, C and Fortran compilers (OS X needs both vendor-supplied Xcode
    for C/C++ and a 3rd-party Fortran compiler, installed e.g. via
    homebrew/macports/fink as part of the gcc compiler suite);
 
@@ -188,7 +188,7 @@ Note that the use of vendor-supplied BLAS routines such those in
 Intel's MKL or AMD's ACML may quite substantially improve the
 performance of the DNS code.  Most of the improvement comes from
 having a well-optimised version of DGEMM (matrix-matrix multiply),
-which is heavily used by dns.  Search GotoBLAS or OpenBLAS.  On OSX,
+which is heavily used by dns.  Search GotoBLAS or OpenBLAS.  On OS X,
 you get this performance by default via the Xcode/Accelerate framework;
 on Linux, try using ACML or MKL, depending on machine architecture.
 Speed improvements to be had by choosing a good BLAS version usually
@@ -262,7 +262,7 @@ list"), you may be able to cure the problem by loading a correct set
 of modules (try "module avail").  Otherwise you may have to install
 BLAS/LAPACK libraries with whatever package tool exists on the
 machine, or in the worst case by compiling and installing these for
-yourself.  If you are using OSX, you will need to install Xcode, the
+yourself.  If you are using OS X, you will need to install Xcode, the
 Xcode command-line tools, and install a Fortran compiler either as a
 stand-alone package or by installing the gnu compiler suite using one
 of fink, homebrew or macports.
@@ -330,19 +330,19 @@ Utilities
 
 Can be found in the utility directory, including:
 
-compare   Generate restart files, compare solutions to a function.  
-convert   Convert field file formats (IEEE-big/little, ASCII).  
-meshpr    Generate 2D mesh locations for plotting or checking.  
-addfield  Add vorticity, also divergence, helicity, etc to a field file.  
-sem2tec   Convert field files to Tecplot format (OK with Paraview/VisIt too).  
-project   Convert a field file to a different order interpolation.  
-interp    Interpolate field file from one 2D mesh to another.  
-probe     Probe field file at specified points.  
-noiz      Add a random perturbation to a field file.  
-calc      An interactive calculator that calls the built-in function parser.  
-rstress   Compute a Reynolds stresses from a .avg file, subtract averages.  
-rectmesh  Generate a start-out session file from a list of x and y values.  
-assemble  Generate global node numbering, with RCM optimization, for info.  
+compare  – Generate restart files, compare solutions to a function.  
+convert  – Convert field file formats (IEEE-big/little, ASCII).  
+meshpr   – Generate 2D mesh locations for plotting or checking.  
+addfield – Add vorticity, also divergence, helicity, etc to a field file.  
+sem2tec  – Convert field files to Tecplot format (OK with Paraview/VisIt too).  
+project  – Convert a field file to a different order interpolation.  
+interp   – Interpolate field file from one 2D mesh to another.  
+probe    – Probe field file at specified points.  
+noiz     – Add a random perturbation to a field file.  
+calc     – An interactive calculator that calls the built-in function parser.  
+rstress  – Compute a Reynolds stresses from a .avg file, subtract averages.  
+rectmesh – Generate a start-out session file from a list of x and y values.  
+assemble – Generate global node numbering, with RCM optimization, for info.  
 
 
 Most executables have a -h command line option which gives a help
@@ -401,7 +401,7 @@ List of major revisions
 1999: Semtex-5.3:  Mixed/Robin BC type added.  
 2003: Semtex-5.5:  Adopt standard C++ libraries wherever possible.       
 2004: Semtex-6:    Cylindrical coordinate/3D code exponentially convergent.  
-2004: Semtex-6:    Mac OSX port -- filenames no longer case-sensitive.  
+2004: Semtex-6:    Mac OS X port – filenames no longer case-sensitive.  
 2010: Semtex-7:   "I do not now recall".  
 2016: Semtex-8:    Generalised body forces supported in DNS.  
 2018: Semtex-9:    Scalar transport and DNS code merged.  
