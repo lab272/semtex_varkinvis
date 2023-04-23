@@ -25,5 +25,3 @@ Notes
   link object files compiled from src/*.cpp, and/or femlib, routines.
 
 ------------------------------------------------------------------------------
-
-$Id$

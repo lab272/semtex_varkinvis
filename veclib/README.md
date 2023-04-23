@@ -237,4 +237,3 @@ MISCELLANEOUS FUNCTIONS:
 
 </pre>
 
-$Id$
