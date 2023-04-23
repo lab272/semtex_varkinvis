@@ -212,11 +212,11 @@ will be built.  If cmake can find a working MPI installation, parallel
 versions will also be built (which are called dns_mp and elliptic_mp).
 All the other resulting files are for serial execution only.
 
-  %> mkdir build_dir  
-  %> cd build_dir  
-  %> cmake ..  
-  %> make  
-  %> ctest  
+  >% mkdir build_dir  
+  >% cd build_dir  
+  >% cmake ..  
+  >% make  
+  >% ctest  
 
 You should find that all test regression tests are reported as passed.
 Because these tests exercise the solvers as well as a range of
@@ -290,13 +290,13 @@ the two required serial utilities will also now compile.  When "make
 test" completes without error, try compiling all the remaining serial
 utilities:
 
-  >% make all
+  %> make all
 
 At this stage, and if you have MPI, you may wish to try building and
 linking the parallel library libfem_mp.a and solver dns_mp (typically
 run like this: "mpirun -np <n_cores> dns_mp").
 
-  >% make parallel
+  %> make parallel
 
 You should find executables "dns" and "dns_mp" now appear in the dns
 directory.  Congratulations - you are finished!  Putting all the
