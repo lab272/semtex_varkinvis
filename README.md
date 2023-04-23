@@ -2,7 +2,7 @@
 
 # List of other sub-pages
 
-* Page [semtex/veclib/README]  (@ref veclib_readme)
+* Page [semtex/veclib/README]  (/veclib/README.md)
 * Page [semtex/femlib/README]  (@ref femlib_readme)
 * Page [semtex/utility/README] (@ref utility_readme)
 
