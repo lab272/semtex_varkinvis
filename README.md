@@ -80,7 +80,7 @@ and run on a wide variety of such systems for over two decades).
 Optional multi-process parallelisation across 2D Fourier modes is
 supported via MPI.
 
-The method uses continuous-Galerkin Legendre--Gauss--Lobatto
+The method uses continuous-Galerkin Legendre–Gauss–Lobatto
 nodal-based spectral-element elliptic equation solvers, a 2,3,5
 prime-factor FFT, and a backward-time (a.k.a. stiffly-stable)
 equal-order (P_N-P_N) velocity-pressure semi-explicit timesplitting
@@ -169,7 +169,7 @@ as openmpi.  There is no need to install your own BLAS or LAPACK, as
 these usually come as a standard part of Xcode (in the Accelerate
 framework).
 
-Building - Introduction
+Building – Introduction
 -----------------------
 
 Semtex presently supports two alternative building methods:
