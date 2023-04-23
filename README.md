@@ -244,7 +244,7 @@ directory (e.g. ~/bin) to get them in your PATH.
 
 From the top-level directory (contains this file, README), do
 
-  %> make test
+  >% make test
 
 That will build libraries veclib.a, femlib.a and a few core
 executables (compare, and dns), then run regression tests on dns.  If
@@ -290,13 +290,13 @@ the two required serial utilities will also now compile.  When "make
 test" completes without error, try compiling all the remaining serial
 utilities:
 
-  %> make all
+  >% make all
 
 At this stage, and if you have MPI, you may wish to try building and
 linking the parallel library libfem_mp.a and solver dns_mp (typically
 run like this: "mpirun -np <n_cores> dns_mp").
 
-  %> make parallel
+  >% make parallel
 
 You should find executables "dns" and "dns_mp" now appear in the dns
 directory.  Congratulations - you are finished!  Putting all the
@@ -312,7 +312,7 @@ conditions.  We call this a "session" file and typically it has no
 root extension.  It is written in a format patterned on HTML, which we
 have called FEML (for Finite Element Markup Language).  There are a
 number of example session files in the mesh directory.  Other files
-have standard extensions:
+have standard extensions (the following also have the same format):
 
 session.fld  Solution/field file.  Binary format by default.  
 session.rst  Restart file.  Read in to initialise solution if present.  
@@ -354,13 +354,13 @@ User guide and doxygen documentation
 
 Assuming you have a latex/pdflatex system installed: 
 
-  %> cd doc; make
+  >% cd doc; make
 
 to produce userguide.pdf.
 
 Assuming you have doxygen (and dot) also installed:
 
-  %> cd doc; make doxygen
+  >% cd doc; make doxygen
 
 and open doc/html/index.html in a browser.
 
