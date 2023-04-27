@@ -2666,7 +2666,7 @@ cheaper, it has become the default form in \Semtex\ (use
 \verb+ADVECTION = 1+ to explicitly select it).  It does, however, have
 a slight defect: owing to alternation, it can produce small
 high-frequency temporal oscillations in the solution, of period
-$2*\Delta t$.  It may also somewhat reduce the asymptotic convergence
+$2\Delta t$.  It may also somewhat reduce the asymptotic convergence
 rates of steady solutions.  If you are seeking very clean solutions at
 high resolution (\eg to compute base flows for stability analysis, or
 your flow may have sensitive dynamics), it is generally best to use
@@ -2700,14 +2700,14 @@ xxxx\=ADVECTION = X \= xxxxxxxxxxxxxxxxxxxxxxxxxxx \= \kill
 
 You may ask: what about the conservative form, $\bm{\nabla\cdot uu}$?
 Isn't that as cheap to compute as the convective form?  Well, yes it
-is, but the work of \citet{wikl01} showed that it is also linearly
-unstable in a discrete setting.  And, in early developmental work for
-our companion stability analysis code, \verb+dog+, it also proved to
-produce erroneous stability analyses when the skew-symmetric form was
-used.  So, it is not provided as an option in \verb+dns+ and indeed,
-for this reason, the advective term used by \verb+dog+
-($\bm{u}'\bm{\cdot\nabla U}+\bm{U\cdot\nabla u}'$) is based on the
-convective form.
+is, but \citet{wikl01} showed that it was also linearly unstable in a
+discrete setting.  And, during development, our companion stability
+analysis code, \verb+dog+, produced erroneous results when the
+skew-symmetric form of advection terms was initially employed.  So,
+the conservative form is not provided as an option for \verb+dns+ and
+indeed, for this reason, the linearised advective term used by
+\verb+dog+ ($\bm{u}'\bm{\cdot\nabla U}+\bm{U\cdot\nabla u}'$) is based
+on the convective form.
 
 
 %=============================================================================
