@@ -363,11 +363,11 @@ $P=p/\rho$ is sometimes called the modified pressure and
 $\nu=\mu/\rho$ is the kinematic viscosity, while $\bm{f}$ represents
 body force per unit mass; see \S\,\ref{sec.dns_ff} for a description
 of the forms of $\bm{f}$ implemented in the code.  The nonlinear terms
-$\bm{N}(\bm{u})$ can be represented in two ways which are equivalent
-in the continuous setting but have somewhat different behaviour in the
-discrete setting: either in the `non-conservative' form
-$\bm{u\cdot\nabla u}$ or the `skew-symmetric' form $[\bm{u\cdot\nabla
-    u} + \bm{\nabla\cdot uu}]/2$.
+$\bm{N}(\bm{u})$ can be represented in two (or more) ways which are
+equivalent in the continuous setting but have somewhat different
+behaviour in the discrete setting: either in the `non-conservative'
+form $\bm{u\cdot\nabla u}$ or the `skew-symmetric' form
+$[\bm{u\cdot\nabla u} + \bm{\nabla\cdot uu}]/2$.
 %
 While both forms are provided, generally we use the skew-symmetric
 form since compared to the non-conservative form it tends to be more
@@ -2620,6 +2620,95 @@ solutions at high Reynolds number, although this is platform
 dependent. You should always consider trying \verb+ITERATIVE = 1+ as
 an option for simulations where the Reynolds number is more than a few
 hundred.
+
+
+%=============================================================================
+\section{Alternative forms of nonlinear terms}
+\label{sec.nonlinear}
+
+Various forms of the nonlinear terms for the \NavSto\ equations (\eg
+$\bm{u\cdot\nabla u}$) are available.  The more standard ones are
+generally selectable from the \verb+dns+ command line, but additional
+forms can be selected via the token \verb+ADVECTION+ (which has
+default value 1).  If you wish to solve the (unsteady) incompressible
+Stokes equations for which the nonlinear terms are zero, set
+\verb+ADVECTION = 5+ (or use \verb+dns -N+).  Owing to various vector
+identities and incompressibility, $\bm{\nabla\cdot u}=0$, the various
+nonlinear terms are equivalent in the continuum setting:
+\[
+\bm{u\cdot\nabla u} \equiv
+\bm{\nabla\cdot uu} \equiv
+\thalf[\bm{u\cdot\nabla u}+\bm{\nabla\cdot uu}] \equiv
+\bm{u}\times\bm{\nabla}\times\bm{u} \equiv
+\bm{u}\times\bm{\nabla}\times\bm{u} - 0.5\bm{\nabla u\cdot u}.
+\]
+The five forms above are generally named: convective (or, sometimes,
+non-conservative), conservative, skew-symmetric, rotational-1 and
+rotational-2.  While equivalent in the continuum setting, they have
+somewhat distinct behaviours in the discrete (numerical) setting.
+
+The convective form (standard in fluid mechanics texts) is generally
+the simplest, and cheapest to compute (use \verb+ADVECTION = 2+ or
+\verb+dns -C+).  Going back (at least) to the work of \citet{zan91b},
+it is generally acknowledged that the skew-symmetric form has superior
+energy conservation properties in the discrete setting and in our
+experience is generally the most benign when solution resolution
+starts to become marginal.  In early versions of \Semtex, this was the
+default form (use \verb+ADVECTION = 0+ or \verb+dns -S+).  It does,
+however, cost double to compute compared to the convective form.  A
+simple variation, suggested by \citet{kerr85}, is to use the
+convective and conservative forms on alternate timesteps --- this is
+called the 'alternating' skew-symmetric form; `on average' one may
+expect similar behaviour to the full skew-symmetric form, and it costs
+much the same to compute as the convective form.  In our experience it
+is about as robust as full skew-symmetric form, and since it is
+cheaper, it has become the default form in \Semtex\ (use
+\verb+ADVECTION = 1+ to explicitly select it).  It does, however, have
+a slight defect: owing to alternation, it can produce small
+high-frequency temporal oscillations in the solution, of period
+$2*\Delta t$.  It may also somewhat reduce the asymptotic convergence
+rates of steady solutions.  If you are seeking very clean solutions at
+high resolution (\eg to compute base flows for stability analysis, or
+your flow may have sensitive dynamics), it is generally best to use
+either convective or full skew-symmetric forms.  However, in
+computing, say, a turbulent flow, which is full of disturbance, you
+might profitably choose the default alternating skew-symmetric form.
+
+The two rotational forms are provided for completeness if you have a
+specific interest in them --- use either \verb+ADVECTION = 3+ or
+\verb+4+. Their computational cost is similar to the conservative
+form. In summary:
+\begin{tabbing}
+xxxx\=ADVECTION = X \= xxxxxxxxxxxxxxxxxxxxxxxxxxx \= \kill
+\> \verb+ADVECTION = 0+
+\> $\thalf[\bm{u\cdot\nabla u}+\bm{\nabla\cdot uu}]$
+\> \verb+dns -S+ \\
+\> \verb+ADVECTION = 1+
+\> $[\bm{u\cdot\nabla u}]^{(n)}~\textrm{or}~[\bm{\nabla\cdot uu}]^{(n+1)}$
+\> (default) \\
+\> \verb+ADVECTION = 2+
+\> $\bm{u\cdot\nabla u}$
+\> \verb+dns -C+\\
+\> \verb+ADVECTION = 3+
+\> $\bm{u}\times\bm{\nabla}\times\bm{u}$ \\
+\> \verb+ADVECTION = 4+
+\> $\bm{u}\times\bm{\nabla}\times\bm{u} - 0.5\bm{\nabla u\cdot u}$ \\
+\> \verb+ADVECTION = 5+
+\> $0$
+\> \verb+dns -N+
+\end{tabbing}
+
+You may ask: what about the conservative form, $\bm{\nabla\cdot uu}$?
+Isn't that as cheap to compute as the convective form?  Well, yes it
+is, but the work of \citet{wikl01} showed that it is also linearly
+unstable in a discrete setting.  And, in early developmental work for
+our companion stability analysis code, \verb+dog+, it also proved to
+produce erroneous stability analyses when the skew-symmetric form was
+used.  So, it is not provided as an option in \verb+dns+ and indeed,
+for this reason, the advective term used by \verb+dog+
+($\bm{u}'\bm{\cdot\nabla U}+\bm{U\cdot\nabla u}'$) is based on the
+convective form.
+
 
 %=============================================================================
 \section{Wall fluxes}
