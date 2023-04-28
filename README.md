@@ -403,7 +403,7 @@ List of major revisions
 2004: Semtex-6:    Cylindrical coordinate/3D code exponentially convergent.  
 2004: Semtex-6:    Mac OS X port – filenames no longer case-sensitive.  
 2010: Semtex-7:   "I do not now recall".  
-2016: Semtex-8:    Generalised body forces supported in DNS.  
+2016: Semtex-8:    Generalised body forces supported in DNS, dealiasing removed. 
 2018: Semtex-9:    Scalar transport and DNS code merged.  
 2019: Semtex-9.1:  cmake adopted as baseline compilation system.  
 2022: Semtex-9.4:  Dog (Direct Optimal Growth) stability analysis included.  
