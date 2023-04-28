@@ -2640,7 +2640,7 @@ nonlinear terms are equivalent in the continuum setting:
 \bm{\nabla\cdot uu} \equiv
 \thalf[\bm{u\cdot\nabla u}+\bm{\nabla\cdot uu}] \equiv
 \bm{u}\times\bm{\nabla}\times\bm{u} \equiv
-\bm{u}\times\bm{\nabla}\times\bm{u} - 0.5\bm{\nabla u\cdot u}.
+\bm{u}\times\bm{\nabla}\times\bm{u} - \thalf\bm{\nabla u\cdot u}.
 \]
 The five forms above are generally named: convective (or, sometimes,
 non-conservative), conservative, skew-symmetric, rotational-1 and
@@ -2662,17 +2662,17 @@ called the 'alternating' skew-symmetric form; `on average' one may
 expect similar behaviour to the full skew-symmetric form, and it costs
 much the same to compute as the convective form.  In our experience it
 is about as robust as full skew-symmetric form, and since it is
-cheaper, it has become the default form in \Semtex\ (use
+cheaper, it has become the default option in \Semtex\ (use
 \verb+ADVECTION = 1+ to explicitly select it).  It does, however, have
 a slight defect: owing to alternation, it can produce small
 high-frequency temporal oscillations in the solution, of period
-$2\Delta t$.  It may also somewhat reduce the asymptotic convergence
+$2\Delta t$.  It may also slightly reduce the asymptotic convergence
 rates of steady solutions.  If you are seeking very clean solutions at
 high resolution (\eg to compute base flows for stability analysis, or
-your flow may have sensitive dynamics), it is generally best to use
-either convective or full skew-symmetric forms.  However, in
+your flow may have sensitive dynamics), it is best to use either
+convective or full skew-symmetric forms.  In general, or perhaps when
 computing, say, a turbulent flow, which is full of disturbance, you
-might profitably choose the default alternating skew-symmetric form.
+might profitably use the default.
 
 The two rotational forms are provided for completeness if you have a
 specific interest in them --- use either \verb+ADVECTION = 3+ or
@@ -2692,7 +2692,7 @@ xxxx\=ADVECTION = X \= xxxxxxxxxxxxxxxxxxxxxxxxxxx \= \kill
 \> \verb+ADVECTION = 3+
 \> $\bm{u}\times\bm{\nabla}\times\bm{u}$ \\
 \> \verb+ADVECTION = 4+
-\> $\bm{u}\times\bm{\nabla}\times\bm{u} - 0.5\bm{\nabla u\cdot u}$ \\
+\> $\bm{u}\times\bm{\nabla}\times\bm{u} - \thalf\bm{\nabla u\cdot u}$ \\
 \> \verb+ADVECTION = 5+
 \> $0$
 \> \verb+dns -N+
