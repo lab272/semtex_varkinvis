@@ -2709,6 +2709,11 @@ indeed, for this reason, the linearised advective term used by
 \verb+dog+ ($\bm{u}'\bm{\cdot\nabla U}+\bm{U\cdot\nabla u}'$) is based
 on the convective form.
 
+Prior to \Semtex~V8, nonlinear product terms were dealiased in the
+Fourier direction (only) when using the serial version of the code.
+Partly for consistency across serial and parallel computations, and
+partly for simplicity, dealiasing was subsequently removed from the
+code.
 
 %=============================================================================
 \section{Wall fluxes}
