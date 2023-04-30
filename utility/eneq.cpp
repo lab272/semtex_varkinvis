@@ -2,8 +2,6 @@
  * eneq: utility to compute terms in either the mean or fluctutating kinetic
  * energy equation.
  *
- * Copyright (c) 2004+, Hugh M Blackburn
- *
  * Usage
  * -----
  * eneq [options] session session.avg
@@ -71,7 +69,7 @@
  *
  *                 / xx xy xz \     /  K  L  N \     /  K  L \
  *                 | .  yy yz |  =  |  .  M  O |  =  \  .  M /  -- if 2C
- *                \ .  .  zz /     \  .  .  P /
+ *                 \ .  .  zz /     \  .  .  P /
  *
  * Names for (output) terms in the fluctutating energy equation (TKE):
  * -------------------------------------------------------------------
@@ -123,6 +121,7 @@
  * @file utility/eneq.cpp
  * @ingroup group_utility
  *****************************************************************************/
+// Copyright (c) 2004+, Hugh M Blackburn
 
 #include <sem.h>
 
@@ -785,7 +784,7 @@ static void covary  (map<char, AuxField*>& in  ,
 
   *in['n'] *= sqrt (2.0);
   if (nvel == 3) {
-    *in['r'] *= sqrt (2.0);
+    *in['o'] *= sqrt (2.0);
     *in['s'] *= sqrt (2.0);
   }
  
