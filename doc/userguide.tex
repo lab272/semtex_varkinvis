@@ -2710,10 +2710,12 @@ indeed, for this reason, the linearised advective term used by
 on the convective form.
 
 Prior to \Semtex~V8, nonlinear product terms were dealiased in the
-Fourier direction (only) when using the serial version of the code.
+Fourier direction (only) when using the serial version of \verb+dns+.
 Partly for consistency across serial and parallel computations, and
 partly for simplicity, dealiasing was subsequently removed from the
-code.
+code.  This can somewhat degrade the rate of exponential convergence
+of results in the Fourier direction for serial execution, compared to
+earlier releases.  Results for parallel execution are unchanged.
 
 %=============================================================================
 \section{Wall fluxes}
