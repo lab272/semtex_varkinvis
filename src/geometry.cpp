@@ -32,22 +32,22 @@ void Geometry::set (const int_t    NP,
 // ---------------------------------------------------------------------------
 // Load values of static internal variables.
 //
-// The number of processors is restricted: it must either be 1 or an
-// even number, and it must be less than or equal to the number of
-// planes / 2.  Furthermore, the number of planes on a processor must
-// be even, unless NZ == 1 (because each Fourier mode is taken to have
-// both real and imaginary parts).  Hence, NZ is always even if NZ >
-// 1.
+// The number of processors is restricted: it must either be 1 or be
+// be less than or equal to the number of planes / 2.  Furthermore,
+// the number of planes on a processor must be even, unless NZ == 1
+// (because each Fourier mode is taken to have both real and imaginary
+// parts).  Hence, NZ is always even if NZ > 1.
 //
 // NB: the value of _psize (a.k.a. planeSize) is the value of nPlane
 // (nel*np*np), but rounded up if necessary to be an even number and
-// also an integer multiple of the number of processors.  The even
-// number restriction is to simplify the handling of Fourier
-// transforms, which is typically based on a real--complex transform
-// (done via the method of transform of two real functions
+// also an integer multiple of the number of processors because:
+//
+// 1. The even number restriction is to simplify the handling of
+// Fourier transforms, which is typically based on a real--complex
+// transform (done via the method of transform of two real functions
 // simultaneously, see e.g. Numerical Recipes or Bendat & Piersol).
 //  
-// The restriction to be an integer multiple of the number of
+// 2. The restriction to be an integer multiple of the number of
 // processors is to simplify the structure of memory exchanges
 // required for Fourier transforms when computing in parallel.
 // ---------------------------------------------------------------------------
@@ -67,21 +67,16 @@ void Geometry::set (const int_t    NP,
   }
 
   if (_nproc > 1) {		// -- Concurrent execution restrictions.
-    if (_nproc & 1) {
-      sprintf (err, "No. of processors must be even (%1d)",
-	       _nproc);
+
+    if (_nz % (2 * _nproc)) {
+      sprintf (err, "No. of planes (%1d) per processor (%1d) must be even",
+	       _nz, _nproc);
       message (routine, err, ERROR);
     }
 
     if (_nproc << 1 > _nz) {
       sprintf (err, "No. of processors (%1d) can at most be half N_Z (%1d)",
 	       _nproc, _nz);
-      message (routine, err, ERROR);
-    }
-
-    if (_nz % (2 * _nproc)) {
-      sprintf (err, "No. of planes (%1d) per processor (%1d) must be even",
-	       _nz, _nproc);
       message (routine, err, ERROR);
     }
 
