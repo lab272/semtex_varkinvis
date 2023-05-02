@@ -60,7 +60,7 @@ void message_init (int*    argc,
   sprintf       (s, "N_PROC = %1d", n);
   yy_interpret  (s);
 
-  /* -- Allocate a Cartesian MPI grid.  For now, it will only have a
+  /* -- Allocate a 2D Cartesian MPI grid.  For now, it will only have a
      single column (a single 2D partition), and work the same as our
      original parallel-across-modes semtex.
   */

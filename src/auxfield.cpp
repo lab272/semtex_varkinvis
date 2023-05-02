@@ -1128,9 +1128,9 @@ void AuxField::describe (char* s)  const
 AuxField& AuxField::transform (const int_t sign)
 /// --------------------------------------------------------------------------
 /// Discrete Fourier transform in homogeneous (z) direction.  Number
-/// of points in that direction must be even, but is otherwise
-/// unrestricted.  Use sign = FORWARD for forward transform, INVERSE
-/// for inverse.
+/// of points in that direction must be even, and various other
+/// restrictions may apply too. Use sign = FORWARD for forward
+/// transform, INVERSE for inverse.
 ///
 /// Normalization is carried out on forward transform, so that the zeroth
 /// mode's real_t data are the average over the homogeneous direction of the

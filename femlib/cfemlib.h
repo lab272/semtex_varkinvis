@@ -108,7 +108,7 @@ void sabandon (float**);
 
 int_t FamilySize (int_t*, int_t*, int_t*);
 
-/* -- Routines from RCM.f: */
+/* -- Routines from sparsepak.F: */
 
 void genrcm_ (int_t*, int_t*, int_t*, int_t*, int_t*, int_t*);
 #define genrcm(neqns, xadj, adjncy, perm, mask, xls) \
@@ -125,7 +125,7 @@ void rcm_    (int_t*, int_t*, int_t*, int_t*,
 #define rcm(root, xadj, adjncy, mask, perm, ccsize, deg)  \
 (_vecIreg[0] = root, rcm_(_vecIreg, xadj, adjncy, mask, perm, ccsize, deg))
 
-/* -- Routines from fftpack.f (NETLIB/FFTPACK): */
+/* -- Routines from netlib.f (NETLIB/FFTPACK): */
 
 void drffti_ (int_t*, real_t*, int_t*);
 void drfftf_ (int_t*, real_t*, real_t*, real_t*, int_t*);
@@ -150,7 +150,7 @@ void factor_ (int_t*, int_t*, int_t*);
 (_vecIreg[0]=np, _vecIreg[1]=nz, _vecIreg[2]=nfac, _vecIreg[3]=sign,  \
 dmrcft_(v, _vecIreg, _vecIreg+1, w, _vecIreg+2, ifac, trig, _vecIreg+3))
 
-/* -- Routines from temfftd.f (Temperton FFT routines): */
+/* -- Routines from temfftd.F (Temperton FFT routines): */
 
 void prf235_ (int_t*, int_t*, int_t*, int_t*, int_t*);
 #define prf235(n,ip,iq,ir,ipqr2) (prf235_(n,ip,iq,ir,ipqr2))
@@ -192,7 +192,8 @@ rfft_(r,w,trigs,ifax,_vecIreg,_vecIreg+1,_vecDreg))
 
 /* -- Routines from fourier.c */
 
-void dDFTr (real_t*, const int_t, const int_t, const int_t);
+void preFFT (const int_t);
+void dDFTr  (real_t*, const int_t, const int_t, const int_t);
 
 /* -- Routines from filter.c */
 

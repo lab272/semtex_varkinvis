@@ -364,8 +364,8 @@ float ***s3matrix (int_t nrl, int_t nrh,
 
 
 int_t ***i3matrix (int_t nrl, int_t nrh,
-		     int_t ncl, int_t nch,
-		     int_t ndl, int_t ndh)
+		   int_t ncl, int_t nch,
+		   int_t ndl, int_t ndh)
 /* ------------------------------------------------------------------------- *
  * Allocate an int 3-matrix with ranges [nrl..nrh][ncl..nch][ndl..ndh].
  * ------------------------------------------------------------------------- */

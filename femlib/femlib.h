@@ -123,7 +123,8 @@ int_t  FamilySize (int_t*, int_t*, int_t*);
 
 // -- Routines from fourier.c:
 
-void dDFTr (real_t*, const int_t, const int_t, const int_t);
+void preFFT (const int_t);
+void dDFTr  (real_t*, const int_t, const int_t, const int_t);
 
 // -- Routines from filter.c
 
@@ -145,13 +146,15 @@ void message_sexchange (float*,  const int_t, const int_t, const int_t);
 void message_iexchange (int_t*,  const int_t, const int_t, const int_t);
 
 // -- FORTRAN
-// -- Routines from netlib.f:
+// -- Routines from sparsepak.F:
 
    // 1) SPARSPAK
 
 void F77NAME(fnroot) (int_t&,int_t*,int_t*,int_t*,int_t&,int_t*,int_t*);
 void F77NAME(rcm)    (const int_t&,int_t*,int_t*,int_t*,int_t*,int_t&,int_t*);
 void F77NAME(gennd)  (const int_t&,int_t*,int_t*,int_t*,int_t*,int_t*,int_t*);
+
+// -- Routines from netlib.f:  
   
   // 2) FFTPACK
 
@@ -177,7 +180,7 @@ void F77NAME(dfft1)  (real_t*, real_t*, const int_t&, const int_t&,
 		      const int_t*, const int_t&, const real_t*,
 		      const int_t&);
 
-// -- Routines from temfft.f:
+// -- Routines from temfftd.F:
 
 void F77NAME(prf235) (int_t&, int_t&, int_t&, int_t&, int_t&);
 

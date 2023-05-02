@@ -561,7 +561,6 @@ C
 C     ******************************************************************
 C     Routines to compute real <--> complex prime-factor 1D FFTS
 C
-C     $Id$
 C     ******************************************************************
 C
 C     Source:    NETLIB/FFTPACK
