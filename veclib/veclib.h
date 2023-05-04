@@ -1,9 +1,11 @@
 #ifndef VECLIB_H
 #define VECLIB_H
 ///////////////////////////////////////////////////////////////////////////////
-// Veclib.h:  C++ wrappers for veclib subroutine calls.
+// veclib.h:  C++ wrappers for veclib subroutine calls.
 //
 // Veclib is described in the iPSC/2 Programmer's Reference Manual.
+//
+// Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cfemdef.h>
@@ -1184,8 +1186,10 @@ class Veclib {
 
   static double clock ()
   { return dclock () ; }
-  
 
+  static void messg (const char *routine, const char *txt, int level)
+  { message (routine, txt, level); }
+ 
   static void scatr (int_t n, const double* x, const int_t* y, double* z)
   { dscatr (n, x, y, z); }
   static void scatr (int_t n, const int_t*  x, const int_t* y, int_t*  z)

@@ -199,6 +199,7 @@ void dDFTr  (real_t*, const int_t, const int_t, const int_t);
 
 void bvdFilter (const int_t,const int_t,const int_t, const real_t, real_t*);
 
+#if 0
 /* -- Routines from message.c: */
 
 void message_init      (int*, char***);
@@ -213,5 +214,6 @@ void message_irecv     (int_t*,  const int_t, const int_t);
 void message_dexchange (real_t*, const int_t, const int_t,const int_t);
 void message_sexchange (float*,  const int_t, const int_t,const int_t);
 void message_iexchange (int_t*,  const int_t, const int_t,const int_t);
+#endif
 
 #endif

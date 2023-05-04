@@ -2,8 +2,6 @@
 // lns.cpp: control spectral element DNS for incompressible flows.
 // This version drives linear evolution of a single Fourier mode.
 //
-// Copyright (c) 1994+, Hugh Blackburn
-//
 // USAGE:
 // -----
 // lns [options] session
@@ -22,6 +20,8 @@
 // Vic 3800
 // Australia
 // hugh.blackburn@monash.edu
+//
+// Copyright (c) 1994+, Hugh Blackburn
 //////////////////////////////////////////////////////////////////////////////
 
 #include <stab.h>
@@ -47,7 +47,7 @@ int main (int    argc,
   StabAnalyser*    analyst;
   problem_t        task = PRIMAL;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
 
   getargs (argc, argv, task, session);
 
@@ -61,8 +61,6 @@ int main (int    argc,
   
   if (task == PRIMAL) integrate (linAdvect,  domain, bman, analyst);
   else                integrate (linAdvectT, domain, bman, analyst);
-
-  Femlib::finalize();
 
   return EXIT_SUCCESS;
 }
@@ -122,7 +120,7 @@ static void getargs (int        argc   ,
       break;
     }
   
-  if   (argc != 1) message (routine, "no session definition file", ERROR);
+  if   (argc != 1) Veclib::messg (routine, "no session definition file", ERROR);
   else             session = *argv;
 
   // -- While Fourier temporal interpolation is the default for base

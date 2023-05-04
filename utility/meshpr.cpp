@@ -1,5 +1,5 @@
 /*****************************************************************************
- * meshpr: utility to generate mesh nodes from mesh description file.
+ * meshpr.cpp: utility to generate mesh nodes from mesh description file.
  *
  * Usage
  * -----
@@ -31,27 +31,7 @@
  * @file utility/meshpr.cpp
  * @ingroup group_utility
  *****************************************************************************/
-// Copyright (c) 1995 <--> $Date$, Hugh Blackburn
-// --
-// This file is part of Semtex.
-//
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-//
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
+// Copyright (c) 1995+, Hugh M Blackburn
 
 #include <cstdlib>
 #include <iostream>
@@ -59,14 +39,16 @@ static char RCS[] = "$Id$";
 
 using namespace std;
 
-#include "cfemdef.h"
-#include "femlib.h"
-#include "utility.h"
-#include "mesh.h"
+#include <cfemdef.h>
+#include <femlib.h>
+#include <utility.h>
+#include <veclib.h>
+#include <mesh.h>
 
 static char prog[] = "meshpr";
 static void getargs (int_t, char**, char*&, int_t&, bool&, bool&,
 		     int_t&, int_t&, bool&, int_t&, real_t&);
+
 
 int main (int    argc,
 	  char** argv)
@@ -85,7 +67,8 @@ int main (int    argc,
   real_t beta    = -1.;
   bool   check = true, surf = false, threed = false;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
+  
   getargs (argc,argv, session, verb, check, surf, np, nz, threed, basis, beta);
 
   // -- Set up to read from file, initialize Femlib parsing.
@@ -98,9 +81,11 @@ int main (int    argc,
     np = Femlib::ivalue ("N_P");
 
   if (basis == GLJ) {
-    if (np < 3) message (prog, "minimum N_P is 3 for GLL mesh",     ERROR);
+    if (np < 3)
+      Veclib::messg (prog, "minimum N_P is 3 for GLL mesh",     ERROR);
   } else {
-    if (np < 2) message (prog, "minimum N_P is 2 for uniform mesh", ERROR);
+    if (np < 2)
+      Veclib::messg (prog, "minimum N_P is 2 for uniform mesh", ERROR);
   }
 
   if   (verb) Femlib::ivalue ("VERBOSE", verb);
@@ -172,7 +157,6 @@ int main (int    argc,
     }
   }
 
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -241,10 +225,10 @@ static void getargs (int     argc   ,
       break;
     default:
       sprintf (err, "illegal option: %c\n", c);
-      message (prog, err, ERROR);
+      Veclib::messg (prog, err, ERROR);
       break;
     }
 
   if   (argc == 1) session = *argv;
-  else             message (prog, "must provide session file", ERROR);
+  else             Veclib::messg (prog, "must provide session file", ERROR);
 }

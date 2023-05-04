@@ -2,8 +2,6 @@
 // drive.cpp: compute solution to elliptic problem, optionally compare to
 // exact solution (see getoptions(), below).
 //
-// Copyright (c) 1994+, Hugh M Blackburn
-//
 // USAGE:
 // -----
 // elliptic [options] session
@@ -31,6 +29,7 @@
 // element-Fourier solver for the incompressible Navier-Stokes
 // equations in cylindrical or Cartesian coordinates", CPC 245:106804
 //
+// Copyright (c) 1994+, Hugh M Blackburn
 //////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -64,7 +63,8 @@ int main (int    argc,
   Domain*          domain;
   AuxField*        forcefld;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init  ();
+  Message::init (&argc, &argv);
 
   getargs (argc, argv, session);
 
@@ -81,7 +81,7 @@ int main (int    argc,
 
   domain -> dump();
 
-  Femlib::finalize();
+  Message::stop();
 
   return EXIT_SUCCESS;
 }
@@ -127,7 +127,7 @@ static void getargs (int    argc   ,
       break;
     }
   
-  if (argc != 1) message (routine, "no session definition file", ERROR);
+  if (argc != 1) Veclib::messg (routine, "no session definition file", ERROR);
 
   session = *argv;
 }
@@ -241,7 +241,8 @@ static void getoptions (FEML*  feml ,
     }
 
     if (strcmp (s, "</USER>") != 0)
-      message (routine, "couldn't sucessfully close <USER> section", ERROR);
+      Veclib::messg
+	(routine, "couldn't sucessfully close <USER> section", ERROR);
   }
 }
 
@@ -275,7 +276,7 @@ static void getforcing (const char* session  ,
     char          s[StrMax], f[StrMax];
 
     if (file.getline(s, StrMax).eof())
-      message (routine, "forcing file is empty", ERROR);
+      Veclib::messg (routine, "forcing file is empty", ERROR);
 
     file.getline(s,StrMax).getline(s,StrMax);
 
@@ -290,29 +291,36 @@ static void getforcing (const char* session  ,
     sss.str (ss = f);
     sss >> npchk >> npchk >> nzchk >> nelchk;
 
-    if (np  != npchk ) message (routine, "element size mismatch",       ERROR);
-    if (nz  != nzchk ) message (routine, "number of z planes mismatch", ERROR);
-    if (nel != nelchk) message (routine, "number of elements mismatch", ERROR);
+    if (np  != npchk )
+      Veclib::messg (routine, "element size mismatch",       ERROR);
+    if (nz  != nzchk )
+      Veclib::messg (routine, "number of z planes mismatch", ERROR);
+    if (nel != nelchk)
+      Veclib::messg (routine, "number of elements mismatch", ERROR);
   
     ntot = np * np * nz * nel;
     if (ntot != Geometry::nTot())
-      message (routine, "declared sizes mismatch", ERROR);
+      Veclib::messg (routine, "declared sizes mismatch", ERROR);
 
     file.getline(s,StrMax).getline(s,StrMax);
     file.getline(s,StrMax).getline(s,StrMax);
     file.getline(s,StrMax).getline(s,StrMax);
 
     nfields = 0; while (isalpha (s[nfields])) nfields++;
-    if (!nfields) message (routine, "no fields declared in forcing", ERROR);
+    if (!nfields)
+      Veclib::messg
+	(routine, "no fields declared in forcing", ERROR);
 
     file.getline (s, StrMax);
     Veclib::describeFormat (f);
 
     if (!strstr (s, "binary"))
-      message (routine, "input field file not in binary format", ERROR);
+      Veclib::messg
+	(routine, "input field file not in binary format", ERROR);
   
     if (!strstr (s, "endian"))
-      message (routine, "input field file in unknown binary format", WARNING);
+      Veclib::messg
+	(routine, "input field file in unknown binary format", WARNING);
     else {
       swab = ((strstr (s, "big") && strstr (f, "little")) ||
 	      (strstr (f, "big") && strstr (s, "little")) );

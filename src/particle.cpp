@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 // particle.cpp: functions for integrating positions of particles.
 //
-// Copyright (c) 1994+, Hugh M Blackburn
-//
 // See also analysis.cpp
+//
+// Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -146,7 +146,7 @@ void FluidParticle::integrate ()
 	  char     str[StrMax];
 	  sprintf (str, "Particle %1d at (%f, %f, %f) left mesh",
 		   _id, _p.x, _p.y, _p.z);
-	  message (routine, str, WARNING);
+	  Veclib::messg (routine, str, WARNING);
 	}
 #endif
 	return;
@@ -180,7 +180,7 @@ void FluidParticle::integrate ()
 	  char     str[StrMax];
 	  sprintf (str, "Particle %1d at (%f, %f, %f) left mesh",
 		   _id, _p.x, _p.y, _p.z);
-	  message (routine, str, WARNING);
+	  Veclib::messg (routine, str, WARNING);
 	}
 #endif
 	return;

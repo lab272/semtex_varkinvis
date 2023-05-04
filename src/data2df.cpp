@@ -4,7 +4,6 @@
 // definitions for IO & maintenance of input file information.
 //
 // Copyright (c) 2004+, Hugh M Blackburn
-//
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -175,7 +174,7 @@ Data2DF& Data2DF::operator = (const Data2DF& rhs)
 // ---------------------------------------------------------------------------
 {
   if (rhs._nel != _nel)
-    message ("Data2DF::operator =", "fields can't conform", ERROR);
+    Veclib::messg ("Data2DF::operator =", "fields can't conform", ERROR);
 
   if (rhs._np == _np && rhs._nz == _nz)
     Veclib::copy (_ntot, rhs._data, 1, _data, 1);
@@ -228,7 +227,7 @@ Data2DF& Data2DF::operator += (const Data2DF& rhs)
 // ---------------------------------------------------------------------------
 {
   if (rhs._nel != _nel || rhs._np != _np || rhs._nz != _nz)
-    message ("Data2DF::operator +=", "fields don't conform", ERROR);
+    Veclib::messg ("Data2DF::operator +=", "fields don't conform", ERROR);
 
   Veclib::vadd (_ntot, rhs._data, 1, _data, 1, _data, 1);
 
@@ -242,7 +241,7 @@ Data2DF& Data2DF::operator -= (const Data2DF& rhs)
 // ---------------------------------------------------------------------------
 {
   if (rhs._nel != _nel || rhs._np != _np || rhs._nz != _nz)
-    message ("Data2DF::operator +=", "fields don't conform", ERROR);
+    Veclib::messg ("Data2DF::operator +=", "fields don't conform", ERROR);
 
   Veclib::vsub (_ntot, _data, 1, rhs._data, 1, _data, 1);
 
@@ -256,7 +255,7 @@ Data2DF& Data2DF::operator *= (const Data2DF& rhs)
 // ---------------------------------------------------------------------------
 {
   if (rhs._nel != _nel || rhs._np != _np || rhs._nz != _nz)
-    message ("Data2DF::operator *=", "fields don't conform", ERROR);
+    Veclib::messg ("Data2DF::operator *=", "fields don't conform", ERROR);
 
   Veclib::vmul (_ntot, rhs._data, 1, _data, 1, _data, 1);
 
@@ -467,7 +466,7 @@ istream& operator >> (istream& file,
   file >> hdr.flds;                              file.getline(s, StrMax);
   file.get(hdr.frmt, 26);                        file.getline(s, StrMax);
 
-  if (!file) message (routine, "failed reading header information", ERROR);
+  if (!file) Veclib::messg (routine, "failed reading header information", ERROR);
   return file;
 }
 
@@ -513,7 +512,7 @@ ostream& operator << (ostream& file,
 
   sprintf  (s1, hdr_fmt[9], s2);                              file << s1;
 
-  if (!file) message (routine, "failed writing field file header", ERROR);
+  if (!file) Veclib::messg (routine, "failed writing field file header", ERROR);
   file << flush;
 
   return file;
@@ -533,10 +532,12 @@ bool Header::swab() const
   Veclib::describeFormat (machine);
 
   if (!strstr (frmt, "binary"))
-    message (routine, "input field file not in binary format", ERROR);
+    Veclib::messg
+      (routine, "input field file not in binary format", ERROR);
   
   if (!strstr (frmt, "endian"))
-    message (routine, "input field file in unknown binary format", WARNING);
+    Veclib::messg
+      (routine, "input field file in unknown binary format", WARNING);
   else
     swap = ((strstr (machine, "big") && strstr (frmt,    "little")) ||
 	    (strstr (frmt,    "big") && strstr (machine, "little")) );

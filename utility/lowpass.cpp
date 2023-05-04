@@ -24,27 +24,7 @@
  * @file utility/lowpass.cpp
  * @ingroup group_utility
  *****************************************************************************/
-// Copyright (c) 2004 <--> $Date$, Hugh Blackburn
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
+// Copyright (c) 2004+, Hugh M Blackburn
 
 #include <sem.h>
 #include <data2df.h>
@@ -68,7 +48,8 @@ int main (int    argc,
   istream*         input;
   vector<Data2DF*> u;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
+  
   getargs (argc, argv, type, order, roll, input);
  
   while (getDump (*input, cout, u))
@@ -80,7 +61,6 @@ int main (int    argc,
       cout << *u[i];
     }
   
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -137,7 +117,8 @@ static void getargs (int       argc ,
 
   if (argc == 1) {
     input = new ifstream (*argv);
-    if (input -> fail()) message (prog, "unable to open input file", ERROR);
+    if (input -> fail())
+      Veclib::messg (prog, "unable to open input file", ERROR);
   } else input = &cin;
 }
 
@@ -165,9 +146,9 @@ static bool doSwap (const char* ffmt)
   Veclib::describeFormat (mfmt);   
 
   if (!strstr (ffmt, "binary"))
-    message (prog, "input field file not in binary format", ERROR);
+    Veclib::messg (prog, "input field file not in binary format", ERROR);
   else if (!strstr (ffmt, "endian"))
-    message (prog, "input field file in unknown binary format", WARNING);
+    Veclib::messg (prog, "input field file in unknown binary format", WARNING);
 
   return (strstr (ffmt, "big") && strstr (mfmt, "little")) || 
          (strstr (mfmt, "big") && strstr (ffmt, "little"));
@@ -198,7 +179,7 @@ static bool getDump (istream&          ifile,
 
   if (ifile.getline(buf, StrMax).eof()) return false;
   
-  if (!strstr (buf, "Session")) message (prog, "not a field file", ERROR);
+  if (!strstr (buf, "Session")) Veclib::messg (prog, "not a field file", ERROR);
   ofile << buf << endl;
   ifile.getline (buf, StrMax);
   ofile << buf << endl;

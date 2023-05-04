@@ -1,17 +1,15 @@
 //////////////////////////////////////////////////////////////////////////////
 // analysis.C: implement Analyser class for NS-type solvers.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
-//
 // This deals with output of runtime information such as step numbers,
 // CFL estimation, modal energies, etc.  If set, also output history
 // point and particle track information.
 //
 // It is assumed that the first 2 or 3 (for 3D) entries in the Domain
 // u vector are velocity fields.
+//
+// Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <unistd.h>
 #include <sem.h>
@@ -59,14 +57,14 @@ Analyser::Analyser (Domain* D   ,
 	num++;
       } else {
 	sprintf (str, "History point at (%f, %f, %f) not in mesh", x, y, z);
-	message (routine, str, WARNING);
+	Veclib::messg (routine, str, WARNING);
       }
     }
     
     _his_strm.open (strcat (strcpy (str, _src -> name), ".his"));
     _his_strm.setf (ios::scientific, ios::floatfield);
     _his_strm.precision (6);
-    if (!_his_strm) message (routine, "can't open history file", ERROR);
+    if (!_his_strm) Veclib::messg (routine, "can't open history file", ERROR);
   }
 
   // -- Set up for output of modal energies every IO_CFL steps.
@@ -199,7 +197,7 @@ void Analyser::divergence (AuxField** Us) const
 
   // -- Crash stop.
 
-  if (L2 != L2) message (routine, "forcing termination on NaN.", ERROR);
+  if (L2 != L2) Veclib::messg (routine, "forcing termination on NaN.", ERROR);
 }
 
 

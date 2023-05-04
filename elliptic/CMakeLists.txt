@@ -1,6 +1,7 @@
 # -- Definitions used to compile elliptic solver.
 
 set (ell_src
+  ${CMAKE_CURRENT_LIST_DIR}/../src/message.cpp
   ${CMAKE_CURRENT_LIST_DIR}/helmholtz.cpp
   ${CMAKE_CURRENT_LIST_DIR}/drive.cpp
 )
@@ -21,7 +22,7 @@ target_link_libraries      (elliptic src fem vec ${import_serial_libs})
 
 if (MPI_FOUND)
   add_executable             (elliptic_mp ${ell_src})
-  target_compile_definitions (elliptic_mp PRIVATE -DMPI)
-  target_include_directories (elliptic_mp PUBLIC src)
-  target_link_libraries      (elliptic_mp src fem_mp vec ${import_par_libs})
+  target_compile_definitions (elliptic_mp PRIVATE -DMPI_EX)
+  target_include_directories (elliptic_mp PUBLIC src elliptic)
+  target_link_libraries      (elliptic_mp src fem vec ${import_par_libs})
 endif (MPI_FOUND)

@@ -18,6 +18,7 @@ set (semtex_src
   integration.cpp
   matrix.cpp
   mesh.cpp
+# message.cpp
   misc.cpp
   numbersys.cpp
   particle.cpp
@@ -27,3 +28,10 @@ set (semtex_src
 
 add_library (src STATIC ${semtex_src})
 target_include_directories (src PRIVATE ${CMAKE_SOURCE_DIR}/src)
+
+#if (MPI_FOUND)
+#  add_library (src_mp STATIC ${semtex_src})
+#  target_compile_definitions (src_mp PRIVATE -DMPI_EX)
+#  target_include_directories (src_mp PRIVATE ${CMAKE_SOURCE_DIR}/src)
+#endif()
+

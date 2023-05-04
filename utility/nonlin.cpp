@@ -38,27 +38,7 @@
  * @file utility/nonlin.cpp
  * @ingroup group_utility
  *****************************************************************************/
-// Copyright (c) 2016 <--> $Date$, Hugh Blackburn
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
+// Copyright (c) 2016+, Hugh M Blackburn
 
 #include <sem.h>
 
@@ -85,7 +65,7 @@ int main (int    argc,
   AuxField*                  work;
   int_t                      i, j, NDIM, NCOM;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
 
   // -- Read command line.
 
@@ -192,12 +172,12 @@ static void getargs (int        argc   ,
     if (file -> fail()) {
       cerr << usage;
       sprintf (buf, "unable to open field file: %s", argv[1]);
-      message (prog, buf, ERROR);
+      Veclib::messg (prog, buf, ERROR);
     }
     break;
   default:
     cerr << usage;
-    message (prog, "session file not supplied", ERROR);
+    Veclib::messg (prog, "session file not supplied", ERROR);
     break;
   }  
 }
@@ -247,7 +227,7 @@ static void getDump (istream&           file,
 
   file.getline (buf, StrMax);
 
-  if (!strstr (buf, "Session")) message (prog, "not a field file", ERROR);
+  if (!strstr (buf, "Session")) Veclib::messg (prog, "not a field file", ERROR);
   file.getline (buf, StrMax);
 
   // -- Input numerical description of field sizes.
@@ -256,7 +236,7 @@ static void getDump (istream&           file,
   file.getline (buf, StrMax);
   
   if (np != Geometry::nP() || nz != Geometry::nZ() || nel != Geometry::nElmt())
-    message (prog, "input file mismatch with session file", ERROR);
+    Veclib::messg (prog, "input file mismatch with session file", ERROR);
 
   file.getline (buf, StrMax);
   file.getline (buf, StrMax);
@@ -272,7 +252,7 @@ static void getDump (istream&           file,
 
   if      (strstr (fields, "uvw")) ncom = 3;
   else if (strstr (fields, "uv"))  ncom = 2;
-  else message (prog, "input file lacks velocity components", ERROR);
+  else Veclib::messg (prog, "input file lacks velocity components", ERROR);
 
   u.resize (ncom);
   n.resize (ncom);
@@ -307,7 +287,7 @@ static void getDump (istream&           file,
     }
   }
 
-  if (file.fail ()) message (prog, "problem reading input data", ERROR);
+  if (file.fail ()) Veclib::messg (prog, "problem reading input data", ERROR);
 
   // -- Clear all nonlinear storage areas.
 
@@ -325,9 +305,9 @@ static bool doSwap (const char* ffmt)
   Veclib::describeFormat (mfmt);   
 
   if (!strstr (ffmt, "binary"))
-    message (prog, "input field file not in binary format", ERROR);
+    Veclib::messg (prog, "input field file not in binary format", ERROR);
   else if (!strstr (ffmt, "endian"))
-    message (prog, "input field file in unknown binary format", WARNING);
+    Veclib::messg (prog, "input field file in unknown binary format", WARNING);
 
   return (strstr (ffmt, "big") && strstr (mfmt, "little")) || 
          (strstr (mfmt, "big") && strstr (ffmt, "little"));

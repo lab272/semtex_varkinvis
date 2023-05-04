@@ -1,8 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // statistics.cpp: routines for statistical analysis of AuxFields.
 //
-// Copyright (c) 1994+, Hugh M Blackburn
-//
 // The collection of statistics is controlled by the setting of the
 // AVERAGE token. Legal values are 0 (default), 1, 2, 3. The routines
 // here do not control how often statistics are updated: that happens
@@ -80,6 +78,7 @@
 // for cylindrical coordinates. They are probably OK provided the
 // domain is invariant in the axial direction (e.g. a straight tube).
 //
+// Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -100,7 +99,8 @@ Statistics::Statistics (Domain* D) :
 {
   if (_iavg == 0) return;
   if ((_iavg  < 0) || (_iavg > 3))
-    message ("Statistics::Statistics", "AVERAGE token out of [0,3]", ERROR);
+    Veclib::messg
+      ("Statistics::Statistics", "AVERAGE token out of [0,3]", ERROR);
 					 
   int_t       i;
   const int_t nz   = Geometry::nZProc();
@@ -462,8 +462,8 @@ void Statistics::dump (const char* filename)
     const bool verbose   = static_cast<bool> (Femlib::ivalue ("VERBOSE"));
 
     output.open (filename);
-    if (!output) message (routine, "can't open dump file", ERROR);
-    if (verbose) message (routine, ": writing field dump", REMARK);
+    if (!output) Veclib::messg (routine, "can't open dump file", ERROR);
+    if (verbose) Veclib::messg (routine, ": writing field dump", REMARK);
   }
   
   // -- All terms are written out in physical space but some are
@@ -526,13 +526,16 @@ ifstream& operator >> (ifstream&   strm,
   sss.str   (ss = f);
   sss >> npchk >> npchk >> nzchk >> nelchk;
 
-  if (np  != npchk ) message (routine, "element size mismatch",       ERROR);
-  if (nz  != nzchk ) message (routine, "number of z planes mismatch", ERROR);
-  if (nel != nelchk) message (routine, "number of elements mismatch", ERROR);
+  if (np  != npchk )
+    Veclib::messg (routine, "element size mismatch",       ERROR);
+  if (nz  != nzchk )
+    Veclib::messg (routine, "number of z planes mismatch", ERROR);
+  if (nel != nelchk)
+    Veclib::messg (routine, "number of elements mismatch", ERROR);
   
   ntot = np * np * nz * nel;
   if (ntot != Geometry::nTot())
-    message (routine, "declared sizes mismatch", ERROR);
+    Veclib::messg (routine, "declared sizes mismatch",     ERROR);
 
   strm.getline (s, StrMax);
 
@@ -552,23 +555,25 @@ ifstream& operator >> (ifstream&   strm,
   if (nfields != tgt._avg.size()) {
     sprintf (err, "strm: %1d fields, avg: %1d", 
 	     nfields, static_cast<int_t>(tgt._avg.size()));
-    message (routine, err, ERROR);
+    Veclib::messg (routine, err, ERROR);
   }
 
   for (i = 0, k = tgt._avg.begin(); k != tgt._avg.end(); k++, i++)
     if (!strchr (fields, k -> second -> name())) {
       sprintf (err, "field %c not present in avg", fields[i]);
-      message (routine, err, ERROR);
+      Veclib::messg (routine, err, ERROR);
     }
 
   strm.getline (s, StrMax);
   Veclib::describeFormat (f);
 
   if (!strstr (s, "binary"))
-    message (routine, "input field strm not in binary format", ERROR);
+    Veclib::messg
+      (routine, "input field strm not in binary format", ERROR);
   
   if (!strstr (s, "endian"))
-    message (routine, "input field strm in unknown binary format", WARNING);
+    Veclib::messg
+      (routine, "input field strm in unknown binary format", WARNING);
   else {
     swap = ((strstr (s, "big") && strstr (f, "little")) ||
 	    (strstr (f, "big") && strstr (s, "little")) );
@@ -584,7 +589,7 @@ ifstream& operator >> (ifstream&   strm,
   }
   
   ROOTONLY if (strm.bad())
-    message (routine, "failed reading average file", ERROR);
+    Veclib::messg (routine, "failed reading average file", ERROR);
 
   return strm;
 }

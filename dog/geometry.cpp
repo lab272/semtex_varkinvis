@@ -1,18 +1,17 @@
 ///////////////////////////////////////////////////////////////////////////////
-// geometry.C: define geometrical properties for 2D quad X Fourier spaces.
-//
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
+// geometry.cpp: define geometrical properties for 2D quad X Fourier spaces.
 //
 // Most routines are inlined in header file geometry.h.
+//
+// Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <cstdio>
 #include <iostream>
 
 #include <cfemdef.h>
 #include <utility.h>
+#include <veclib.h>
 #include <femlib.h>
 #include <geometry.h>
 
@@ -29,6 +28,7 @@ int_t Geometry::_nbase  = 0;
 int_t Geometry::_nslice = 0;
 Geometry::CoordSys Geometry::_csys = Geometry::Cartesian;
 Geometry::Category Geometry::_cat  = Geometry::O2_3D_SYMM;
+
 
 void Geometry::set (const int_t nel  ,
 		    const int_t npert)
@@ -63,18 +63,21 @@ void Geometry::set (const int_t nel  ,
   else if (_nbase == 3 && _npert == 3 && _nz == 2) _cat = SO2_3D;
   else {
     sprintf (err, "illegal: N_BASE = %1d, N_PERT = %1d, N_Z = %1d",
-	     _nbase, _npert, _nz); message (routine, err, ERROR);
+	     _nbase, _npert, _nz); Veclib::messg (routine, err, ERROR);
   }
 
   // -- We can only allow SO2_2D if BETA != 0.
 
   if ((_cat == SO2_2D) && (Femlib::value ("BETA") > EPSDP))
-    message (routine, "SO2_2D needs BETA=0, i.e. z-invariance, too.", ERROR);
+    Veclib::messg
+      (routine, "SO2_2D needs BETA=0, i.e. z-invariance, too.", ERROR);
 
   // -- Other sanity checks.
 
-  if (_nproc  > 1) message (routine, "serial execution only",          ERROR);
-  if (_nslice < 1) message (routine, "N_SLICE must be set in session", ERROR);
+  if (_nproc  > 1)
+    Veclib::messg (routine, "serial execution only",            ERROR);
+  if (_nslice < 1)
+    Veclib::messg (routine, "N_SLICE must be set in session",   ERROR);
 }
 
 

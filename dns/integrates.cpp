@@ -5,7 +5,6 @@
 // optionally, scalar).
 //
 // Copyright (c) 2010+, Hugh M Blackburn.
-//
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <dns.h>
@@ -183,12 +182,12 @@ static void advect (Domain*   D ,
 
       if (nZ > 2) {
 	Veclib::copy       (nTot32, u32[NCOM], 1, tmp, 1);
-	Femlib::exchange   (tmp, nZ32,        nP, FORWARD);
+	Message::exchange   (tmp, nZ32,        nP, FORWARD);
 	Femlib::DFTr       (tmp, nZ32 * nPR, nPP, FORWARD);
 	Veclib::zero       (nTot32 - nTot, tmp + nTot, 1);
 	master -> gradient (nZ, nPP, tmp, 2);
 	Femlib::DFTr       (tmp, nZ32 * nPR, nPP, INVERSE);
-	Femlib::exchange   (tmp, nZ32,        nP, INVERSE);
+	Message::exchange   (tmp, nZ32,        nP, INVERSE);
 	Veclib::vvtvp      (nTot32, u32[2], 1, tmp, 1, n32, 1, n32, 1);
 	
 	master -> divY     (nZ32, n32);
@@ -206,12 +205,12 @@ static void advect (Domain*   D ,
 
       if (nZ > 2) {
 	Veclib::vmul       (nTot32, u32[NCOM], 1, u32[2], 1, tmp, 1);
-	Femlib::exchange   (tmp, nZ32,        nP, FORWARD);
+	Message::exchange   (tmp, nZ32,        nP, FORWARD);
 	Femlib::DFTr       (tmp, nZ32 * nPR, nPP, FORWARD);
 	Veclib::zero       (nTot32 - nTot, tmp + nTot, 1);
 	master -> gradient (nZ, nPP, tmp, 2);
 	Femlib::DFTr       (tmp, nZ32 * nPR, nPP, INVERSE);
-	Femlib::exchange   (tmp, nZ32,        nP, INVERSE);
+	Message::exchange   (tmp, nZ32,        nP, INVERSE);
 	Veclib::vadd       (nTot32, tmp, 1, n32, 1, n32, 1);
 
 	master -> divY     (nZ32, n32);
@@ -233,12 +232,12 @@ static void advect (Domain*   D ,
       for (j = 0; j < NDIM; j++) {
 	Veclib::copy (nTot32, u32[NCOM], 1, tmp,  1);
 	if (j == 2) {
-	  Femlib::exchange   (tmp, nZ32,        nP, FORWARD);
+	  Message::exchange   (tmp, nZ32,        nP, FORWARD);
 	  Femlib::DFTr       (tmp, nZ32 * nPR, nPP, FORWARD);
 	  Veclib::zero       (nTot32 - nTot, tmp + nTot, 1);
 	  master -> gradient (nZ,  nPP, tmp, j);
 	  Femlib::DFTr       (tmp, nZ32 * nPR, nPP, INVERSE);
-	  Femlib::exchange   (tmp, nZ32,        nP, INVERSE);
+	  Message::exchange   (tmp, nZ32,        nP, INVERSE);
 	} else {
 	  master -> gradient (nZ32, nP, tmp, j);
 	}
@@ -250,12 +249,12 @@ static void advect (Domain*   D ,
       for (j = 0; j < NDIM; j++) {
 	Veclib::vmul  (nTot32, u32[NCOM], 1, u32[j], 1, tmp,  1);
 	if (j == 2) {
-	  Femlib::exchange   (tmp, nZ32,        nP, FORWARD);
+	  Message::exchange   (tmp, nZ32,        nP, FORWARD);
 	  Femlib::DFTr       (tmp, nZ32 * nPR, nPP, FORWARD);
 	  Veclib::zero       (nTot32 - nTot, tmp + nTot, 1);
 	  master -> gradient (nZ,  nPP, tmp, j);
 	  Femlib::DFTr       (tmp, nZ32 * nPR, nPP, INVERSE);
-	  Femlib::exchange   (tmp, nZ32,        nP, INVERSE);
+	  Message::exchange   (tmp, nZ32,        nP, INVERSE);
 	} else {
 	  master -> gradient (nZ32, nP, tmp, j);
 	}

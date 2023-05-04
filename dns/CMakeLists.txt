@@ -1,6 +1,7 @@
 # -- Definitions used to compile dns solver.
 
 set (dns_src
+  ${CMAKE_CURRENT_LIST_DIR}/../src/message.cpp
   ${CMAKE_CURRENT_LIST_DIR}/dnsanalysis.cpp
   ${CMAKE_CURRENT_LIST_DIR}/fieldforce.cpp
   ${CMAKE_CURRENT_LIST_DIR}/integrate.cpp
@@ -25,7 +26,7 @@ target_link_libraries      (dns src fem vec ${import_serial_libs})
 
 if (MPI_FOUND)
   add_executable             (dns_mp ${dns_src})
-  target_compile_definitions (dns_mp PRIVATE -DMPI)
+  target_compile_definitions (dns_mp PRIVATE -DMPI_EX)
   target_include_directories (dns_mp PUBLIC src dns)
-  target_link_libraries      (dns_mp src fem_mp vec ${import_par_libs})
+  target_link_libraries      (dns_mp src fem vec ${import_par_libs})
 endif (MPI_FOUND)

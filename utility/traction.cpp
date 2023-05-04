@@ -13,6 +13,7 @@
  * @file utility/traction.cpp
  * @ingroup group_utility
  *****************************************************************************/
+// Copyright (c) 2004+, Hugh M Blackburn
 
 #include <sem.h>
 
@@ -40,7 +41,7 @@ int main (int    argc,
   int_t                      _nwall, _nline, _npad, DIM;
   vector<real_t>             _work;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
 
   // -- Read command line.
 
@@ -150,7 +151,6 @@ int main (int    argc,
       }
   }
   
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -201,12 +201,12 @@ static void getargs (int        argc   ,
     if (file -> fail()) {
       cerr << usage;
       sprintf (buf, "unable to open field file: %s", argv[1]);
-      message (prog, buf, ERROR);
+      Veclib::messg (prog, buf, ERROR);
     }
     break;
   default:
     cerr << usage;
-    message (prog, "session file not supplied", ERROR);
+    Veclib::messg (prog, "session file not supplied", ERROR);
     break;
   }  
 }

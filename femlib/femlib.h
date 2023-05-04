@@ -175,7 +175,7 @@ void F77NAME(factor) (const int_t&, int_t&, int_t*);
 
 void F77NAME(dpreft) (const int_t&, int_t&, int_t*, real_t*);
 void F77NAME(dmrcft) (real_t*, const int_t&, const int_t&, real_t*,
-		      const int_t&, int_t*, real_t*, const int_t&);
+ 		      const int_t&, int_t*, real_t*, const int_t&);
 void F77NAME(dfft1)  (real_t*, real_t*, const int_t&, const int_t&,
 		      const int_t*, const int_t&, const real_t*,
 		      const int_t&);
@@ -207,7 +207,12 @@ void F77NAME(dtpr2d) (const real_t*, real_t*, real_t*, const real_t*,
 class Femlib {
 public:
 
-  static void initialize (int* argc, char*** argv)
+#if 1  
+  static void init ()
+    { yy_initialize (); }
+  
+#else
+   static void initialize (int* argc, char*** argv)
     { message_init (argc, argv); }
   static void prepVec (const char* v, const char* f)
     { yy_vec_init (v, f); }
@@ -215,6 +220,10 @@ public:
     { message_stop (); }
   static void synchronize ()
     { message_sync(); }
+#endif
+
+  static void prepVec (const char* v, const char* f)
+    { yy_vec_init (v, f); }
 
 #if 0
   // -- This form seems to cause a problem, hence workaround:
@@ -392,6 +401,13 @@ public:
 		    const int_t& lot, const int_t& isign)
     { F77NAME(dgpfa) (a, b, trig, inc, jump, n, ip, iq, ir, lot, isign); }
 
+#if 0				// -- Moving these to src/message.cpp.
+  static void initialize (int* argc, char*** argv)
+    { message_init (argc, argv); }
+  static void finalize () 
+    { message_stop (); }
+  static void synchronize ()
+    { message_sync(); }
   static void send  (real_t* data, const int_t N, const int_t tgt)
     { message_dsend (data, N, tgt); }
   static void recv  (real_t* data, const int_t N, const int_t src)
@@ -413,7 +429,10 @@ public:
   static void exchange  (int_t* data,  const int_t nZ,
 			 const int_t nP, const int_t sign)
     { message_iexchange (data, nZ, nP, sign); }
+#else
 
+#endif
+  
   static void grad2 (const real_t* x, const real_t* y, real_t* xr, real_t* ys,
 		     const real_t* dv, const real_t* dt,
 		     const int_t& nr, const int_t& ns, const int_t& nel)

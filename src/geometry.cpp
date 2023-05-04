@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 // geometry.cpp: define geometrical properties for 2D quad X Fourier spaces.
 //
-// Copyright (c) 1994+, Hugh M Blackburn
-//
 // Most routines are inlined in header file geometry.h
+//
+// Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
@@ -12,6 +12,7 @@
 #include <cfemdef.h>
 #include <utility.h>
 #include <geometry.h>
+#include <veclib.h>
 #include <femlib.h>
 
 int_t Geometry::_pid   = 0;	// -- Initialise static private data.
@@ -63,7 +64,7 @@ void Geometry::set (const int_t    NP,
 
   if (_nz > 1 && _nz & 1) {	// -- 3D problems must have NZ even.
     sprintf (err, "N_Z must be even (%1d)", _nz);
-    message (routine, err, ERROR);
+    Veclib::messg (routine, err, ERROR);
   }
 
   if (_nproc > 1) {		// -- Concurrent execution restrictions.
@@ -71,13 +72,13 @@ void Geometry::set (const int_t    NP,
     if (_nz % (2 * _nproc)) {
       sprintf (err, "No. of planes (%1d) per processor (%1d) must be even",
 	       _nz, _nproc);
-      message (routine, err, ERROR);
+      Veclib::messg (routine, err, ERROR);
     }
 
     if (_nproc << 1 > _nz) {
       sprintf (err, "No. of processors (%1d) can at most be half N_Z (%1d)",
 	       _nproc, _nz);
-      message (routine, err, ERROR);
+      Veclib::messg (routine, err, ERROR);
     }
 
     _psize  = nPlane();

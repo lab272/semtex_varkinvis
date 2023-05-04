@@ -1,5 +1,5 @@
 /*****************************************************************************
- * sem2nek: utility to read a semtex input file, print a NEKTON-style
+ * sem2nek.cpp: utility to read a semtex input file, print a NEKTON-style
  * input (.rea) file.
  *
  * Usage
@@ -17,28 +17,7 @@
  * @file utility/sem2nek.cpp
  * @ingroup group_utility
  * **************************************************************************/
-// Copyright (c) 1997 <--> $Date$,  Hugh Blackburn
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-// $Id$
-///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
+// Copyright (c) 1997+,  Hugh M Blackburn
 
 #include <cstdlib>
 #include <iomanip>
@@ -47,6 +26,7 @@ static char RCS[] = "$Id$";
 #include <femlib.h>
 #include <mesh.h>
 #include <utility.h>
+#include <veclib.h>
 
 static char prog[] = "sem2nek";
 
@@ -64,7 +44,8 @@ int main (int    argc,
   ifstream  file;
   char*     session;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
+  
   getArgs (argc, argv, session);
 
   FEML feml (session);
@@ -74,7 +55,6 @@ int main (int    argc,
   M.printNek();
   printTail ();
 
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -98,17 +78,17 @@ static void getArgs (int    argc   ,
     switch (*++argv[0]) {
     case 'h':
       sprintf (buf, usage, prog);
-      message ("", buf, REMARK);
+      Veclib::messg ("", buf, REMARK);
       exit (EXIT_SUCCESS);
       break;
     default:
       sprintf (buf, usage, prog);
-      message ("", buf, REMARK);
+      Veclib::messg ("", buf, REMARK);
       exit (EXIT_FAILURE);
       break;
     }
   
-  if   (argc != 1) message (routine, "no session definition file", ERROR);
+  if   (argc != 1) Veclib::messg (routine, "no session definition file", ERROR);
   else             session = *argv;
 }
 

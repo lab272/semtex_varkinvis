@@ -38,26 +38,6 @@
  * @ingroup group_utility
  *****************************************************************************/
 // Copyright (c) 2010 <--> $Date$, Hugh Blackburn
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
@@ -78,7 +58,8 @@ int main (int    argc,
   vector<real_t>      x, y, mapx, mapy;
   real_t              z;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
+  
   getargs (argc, argv, xmap, ymap, session);
 
   FEML F (session);
@@ -105,7 +86,7 @@ int main (int    argc,
 
   if (nNode < 4) {
     sprintf (err, "At least 4 Nodes are needed, found %1d declared", nNode);
-    message (prog, err, ERROR);
+    Veclib::messg (prog, err, ERROR);
   }
 
   for (i = 0; i < nNode; i++) {
@@ -117,7 +98,7 @@ int main (int    argc,
 
     if (id[i] > nNode) {
       sprintf (err, "Node ID %1d exceeds attribution (%1d)", id[i], nNode);
-      message (prog, err, ERROR);
+      Veclib::messg (prog, err, ERROR);
     }
   }
 
@@ -185,5 +166,5 @@ static void getargs (int    argc   ,
     }
 
   if   (argc == 1) session = *argv;
-  else             message (prog, "must provide session file", ERROR);
+  else             Veclib::messg (prog, "must provide session file", ERROR);
 }

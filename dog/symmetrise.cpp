@@ -3,8 +3,6 @@
 // information) and enforce reflection symmetry using node lists
 // created by flipmap.  See also drive.cpp.
 //
-// Copyright (c) 2008 <--> $Date$, Hugh Blackburn
-//
 // USAGE
 // -----
 // symmetrise [options] -m mapfile [file]
@@ -25,6 +23,8 @@
 //
 // NB: It seems that the symmetries above could only be correct for a
 // 2D flow field (or the real part of a mode).
+//
+// Copyright (c) 2008+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
 static char RCS[] = "$Id$";
@@ -52,7 +52,8 @@ int main (int    argc,
   vector<int_t>    positive, negative;
   real_t           mean2d;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
+  
   getargs (argc, argv, mapping, input);
 
   *input >> h;
@@ -107,7 +108,6 @@ int main (int    argc,
     cout << *u[i];
   }
 
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -138,7 +138,7 @@ static void getargs (int       argc ,
     case 'm':
       --argc; ++argv;
       mapfl = new ifstream (*argv);
-      if (mapfl -> bad()) message (prog, "unable to open map file", ERROR);
+      if (mapfl -> bad()) Veclib::messg (prog, "unable to open map file",ERROR);
       break;
     default:
       cerr << usage;
@@ -148,7 +148,7 @@ static void getargs (int       argc ,
 
   if (argc == 1) {
     input = new ifstream (*argv);
-    if (input -> bad()) message (prog, "unable to open input file", ERROR);
+    if (input -> bad()) Veclib::messg (prog, "unable to open input file",ERROR);
   } else input = &cin;
 }
 
@@ -169,17 +169,18 @@ static void loadmap (Header&        headr    ,
   
   if (!file) {
     sprintf (err, "cannot find map file %s", buf);
-    message (prog, err, ERROR);
+    Veclib::messg (prog, err, ERROR);
   }
 
   file >> NR >> NS >> NEL >> NEL;
   file.ignore (StrMax, '\n');
 
   if (NR != np || NS != np || NEL != nel)
-    message (prog, "map file doesn't conform with session file", ERROR);
+    Veclib::messg (prog, "map file doesn't conform with session file", ERROR);
   file >> generator;
   if (!(generator == 'x' || generator == 'y' || generator == 'd'))
-    message (prog, "symmetry generator must be either 'x', 'y', or 'd'", ERROR);
+    Veclib::messg (prog,
+		   "symmetry generator must be either 'x', 'y', or 'd'", ERROR);
   
   file >> NMAP;
 
@@ -189,7 +190,7 @@ static void loadmap (Header&        headr    ,
   for (i = 0; i < NMAP; i++) file >> positive[i] >> negative[i];
 
   if (!file)
-    message (prog, "bad (premature end of?) map file", ERROR);
+    Veclib::messg (prog, "bad (premature end of?) map file", ERROR);
 
 }
 

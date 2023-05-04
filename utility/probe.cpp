@@ -66,27 +66,7 @@
  * @file utility/probe.cpp
  * @ingroup group_utility
  *****************************************************************************/
-// Copyright (c) 1997 <--> $Date$, Hugh Blackburn
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
+// Copyright (c) 1997+, Hugh M Blackburn
 
 #include <sem.h>
 #include <libgen.h>
@@ -146,8 +126,8 @@ int main (int    argc,
 
   // -- Initialize.
 
+  Femlib::init ();
   prog = *argv;
-  Femlib::initialize (&argc, &argv);
 
   // -- Set defaults for probeplane interface.
 
@@ -172,7 +152,7 @@ int main (int    argc,
   // -- Check presence of field file before proceeding.
 
   fldfile.open (dump, ios::in);
-  if (!fldfile) message (prog, "no field file", ERROR);
+  if (!fldfile) Veclib::messg (prog, "no field file", ERROR);
   
   // -- Set up 2D mesh information.
   
@@ -198,7 +178,8 @@ int main (int    argc,
   if (strcmp (interface, "probe") == 0) {
     if (points) {
       pntfile = new ifstream (points);
-      if (pntfile -> fail()) message (prog, "unable to open point file", ERROR);
+      if (pntfile -> fail())
+	Veclib::messg (prog, "unable to open point file", ERROR);
     } else pntfile = &cin;
 
     ntot = loadPoints (*pntfile, point);
@@ -213,7 +194,7 @@ int main (int    argc,
   // -- Load field file.
 
   if (!(getDump (fldfile, u, Esys, NP, NZ, NEL)))
-    message (prog, "no data extracted", ERROR);
+    Veclib::messg (prog, "no data extracted", ERROR);
 
   datum.resize (nf = u.size());
   data.resize  (ntot);
@@ -233,7 +214,6 @@ int main (int    argc,
   putData (dump, interface, format, ntot,
 	   minimal, rotswap, u, elmt, point, data);
   
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -324,7 +304,7 @@ static void getargs (int    argc     ,
 	    Femlib::value ("X_MIN", atof (tok));
 	    set = 1;
 	  } else {
-	    message (prog, "couldn't x0 parse number from string", ERROR);
+	    Veclib::messg (prog, "couldn't x0 parse number from string", ERROR);
 	  }
 	} else {
 	  Femlib::value ("NPTS", NPTS);
@@ -332,7 +312,7 @@ static void getargs (int    argc     ,
 	    Femlib::value ("X_MIN", atof (tok));
 	    set = 1;
 	  } else {
-	    message (prog, "couldn't parse number x0 from string", ERROR);
+	    Veclib::messg (prog, "couldn't parse number x0 from string", ERROR);
 	  }
 	}
 	while (tok = strtok (0, ","))
@@ -353,12 +333,12 @@ static void getargs (int    argc     ,
 	    Femlib::value ("Z_DELTA", atof (tok));
 	    break;
 	  default:
-	    message (prog, "too many numbers in point string", ERROR);
+	    Veclib::messg (prog, "too many numbers in point string", ERROR);
 	    break;
 	  }
 	if (set != 6) {
 	  sprintf (err, "wrong number of parameters to line string (%1d)",set);
-	  message (prog, err, ERROR);
+	  Veclib::messg (prog, err, ERROR);
 	}
 	break;
       case 's':
@@ -375,7 +355,7 @@ static void getargs (int    argc     ,
 	break;
       }
     if (!set)
-      message (prog, "no points set", ERROR);
+      Veclib::messg (prog, "no points set", ERROR);
 
   } else if (strcmp (interface, "probeplane") == 0) {
 
@@ -413,7 +393,7 @@ static void getargs (int    argc     ,
 	  Femlib::value ("NY", atof (*argv));
 	  break;
 	default:
-	  message (prog, "can only specify nx or ny", ERROR);
+	  Veclib::messg (prog, "can only specify nx or ny", ERROR);
 	  break;
 	}
 	break;
@@ -441,7 +421,7 @@ static void getargs (int    argc     ,
 	    Femlib::value ("X_MIN", atof (tok));
 	    nset = 1;
 	  } else {
-	    message (prog, "couldn't parse number x0 from string", ERROR);
+	    Veclib::messg (prog, "couldn't parse number x0 from string", ERROR);
 	  }
 	  while (tok = strtok (0, ","))
 	    switch (++nset) {
@@ -455,11 +435,11 @@ static void getargs (int    argc     ,
 	      Femlib::value ("Y_DELTA", atof (tok));
 	      break;
 	    default:
-	      message (prog, "too many numbers in point string", ERROR);
+	      Veclib::messg (prog, "too many numbers in point string", ERROR);
 	      break;
 	    }
 	  if (nset != 4)
-	    message (prog, "need 4 parameters for cutting plane", ERROR);
+	    Veclib::messg (prog, "need 4 parameters for cutting plane", ERROR);
 	  Femlib::value ("SIZED", 1.0);
 	  break;
 	case 'z':
@@ -469,7 +449,7 @@ static void getargs (int    argc     ,
 	    Femlib::value ("X_MIN", atof (tok));
 	    nset = 1;
 	  } else {
-	    message (prog, "couldn't parse number x0 from string", ERROR);
+	    Veclib::messg (prog, "couldn't parse number x0 from string", ERROR);
 	  }
 	  while (tok = strtok (0, ","))
 	    switch (++nset) {
@@ -483,15 +463,15 @@ static void getargs (int    argc     ,
 	      Femlib::value ("Z_DELTA", atof (tok));
 	      break;
 	    default:
-	      message (prog, "too many numbers in point string", ERROR);
+	      Veclib::messg (prog, "too many numbers in point string", ERROR);
 	      break;
 	    }
 	  if (nset != 4)
-	    message (prog, "need 4 parameters for cutting plane", ERROR);
+	    Veclib::messg (prog, "need 4 parameters for cutting plane", ERROR);
 	  Femlib::value ("SIZED", 1.0);
 	  break;
 	default:
-	  message (prog, "extents can be xy, xz, or yz", ERROR);
+	  Veclib::messg (prog, "extents can be xy, xz, or yz", ERROR);
 	  break;
 	}
 	break;
@@ -504,7 +484,7 @@ static void getargs (int    argc     ,
 	    Femlib::value ("Y_MIN", atof (tok));
 	    nset = 1;
 	  } else {
-	    message (prog, "couldn't parse number x0 from string", ERROR);
+	    Veclib::messg (prog, "couldn't parse number x0 from string", ERROR);
 	  }
 	  while (tok = strtok (0, ","))
 	    switch (++nset) {
@@ -518,15 +498,15 @@ static void getargs (int    argc     ,
 	      Femlib::value ("Z_DELTA", atof (tok));
 	      break;
 	    default:
-	      message (prog, "too many numbers in point string", ERROR);
+	      Veclib::messg (prog, "too many numbers in point string", ERROR);
 	      break;
 	    }
 	  if (nset != 4)
-	    message (prog, "need 4 parameters for cutting plane", ERROR);
+	    Veclib::messg (prog, "need 4 parameters for cutting plane", ERROR);
 	  Femlib::value ("SIZED", 1.0);
 	  break;
 	default:
-	  message (prog, "extents can be xy, xz, or yz", ERROR);
+	  Veclib::messg (prog, "extents can be xy, xz, or yz", ERROR);
 	  break;
 	}
 	break;
@@ -538,8 +518,8 @@ static void getargs (int    argc     ,
 
   }
 
-  if   (!session)  message (prog, "no session file", ERROR);
-  if   (argc != 1) message (prog, "no field file",   ERROR);
+  if   (!session)  Veclib::messg (prog, "no session file", ERROR);
+  if   (argc != 1) Veclib::messg (prog, "no field file",   ERROR);
   else             dump = *argv;
 }
 
@@ -742,7 +722,7 @@ static int_t getDump (ifstream&          file,
 
   if (file.getline(buf, StrMax).eof()) return 0;
   
-  if (!strstr (buf, "Session")) message (prog, "not a field file", ERROR);
+  if (!strstr (buf, "Session")) Veclib::messg (prog, "not a field file", ERROR);
   file.getline (buf, StrMax);
 
   // -- Input numerical description of field sizes.
@@ -751,7 +731,7 @@ static int_t getDump (ifstream&          file,
   file.getline (buf, StrMax);
   
   if (np != npnew || nz != nznew || nel != nelnew)
-    message (prog, "size of dump mismatch with session file", ERROR);
+    Veclib::messg (prog, "size of dump mismatch with session file", ERROR);
 
   file.getline (buf, StrMax);
   file.getline (buf, StrMax);
@@ -777,7 +757,8 @@ static int_t getDump (ifstream&          file,
     for (i = 0; i < nf; i++)
       u[i] = new AuxField (new real_t[Geometry::nTotal()], nz, Esys,fields[i]);
   } else if (u.size() != nf) 
-    message (prog, "number of fields mismatch with first dump in file", ERROR);
+    Veclib::messg
+      (prog, "number of fields mismatch with first dump in file", ERROR);
 
   // -- Read binary field data.
 
@@ -800,9 +781,9 @@ static bool doSwap (const char* ffmt)
   Veclib::describeFormat (mfmt);   
 
   if (!strstr (ffmt, "binary"))
-    message (prog, "input field file not in binary format", ERROR);
+    Veclib::messg (prog, "input field file not in binary format", ERROR);
   else if (!strstr (ffmt, "endian"))
-    message (prog, "input field file in unknown binary format", WARNING);
+    Veclib::messg (prog, "input field file in unknown binary format", WARNING);
 
   return (strstr (ffmt, "big") && strstr (mfmt, "little")) || 
          (strstr (mfmt, "big") && strstr (ffmt, "little"));

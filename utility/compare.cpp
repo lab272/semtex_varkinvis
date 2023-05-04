@@ -34,27 +34,8 @@
  * @file utility/compare.cpp
  * @ingroup group_utility
  ****************************************************************************/
-// Copyright (c) 1996 <--> $Date$, Hugh Blackburn
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-///////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 1996+, Hugh M Blackburn
 
-static char RCS[] = "$Id$";
 
 #include <ctime>
 #include <sem.h>
@@ -84,7 +65,8 @@ int main (int    argc,
   AuxField           *exact, *computed;
   const real_t       NOISE = 1e-12;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
+  
   getargs (argc, argv, tran, noise, session, fieldfl);
 
   Veclib::describeFormat (fmt);
@@ -123,7 +105,7 @@ int main (int    argc,
     fieldfl.getline (buf, StrMax);
     if (!strstr (buf, "Session")) {
       sprintf (err, "%s is not a field file", argv[2]);
-      message (prog, err, ERROR);
+      Veclib::messg (prog, err, ERROR);
     }
     
     fieldfl .getline(buf, StrMax) .getline(buf, StrMax);
@@ -137,17 +119,17 @@ int main (int    argc,
     if (np != Geometry::nP()) {
       sprintf (err, "polynomial order mismatch (%1d <--> %1d)",
 	       np, Geometry::nP());
-      message (prog, err, ERROR);
+      Veclib::messg (prog, err, ERROR);
     }
     if (nz != Geometry::nZ()) {
       sprintf (err, "number of z-planes mismatch (%1d <--> %1d)",
 	       nz, Geometry::nZ());
-      message (prog, err, ERROR);
+      Veclib::messg (prog, err, ERROR);
     }
     if (nel != M -> nEl()) {
       sprintf (err, "number of elements mismatch (%1d <--> %1d)",
 	       nel, Geometry::nElmt());
-      message (prog, err, ERROR);
+      Veclib::messg (prog, err, ERROR);
     }
 
     // -- Find the fields it contains, and set the time to found value.
@@ -172,9 +154,9 @@ int main (int    argc,
     
     fieldfl.getline (buf, StrMax);
     if (!strstr (buf, "binary"))
-      message (prog, "input field file not in binary format", ERROR);
+      Veclib::messg (prog, "input field file not in binary format", ERROR);
     else if (!strstr (buf, "endian"))
-      message (prog, "input field file in unknown binary format", WARNING);
+      Veclib::messg (prog, "input field file in unknown binary format", WARNING);
     else {
       swab = (   (strstr (buf, "big") && strstr (fmt, "little"))
 	      || (strstr (fmt, "big") && strstr (buf, "little")) );
@@ -204,7 +186,7 @@ int main (int    argc,
       fieldfl >> *computed;
       if (!fieldfl) {
 	sprintf (err, "error reading input Field `%c'", fields[i]);
-	message (prog, err, ERROR);
+	Veclib::messg (prog, err, ERROR);
       }
       if (swab) computed -> reverse();
 
@@ -221,7 +203,7 @@ int main (int    argc,
 
       if (!found) {
 	sprintf (err, "no function description for field '%c'", fields[i]);
-	message (prog, err, WARNING);
+	Veclib::messg (prog, err, WARNING);
 	*exact = 0.0;
       }
 
@@ -310,7 +292,7 @@ int main (int    argc,
   }
   
   cout.flush();
-  Femlib::finalize();
+
   return EXIT_SUCCESS;
 }
 
@@ -339,7 +321,7 @@ static void getargs (int       argc ,
     case 't': tran  = true; break;
     default:
       sprintf (err, "illegal option: %c\n", c);
-      message (prog, err, ERROR); break;
+      Veclib::messg (prog, err, ERROR); break;
     }
 
   switch (argc) {
@@ -350,7 +332,7 @@ static void getargs (int       argc ,
   case 2:
     sess = argv[0];
     fldf.open (argv[1], ios::in);
-    if (!fldf) message (prog, "couldn't open field file", ERROR);
+    if (!fldf) Veclib::messg (prog, "couldn't open field file", ERROR);
     break;
   default:
     cerr << usage;

@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 // integration.cpp: supply coefficients for discrete time integration schemes.
 //
-// Copyright (c) 1994+, Hugh M Blackburn
-//
 // Maximum time order supported is 3 (4 for implicit Adams--Moulton methods).
 // Coefficients for all schemes can be found in Gear's book, "Numerical
 // Initial Value Problems in Ordinary Differential Equations", 1971.
+//
+// Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -47,7 +47,7 @@ void Integration::StifflyStable (const int_t n    ,
     coeff[3] = -1.0 / 3.0;
     break;
   default:
-    message (routine, "requested order out of range", ERROR);
+    Veclib::messg (routine, "requested order out of range", ERROR);
     break;
   }
 }
@@ -77,7 +77,7 @@ void Integration::Extrapolation (const int_t n    ,
     coeff[2] =  1.0;
     break;
   default:
-    message (routine, "requested order out of range", ERROR);
+    Veclib::messg (routine, "requested order out of range", ERROR);
     break;
   }
 }
@@ -105,7 +105,7 @@ void Integration::AdamsBashforth  (const int_t n    ,
     coeff[2] =   5.0 / 12.0;
     break;
   default:
-    message (routine, "requested order out of range", ERROR);
+    Veclib::messg (routine, "requested order out of range", ERROR);
     break;
   }
 }
@@ -138,8 +138,7 @@ void Integration::AdamsMoulton (const int_t n    ,
     coeff[2] = -5.0 / 24.0;
     coeff[3] =  1.0 / 24.0;
     break;
-  default:
-    message (routine, "requested order out of range", ERROR);
+  default: Veclib::messg (routine, "requested order out of range", ERROR);
     break;
   }
 }

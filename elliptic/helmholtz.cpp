@@ -2,7 +2,6 @@
 // helmholtz.cpp: routines to solve elliptic problems in one variable.
 //
 // Copyright (c) 1994+, Hugh M Blackburn
-//
 //////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>

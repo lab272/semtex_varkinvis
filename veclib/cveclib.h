@@ -1,7 +1,7 @@
-#ifndef VECLIB_H
-#define VECLIB_H
+#ifndef CVECLIB_H
+#define CVECLIB_H
 /*****************************************************************************
- *                           V E C L I B . H
+ *                         C V E C L I B . H
  *****************************************************************************/
 
 #include <stdarg.h>

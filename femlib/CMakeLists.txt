@@ -20,7 +20,7 @@ set (fem_lib_src
 
 add_library (fem STATIC ${fem_lib_src})
 
-if (MPI_FOUND)
-  add_library (fem_mp STATIC ${fem_lib_src})
-  target_compile_definitions (fem_mp PRIVATE -DMPI)	
-endif()
+#if (MPI_FOUND)
+#  add_library (fem_mp STATIC ${fem_lib_src})
+#  target_compile_definitions (fem_mp PRIVATE -DMPI)	
+#endif()

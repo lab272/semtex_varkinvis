@@ -8,7 +8,6 @@
 // information.
 //
 // Copyright (c) 1994+, Hugh M Blackburn
-//
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -46,7 +45,6 @@ Domain::Domain (FEML*             file   ,
 // these).
 // 
 // No initialisation of Field MatrixSystems occurs here.
-//  
 // ---------------------------------------------------------------------------
   elmt (element)
 {
@@ -71,22 +69,28 @@ Domain::Domain (FEML*             file   ,
   nfield = strlen (field);
 
   if ((nfield < 1) || (nfield == 2))
-    message (routine, "session must declare 1, 3, 4 or 5 fields", ERROR);
+    Veclib::messg
+      (routine, "session must declare 1, 3, 4 or 5 fields",    ERROR);
 
   if ((nfield == 1) && (field[0] != 'c'))
-    message (routine, "session with 1 field: must be c", ERROR);
+    Veclib::messg
+      (routine, "session with 1 field: must be c",             ERROR);
 
   if ((nfield == 3) && (strcmp (field, "uvp")))
-    message (routine, "session with 3 fields: must be uvp", ERROR);
+    Veclib::messg
+      (routine, "session with 3 fields: must be uvp",          ERROR);
 
   if ((nfield == 4) && ((strcmp(field, "uvwp") && (strcmp(field, "uvcp")))))
-    message (routine, "session with 4 fields: must be uvwp or uvcp", ERROR);
+    Veclib::messg
+      (routine, "session with 4 fields: must be uvwp or uvcp", ERROR);
 
   if ((nfield == 5) && (strcmp (field, "uvwcp")))
-    message (routine, "session with 5 fields: must be uvwcp", ERROR);
+    Veclib::messg
+      (routine, "session with 5 fields: must be uvwcp",        ERROR);
 
   if (nfield > 5)
-    message (routine, "session has too many fields", ERROR);
+    Veclib::messg
+      (routine, "session has too many fields",                 ERROR);
   
   VERBOSE cout << routine << ": Domain will contain fields: " << field << endl;
 
@@ -195,7 +199,7 @@ void Domain::checkVBCs (FEML*       file ,
 	tagc = tag[1];
       else {
 	sprintf (err, "unrecognized BC tag format: %s", tag);
-	message (routine, err, ERROR);
+	Veclib::messg (routine, err, ERROR);
       }
 
       file->stream() >> fieldc;
@@ -206,11 +210,11 @@ void Domain::checkVBCs (FEML*       file ,
     
     if (!(vtag && wtag)) {
       sprintf (err, "group %c: BCs for fields 'v' & 'w' both needed", groupc);
-      message (routine, err, ERROR);
+      Veclib::messg (routine, err, ERROR);
     }
     if (vtag != wtag) {
       sprintf (err, "group %c, fields 'v' & 'w': BC type mismatch", groupc);
-      message (routine, err, ERROR);
+      Veclib::messg (routine, err, ERROR);
     }
   }
 }
@@ -266,14 +270,14 @@ void Domain::checkAxialBCs (FEML* file,
 	tagc = tag[1];
       else {
 	sprintf (err, "unrecognized BC tag format: %s", tag);
-	message (routine, err, ERROR);
+	Veclib::messg (routine, err, ERROR);
       }
 
       file->stream() >> fieldc;
 
       if (groupc == atag && tagc != 'A') {
 	sprintf (err, "group '%c': field '%c' needs axis BC", groupc, fieldc);
-	message (routine, err, ERROR);
+	Veclib::messg (routine, err, ERROR);
       }
       file->stream().ignore (StrMax, '\n');
     }
@@ -450,7 +454,7 @@ void Domain::report ()
   case 3: cout << "3 (Rotational-1)"; break;
   case 4: cout << "4 (Rotational-2)"; break;
   case 5: cout << "5 (Stokes/none)"; break;
-  default: message (routine, "Unknown advection scheme number", ERROR);
+  default: Veclib::messg (routine, "Unknown advection scheme number", ERROR);
   }
   cout << endl;
 }
@@ -507,7 +511,7 @@ void Domain::dump ()
   if (!(periodic || final)) return;
   ofstream output;
 
-  Femlib::synchronize();
+  Message::sync();
 
   ROOTONLY {
     const char  routine[] = "Domain::dump";
@@ -533,19 +537,19 @@ void Domain::dump ()
       else           output.open (dumpfl, ios::app);
     }
     
-    if (!output) message (routine, "can't open dump file", ERROR);
-    if (verbose) message (routine, ": writing field dump", REMARK);
+    if (!output) Veclib::messg (routine, "can't open dump file", ERROR);
+    if (verbose) Veclib::messg (routine, ": writing field dump", REMARK);
   }
 
-  Femlib::synchronize();
+  Message::sync();
   this -> transform (INVERSE);
-  Femlib::synchronize();
+  Message::sync();
 
   output << *this;
 
-  Femlib::synchronize();
+  Message::sync();
   this -> transform (FORWARD);
-  Femlib::synchronize();
+  Message::sync();
 
   ROOTONLY output.close();
 }
@@ -618,13 +622,16 @@ istream& operator >> (istream& strm,
   sss.str (ss = f);
   sss >> npchk >> npchk >> nzchk >> nelchk;
   
-  if (np  != npchk ) message (routine, "element size mismatch",       ERROR);
-  if (nz  != nzchk ) message (routine, "number of z planes mismatch", ERROR);
-  if (nel != nelchk) message (routine, "number of elements mismatch", ERROR);
+  if (np  != npchk )
+    Veclib::messg (routine, "element size mismatch",       ERROR);
+  if (nz  != nzchk )
+    Veclib::messg (routine, "number of z planes mismatch", ERROR);
+  if (nel != nelchk)
+    Veclib::messg (routine, "number of elements mismatch", ERROR);
   
   ntot = np * np * nz * nel;
   if (ntot != Geometry::nTot())
-    message (routine, "declared sizes mismatch", ERROR);
+    Veclib::messg (routine, "declared sizes mismatch", ERROR);
 
   strm.getline(s,StrMax);
   sss.clear();
@@ -655,19 +662,19 @@ istream& operator >> (istream& strm,
       sprintf (err, "  : file: %1d fields, Domain: %1d",
 	       (int) nfields, (int) strlen(D.field));
       cerr << endl;
-      message (routine, err, REMARK);
+      Veclib::messg (routine, err, REMARK);
     }
     for (i = 0; i < nfields; i++) 
       if (!strchr (D.field, fields[i])) {
 	sprintf (err, " : field %c not present in Domain (%s)",
 		 fields[i], D.field);
-	message (routine, err, REMARK);
+	Veclib::messg (routine, err, REMARK);
       }
     for (i = 0; i < strlen (D.field); i++) 
       if (!strchr (fields, D.field[i])) {
 	sprintf (err, "  : field %c not present in restart file (%s)",
 		 D.field[i], fields);
-	message (routine, err, REMARK);
+	Veclib::messg (routine, err, REMARK);
       }
   }
 
@@ -675,10 +682,12 @@ istream& operator >> (istream& strm,
   Veclib::describeFormat (f);
 
   if (!strstr (s, "binary"))
-    message (routine, "input field file not in binary format", ERROR);
+    Veclib::messg
+      (routine, "input field file not in binary format", ERROR);
   
   if (!strstr (s, "endian"))
-    message (routine, "input field file in unknown binary format", WARNING);
+    Veclib::messg
+      (routine, "input field file in unknown binary format", WARNING);
   else {
     swap = ((strstr (s, "big") && strstr (f, "little")) ||
 	    (strstr (f, "big") && strstr (s, "little")) );
@@ -699,7 +708,7 @@ istream& operator >> (istream& strm,
   }
     
   ROOTONLY if (strm.bad())
-    message (routine, "failed reading field file", ERROR);
+    Veclib::messg (routine, "failed reading field file", ERROR);
     
   return strm;
 }

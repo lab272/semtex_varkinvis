@@ -3,7 +3,6 @@
 // routines that don't fit class structures.
 //
 // Copyright (c) 1994+, Hugh M Blackburn
-//
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -32,9 +31,9 @@ ostream& printVector (ostream&    strm,
   va_list ap;
 
   nvect = strlen (fmt);
-  if (! nvect   ) message (routine, "empty format string",   ERROR  );
-  if (nvect > 10) message (routine, "more than 10 vectors?", WARNING);
-  if (ntot  <  0) message (routine, "ntot < 0",              ERROR  );
+  if (! nvect   ) Veclib::messg (routine, "empty format string",   ERROR  );
+  if (nvect > 10) Veclib::messg (routine, "more than 10 vectors?", WARNING);
+  if (ntot  <  0) Veclib::messg (routine, "ntot < 0",              ERROR  );
 
   switch (fmt[0]) {
 
@@ -65,11 +64,11 @@ ostream& printVector (ostream&    strm,
     break;
   }
   default:
-    message (routine, fmt, ERROR);
+    Veclib::messg (routine, fmt, ERROR);
     break;
   }
 
-  if (!strm) message (routine, "output failed", ERROR);
+  if (!strm) Veclib::messg (routine, "output failed", ERROR);
 
   return strm;
 }
@@ -155,7 +154,7 @@ void writeField (ostream&           file   ,
   for (i = 0; i < N; i++) file << *field[i];
 
   ROOTONLY {
-    if (!file) message (routine, "failed writing field file", ERROR);
+    if (!file) Veclib::messg (routine, "failed writing field file", ERROR);
     file << flush;
   }
 }
@@ -180,11 +179,11 @@ void readField (istream&           file ,
 
   ROOTONLY {
     if (hdr->nr != Geometry::nP() || hdr->ns != Geometry::nP())
-      message(routine, "element size mismatch", ERROR);
+      Veclib::messg (routine, "element size mismatch",       ERROR);
     if (hdr->nz != Geometry::nZ())
-      message (routine, "number of z planes mismatch", ERROR);
+      Veclib::messg (routine, "number of z planes mismatch", ERROR);
     if (hdr->nel != Geometry::nElmt())
-      message (routine, "number of elements mismatch", ERROR);
+      Veclib::messg (routine, "number of elements mismatch", ERROR);
   }
 
   // -- Walk through fields, read appropriate one.

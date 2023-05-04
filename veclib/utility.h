@@ -4,7 +4,6 @@
 // Utility.h:  C++ wrapper for veclib utility and memory routines.
 //
 // Copyright (c) 1994+, Hugh M Blackburn
-//
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cfemdef.h>

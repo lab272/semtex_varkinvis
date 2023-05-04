@@ -39,27 +39,7 @@
  * @file utility/meshplot.cpp
  * @ingroup group_utility
  *****************************************************************************/ 
-// Copyright (c) 2019 <--> $Date$, Hugh Blackburn
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-//
-// $Id$
-///////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2019+, Hugh M Blackburn
 
 #include <cstdlib>		// C standard headers.
 #include <cstdio>
@@ -274,7 +254,7 @@ static void getargs (int       argc    ,
 	Xmin = atof (tok);
 	set = 1;
       } else
-	message (prog, "couldn't parse xmin from box string", ERROR);
+	Veclib::messg (prog, "couldn't parse xmin from box string", ERROR);
       while (tok = strtok (0, ","))
 	switch (++set) {
 	case 2:
@@ -287,12 +267,12 @@ static void getargs (int       argc    ,
 	  Ymax = atof (tok);
 	  break;
 	default:
-	  message (prog, "too many numbers in box string", ERROR);
+	  Veclib::messg (prog, "too many numbers in box string", ERROR);
 	    break;
 	  }
 	if (set != 4) {
 	  sprintf (err, "wrong number of parameters in box string (%1d)",set);
-	  message (prog, err, ERROR);
+	  Veclib::messg (prog, err, ERROR);
 	}
       break;
     default:
@@ -303,7 +283,8 @@ static void getargs (int       argc    ,
 
   if (argc == 1) {
     input = new ifstream (*argv);
-    if (input -> fail()) message (prog, "unable to open geometry file", ERROR);
+    if (input -> fail())
+      Veclib::messg (prog, "unable to open geometry file", ERROR);
   } else input = &cin;
 }
 
@@ -332,7 +313,7 @@ static void readmesh (istream&        file,
 
   if (!strstr (buf, "NR NS NZ NEL")) {
     sprintf (err, "mesh header line should include NR NS NZ NEL: %s", buf);
-    message (routine, err, ERROR);
+    Veclib::messg (routine, err, ERROR);
   }
 
   ntot = nr * ns * nel;
@@ -347,6 +328,6 @@ static void readmesh (istream&        file,
     ymax = max (ymax, y[i]);
   }
 
-  if (file.fail()) message (prog, "problem reading mesh", ERROR);
+  if (file.fail()) Veclib::messg (prog, "problem reading mesh", ERROR);
 }
 

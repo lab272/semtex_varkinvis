@@ -8,8 +8,6 @@
 // 
 // Originally based on code "floK" by Dwight Barkley & Ron Henderson.
 //
-// Copyright (c) 2000+, Hugh M Blackburn
-//
 // The eigenpairs computed in the subspace are related to the Ritz
 // estimates of those in the original space in a simple way: the
 // eigenvalues are the same, and the Ritz eigenvectors are related to
@@ -100,6 +98,7 @@
 //     element--Fourier solver for the incompressible Navier--Stokes
 //     equations in cylindrical or Cartesian coordinates", CPC 245:106804.
 //
+// Copyright (c) 2000+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <stab.h>
@@ -158,7 +157,7 @@ int main (int    argc,
 
   // -- dtest = true ==> disable residual growth test in DB algorithm.
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
 
   getargs (argc,argv, task,kdim,nits,nvec,verbose,evtol,pEV,dtest, session);
 
@@ -173,8 +172,10 @@ int main (int    argc,
 
   // -- Check parameter values.
 
-  if (nvec < 1)      message(prog,"param error: NVEC must be >= 1",     ERROR);
-  if (kdim < nvec+2) message(prog,"param error: KDIM must be >= NVEC+2",ERROR);
+  if (nvec < 1)
+    Veclib::messg(prog,"param error: NVEC must be >= 1",     ERROR);
+  if (kdim < nvec+2)
+    Veclib::messg(prog,"param error: KDIM must be >= NVEC+2",ERROR);
 
   strcat (strcpy (buf, session), ".evl");
   runinfo.open (buf, ios::out);
@@ -235,7 +236,8 @@ int main (int    argc,
     F77NAME(dnaupd) (ido=0, "I", ntot, "LM", nvec, evtol, resid, kdim, 
 		     v, ntot, iparam, ipntr, workd, workl, lworkl, info=1);
 
-  if (info != 0) message (prog, "ARPACK dnaupd initialisation error", ERROR);
+  if (info != 0)
+    Veclib::messg (prog, "ARPACK dnaupd initialisation error", ERROR);
 
   // -- IRAM iteration.
 
@@ -255,8 +257,10 @@ int main (int    argc,
     }
   }
 
-  if (info < 0) message (prog, "DN/SAUPD iteration error",           ERROR);
-  if (info > 0) message (prog, "DN/SAUPD exceeded maximum restarts", ERROR);
+  if (info < 0)
+    Veclib::messg (prog, "DN/SAUPD iteration error",           ERROR);
+  if (info > 0)
+    Veclib::messg (prog, "DN/SAUPD exceeded maximum restarts", ERROR);
 
   runinfo << "--" << endl;
   runinfo << "Converged " 
@@ -334,10 +338,14 @@ int main (int    argc,
 
   // -- Check parameter values.
 
-  if (kdim < 1)    message (prog, "param error: KDIM must be > 1",     ERROR);
-  if (nvec < 1)    message (prog, "param error: NVEC must be > 1",     ERROR);
-  if (nits < kdim) message (prog, "param error: NITS must be >= KDIM", ERROR);
-  if (kdim < nvec) message (prog, "param error: NVEC must be <= KDIM", ERROR);
+  if (kdim < 1)
+    Veclib::messg (prog, "param error: KDIM must be > 1",     ERROR);
+  if (nvec < 1)
+    Veclib::messg (prog, "param error: NVEC must be > 1",     ERROR);
+  if (nits < kdim)
+    Veclib::messg (prog, "param error: NITS must be >= KDIM", ERROR);
+  if (kdim < nvec)
+    Veclib::messg (prog, "param error: NVEC must be <= KDIM", ERROR);
 
   strcat (strcpy (buf, session), ".evl");
   runinfo.open (buf, ios::out);
@@ -432,7 +440,7 @@ int main (int    argc,
 #endif
 
   runinfo.close();
-  Femlib::finalize();
+
   return (EXIT_SUCCESS);
 }
 
@@ -489,7 +497,7 @@ static void EV_update  (const problem_t task,
     integrate (linAdvect , domain, bman, analyst); break;
 
   default:
-    message ("EV_update", "Impossible task", ERROR); break;
+    Veclib::messg ("EV_update", "Impossible task", ERROR); break;
   }
 
   for (i = 0; i < ND; i++)
@@ -549,7 +557,7 @@ static void EV_small (real_t**      Kseq   ,
   for (i = 0; i < kdimp; i++) {
     real_t gsc = Blas::nrm2 (ntot, Kseq[i], 1);
     if (gsc == 0.0)
-      message (routine, "basis vectors linearly dependent", ERROR);
+      Veclib::messg (routine, "basis vectors linearly dependent", ERROR);
 
     R[Veclib::col_major (i, i, kdimp)] = gsc;
     Blas::scal (ntot, 1.0 / gsc, Kseq[i], 1);
@@ -605,7 +613,7 @@ static void EV_small (real_t**      Kseq   ,
 
   F77NAME(dgeev) ("N","V",kdim,H,kdim,wr,wi,0,1,zvec,kdim,rwork,lwork,ier);
 
-  if (ier) message (routine, "error return from dgeev", ERROR);
+  if (ier) Veclib::messg (routine, "error return from dgeev", ERROR);
 
   // -- Print up (unsorted) eigenvalues and eigenvectors as diagnostic.
 
@@ -821,7 +829,7 @@ static void EV_post (const problem_t task,
     strcat    (strcpy (nom, domain -> name), ".fld");
     file.open (nom, ios::out); file << *domain; file.close();
 
-    message (prog, "failed to converge", ERROR);
+    Veclib::messg (prog, "failed to converge", ERROR);
 
   } else if (icon == nvec) {
 
@@ -851,7 +859,7 @@ static void EV_post (const problem_t task,
 
   } else {
     sprintf (msg, "input convergence value %1d: not recognised", icon);
-    message (routine, msg, ERROR);
+    Veclib::messg (routine, msg, ERROR);
   }
 }
 
@@ -1022,9 +1030,10 @@ static void getargs (int        argc   ,
     }
 
   if (pEV && ((task == GROWTH) || (task == SHRINK)))
-    message (prog, "can't request pressure eigenvector in SVD problem", ERROR);
+    Veclib::messg
+      (prog, "can't request pressure eigenvector in SVD problem", ERROR);
 
-  if   (argc != 1) message (prog, "no session file",   ERROR);
+  if   (argc != 1) Veclib::messg (prog, "no session file",   ERROR);
   else             session = *argv;
 
   // -- Here is a minor hack, installs TASK in parser.
@@ -1112,14 +1121,14 @@ static void loadmap (const char* session)
 
   if (!file) {
     sprintf (err, "cannot find map file %s", buf);
-    message (prog, err, ERROR);
+    Veclib::messg (prog, err, ERROR);
   }
 
   file >> NR >> NS >> NEL >> NEL;
   file.ignore (StrMax, '\n');
 
   if (NR != np || NS != np || NEL != nel)
-    message (prog, "map file doesn't conform with session file", ERROR);
+    Veclib::messg (prog, "map file doesn't conform with session file", ERROR);
   file >> generator;
   file >> NMAP;
 
@@ -1136,7 +1145,7 @@ static void loadmap (const char* session)
   for (i = 0; i < NMAP; i++) file >> positive[i] >> negative[i];
 
   if (!file)
-    message (prog, "bad (premature end of?) map file", ERROR);
+    Veclib::messg (prog, "bad (premature end of?) map file", ERROR);
 
   file.close();
 }

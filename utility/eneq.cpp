@@ -121,30 +121,9 @@
  * @file utility/eneq.cpp
  * @ingroup group_utility
  *****************************************************************************/
-// Copyright (c) 2004 <--> $Date$, Hugh Blackburn
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-//////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
+// Copyright (c) 2004+, Hugh M Blackburn
 
 #include <sem.h>
-
 
 static char prog[] = "eneq";
 static void getargs (int,char**, bool&, const char*&, const char*&);
@@ -174,11 +153,12 @@ int main (int    argc,
   vector<AuxField*>    work,  outbuf;
   bool                 MKE = false;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
+  
   getargs (argc, argv, MKE, session, dump);
 
   avgfile.open (dump, ios::in);
-  if (!avgfile) message (prog, "no field file", ERROR);
+  if (!avgfile) Veclib::messg (prog, "no field file", ERROR);
   
   getMesh (session, elmt);
   makeBuf (output, work, elmt);
@@ -196,7 +176,6 @@ int main (int    argc,
     writeField (cout, session, 0, 0.0, outbuf);
   }
   
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -324,7 +303,7 @@ static bool getDump (ifstream&             file,
 
   if (file.getline(buf, StrMax).eof()) return false;
   
-  if (!strstr (buf, "Session")) message (prog, "not a field file", ERROR);
+  if (!strstr (buf, "Session")) Veclib::messg (prog, "not a field file", ERROR);
   file.getline (buf, StrMax);
 
   // -- Input numerical description of field sizes.
@@ -333,7 +312,7 @@ static bool getDump (ifstream&             file,
   file.getline (buf, StrMax);
   
   if (np != Geometry::nP() || nz != Geometry::nZ() || nel != Geometry::nElmt())
-    message (prog, "size of dump mismatch with session file", ERROR);
+    Veclib::messg (prog, "size of dump mismatch with session file", ERROR);
 
   file.getline (buf, StrMax);
   file.getline (buf, StrMax);
@@ -358,7 +337,7 @@ static bool getDump (ifstream&             file,
     for (i = 0; i < nf; i++)
       u[fields[i]] = new AuxField (new real_t[ntot], nz, elmt, fields[i]);
   } else if (strcmp (fieldNames (u), fields) != 0)
-    message (prog, "fields mismatch with first dump in file", ERROR);
+    Veclib::messg (prog, "fields mismatch with first dump in file", ERROR);
 
   // -- Read binary field data.
 
@@ -381,9 +360,9 @@ static bool doSwap (const char* ffmt)
   Veclib::describeFormat (mfmt);   
 
   if (!strstr (ffmt, "binary"))
-    message (prog, "input field file not in binary format", ERROR);
+    Veclib::messg (prog, "input field file not in binary format", ERROR);
   else if (!strstr (ffmt, "endian"))
-    message (prog, "input field file in unknown binary format", WARNING);
+    Veclib::messg (prog, "input field file in unknown binary format", WARNING);
 
   return (strstr (ffmt, "big") && strstr (mfmt, "little")) || 
          (strstr (mfmt, "big") && strstr (ffmt, "little"));
@@ -399,7 +378,7 @@ static void meanflo (map<char, AuxField*>& in  ,
 {
   const char   list2d[] = "ABCKLMRSdmnpqrsuv";
   const char   list3d[] = "ABCDEFKLMNOPRSTdmnopqrstuvw";
-   const char  list2dc[] = "ABCGHJKLMRScdmnpqrsuv";
+  const char   list2dc[] = "ABCGHJKLMRScdmnpqrsuv";
   const char   list3dc[] = "ABCDEFGHIJKLMNOPRSTcdmnopqrstuvw";
   const char*  names    = fieldNames (in);
   const int_t  nvel     = (strchr (names, 'w')) ? 3 : 2;
@@ -410,22 +389,26 @@ static void meanflo (map<char, AuxField*>& in  ,
   if (scalar){
     if (nvel == 2) {
         if (strcmp (names, list2dc) != 0) {
-          sprintf (err,"list of names should match %s: have %s", list2dc, names);
-          message (prog, err, ERROR);
+          sprintf
+	    (err,"list of names should match %s: have %s", list2dc, names);
+          Veclib::messg (prog, err, ERROR);
         } 
       } else if (strcmp (names, list3dc) != 0) {
-        sprintf (err,"list of names should match %s: have %s", list3dc, names);
-        message (prog, err, ERROR);
+        sprintf
+	  (err,"list of names should match %s: have %s", list3dc, names);
+        Veclib::messg (prog, err, ERROR);
       }
   }else{
   if (nvel == 2) {
     if (strcmp (names, list2d) != 0) {
-      sprintf (err,"list of names should match %s: have %s", list2d, names);
-      message (prog, err, ERROR);
+      sprintf
+	(err,"list of names should match %s: have %s", list2d, names);
+      Veclib::messg (prog, err, ERROR);
     } 
   } else if (strcmp (names, list3d) != 0) {
-    sprintf (err,"list of names should match %s: have %s", list3d, names);
-    message (prog, err, ERROR);
+    sprintf
+      (err,"list of names should match %s: have %s", list3d, names);
+    Veclib::messg (prog, err, ERROR);
   }
   }
   // -- Turn ABC... into Reynolds stresses.
@@ -567,7 +550,7 @@ static void meanflo (map<char, AuxField*>& in  ,
 
   *in['n'] *= sqrt (2.0);
   if (nvel == 3) {
-    *in['r'] *= sqrt (2.0);
+    *in['o'] *= sqrt (2.0);
     *in['s'] *= sqrt (2.0);
   }
  
@@ -614,32 +597,36 @@ static void covary  (map<char, AuxField*>& in  ,
   if (scalar){
     if (nvel == 2) {
         if (strcmp (names, list2dc) != 0) {
-          sprintf (err,"list of names should match %s: have %s", list2dc, names);
-          message (prog, err, ERROR);
+          sprintf
+	    (err,"list of names should match %s: have %s", list2dc, names);
+          Veclib::messg (prog, err, ERROR);
         } 
       } else if (strcmp (names, list3dc) != 0) {
-        sprintf (err,"list of names should match %s: have %s", list3dc, names);
-        message (prog, err, ERROR);
+        sprintf
+	  (err,"list of names should match %s: have %s", list3dc, names);
+        Veclib::messg (prog, err, ERROR);
       }
   }else{
   if (nvel == 2) {
     if (strcmp (names, list2d) != 0) {
-      sprintf (err,"list of names should match %s: have %s", list2d, names);
-      message (prog, err, ERROR);
+      sprintf
+	(err,"list of names should match %s: have %s", list2d, names);
+      Veclib::messg (prog, err, ERROR);
     } 
   } else if (strcmp (names, list3d) != 0) {
-    sprintf (err,"list of names should match %s: have %s", list3d, names);
-    message (prog, err, ERROR);
+    sprintf
+      (err,"list of names should match %s: have %s", list3d, names);
+    Veclib::messg (prog, err, ERROR);
   }
   }
  /* if (nvel == 2) {
     if (strcmp (names, list2d) != 0) {
       sprintf (err,"list of names should match %s: have %s", list2d, names);
-      message (prog, err, ERROR);
+      Veclib::messg (prog, err, ERROR);
     } 
   } else if (strcmp (names, list3d) != 0) {
     sprintf (err,"list of names should match %s: have %s", list3d, names);
-    message (prog, err, ERROR);
+    Veclib::messg (prog, err, ERROR);
   }
 */
   // -- Deal with all the correlations first, before any differentiation.
@@ -804,7 +791,7 @@ static void covary  (map<char, AuxField*>& in  ,
 
   *in['n'] *= sqrt (2.0);
   if (nvel == 3) {
-    *in['r'] *= sqrt (2.0);
+    *in['o'] *= sqrt (2.0);
     *in['s'] *= sqrt (2.0);
   }
  

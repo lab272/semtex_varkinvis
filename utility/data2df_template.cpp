@@ -19,9 +19,7 @@
  * @file utility/data2df_template.cpp
  * @ingroup group_utility
  *****************************************************************************/
-// Copyright (c) 2008 <--> $Date$, Hugh Blackburn
-
-static char RCS[] = "$Id$";
+// Copyright (c) 2008+, Hugh M Blackburn
 
 #include <sem.h>
 #include <data2df.h>
@@ -41,7 +39,7 @@ int main (int    argc,
   Header           h;
   vector<Data2DF*> u;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
   getargs (argc, argv, input);
 
   *input >> h;
@@ -96,6 +94,7 @@ static void getargs (int       argc ,
 
   if (argc == 1) {
     input = new ifstream (*argv);
-    if (input -> fail()) message (prog, "unable to open input file", ERROR);
+    if (input -> fail())
+      Veclib::messg (prog, "unable to open input file", ERROR);
   } else input = &cin;
 }
