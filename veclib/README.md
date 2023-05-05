@@ -1,5 +1,3 @@
-# Veclib README {#veclib_readme}
-
 Veclib README
 =============
 
@@ -237,4 +235,3 @@ MISCELLANEOUS FUNCTIONS:
 
 </pre>
 
-$Id$

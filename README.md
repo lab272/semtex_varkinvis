@@ -2,9 +2,9 @@
 
 # List of other sub-pages
 
-* Page [semtex/veclib/README]  (@ref veclib_readme)
-* Page [semtex/femlib/README]  (@ref femlib_readme)
-* Page [semtex/utility/README] (@ref utility_readme)
+* Page [semtex/veclib/README](/veclib/README.md)
+* Page [semtex/femlib/README](/femlib/README.md)
+* Page [semtex/utility/README](/utility/README.md)
 
 _____________________________________________________________________________
 
@@ -15,7 +15,7 @@ Synopsis
 --------
 
 The semtex package is for spectral element solution of (incompressible
-Navier--Stokes) time-varying and elliptic PDEs.  Geometries
+Navier–Stokes) time-varying and elliptic PDEs.  Geometries
 accommodated are 2D Cartesian or cylindrical, and/or 3D
 (a.k.a. "2+1/2D", i.e. 2D X Fourier), again Cartesian or cylindrical.
 In fact, the main emphasis is on direct numerical simulation of
@@ -31,7 +31,8 @@ field).
 Spectral elements are used to discretise planar geometries, with
 solution variations in the third (homogeneous/periodic) direction
 accommodated via Fourier expansions (i.e. spatial discretisation is 2D
-spectral element X Fourier).
+spectral element X Fourier). Solutions to 3D problems may optionally
+be computed in parallel.
 
 References
 ----------
@@ -40,7 +41,11 @@ The first of these is the recommended starting point; it provides an
 introductory overview of the code and its utilities.  The second gives
 details of the cylindrical-coordinate formulation.  The third gives an
 overview of the capabilities and methodology of the stability analysis
-package which is included in the distribution.
+package which is included in the distribution.  Implicit large-eddy
+simulation is available within semtex using the Spectral Vanishing
+Viscosity (SVV) approach; the fourth and fifth references provide
+description and applications of this technique.
+
 
 1. Blackburn HM, Lee D, Albrecht T & Singh, J (2019) Semtex: a
 spectral element–Fourier solver for the incompressible Navier–Stokes
@@ -56,16 +61,26 @@ cylindrical geometries. Journal of Computational Physics V197N2:
 analysis for timesteppers.  Int J Numerical Methods in Fluids.  V57:
 1435–1458.
 
+4. Koal K, Stiller J & Blackburn HM (2012) Adapting the spectral
+vanishing viscosity method for large-eddy simulations in cylindrical
+configurations.  Journal of Computational Physics V231: 3389–3405.
+
+5. Chin C, Ng HCH, Blackburn HM, Monty J & Ooi ASH (2015) Turbulent
+pipe flow at Re_tau=1000: a comparison of wall-resolved large-eddy
+simulation, direct numerical simulation and hot-wire experiment.
+Computers and Fluids V122: 26–33.
+
+
 Technical details
 -----------------
 
 The code is designed to compile and run on Unix-based operating
-systems including Linux and OSX (and has been successfully compiled
+systems including Linux and OS X (and has been successfully compiled
 and run on a wide variety of such systems for over two decades).
-Optional multi-process parallelisation across Fourier modes is
+Optional multi-process parallelisation across 2D Fourier modes is
 supported via MPI.
 
-The method uses continuous-Galerkin Legendre--Gauss--Lobatto
+The method uses continuous-Galerkin Legendre–Gauss–Lobatto
 nodal-based spectral-element elliptic equation solvers, a 2,3,5
 prime-factor FFT, and a backward-time (a.k.a. stiffly-stable)
 equal-order (P_N-P_N) velocity-pressure semi-explicit timesplitting
@@ -102,7 +117,7 @@ directories:
 
 1. elliptic:   elliptic (Laplace, Poisson, Helmholtz) solver.
 
-2. dns:        Navier--Stokes DNS solver (uses same elliptic solver routines).
+2. dns:        Navier–Stokes DNS solver (uses same elliptic solver routines).
 
 3. utility/*:  various utility programs.
 
@@ -119,7 +134,7 @@ Required third-party software
 
 2. make (Gnu's version, which is usually now the standard supplied code);
 
-3. C++, C and Fortran compilers (OSX needs both vendor-supplied Xcode
+3. C++, C and Fortran compilers (OS X needs both vendor-supplied Xcode
    for C/C++ and a 3rd-party Fortran compiler, installed e.g. via
    homebrew/macports/fink as part of the gcc compiler suite);
 
@@ -154,7 +169,7 @@ as openmpi.  There is no need to install your own BLAS or LAPACK, as
 these usually come as a standard part of Xcode (in the Accelerate
 framework).
 
-Building - Introduction
+Building – Introduction
 -----------------------
 
 Semtex presently supports two alternative building methods:
@@ -173,7 +188,7 @@ Note that the use of vendor-supplied BLAS routines such those in
 Intel's MKL or AMD's ACML may quite substantially improve the
 performance of the DNS code.  Most of the improvement comes from
 having a well-optimised version of DGEMM (matrix-matrix multiply),
-which is heavily used by dns.  Search GotoBLAS or OpenBLAS.  On OSX,
+which is heavily used by dns.  Search GotoBLAS or OpenBLAS.  On OS X,
 you get this performance by default via the Xcode/Accelerate framework;
 on Linux, try using ACML or MKL, depending on machine architecture.
 Speed improvements to be had by choosing a good BLAS version usually
@@ -197,11 +212,11 @@ will be built.  If cmake can find a working MPI installation, parallel
 versions will also be built (which are called dns_mp and elliptic_mp).
 All the other resulting files are for serial execution only.
 
-  %> mkdir build_dir  
-  %> cd build_dir  
-  %> cmake ..  
-  %> make  
-  %> ctest  
+  >% mkdir build_dir  
+  >% cd build_dir  
+  >% cmake ..  
+  >% make  
+  >% ctest  
 
 You should find that all test regression tests are reported as passed.
 Because these tests exercise the solvers as well as a range of
@@ -229,7 +244,7 @@ directory (e.g. ~/bin) to get them in your PATH.
 
 From the top-level directory (contains this file, README), do
 
-  %> make test
+  >% make test
 
 That will build libraries veclib.a, femlib.a and a few core
 executables (compare, and dns), then run regression tests on dns.  If
@@ -247,7 +262,7 @@ list"), you may be able to cure the problem by loading a correct set
 of modules (try "module avail").  Otherwise you may have to install
 BLAS/LAPACK libraries with whatever package tool exists on the
 machine, or in the worst case by compiling and installing these for
-yourself.  If you are using OSX, you will need to install Xcode, the
+yourself.  If you are using OS X, you will need to install Xcode, the
 Xcode command-line tools, and install a Fortran compiler either as a
 stand-alone package or by installing the gnu compiler suite using one
 of fink, homebrew or macports.
@@ -297,7 +312,7 @@ conditions.  We call this a "session" file and typically it has no
 root extension.  It is written in a format patterned on HTML, which we
 have called FEML (for Finite Element Markup Language).  There are a
 number of example session files in the mesh directory.  Other files
-have standard extensions:
+have standard extensions (the following also have the same format):
 
 session.fld  Solution/field file.  Binary format by default.  
 session.rst  Restart file.  Read in to initialise solution if present.  
@@ -315,19 +330,19 @@ Utilities
 
 Can be found in the utility directory, including:
 
-compare   Generate restart files, compare solutions to a function.  
-convert   Convert field file formats (IEEE-big/little, ASCII).  
-meshpr    Generate 2D mesh locations for plotting or checking.  
-addfield  Add vorticity, also divergence, helicity, etc to a field file.  
-sem2tec   Convert field files to Tecplot format (OK with Paraview/VisIt too).  
-project   Convert a field file to a different order interpolation.  
-interp    Interpolate field file from one 2D mesh to another.  
-probe     Probe field file at specified points.  
-noiz      Add a random perturbation to a field file.  
-calc      An interactive calculator that calls the built-in function parser.  
-rstress   Compute a Reynolds stresses from a .avg file, subtract averages.  
-rectmesh  Generate a start-out session file from a list of x and y values.  
-assemble  Generate global node numbering, with RCM optimization, for info.  
+compare  – Generate restart files, compare solutions to a function.  
+convert  – Convert field file formats (IEEE-big/little, ASCII).  
+meshpr   – Generate 2D mesh locations for plotting or checking.  
+addfield – Add vorticity, also divergence, helicity, etc to a field file.  
+sem2tec  – Convert field files to Tecplot format (OK with Paraview/VisIt too).  
+project  – Convert a field file to a different order interpolation.  
+interp   – Interpolate field file from one 2D mesh to another.  
+probe    – Probe field file at specified points.  
+noiz     – Add a random perturbation to a field file.  
+calc     – An interactive calculator that calls the built-in function parser.  
+rstress  – Compute a Reynolds stresses from a .avg file, subtract averages.  
+rectmesh – Generate a start-out session file from a list of x and y values.  
+assemble – Generate global node numbering, with RCM optimization, for info.  
 
 
 Most executables have a -h command line option which gives a help
@@ -339,13 +354,13 @@ User guide and doxygen documentation
 
 Assuming you have a latex/pdflatex system installed: 
 
-  %> cd doc; make
+  >% cd doc; make
 
 to produce userguide.pdf.
 
 Assuming you have doxygen (and dot) also installed:
 
-  %> cd doc; make doxygen
+  >% cd doc; make doxygen
 
 and open doc/html/index.html in a browser.
 
@@ -386,9 +401,9 @@ List of major revisions
 1999: Semtex-5.3:  Mixed/Robin BC type added.  
 2003: Semtex-5.5:  Adopt standard C++ libraries wherever possible.       
 2004: Semtex-6:    Cylindrical coordinate/3D code exponentially convergent.  
-2004: Semtex-6:    Mac OSX port -- filenames no longer case-sensitive.  
+2004: Semtex-6:    Mac OS X port – filenames no longer case-sensitive.  
 2010: Semtex-7:   "I do not now recall".  
-2016: Semtex-8:    Generalised body forces supported in DNS.  
+2016: Semtex-8:    Generalised body forces supported in DNS, serial nonlinear Fourier dealiasing removed.  
 2018: Semtex-9:    Scalar transport and DNS code merged.  
 2019: Semtex-9.1:  cmake adopted as baseline compilation system.  
 2022: Semtex-9.4:  Dog (Direct Optimal Growth) stability analysis included.  

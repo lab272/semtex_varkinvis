@@ -1,5 +1,3 @@
-# Femlib README {#femlib_readme}
-
 Femlib README
 =============
 
