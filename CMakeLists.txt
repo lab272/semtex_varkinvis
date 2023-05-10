@@ -22,7 +22,7 @@ if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
    set (BLA_VENDOR "Generic")
    message (STATUS "Building with Apple Accelerate BLAS and LAPACK.")
 
-# -- N.B.: we can/have turn/ed off all warnings via the -w flag.  Use with care!
+# -- N.B.: we have turned off all warnings via the -w flag.  Use with care!
 
    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
      -w \
@@ -43,6 +43,26 @@ if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
    
 elseif (DEFINED ENV{BLA_VENDOR})
    message (STATUS "Building with vendor BLAS and LAPACK: " "$ENV{BLA_VENDOR}")
+
+   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+     -w \
+     -Wno-parentheses \
+     -Wno-unused-value \
+     -Wno-format \
+     -Wno-format-security \
+     -Wno-switch \
+     -Wno-deprecated-declarations \
+     -std=c++11" )
+   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
+     -w \
+     -Wno-parentheses \
+     -Wno-implicit-function-declaration \
+     -Wno-format \
+     -Wno-format-security \
+     -Wno-deprecated-declarations \
+     -std=c11" )
+   set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -std=legacy" )
+
 endif()	   
 
 project (semtex C CXX Fortran)
