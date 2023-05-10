@@ -2,7 +2,7 @@
 // message.cpp: all semtex routines that use message-passing, which
 // are currently MPI-specific.
 //
-// If MPI_EX isn't defined durinhg compilation, these are just stubs.
+// If MPI_EX isn't defined during compilation, these are just stubs.
 //
 // See the following for a description of what the exchange routines do:
 //
@@ -10,28 +10,33 @@
 //  turbulent non-Newtonian flow using a spectral element method, Appl
 //  Math Mod, V30N11: 1229-1248.
 //
-// If you are looking for routines named "message" or "Veclib::messg",
-// these are meant for exception warnings and are part of Veclib.
+// If you are looking for routines named "message()" or
+// "Veclib::messg()", these are meant for exception warnings and are
+// part of semtex/veclib.
 //
 // Copyright (c) 1996+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <time.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <ctime>
+
+#include <utility.h>
+#include <veclib.h>
+#include <message.h>
 
 #if defined(MPI_EX)
 #include <mpi.h>
-/* -- File-scope) Cartesian communicators: */
-static MPI_Comm grid_comm, row_comm, col_comm;
+/* -- File-scope Cartesian communicators: */
+static MPI_Comm
+  grid_comm = MPI_COMM_NULL,
+  row_comm  = MPI_COMM_NULL,
+  col_comm  = MPI_COMM_NULL;
 #endif
 
-#include <femlib.h>
-#include <message.h>
-
 #if defined(NUMA)
-/* Need this forward declaration for a SGI/NUMA-specific routine. */
+// -- Need this forward declaration for a SGI/NUMA-specific routine.
 extern void _fastbcopy(const void *src, void *dest, size_t n);
     #define __MEMCPY(dest, src, n) _fastbcopy(src, dest, n)
 #else
@@ -41,51 +46,155 @@ extern void _fastbcopy(const void *src, void *dest, size_t n);
 
 namespace Message {
 
-  
-  void init (int*    argc,
-	     char*** argv)
-  // -----------------------------------------------------------------------
-  // Do whatever is required to initialise message-passing.  Set up
-  // associated global variables.
+  void init (int*    argc ,
+	     char*** argv ,
+	     int&    nproc,
+	     int&    iproc)
+  // ------------------------------------------------------------------------
+  // Initialise message-passing, which strips off MPI-associated
+  // runtime command-line arguments (and so should happen before we
+  // try to deal with our own).  Return the overall number of
+  // processes and the identifier of the current process.
+  // ------------------------------------------------------------------------
+  {
+#if defined(MPI_EX)
+    
+    MPI_Init      (argc, argv);
+    MPI_Comm_size (MPI_COMM_WORLD, &nproc);
+    MPI_Comm_rank (MPI_COMM_WORLD, &iproc);
+
+#endif
+  }    
+
+
+  void grid (const int& npart2d, // -- Input [1 .. number of elements in mesh]
+	     int&       ipart2d, //    Output
+	     int&       npartz , //    Output
+	     int&       ipartz ) //    Output
+  // ------------------------------------------------------------------------
+  // Set up a Cartesian grid for domain decomposition and return the
+  // coordinates of the current process within that grid.  The idea is
+  // that for our 2D x Fourier discretisation, the decomposition can
+  // be set up as a 2D Cartesian grid: the first dimension (rows)
+  // spans the 2D partitions, while the second dimension (columns)
+  // spans modal blocks in the Fourier direction.
+  //
+  // The total number of processes is a command-line argument to the
+  // message-passing manager (e.g. mpirun) and pre-exists at time of
+  // entry to this routine, while the requested number of 2D
+  // partitions is a command-line argument to the semtex executable it
+  // manages (e.g. dns_mp), and is supplied as an input argument here.
+  //
+  // We check that npart2d is a factor of the available number of
+  // processes, but further checking will likely need to be carried
+  // out elsewhere: e.g. that npart2d doesn't exceed the number of
+  // elements and npartz is consistent with the FFT we use in the
+  // Fourier direction.
   // -----------------------------------------------------------------------
   {
 #if defined(MPI_EX)
 
-    int  n;
-    int  n_part, dim_sizes[1], wrap_around[1], reorder = 1, free_coords[1];
-    char s[STR_MAX];
+    const char routine[] = "Message::grid";
 
-    MPI_Init       (argc, argv);
-    //    Femlib::init   ();
+    int ntot, dim_sizes[2], wrap_around[] = {0, 0}, free_coords[2], reorder = 1;
+    
+    if (npart2d < 1)
+      Veclib::messg
+    	(routine, "no. of 2D partitions must be at least 1", ERROR);
+    
+    MPI_Comm_size (MPI_COMM_WORLD, &ntot);
 
-    MPI_Comm_rank  (MPI_COMM_WORLD,   &n);
-    sprintf        (s, "I_PROC = %1d", n);
-    Femlib::ivalue (s);
+    if (ntot % npart2d)
+      Veclib::messg
+    	(routine, "no. of 2D partitions must factor no. of processes", ERROR);
 
-    MPI_Comm_size  (MPI_COMM_WORLD,   &n);
-    sprintf        (s, "N_PROC = %1d", n);
-    Femlib::ivalue (s);
+#if defined(XXT_EX)
+    
+    // -- Will allow 2D mesh partitioning (rows) as well as being
+    //    parallel across Fourier modes (columns).  But, potentially,
+    //    the number of Fourier modes can be only 1. So we may need a
+    //    1D Cartesian MPI grid with only a single row/column (i.e. a
+    //    line).
 
-    // -- Allocate a 2D Cartesian MPI grid.  For now, it will only have a
-    //    single column (a single 2D partition), and work the same as our
-    //    original parallel-across-modes semtex.
+    if (ntot == npart2d) { // -- Solution is 2D.
 
-    n_part = Femlib::ivalue ("N_PART");           // -- Should be 1.
-    dim_sizes[0]   = n;
+      // -- Make a row communicator.
+
+      dim_sizes[0]   = ntot;
+  
+      MPI_Cart_create (MPI_COMM_WORLD,
+		       1, dim_sizes, wrap_around, reorder, &grid_comm);
+
+      free_coords[0] = 1;
+
+      MPI_Cart_sub   (grid_comm, free_coords, &row_comm);
+
+      MPI_Comm_rank  (row_comm,  &ipart2d);
+
+      npartz = 1;
+      ipartz = 0;
+      
+    } else {		  // -- 3D solution with both 2D and z partitions.
+
+      // -- Create both row and column communicators.
+
+      int grid_rank, coordinates[2];
+
+      dim_sizes[0] = npart2d;
+      dim_sizes[1] = npartz = ntot / npart2d;
+  
+      MPI_Cart_create  (MPI_COMM_WORLD,
+			2, dim_sizes, wrap_around, reorder, &grid_comm);
+
+      free_coords[0] = 0;
+      free_coords[1] = 1;
+
+      MPI_Cart_sub    (grid_comm, free_coords, &row_comm);
+
+      free_coords[0] = 1;
+      free_coords[1] = 0;
+
+      MPI_Cart_sub    (grid_comm, free_coords, &col_comm);
+
+      MPI_Comm_rank   (grid_comm, &grid_rank);
+      MPI_Cart_coords (grid_comm,  grid_rank, 2, coordinates)
+
+      ipart2d = coordinates[0];
+      ipartz  = coordinates[1];
+    }
+
+#else    
+    
+    // -- Old-style semtex, parallel-across-Fourier modes, with only a
+    //    single 2D mesh partition.  Allocate a 1D Cartesian MPI grid
+    //    (say it is a column).
+
+    if (npart2d != 1)
+      Veclib::messg
+    	(routine, "no. of 2D partitions for Fourier-parallel must be 1", ERROR);
+
+    dim_sizes[0]   = ntot;
     wrap_around[0] = 0;
   
     MPI_Cart_create (MPI_COMM_WORLD,
-		     1, dim_sizes, wrap_around, reorder,
-		     &grid_comm);
+		     1, dim_sizes, wrap_around, reorder, &grid_comm);
 
     free_coords[0] = 1;
 
-    MPI_Cart_sub  (grid_comm, free_coords, &col_comm);
+    MPI_Cart_sub   (grid_comm, free_coords, &col_comm);
 
-    MPI_Comm_rank  (col_comm,         &n);
-    sprintf        (s, "I_PROC = %1d", n);
-    Femlib::ivalue (s);
+    MPI_Comm_rank  (col_comm,  &ipartz);
 
+    npartz  = ntot;
+    ipart2d = 0;
+
+#endif
+    
+#else
+    // -- Serial execution; supply default return values (not used).
+    
+    ipart2d = 0;
+    ipartz  = 0, npartz = 1;
 #endif
   }
 
@@ -160,9 +269,10 @@ namespace Message {
   {
 #if defined(MPI_EX)
 
+    int np;
+    MPI_Comm_size (col_comm, &np);
+
     int            i, j;
-    const int      ip = Femlib::ivalue ("I_PROC");
-    const int      np = Femlib::ivalue ("N_PROC");
     const int      nB = nP / np;       // -- Size of intra-processor block.
     const int      NB = nP / nB;       // -- Number of these blocks in a plane.
     const int      NM = nP * nZ / np;  // -- Size of message block.
@@ -305,13 +415,14 @@ namespace Message {
   {
 #if defined(MPI_EX)
 
+    int np;
+    MPI_Comm_size (col_comm, &np);
+
     int            i, j;
-    const int      ip = Femlib::ivalue ("I_PROC");
-    const int      np = Femlib::ivalue ("N_PROC");
     const int      nB = nP / np;       // -- Size of intra-processor block.
     const int      NB = nP / nB;       // -- Number of these blocks in a plane.
     const int      NM = nP * nZ / np;  // -- Size of message block.
-    const int      dsize   = sizeof (int_t);
+    const int      dsize  = sizeof (int_t);
     static int     *tmp   = NULL;
     static int     *kmove = NULL, *kpost, lastk;
     static int     *jmove = NULL, *jpost, lastj;

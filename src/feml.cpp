@@ -182,7 +182,7 @@ FEML::FEML (const char* session) :
   _feml_file.clear ();		// -- Reset EOF error condition.
   _feml_file.seekg (0);		// -- And rewind.
 
-  tokens ();			// -- Initialize Femlib parser.
+  tokens ();			// -- Install TOKENS defined in session.
 }
 
 
@@ -280,14 +280,20 @@ int_t FEML::attribute (const char* tag ,
 bool FEML::tokens ()
 // ---------------------------------------------------------------------------
 // Install token table.  Return false if no TOKEN section is found.
-// NUMBER attribute ignored if present.  Fix any inconsistent values.
-// Parser must have been initialized before entry.
+//
+// The parser should have been initialised prior to this call, but in
+// case it hasn't, we call for initialisation (takes no action if
+// already done).
+//  
+// NUMBER attribute is ignored if present.  Fix any inconsistent values.
 // Lines with '#' at the start are ignored.
 // ---------------------------------------------------------------------------
 {
-  const char     routine[] = "FEML::tokens";
-  char           buf[STR_MAX];
-  char* u;
+  const char routine[] = "FEML::tokens";
+  char       buf[STR_MAX];
+  char*      u;
+
+  Femlib::init();
 
   if (seek ("TOKENS")) {
     _feml_file.ignore (STR_MAX, '\n');

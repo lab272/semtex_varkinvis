@@ -1,7 +1,7 @@
-#ifndef FEMDEF_H
-#define FEMDEF_H
+#ifndef CFEMDEF_H
+#define CFEMDEF_H
 /*****************************************************************************
- * Common names and typedefs for finite-element codes.
+ * Common names and typedefs for C or C++ finite-element codes.
  *****************************************************************************/
 
 #if defined(_SX)		/* NEC SX-4.        */

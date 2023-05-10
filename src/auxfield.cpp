@@ -1006,9 +1006,9 @@ ostream& operator << (ostream&  strm,
 //  --------------------------------------------------------------------------
 {
   const char  routine[] = "ostream<<AuxField";
-  const int_t NP    = Geometry::planeSize();
-  const int_t nP    = Geometry::nPlane();
-  const int_t nProc = Geometry::nProc();
+  const int_t NP        = Geometry::planeSize();
+  const int_t nP        = Geometry::nPlane();
+  const int_t nProc     = Geometry::nProc();
   int_t       i, k;
 
   if (nProc > 1) {
@@ -1056,11 +1056,11 @@ istream& operator >> (istream&  strm,
 /// This precaution is possibly unnecessary for input.
 //  --------------------------------------------------------------------------
 {
-  const char     routine[] = "istream>>AuxField";
-  const int_t    nP    = Geometry::nPlane();
-  const int_t    NP    = Geometry::planeSize();
-  const int_t    nProc = Geometry::nProc();
-  int_t i, k;
+  const char   routine[] = "istream>>AuxField";
+  const int_t  nP        = Geometry::nPlane();
+  const int_t  NP        = Geometry::planeSize();
+  const int_t  nProc     = Geometry::nProc();
+  int_t        i, k;
 
   if (nProc > 1) {
 

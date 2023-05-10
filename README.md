@@ -80,14 +80,14 @@ and run on a wide variety of such systems for over two decades).
 Optional multi-process parallelisation across 2D Fourier modes is
 supported via MPI.
 
-The method uses continuous-Galerkin Legendre–Gauss–Lobatto
-nodal-based spectral-element elliptic equation solvers, a 2,3,5
-prime-factor FFT, and a backward-time (a.k.a. stiffly-stable)
-equal-order (P_N-P_N) velocity-pressure semi-explicit timesplitting
-method for DNS, with first-, second-, or third-order time integation.
-Skew-symmetric forms of the nonlinear terms in the NSE are the default
-for robust operation. No form of dealiasing is used when creating
-nonlinear product terms.
+The method uses continuous-Galerkin Legendre–Gauss–Lobatto nodal-based
+spectral-element elliptic equation solvers, a 2,3,5 prime-factor FFT,
+and a backward-time (a.k.a. stiffly-stable) equal-order (P_N–P_N)
+velocity-pressure semi-explicit timesplitting method for DNS, with
+first-, second-, or third-order time integation.  Skew-symmetric forms
+of the nonlinear terms in the NSE are the default for robust
+operation. No form of dealiasing is used when creating nonlinear
+product terms.
 
 Elliptic equations are by default solved using direct methods
 (Cholesky decomposition allied with element-level static
@@ -98,10 +98,11 @@ spectral element polynomial orders (4-10).
 
 The standard real data type in semtex is 64-bit double precision
 (double in C, DOUBLE PRECISION in Fortran) while the standard integer
-type is usually 32-bit (typically, whatever int/INTEGER is on the
-machine you are running on).  These two types are referred to by the
-semtex-standard typedefs real_t and int_t (see femlib/cfemdef.h).
-Strings are by default 2048 (STR_MAX) characters long.
+type is usually (though not invariably) 32-bit (typically, whatever
+int/INTEGER is on the machine you are running on).  These two types
+are referred to by the semtex-standard typedefs real_t and int_t (see
+femlib/cfemdef.h).  Strings are by default 2048 (STR_MAX) characters
+long.
 
 Distribution
 ------------
@@ -187,7 +188,7 @@ have cmake2.8 or above, in-source building may be your only option.
 Note that the use of vendor-supplied BLAS routines such those in
 Intel's MKL or AMD's ACML may quite substantially improve the
 performance of the DNS code.  Most of the improvement comes from
-having a well-optimised version of DGEMM (matrix-matrix multiply),
+having a well-optimised version of DGEMM (matrix–matrix multiply),
 which is heavily used by dns.  Search GotoBLAS or OpenBLAS.  On OS X,
 you get this performance by default via the Xcode/Accelerate framework;
 on Linux, try using ACML or MKL, depending on machine architecture.
@@ -299,7 +300,7 @@ run like this: "mpirun -np <n_cores> dns_mp").
   >% make parallel
 
 You should find executables "dns" and "dns_mp" now appear in the dns
-directory.  Congratulations - you are finished!  Putting all the
+directory.  Congratulations – you are finished!  Putting all the
 executables in your PATH could be your next task before going on to do
 some computing.  Given all the above description, you could be
 forgiven for trying the cmake route first.
@@ -312,7 +313,9 @@ conditions.  We call this a "session" file and typically it has no
 root extension.  It is written in a format patterned on HTML, which we
 have called FEML (for Finite Element Markup Language).  There are a
 number of example session files in the mesh directory.  Other files
-have standard extensions (the following also have the same format):
+have standard extensions (the following also have the same format,
+including a 10-line ASCII header that can be read using the UNIX
+"head" command):
 
 session.fld  Solution/field file.  Binary format by default.  
 session.rst  Restart file.  Read in to initialise solution if present.  
@@ -321,9 +324,10 @@ session.avg  Average file.  Used to store time-mean averages.
 After writing a new session file it is best to run meshpr on it before
 trying to use it for simulations.  Meshpr will catch most of the
 easier-to-make errors.  You can also plot up the results using
-SuperMongo or other utility as a visual check.  The rectmesh utility
-can be used to produce session files for simple rectangular domains -
-you can edit their tokens and boundary conditions as you see fit.
+meshplot, SuperMongo or other utility as a visual check.  The rectmesh
+utility can be used to produce session files for simple rectangular
+domains – you can edit their tokens and boundary conditions as you see
+fit.
 
 Utilities
 ---------
@@ -332,9 +336,10 @@ Can be found in the utility directory, including:
 
 compare  – Generate restart files, compare solutions to a function.  
 convert  – Convert field file formats (IEEE-big/little, ASCII).  
-meshpr   – Generate 2D mesh locations for plotting or checking.  
+meshpr   – Generate 2D mesh locations for plotting or checking.
+meshplot – Create a Postscript file of the 2D mesh for visualisation.  
 addfield – Add vorticity, also divergence, helicity, etc to a field file.  
-sem2tec  – Convert field files to Tecplot format (OK with Paraview/VisIt too).  
+sem2tec  – Convert field files to Tecplot format (OK for Paraview/VisIt too).  
 project  – Convert a field file to a different order interpolation.  
 interp   – Interpolate field file from one 2D mesh to another.  
 probe    – Probe field file at specified points.  

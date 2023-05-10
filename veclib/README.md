@@ -65,8 +65,10 @@ the vector).
 
 * The file utility.h provides low-level definitions and templates as
   well as prototypes for small routines in util.c.  One low-level
-  routine from here that is often used throughout the code base
-  (**without** the preceding Veclib::!) is message().
+  routine from here that has often been used throughout the code base
+  is message(), but since May 2023 the use of message() in C++ code is
+  deprecated in favour of Veclib::messg() - which just inlines a call
+  to message().
 
 <pre>
 
@@ -229,8 +231,8 @@ MISCELLANEOUS FUNCTIONS:
 *               mxm.................................... x   x
 *               mxv.................................... x   x
 *               mxva................................... x   x
-*               vvtvvtp................................ x   xw
-*               vvtvvtm................................ x   xw
+*               vvtvvtp................................ x   x
+*               vvtvvtm................................ x   x
 *               svvttvp................................ x   x
 
 </pre>

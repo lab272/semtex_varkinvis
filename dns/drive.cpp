@@ -63,6 +63,7 @@ int main (int    argc,
 #endif
 
   char*            session;
+  int              nproc = 1, iproc = 0, npart2d = 1;  
   bool             freeze = false;
   vector<Element*> elmt;
   FEML*            file;
@@ -73,8 +74,11 @@ int main (int    argc,
   FieldForce*      FF;
 
   Femlib::init  ();
-  Message::init (&argc, &argv);
-  
+  Message::init (&argc, &argv, nproc, iproc);
+
+  Femlib::ivalue ("I_PROC", iproc);
+  Femlib::ivalue ("N_PROC", nproc);
+
   getargs (argc, argv, freeze, session);
 
   preprocess (session, file, mesh, elmt, bman, domain, FF);
@@ -185,6 +189,7 @@ static void preprocess (const char*       session,
   const int_t        verbose = Femlib::ivalue ("VERBOSE");
   Geometry::CoordSys space;
   int_t              i, np, nz, nel, procid, seed;
+  int                npart2d = 1, ipart2d, npartz, ipartz;  
 
   // -- Initialise problem and set up mesh geometry.
 
@@ -192,6 +197,8 @@ static void preprocess (const char*       session,
 
   file = new FEML (session);
   mesh = new Mesh (file);
+
+  Message::grid ((int) npart2d, ipart2d, npartz, ipartz);
 
   VERBOSE cout << "done" << endl;
 

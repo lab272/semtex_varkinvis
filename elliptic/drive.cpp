@@ -10,6 +10,13 @@
 //   -i       ... use iterative solver
 //   -v[v...] ... increase verbosity level
 //
+// elliptic_mp [options] session
+//   options:
+//   -h       ... print this message
+//   -i       ... use iterative solver
+//   -p <num> ... request number of 2D domain partitions [Default: 1] (XXT)
+//   -v[v...] ... increase verbosity level
+//
 // If session.frc is found, use this field file as forcing for the
 // elliptic problem, otherwise use the 'forcing' string in the USER
 // section; failing that, set forcing to zero.
@@ -34,16 +41,16 @@
 
 #include <sem.h>
 
-#ifdef MPI
+#if defined(MPI_EX)
   static char prog[] = "elliptic_mp";
 #else
   static char prog[] = "elliptic";
 #endif
 
-static void getargs    (int, char**, char*&);
+static void getargs    (int, char**, int_t &, char*&);
 static void getoptions (FEML*, char*&, char*&);
-static void preprocess (const char*, FEML*&, Mesh*&, vector<Element*>&,
-			BCmgr*&, Domain*&, AuxField*&);
+static void preprocess (const char*, FEML*&, Mesh*&, const int_t&,
+			vector<Element*>&, BCmgr*&, Domain*&, AuxField*&);
 static void getforcing (const char*, const char*, AuxField*);
 
 void Helmholtz (Domain*, AuxField*);
@@ -57,6 +64,7 @@ int main (int    argc,
 {
   char             *session, *forcefunc = 0, *exact = 0;
   vector<Element*> elmt;
+  int              nproc = 1, iproc = 0, npart2d = 1;
   FEML*            file;
   Mesh*            mesh;
   BCmgr*           bman;
@@ -64,11 +72,14 @@ int main (int    argc,
   AuxField*        forcefld;
 
   Femlib::init  ();
-  Message::init (&argc, &argv);
+  Message::init (&argc, &argv, nproc, iproc);
 
-  getargs (argc, argv, session);
+  Femlib::ivalue ("I_PROC", iproc);
+  Femlib::ivalue ("N_PROC", nproc);
 
-  preprocess (session, file, mesh, elmt, bman, domain, forcefld);
+  getargs (argc, argv, npart2d, session);
+
+  preprocess (session, file, mesh, npart2d, elmt, bman, domain, forcefld);
 
   getoptions (file, forcefunc, exact);
   getforcing (session, forcefunc, forcefld);
@@ -89,6 +100,7 @@ int main (int    argc,
 
 static void getargs (int    argc   ,
 		     char** argv   ,
+		     int_t& npart2d,
 		     char*& session)
 // ---------------------------------------------------------------------------
 // Install default parameters and options, parse command-line for optional
@@ -101,6 +113,9 @@ static void getargs (int    argc   ,
     "  options:\n"
     "  -h       ... print this message\n"
     "  -i       ... use iterative solver\n"
+#if defined(MPI_EX) && defined(XXT_EX)
+    "  -p <num> ... request number of 2D domain partitions [Default: 1]\n"
+#endif
     "  -v[v...] ... increase verbosity level\n";
   char buf[StrMax];
  
@@ -116,6 +131,12 @@ static void getargs (int    argc   ,
     case 'i':
       Femlib::ivalue ("ITERATIVE", static_cast<int_t>(1));
       break;
+#if defined(MPI_EX) && defined(XXT_EX)
+    case 'p':
+      if (*++argv[0]) npart2d = atoi (*argv);
+      else { --argc; npart2d = atoi (*++argv); }
+      break;
+#endif
     case 'v':
       do
 	Femlib::ivalue ("VERBOSE", Femlib::ivalue("VERBOSE")+1);
@@ -136,6 +157,7 @@ static void getargs (int    argc   ,
 static void preprocess (const char*       session,
 			FEML*&            file   ,
 			Mesh*&            mesh   ,
+			const int_t&      npart2d,
 			vector<Element*>& elmt   ,
 			BCmgr*&           bman   ,
 			Domain*&          domain ,
@@ -148,6 +170,7 @@ static void preprocess (const char*       session,
   const int_t        verbose = Femlib::ivalue ("VERBOSE");
   Geometry::CoordSys space;
   int_t              i, np, nz, nel;
+  int                ipart2d, npartz, ipartz;
 
   // -- Initialise problem and set up mesh geometry.
 
@@ -155,6 +178,8 @@ static void preprocess (const char*       session,
 
   file = new FEML (session);
   mesh = new Mesh (file);
+
+  Message::grid ((int) npart2d, ipart2d, npartz, ipartz);
 
   VERBOSE cout << "done" << endl;
 
@@ -169,6 +194,8 @@ static void preprocess (const char*       session,
     Geometry::Cylindrical : Geometry::Cartesian;
   
   Geometry::set (np, nz, nel, space);
+
+  cout << "DONE GEOMETRY" << endl;
 
   VERBOSE cout << "done" << endl;
 
