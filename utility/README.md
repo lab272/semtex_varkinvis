@@ -1,5 +1,3 @@
-# utility README {#utility_readme}
-
 utility README
 ==============
 
@@ -25,5 +23,3 @@ Notes
   link object files compiled from src/*.cpp, and/or femlib, routines.
 
 ------------------------------------------------------------------------------
-
-$Id$

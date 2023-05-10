@@ -69,7 +69,7 @@
  *
  *                 / xx xy xz \     /  K  L  N \     /  K  L \
  *                 | .  yy yz |  =  |  .  M  O |  =  \  .  M /  -- if 2C
- *                \ .  .  zz /     \  .  .  P /
+ *                 \ .  .  zz /     \  .  .  P /
  *
  * Names for (output) terms in the fluctutating energy equation (TKE):
  * -------------------------------------------------------------------

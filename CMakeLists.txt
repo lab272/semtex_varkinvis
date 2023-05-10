@@ -22,7 +22,7 @@ if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
    set (BLA_VENDOR "Generic")
    message (STATUS "Building with Apple Accelerate BLAS and LAPACK.")
 
-# -- N.B.: we can/have turn/ed off all warnings via the -w flag.  Use with care!
+# -- N.B.: we have turned off all warnings via the -w flag.  Use with care!
 
    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
      -w \
@@ -58,6 +58,7 @@ elseif (DEFINED ENV{BLA_VENDOR})
    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
      -w \
      -std=c11 \
+     -Wno-deprecated-declarations \
      -Wno-parentheses \
      -Wno-implicit-function-declaration \
      -Wno-format \

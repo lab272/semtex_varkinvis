@@ -13,9 +13,8 @@
 #endif
   
 void dgathr_scatr (int_t n,
-		   const double* w,
-		   const int_t* x, const int_t* y,
-		   double* z)
+		   const double* w, const int_t*  x,
+		   const int_t*  y,       double* z)
 {
    int_t i;
 
@@ -24,9 +23,8 @@ void dgathr_scatr (int_t n,
 
 
 void igathr_scatr (int_t n,
-		   const int_t* w,
-		   const int_t* x, const int_t* y,
-		   int_t* z)
+		   const int_t* w, const int_t* x,
+		   const int_t* y,       int_t* z)
 {
    int_t i;
 
@@ -35,9 +33,8 @@ void igathr_scatr (int_t n,
 
 
 void sgathr_scatr (int_t n,
-		   const float* w,
-		   const int_t* x, const int_t* y,
-		   float* z)
+		   const float* w, const int_t* x,
+		   const int_t* y,       float* z)
 {
    int_t i;
 
