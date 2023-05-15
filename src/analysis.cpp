@@ -81,7 +81,7 @@ Analyser::Analyser (Domain* D   ,
 	F = new FluidParticle (_src, ++i, P);
 	if (!(F -> inMesh())) {
 	  sprintf (str, "Particle at (%f, %f, %f) not in mesh", P.x, P.y, P.z);
-	  Veclib::messg (routine, str, WARNING);
+	  Veclib::alert (routine, str, WARNING);
 	} else
 	  _particle.push_back (F);
 	if (add && F -> inMesh()) {
@@ -113,7 +113,7 @@ Analyser::Analyser (Domain* D   ,
 	_history.insert (_history.end(), H);
       } else {
 	sprintf (str, "History point at (%f, %f, %f) not in mesh", x, y, z);
-	Veclib::messg (routine, str, WARNING);
+	Veclib::alert (routine, str, WARNING);
       }
     }
 
@@ -122,7 +122,7 @@ Analyser::Analyser (Domain* D   ,
       _his_strm.setf (ios::scientific, ios::floatfield);
       _his_strm.precision (6);
       if (!_his_strm)
-	Veclib::messg (routine, "can't open history file", ERROR);
+	Veclib::alert (routine, "can't open history file", ERROR);
     }
   }
 
@@ -141,7 +141,7 @@ Analyser::Analyser (Domain* D   ,
   if (Femlib::ivalue ("N_PHASE") > 0) {
 
     if (!Femlib::ivalue ("AVERAGE"))
-      Veclib::messg
+      Veclib::alert
 	(routine, "if N_PHASE is set, AVERAGE > 0 also required", ERROR);
 
     // -- Must also have defined tokens STEPS_P (steps per period)
@@ -151,19 +151,19 @@ Analyser::Analyser (Domain* D   ,
     //    and IO_FLD = STEPS_P / N_PHASE.
 
     if (!Femlib::ivalue ("STEPS_P"))
-      Veclib::messg
+      Veclib::alert
 	(routine, "phase averaging is on but STEPS_P not set",    ERROR);
 
     if ( Femlib::ivalue ("STEPS_P") % Femlib::ivalue ("N_PHASE") )
-      Veclib::messg
+      Veclib::alert
 	(routine, "STEPS_P / N_PHASE non-integer",                ERROR);
 
     if ( Femlib::ivalue ("N_STEP")  % Femlib::ivalue ("N_PHASE") )
-      Veclib::messg
+      Veclib::alert
 	(routine, "N_STEP / N_PHASE non-integer",                 ERROR);
 
     if (Femlib::ivalue("IO_FLD") != Femlib::ivalue("STEPS_P / N_PHASE"))
-      Veclib::messg
+      Veclib::alert
 	(routine, "phase averaging: IO_FLD != STEPS_P / N_PHASE", ERROR);
 
     _ph_stats = new Statistics (D);
@@ -416,7 +416,7 @@ void Analyser::divergence (AuxField** work) const
 
   // This looks like it should always be true, but it's false if L2 is a NaN.
 
-  if (L2 != L2) Veclib::messg (routine, "forcing termination on NaN.", ERROR);
+  if (L2 != L2) Veclib::alert (routine, "forcing termination on NaN.", ERROR);
 }
 
 

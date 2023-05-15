@@ -245,7 +245,7 @@ MatrixSys::MatrixSys (const real_t            lambda2,
     
       Lapack::pbtrf ("U", _nsolve, _nband-1, _H, _nband, info);
 
-      if (info) Veclib::messg
+      if (info) Veclib::alert
 		  (routine, "failed to factor Helmholtz matrix", ERROR);
 
       Family::adopt (_npack, &_H);
@@ -305,7 +305,7 @@ MatrixSys::MatrixSys (const real_t            lambda2,
   } break;
 
   default:
-    Veclib::messg
+    Veclib::alert
       (routine, "no solver of type requested -- never happen", ERROR);
     break;
   }

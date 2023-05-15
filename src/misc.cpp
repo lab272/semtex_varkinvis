@@ -31,9 +31,9 @@ ostream& printVector (ostream&    strm,
   va_list ap;
 
   nvect = strlen (fmt);
-  if (! nvect   ) Veclib::messg (routine, "empty format string",   ERROR  );
-  if (nvect > 10) Veclib::messg (routine, "more than 10 vectors?", WARNING);
-  if (ntot  <  0) Veclib::messg (routine, "ntot < 0",              ERROR  );
+  if (! nvect   ) Veclib::alert (routine, "empty format string",   ERROR  );
+  if (nvect > 10) Veclib::alert (routine, "more than 10 vectors?", WARNING);
+  if (ntot  <  0) Veclib::alert (routine, "ntot < 0",              ERROR  );
 
   switch (fmt[0]) {
 
@@ -64,22 +64,13 @@ ostream& printVector (ostream&    strm,
     break;
   }
   default:
-    Veclib::messg (routine, fmt, ERROR);
+    Veclib::alert (routine, fmt, ERROR);
     break;
   }
 
-  if (!strm) Veclib::messg (routine, "output failed", ERROR);
+  if (!strm) Veclib::alert (routine, "output failed", ERROR);
 
   return strm;
-}
-
-
-char* upperCase (char *s)
-// ---------------------------------------------------------------------------
-// Uppercase characters in string.
-// ---------------------------------------------------------------------------
-{
-  char *z(s); while (*z = toupper (*z)) z++; return s;
 }
 
 
@@ -154,7 +145,7 @@ void writeField (ostream&           file   ,
   for (i = 0; i < N; i++) file << *field[i];
 
   ROOTONLY {
-    if (!file) Veclib::messg (routine, "failed writing field file", ERROR);
+    if (!file) Veclib::alert (routine, "failed writing field file", ERROR);
     file << flush;
   }
 }
@@ -166,9 +157,9 @@ void readField (istream&           file ,
 // Read fields from an opened file, binary nekton format.
 // ---------------------------------------------------------------------------
 {
-  const char routine [] = "readField";
+  const char  routine [] = "readField";
   const int_t N = field.size();
-  int_t i;
+  int_t       i;
 
   if (N < 1) return;
 
@@ -179,11 +170,11 @@ void readField (istream&           file ,
 
   ROOTONLY {
     if (hdr->nr != Geometry::nP() || hdr->ns != Geometry::nP())
-      Veclib::messg (routine, "element size mismatch",       ERROR);
+      Veclib::alert (routine, "element size mismatch",       ERROR);
     if (hdr->nz != Geometry::nZ())
-      Veclib::messg (routine, "number of z planes mismatch", ERROR);
+      Veclib::alert (routine, "number of z planes mismatch", ERROR);
     if (hdr->nel != Geometry::nElmt())
-      Veclib::messg (routine, "number of elements mismatch", ERROR);
+      Veclib::alert (routine, "number of elements mismatch", ERROR);
   }
 
   // -- Walk through fields, read appropriate one.

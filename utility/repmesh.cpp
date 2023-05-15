@@ -169,7 +169,7 @@ static int_t getVertices (FEML*          F   ,
   for (i = 0; i < num; i++) {    // -- Input Nodes (assumed unique).
     F -> stream() >> id >> x >> y >> z;
     if (id != i + 1)
-      Veclib::messg
+      Veclib::alert
 	(routine, "input list of NODES is out of order: check", ERROR);
     if (fabs(x) < EPSSP) x = 0.0;
     if (fabs(y) < EPSSP) y = 0.0;

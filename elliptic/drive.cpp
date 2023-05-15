@@ -53,6 +53,7 @@ static void preprocess (const char*, FEML*&, Mesh*&, const int_t&,
 			vector<Element*>&, BCmgr*&, Domain*&, AuxField*&);
 static void getforcing (const char*, const char*, AuxField*);
 
+
 void Helmholtz (Domain*, AuxField*);
 
 
@@ -148,7 +149,7 @@ static void getargs (int    argc   ,
       break;
     }
   
-  if (argc != 1) Veclib::messg (routine, "no session definition file", ERROR);
+  if (argc != 1) Veclib::alert (routine, "no session definition file", ERROR);
 
   session = *argv;
 }
@@ -235,6 +236,15 @@ static void preprocess (const char*       session,
 }
 
 
+static char* upperCase (char *s)
+// ---------------------------------------------------------------------------
+// Uppercase characters in null-terminated string.
+// ---------------------------------------------------------------------------
+{
+  char *z(s); while (*z = toupper (*z)) z++; return s;
+}
+
+
 static void getoptions (FEML*  feml ,
 			char*& forcf,
 			char*& exact)
@@ -268,7 +278,7 @@ static void getoptions (FEML*  feml ,
     }
 
     if (strcmp (s, "</USER>") != 0)
-      Veclib::messg
+      Veclib::alert
 	(routine, "couldn't sucessfully close <USER> section", ERROR);
   }
 }
@@ -303,7 +313,7 @@ static void getforcing (const char* session  ,
     char          s[StrMax], f[StrMax];
 
     if (file.getline(s, StrMax).eof())
-      Veclib::messg (routine, "forcing file is empty", ERROR);
+      Veclib::alert (routine, "forcing file is empty", ERROR);
 
     file.getline(s,StrMax).getline(s,StrMax);
 
@@ -319,15 +329,15 @@ static void getforcing (const char* session  ,
     sss >> npchk >> npchk >> nzchk >> nelchk;
 
     if (np  != npchk )
-      Veclib::messg (routine, "element size mismatch",       ERROR);
+      Veclib::alert (routine, "element size mismatch",       ERROR);
     if (nz  != nzchk )
-      Veclib::messg (routine, "number of z planes mismatch", ERROR);
+      Veclib::alert (routine, "number of z planes mismatch", ERROR);
     if (nel != nelchk)
-      Veclib::messg (routine, "number of elements mismatch", ERROR);
+      Veclib::alert (routine, "number of elements mismatch", ERROR);
   
     ntot = np * np * nz * nel;
     if (ntot != Geometry::nTot())
-      Veclib::messg (routine, "declared sizes mismatch", ERROR);
+      Veclib::alert (routine, "declared sizes mismatch", ERROR);
 
     file.getline(s,StrMax).getline(s,StrMax);
     file.getline(s,StrMax).getline(s,StrMax);
@@ -335,18 +345,18 @@ static void getforcing (const char* session  ,
 
     nfields = 0; while (isalpha (s[nfields])) nfields++;
     if (!nfields)
-      Veclib::messg
+      Veclib::alert
 	(routine, "no fields declared in forcing", ERROR);
 
     file.getline (s, StrMax);
     Veclib::describeFormat (f);
 
     if (!strstr (s, "binary"))
-      Veclib::messg
+      Veclib::alert
 	(routine, "input field file not in binary format", ERROR);
   
     if (!strstr (s, "endian"))
-      Veclib::messg
+      Veclib::alert
 	(routine, "input field file in unknown binary format", WARNING);
     else {
       swab = ((strstr (s, "big") && strstr (f, "little")) ||

@@ -225,12 +225,12 @@ static void getargs (int    argc   ,
       break;
     default:
       sprintf (err, "getargs: illegal option: %c\n", c);
-      Veclib::messg (prog, err, ERROR);
+      Veclib::alert (prog, err, ERROR);
       break;
     }
 
   if   (argc == 1) session = *argv;
-  else             Veclib::messg (prog, "must provide session file", ERROR);
+  else             Veclib::alert (prog, "must provide session file", ERROR);
 }
 
 
@@ -288,9 +288,9 @@ static void getfields (FEML* file ,
       field[i] = '\0';
       file->stream() >> t;
       if (!(strstr (t,   "/FIELDS")))
-	   Veclib::messg (prog, "FIELDS section not closed", ERROR);
-    } else Veclib::messg (prog, "FIELDS section not closed", ERROR);
-  } else   Veclib::messg (prog, "FIELDS section not found",  ERROR);
+	   Veclib::alert (prog, "FIELDS section not closed", ERROR);
+    } else Veclib::alert (prog, "FIELDS section not closed", ERROR);
+  } else   Veclib::alert (prog, "FIELDS section not found",  ERROR);
 }
 
 
@@ -328,7 +328,7 @@ static void checkVBCs (FEML*       file ,
 	tagc = tag[1];
       else {
 	sprintf (err, "unrecognized BC tag format: %s", tag);
-	Veclib::messg (prog, err, ERROR);
+	Veclib::alert (prog, err, ERROR);
       }
 
       file->stream() >> fieldc;
@@ -339,11 +339,11 @@ static void checkVBCs (FEML*       file ,
     
     if (!(vtag && wtag)) {
       sprintf (err, "group %c: BCs for fields 'v' & 'w' needed", groupc);
-      Veclib::messg (prog, err, ERROR);
+      Veclib::alert (prog, err, ERROR);
     }
     if (vtag != wtag) {
       sprintf (err, "group %c, fields 'v' & 'w': BC type mismatch", groupc);
-      Veclib::messg (prog, err, ERROR);
+      Veclib::alert (prog, err, ERROR);
     }
   }
 }
@@ -375,14 +375,14 @@ static void checkABCs (FEML*      file ,
 	tagc = tag[1];
       else {
 	sprintf (err, "unrecognized BC tag format: %s", tag);
-	Veclib::messg (prog, err, ERROR);
+	Veclib::alert (prog, err, ERROR);
       }
 
       file->stream() >> fieldc;
 
       if (groupc == atag && tagc != 'A') {
 	sprintf (err, "group '%c': field '%c' needs axis BC", groupc, fieldc);
-	Veclib::messg (prog, err, ERROR);
+	Veclib::alert (prog, err, ERROR);
       }
       file->stream().ignore (StrMax, '\n');
     }

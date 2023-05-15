@@ -201,12 +201,12 @@ static void getargs (int        argc   ,
     if (file -> fail()) {
       cerr << usage;
       sprintf (buf, "unable to open field file: %s", argv[1]);
-      Veclib::messg (prog, buf, ERROR);
+      Veclib::alert (prog, buf, ERROR);
     }
     break;
   default:
     cerr << usage;
-    Veclib::messg (prog, "session file not supplied", ERROR);
+    Veclib::alert (prog, "session file not supplied", ERROR);
     break;
   }  
 }

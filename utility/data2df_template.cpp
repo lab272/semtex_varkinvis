@@ -95,6 +95,6 @@ static void getargs (int       argc ,
   if (argc == 1) {
     input = new ifstream (*argv);
     if (input -> fail())
-      Veclib::messg (prog, "unable to open input file", ERROR);
+      Veclib::alert (prog, "unable to open input file", ERROR);
   } else input = &cin;
 }

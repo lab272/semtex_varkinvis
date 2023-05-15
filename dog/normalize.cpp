@@ -73,7 +73,7 @@ int main (int    argc,
 
   if (dump) {
     fldfile = new ifstream (dump);
-    if (fldfile -> bad()) Veclib::messg (prog, "no field file", ERROR);
+    if (fldfile -> bad()) Veclib::alert (prog, "no field file", ERROR);
   } else fldfile = &cin;
 
   // -- Set up 2D mesh information.
@@ -160,7 +160,7 @@ static void getargs (int     argc    ,
 
   if      (argc == 1)   session = argv[0];
   else if (argc == 2) { session = argv[0]; dump = argv[1]; }
-  else                  Veclib::messg (prog, usage, ERROR);
+  else                  Veclib::alert (prog, usage, ERROR);
 }
 
 
@@ -184,10 +184,10 @@ static int_t getDump (istream&           file,
   file >> hdr;
 
   if (hdr.nz < 1 || hdr.nz > 2)
-    Veclib::messg (prog, "nz in field file must be 1 or 2", ERROR);
+    Veclib::alert (prog, "nz in field file must be 1 or 2", ERROR);
 
   if (np != hdr.nr || nel != hdr.nel)
-    Veclib::messg (prog, "size of dump mismatch with session file", ERROR);
+    Veclib::alert (prog, "size of dump mismatch with session file", ERROR);
 
   nf = strlen (hdr.flds);
   Femlib::ivalue ("N_Z", hdr.nz);
@@ -196,16 +196,16 @@ static int_t getDump (istream&           file,
   // -- Check we have (only) uvp or uvwp.
 
   if (hdr.flds[0] != 'u')
-    Veclib::messg (prog, "fields must start with u", ERROR);
+    Veclib::alert (prog, "fields must start with u", ERROR);
 
   if (!(strstr ("uvp",  hdr.flds) || strstr ("uvwp", hdr.flds)))
-    Veclib::messg (prog, "fields must start with either uvp or uvwp", ERROR);
+    Veclib::alert (prog, "fields must start with either uvp or uvwp", ERROR);
 
   if (strstr ("uvp", hdr.flds) && nf != 3)
-    Veclib::messg (prog, "2-component field file must have only u v p", ERROR);
+    Veclib::alert (prog, "2-component field file must have only u v p", ERROR);
 
   if (strstr ("uvwp", hdr.flds) && nf != 4)
-    Veclib::messg (prog, "3-component field file must have only u v w p", ERROR);
+    Veclib::alert (prog, "3-component field file must have only u v w p", ERROR);
 
   // -- Arrange for byte-swapping if required.
 
@@ -240,9 +240,9 @@ static bool doSwap (const char* ffmt)
   Veclib::describeFormat (mfmt);   
 
   if (!strstr (ffmt, "binary"))
-    Veclib::messg (prog, "input field file not in binary format", ERROR);
+    Veclib::alert (prog, "input field file not in binary format", ERROR);
   else if (!strstr (ffmt, "endian"))
-    Veclib::messg (prog, "input field file in unknown binary format", WARNING);
+    Veclib::alert (prog, "input field file in unknown binary format", WARNING);
 
   return (strstr (ffmt, "big") && strstr (mfmt, "little")) || 
          (strstr (mfmt, "big") && strstr (ffmt, "little"));

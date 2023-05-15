@@ -83,7 +83,7 @@ static void getargs (int       argc ,
     if (input -> fail()) {
       cerr << usage;
       sprintf (buf, "unable to open file: %s", *argv);
-      Veclib::messg (prog, buf, ERROR);
+      Veclib::alert (prog, buf, ERROR);
     }
   } else input = &cin;
 }

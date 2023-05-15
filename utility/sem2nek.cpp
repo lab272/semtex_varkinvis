@@ -78,17 +78,17 @@ static void getArgs (int    argc   ,
     switch (*++argv[0]) {
     case 'h':
       sprintf (buf, usage, prog);
-      Veclib::messg ("", buf, REMARK);
+      Veclib::alert ("", buf, REMARK);
       exit (EXIT_SUCCESS);
       break;
     default:
       sprintf (buf, usage, prog);
-      Veclib::messg ("", buf, REMARK);
+      Veclib::alert ("", buf, REMARK);
       exit (EXIT_FAILURE);
       break;
     }
   
-  if   (argc != 1) Veclib::messg (routine, "no session definition file", ERROR);
+  if   (argc != 1) Veclib::alert (routine, "no session definition file", ERROR);
   else             session = *argv;
 }
 

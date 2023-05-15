@@ -730,7 +730,7 @@ void rotational1 (Domain*     D ,
       N[1] -> timesPlus (*Uphys[2], *Uphys[2]);
 
     } else
-      Veclib::messg (routine, "Never get here", ERROR);
+      Veclib::alert (routine, "Never get here", ERROR);
 
     for (i = 0; i < NCOM; i++) FF -> addPhysical (N[i], tmp, i, Uphys);
 
@@ -804,7 +804,7 @@ void rotational1 (Domain*     D ,
       N[1] -> timesMinus (*Uphys[0], *tmp);
 
     } else
-      Veclib::messg (routine, "Never get here", ERROR);
+      Veclib::alert (routine, "Never get here", ERROR);
 
     for (i = 0; i < NCOM; i++) FF -> addPhysical (N[i], tmp, i, Uphys);
 
@@ -1061,7 +1061,7 @@ void rotational2 (Domain*     D ,
       N[1] -> timesPlus (*Uphys[2], *Uphys[2]);
 
     } else
-      Veclib::messg (routine, "Never get here", ERROR);
+      Veclib::alert (routine, "Never get here", ERROR);
 
     for (i = 0; i < NCOM; i++) FF -> addPhysical (N[i], tmp, i, Uphys);
 
@@ -1149,7 +1149,7 @@ void rotational2 (Domain*     D ,
       N[1] -> timesMinus (*Uphys[0], *tmp);
 
     } else
-      Veclib::messg (routine, "Never get here", ERROR);
+      Veclib::alert (routine, "Never get here", ERROR);
 
     for (i = 0; i < NCOM; i++) FF -> addPhysical (N[i], tmp, i, Uphys);
 

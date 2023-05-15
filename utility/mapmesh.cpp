@@ -86,7 +86,7 @@ int main (int    argc,
 
   if (nNode < 4) {
     sprintf (err, "At least 4 Nodes are needed, found %1d declared", nNode);
-    Veclib::messg (prog, err, ERROR);
+    Veclib::alert (prog, err, ERROR);
   }
 
   for (i = 0; i < nNode; i++) {
@@ -98,7 +98,7 @@ int main (int    argc,
 
     if (id[i] > nNode) {
       sprintf (err, "Node ID %1d exceeds attribution (%1d)", id[i], nNode);
-      Veclib::messg (prog, err, ERROR);
+      Veclib::alert (prog, err, ERROR);
     }
   }
 
@@ -166,5 +166,5 @@ static void getargs (int    argc   ,
     }
 
   if   (argc == 1) session = *argv;
-  else             Veclib::messg (prog, "must provide session file", ERROR);
+  else             Veclib::alert (prog, "must provide session file", ERROR);
 }

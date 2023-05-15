@@ -105,7 +105,7 @@ int main (int    argc,
     fieldfl.getline (buf, StrMax);
     if (!strstr (buf, "Session")) {
       sprintf (err, "%s is not a field file", argv[2]);
-      Veclib::messg (prog, err, ERROR);
+      Veclib::alert (prog, err, ERROR);
     }
     
     fieldfl .getline(buf, StrMax) .getline(buf, StrMax);
@@ -119,17 +119,17 @@ int main (int    argc,
     if (np != Geometry::nP()) {
       sprintf (err, "polynomial order mismatch (%1d <--> %1d)",
 	       np, Geometry::nP());
-      Veclib::messg (prog, err, ERROR);
+      Veclib::alert (prog, err, ERROR);
     }
     if (nz != Geometry::nZ()) {
       sprintf (err, "number of z-planes mismatch (%1d <--> %1d)",
 	       nz, Geometry::nZ());
-      Veclib::messg (prog, err, ERROR);
+      Veclib::alert (prog, err, ERROR);
     }
     if (nel != M -> nEl()) {
       sprintf (err, "number of elements mismatch (%1d <--> %1d)",
 	       nel, Geometry::nElmt());
-      Veclib::messg (prog, err, ERROR);
+      Veclib::alert (prog, err, ERROR);
     }
 
     // -- Find the fields it contains, and set the time to found value.
@@ -154,9 +154,9 @@ int main (int    argc,
     
     fieldfl.getline (buf, StrMax);
     if (!strstr (buf, "binary"))
-      Veclib::messg (prog, "input field file not in binary format", ERROR);
+      Veclib::alert (prog, "input field file not in binary format", ERROR);
     else if (!strstr (buf, "endian"))
-      Veclib::messg (prog, "input field file in unknown binary format", WARNING);
+      Veclib::alert (prog, "input field file in unknown binary format", WARNING);
     else {
       swab = (   (strstr (buf, "big") && strstr (fmt, "little"))
 	      || (strstr (fmt, "big") && strstr (buf, "little")) );
@@ -186,7 +186,7 @@ int main (int    argc,
       fieldfl >> *computed;
       if (!fieldfl) {
 	sprintf (err, "error reading input Field `%c'", fields[i]);
-	Veclib::messg (prog, err, ERROR);
+	Veclib::alert (prog, err, ERROR);
       }
       if (swab) computed -> reverse();
 
@@ -203,7 +203,7 @@ int main (int    argc,
 
       if (!found) {
 	sprintf (err, "no function description for field '%c'", fields[i]);
-	Veclib::messg (prog, err, WARNING);
+	Veclib::alert (prog, err, WARNING);
 	*exact = 0.0;
       }
 
@@ -321,7 +321,7 @@ static void getargs (int       argc ,
     case 't': tran  = true; break;
     default:
       sprintf (err, "illegal option: %c\n", c);
-      Veclib::messg (prog, err, ERROR); break;
+      Veclib::alert (prog, err, ERROR); break;
     }
 
   switch (argc) {
@@ -332,7 +332,7 @@ static void getargs (int       argc ,
   case 2:
     sess = argv[0];
     fldf.open (argv[1], ios::in);
-    if (!fldf) Veclib::messg (prog, "couldn't open field file", ERROR);
+    if (!fldf) Veclib::alert (prog, "couldn't open field file", ERROR);
     break;
   default:
     cerr << usage;

@@ -99,7 +99,7 @@ Statistics::Statistics (Domain* D) :
 {
   if (_iavg == 0) return;
   if ((_iavg  < 0) || (_iavg > 3))
-    Veclib::messg
+    Veclib::alert
       ("Statistics::Statistics", "AVERAGE token out of [0,3]", ERROR);
 					 
   int_t       i;
@@ -462,8 +462,8 @@ void Statistics::dump (const char* filename)
     const bool verbose   = static_cast<bool> (Femlib::ivalue ("VERBOSE"));
 
     output.open (filename);
-    if (!output) Veclib::messg (routine, "can't open dump file", ERROR);
-    if (verbose) Veclib::messg (routine, ": writing field dump", REMARK);
+    if (!output) Veclib::alert (routine, "can't open dump file", ERROR);
+    if (verbose) Veclib::alert (routine, ": writing field dump", REMARK);
   }
   
   // -- All terms are written out in physical space but some are
@@ -527,15 +527,15 @@ ifstream& operator >> (ifstream&   strm,
   sss >> npchk >> npchk >> nzchk >> nelchk;
 
   if (np  != npchk )
-    Veclib::messg (routine, "element size mismatch",       ERROR);
+    Veclib::alert (routine, "element size mismatch",       ERROR);
   if (nz  != nzchk )
-    Veclib::messg (routine, "number of z planes mismatch", ERROR);
+    Veclib::alert (routine, "number of z planes mismatch", ERROR);
   if (nel != nelchk)
-    Veclib::messg (routine, "number of elements mismatch", ERROR);
+    Veclib::alert (routine, "number of elements mismatch", ERROR);
   
   ntot = np * np * nz * nel;
   if (ntot != Geometry::nTot())
-    Veclib::messg (routine, "declared sizes mismatch",     ERROR);
+    Veclib::alert (routine, "declared sizes mismatch",     ERROR);
 
   strm.getline (s, StrMax);
 
@@ -555,24 +555,24 @@ ifstream& operator >> (ifstream&   strm,
   if (nfields != tgt._avg.size()) {
     sprintf (err, "strm: %1d fields, avg: %1d", 
 	     nfields, static_cast<int_t>(tgt._avg.size()));
-    Veclib::messg (routine, err, ERROR);
+    Veclib::alert (routine, err, ERROR);
   }
 
   for (i = 0, k = tgt._avg.begin(); k != tgt._avg.end(); k++, i++)
     if (!strchr (fields, k -> second -> name())) {
       sprintf (err, "field %c not present in avg", fields[i]);
-      Veclib::messg (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     }
 
   strm.getline (s, StrMax);
   Veclib::describeFormat (f);
 
   if (!strstr (s, "binary"))
-    Veclib::messg
+    Veclib::alert
       (routine, "input field strm not in binary format", ERROR);
   
   if (!strstr (s, "endian"))
-    Veclib::messg
+    Veclib::alert
       (routine, "input field strm in unknown binary format", WARNING);
   else {
     swap = ((strstr (s, "big") && strstr (f, "little")) ||
@@ -589,7 +589,7 @@ ifstream& operator >> (ifstream&   strm,
   }
   
   ROOTONLY if (strm.bad())
-    Veclib::messg (routine, "failed reading average file", ERROR);
+    Veclib::alert (routine, "failed reading average file", ERROR);
 
   return strm;
 }

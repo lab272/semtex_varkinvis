@@ -401,7 +401,7 @@ NaturalComputed::NaturalComputed (BCmgr*     B,
 // ---------------------------------------------------------------------------  
 {
   if (_tag != 'p')
-    Veclib::messg ("NaturalComputed::NaturalComputed",
+    Veclib::alert ("NaturalComputed::NaturalComputed",
 	     "tag p (pressure) is the only recognised option", ERROR);
   
   _descriptor =  "natural-computed-pressure, see KIO91";
@@ -525,7 +525,7 @@ MixedComputed::MixedComputed (BCmgr*     B,
   }
   default: {
     sprintf (buf, "unrecognised constructor tag (%c)", t);
-    Veclib::messg (routine, buf, ERROR);
+    Veclib::alert (routine, buf, ERROR);
   }
   }
 }

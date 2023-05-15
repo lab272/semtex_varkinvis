@@ -52,13 +52,13 @@ int main (int    argc,
     istringstream ss (s = line);
     ss >> x;
     if (!X.empty() && X.top() >= x)
-      Veclib::messg (prog, "X locations must be strictly ascending.", ERROR);
+      Veclib::alert (prog, "X locations must be strictly ascending.", ERROR);
     X.push (x);
     Nx++;
   }
 
   if ((Nx - 1) % Nb)
-    Veclib::messg (prog,
+    Veclib::alert (prog,
 	     "Nx-1 (No. of elements in x) must be an integer multiple of Nb",
 	     ERROR);
 
@@ -66,7 +66,7 @@ int main (int    argc,
     istringstream ss (s = line);
     ss >> y;
     if (!Y.empty() && Y.top() >= y)
-      Veclib::messg (prog, "Y locations must be strictly ascending\n"
+      Veclib::alert (prog, "Y locations must be strictly ascending\n"
         "(and no more than one blank line allowed).", ERROR);
     Y.push (y);
     Ny++;
@@ -240,7 +240,7 @@ static void getargs (int       argc ,
   if (argc == 1) {
     input = new ifstream (*argv);
     if (input -> fail())
-      Veclib::messg (prog, "unable to open geometry file", ERROR);
+      Veclib::alert (prog, "unable to open geometry file", ERROR);
   } else input = &cin;
 }
 

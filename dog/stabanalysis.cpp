@@ -35,14 +35,14 @@ StabAnalyser::StabAnalyser (Domain* D   ,
 	num++;
       } else {
 	sprintf (str, "History point at (%f, %f, %f) not in mesh", x, y, z);
-	Veclib::messg (routine, str, WARNING);
+	Veclib::alert (routine, str, WARNING);
       }
     }
     
     bhs_strm.open (strcat (strcpy (str, _src -> name), ".bhs"));
     bhs_strm.setf (ios::scientific, ios::floatfield);
     bhs_strm.precision (6);
-    if (!bhs_strm) Veclib::messg (routine, "can't open history file", ERROR);
+    if (!bhs_strm) Veclib::alert (routine, "can't open history file", ERROR);
   }
 }
 

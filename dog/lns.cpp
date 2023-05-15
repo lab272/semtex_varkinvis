@@ -120,7 +120,7 @@ static void getargs (int        argc   ,
       break;
     }
   
-  if   (argc != 1) Veclib::messg (routine, "no session definition file", ERROR);
+  if   (argc != 1) Veclib::alert (routine, "no session definition file", ERROR);
   else             session = *argv;
 
   // -- While Fourier temporal interpolation is the default for base

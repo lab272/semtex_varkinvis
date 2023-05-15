@@ -92,6 +92,10 @@
 #include <sstream>
 #include <algorithm>
 
+#if defined(XXT_EX)
+#include <scotch.h>
+#endif
+
 using namespace std;
 
 #include <utility.h>
@@ -138,7 +142,7 @@ Mesh::Mesh (FEML*      f    ,
 
   if (Nn < 4) {
     sprintf (err, "At least 4 Nodes are needed, found %1d declared", Nn);
-    Veclib::messg (routine, err, ERROR);
+    Veclib::alert (routine, err, ERROR);
   }
 
   VERBOSE cout << routine << ": Reading vertices ... ";
@@ -156,7 +160,7 @@ Mesh::Mesh (FEML*      f    ,
 
     if (N -> ID >= Nn) {
       sprintf (err, "Node ID %1d exceeds attribution (%1d)", N -> ID + 1, Nn);
-      Veclib::messg (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     } else 
       _nodeTable[N -> ID] = N;
   }
@@ -170,7 +174,7 @@ Mesh::Mesh (FEML*      f    ,
 
   if (K < 1) {
     sprintf (err, "at least 1 element needed, %1d attributed", K);
-    Veclib::messg (routine, err, ERROR);
+    Veclib::alert (routine, err, ERROR);
   }
 
   VERBOSE cout << "  Reading elements ... ";
@@ -195,24 +199,24 @@ Mesh::Mesh (FEML*      f    ,
 	if (k >= Nn) {
 	  sprintf (err, "in element %1d, node tag %1d exceeds maximum (%1d)",
 		   E -> ID + 1, k + 1, Nn);
-	  Veclib::messg (routine, err, ERROR);
+	  Veclib::alert (routine, err, ERROR);
 	} else 
 	  E -> node[j] = _nodeTable[k];
       }
     } else {
       sprintf (err, "unrecognized element tag: %s", tag);
-      Veclib::messg (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     }
 
     _feml.stream() >> tag;
     if (strcmp (tag, "</Q>") != 0) {
       sprintf (err, "closing tag </Q> missing for element %1d", E -> ID + 1);
-      Veclib::messg (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     }
 
     if (E -> ID >= K) {
       sprintf (err, "element ID (%1d) exceeds attribution (%1d)", E -> ID+1,K);
-      Veclib::messg (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     } else
       _elmtTable[E -> ID] = E;
   }
@@ -364,21 +368,21 @@ void Mesh::surfaces ()
     if (t > K) {
       sprintf (err, "Surface tag no. %1d exceeds attribution (%1d)",
 	       t, K);
-      Veclib::messg (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     } else if (e > nEl()) {
       sprintf (err, "Surface %1d element no. %1d too large (%1d)",
 	       t, e, nEl());
-      Veclib::messg (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     } else if (s > _elmtTable[e - 1] -> nNodes()) {
       sprintf (err, "Surface %1d elmt %1d side no. %1d too large (%1d)",
 	       t, e, s, _elmtTable[e - 1] -> nNodes());
-      Veclib::messg (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     } else if (_elmtTable[e - 1] -> side[s - 1] -> mateElmt) {
       Mesh::Elmt* ME = _elmtTable[e - 1] -> side[s - 1] -> mateElmt;
       Mesh::Side* MS = _elmtTable[e - 1] -> side[s - 1] -> mateSide;
       sprintf (err, "Surface %1d elmt %1d side %1d already set to mate "
 	       "elmt %1d side %1d", t, e, s, ME -> ID + 1, MS -> ID + 1);
-      Veclib::messg (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     } 
     
     // -- Set up either a boundary group or a periodic boundary.
@@ -394,7 +398,7 @@ void Mesh::surfaces ()
       if (_elmtTable[e] -> side[s] -> group) {
 	sprintf (err, "Surface %1d: group already set (%c)",
 		 t, _elmtTable[e] -> side[s] -> group);
-	Veclib::messg (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
       }
       
       _feml.stream() >> _elmtTable[e] -> side[s] -> group;
@@ -404,7 +408,7 @@ void Mesh::surfaces ()
       _feml.stream() >> tag;
       if (strcmp (tag, "</B>") != 0) {
 	sprintf (err, "Surface %1d: couldn't close tag <B> with %s", t, tag);
-	Veclib::messg (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
       }
       
     } else if (strcmp (tag, "<P>") == 0) {
@@ -421,17 +425,17 @@ void Mesh::surfaces ()
       if (me < 1 || me > nEl()) {
 	sprintf (err, "Surface %1d, mating elmt no. %1d out of range (1--%1d)",
 		 t, me, nEl());
-	Veclib::messg (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
       } else if (ms < 1 || ms > _elmtTable[e] -> nNodes()) {
 	sprintf (err, "Surface %1d, mating side no. %1d out of range (1--%1d)",
 		 t, ms, _elmtTable[e] -> nNodes());
-	Veclib::messg (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
       } else if (_elmtTable[me - 1] -> side[ms - 1] -> mateElmt ||
 		 _elmtTable[me - 1] -> side[ms - 1] -> group    ) {
 	sprintf (err, "Surface %1d, mating elmt %1d, side %1d already set",
 		 t, me, ms);
 
-	Veclib::messg (routine, err, WARNING);
+	Veclib::alert (routine, err, WARNING);
       }
 
       me--; ms--;
@@ -452,12 +456,12 @@ void Mesh::surfaces ()
       _feml.stream() >> tag;
       if (strcmp (tag, "</P>") != 0) {
 	sprintf (err, "Surface %1d: couldn't close tag <P> with %s", t, tag);
-	Veclib::messg (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
       }
       
     } else {
       sprintf (err, "couldn't recognize Surface tag %s", tag);
-      Veclib::messg (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     }
   }
 }
@@ -522,7 +526,7 @@ void Mesh::chooseNode (Node* N1,
     }
   }
   
-  if (!PN) Veclib::messg ("Mesh::chooseNode", "NEVER HAPPEN", ERROR);
+  if (!PN) Veclib::alert ("Mesh::chooseNode", "NEVER HAPPEN", ERROR);
 }
 
 
@@ -543,7 +547,7 @@ void Mesh::fixPeriodic()
     npp = np -> periodic;
     if (npp && npp -> periodic != npp) {
       npp = npp -> periodic;
-      if (!npp) Veclib::messg ("Mesh::fixPeriodic", "NEVER HAPPEN", ERROR);
+      if (!npp) Veclib::alert ("Mesh::fixPeriodic", "NEVER HAPPEN", ERROR);
     }
   }
 }
@@ -607,13 +611,13 @@ void Mesh::checkAssembly()
       if (S -> mateSide == 0) {
 	sprintf (err, "Elmt %1d Side %1d not set",
 		 S -> thisElmt -> ID + 1, S -> ID + 1);
-	Veclib::messg (routine, err, WARNING);
+	Veclib::alert (routine, err, WARNING);
 	OK = false;
       }
     }
   }
   
-  if (!OK) Veclib::messg (routine, "some element edges not accounted for", ERROR);
+  if (!OK) Veclib::alert (routine, "some element edges not accounted for", ERROR);
 
   if (Femlib::ivalue ("VERBOSE") > 1) {
     cout << endl << "# Summary:" << endl;
@@ -653,13 +657,13 @@ void Mesh::curves ()
 
     if (id > K) {
       sprintf (err, "Curve ID %1d exceeds attribution (%1d)", id, K);
-      Veclib::messg (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     } else if (elmt > nEl()) {
       sprintf (err, "Curve ID %1d, Elmt no. %1d too large (%1d)", id, elmt, K);
-      Veclib::messg (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     } else if (side > (ns = _elmtTable[elmt - 1] -> nNodes())) {
       sprintf (err, "Curve ID %1d, Side no. %1d too large (%1d)", id,side, ns);
-      Veclib::messg (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     }
     
     S = _elmtTable[elmt - 1] -> side[side - 1];
@@ -675,7 +679,7 @@ void Mesh::curves ()
       _feml.stream() >> buf;
       if (strcmp (buf, "</ARC>") != 0) {
 	sprintf (err, "Curve ID %1d, can't close <ARC> with </ARC>", id);
-	Veclib::messg (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
       }
     } else if (strcmp (buf, "<SPLINE>") == 0) {
       char filename[StrMax];
@@ -686,11 +690,11 @@ void Mesh::curves ()
       _feml.stream() >> buf;
       if (strcmp (buf, "</SPLINE>") != 0) {
 	sprintf (err, "Curve ID %1d, can't close <SPLINE> with </SPLINE>", id);
-	Veclib::messg (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
       }
     } else {
       sprintf (err, "Curve %1d, unknown curve kind %s", id, buf);
-      Veclib::messg (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     }
 
     _curveTable[i] = C;
@@ -740,7 +744,7 @@ void Mesh::meshSide (const int_t   np     ,
   const int_t    Ne = _elmtTable .size();
   int_t i;
 
-  if (np < 2) Veclib::messg (routine, "must have at least two points", ERROR);
+  if (np < 2) Veclib::alert (routine, "must have at least two points", ERROR);
 
   for (i = 0; i < Nc; i++) {
     Curve* C = _curveTable[i];
@@ -840,7 +844,7 @@ void Mesh::meshElmt (const int_t   ID,
       }
       break;
     default:
-      Veclib::messg (routine, "never happen", ERROR);
+      Veclib::alert (routine, "never happen", ERROR);
       break;
     }
   }
@@ -906,7 +910,7 @@ int_t Mesh::buildAssemblyMap (const int_t np ,
 {
   const char routine[] = "Mesh::buildMap";
 
-  if (np < 2) Veclib::messg (routine, "need at least 2 knots", ERROR);
+  if (np < 2) Veclib::alert (routine, "need at least 2 knots", ERROR);
 
   // -- Create element-side based gID storage, if required, & initialize gIDs.
   
@@ -1196,7 +1200,7 @@ void Mesh::printNek () const
 	  os << "Elmt " << E -> ID + 1 << " side " << S -> ID + 1
 	     << " --- B.C. type "  << buf
 	     << " not implemented" << ends;
-	  Veclib::messg (routine, os.str().c_str(), WARNING);
+	  Veclib::alert (routine, os.str().c_str(), WARNING);
 	}
       }
     }
@@ -1227,7 +1231,7 @@ void Mesh::describeGrp (char  G,
 
   if (!found) {
     sprintf (err, "no group found to match '%c'", G);
-    Veclib::messg (routine, err, ERROR);
+    Veclib::alert (routine, err, ERROR);
   }
 }
 
@@ -1276,7 +1280,7 @@ void Mesh::describeBC (char  grp,
 	} else {
 	  sprintf (err, "Group '%c', Field '%c', expected '=', got '%c",
 		   grp, fld, eql);
-	  Veclib::messg (routine, err, ERROR);
+	  Veclib::alert (routine, err, ERROR);
 	}
       } else {
 	_feml.stream().ignore (StrMax, '\n');
@@ -1287,7 +1291,7 @@ void Mesh::describeBC (char  grp,
   if (!found) {
     sprintf (err, "couldn't find BC to match Group '%c', Field '%c'",
 	     grp, fld);
-    Veclib::messg (routine, err, ERROR);
+    Veclib::alert (routine, err, ERROR);
   }
 }
 
@@ -1340,7 +1344,7 @@ void Mesh::buildLiftMask (const int_t np  , // -- input, N_P for field.
 {
   const char routine[] = "Mesh::buildLiftMask";
 
-  if (np < 2) Veclib::messg (routine, "need at least 2 knots", ERROR);
+  if (np < 2) Veclib::alert (routine, "need at least 2 knots", ERROR);
 
   int_t       i, j, k, ns, nb = 0;
   const int_t nel = nEl(), ni = np - 2;
@@ -1552,7 +1556,7 @@ CircularArc::CircularArc (const int_t  id,
     sprintf (err, "curve %1d:\narc, radius %f, can't span nodes %1d & %1d",
 	     id, radius, 
 	     curveSide -> startNode -> ID + 1, curveSide -> endNode -> ID + 1);
-    Veclib::messg (routine, err, ERROR);
+    Veclib::alert (routine, err, ERROR);
   } else
     semiangle = asin (0.5*l / radius);
 
@@ -1737,7 +1741,7 @@ spline2D* Spline::getGeom (const char* fname)
 
     if (!file) {
       sprintf (err, "file: %s: not found", fname);
-      Veclib::messg (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     }
 
     c = new spline2D;

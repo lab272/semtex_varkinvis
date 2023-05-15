@@ -26,7 +26,7 @@ AuxField::AuxField (real_t*           alloc,
    int_t k;
 
   if (Geometry::nElmt() != _elmt.size())
-    Veclib::messg
+    Veclib::alert
       (routine, "conflicting number of elements in input data", ERROR);
 
   _plane = new real_t* [static_cast<size_t>(_nz)];
@@ -87,7 +87,7 @@ AuxField& AuxField::operator /= (const real_t val)
 // ---------------------------------------------------------------------------
 {
   if (val == 0.0)
-    Veclib::messg ("AuxField::op /= real", "divide by zero", ERROR);
+    Veclib::alert ("AuxField::op /= real", "divide by zero", ERROR);
   else
     Blas::scal (_size, 1.0 / val, _data, 1);
 
@@ -188,7 +188,7 @@ AuxField& AuxField::times (const AuxField& a,
 {
   const char routine[] = "AuxField::times";
   
-  if (b._nz > 1) Veclib::messg (routine, "second operand must be real", ERROR);
+  if (b._nz > 1) Veclib::alert (routine, "second operand must be real", ERROR);
 
   Veclib::vmul (b._size, a._plane[0], 1, b._plane[0], 1, _plane[0], 1);
   if (a._nz == 2)
@@ -209,7 +209,7 @@ AuxField& AuxField::timesPlus (const AuxField& a,
 {
   const char routine[] = "AuxField::timesPlus";
 
-  if (b._nz > 1) Veclib::messg (routine, "second operand must be real", ERROR);
+  if (b._nz > 1) Veclib::alert (routine, "second operand must be real", ERROR);
 
   Veclib::vvtvp
     (b._size, a._plane[0], 1, b._plane[0], 1, _plane[0], 1, _plane[0], 1);
@@ -231,7 +231,7 @@ AuxField& AuxField::timesMinus (const AuxField& a,
 {
   const char routine[] = "AuxField::timesMinus";
 
-  if (b._nz > 1) Veclib::messg (routine, "second operand must be real", ERROR);
+  if (b._nz > 1) Veclib::alert (routine, "second operand must be real", ERROR);
 
   Veclib::vvvtm
     (b._size, _plane[0], 1, a._plane[0], 1, b._plane[0], 1, _plane[0], 1);
@@ -250,7 +250,7 @@ AuxField& AuxField::axpy (const real_t    alpha,
 {
   const char routine[] = "AuxField::axpy";
 
-  if (_size != x._size) Veclib::messg (routine, "non-congruent inputs", ERROR);
+  if (_size != x._size) Veclib::alert (routine, "non-congruent inputs", ERROR);
 
   Blas::axpy (_size, alpha, x._data, 1, _data, 1);
 
@@ -323,7 +323,7 @@ AuxField& AuxField::gradient (const int_t dir)
     }
   } break;
   default:
-    Veclib::messg (routine, "nominated direction out of range [0--2]", ERROR);
+    Veclib::alert (routine, "nominated direction out of range [0--2]", ERROR);
     break;
   }
 
@@ -346,8 +346,8 @@ real_t AuxField::mode_L2 (const int_t mode) const
   int_t       i;
   Element*    E;
   
-  if (kr < 0  ) Veclib::messg (routine, "negative mode number",        ERROR);
-  if (ki > _nz) Veclib::messg (routine, "mode number exceeds maximum", ERROR);
+  if (kr < 0  ) Veclib::alert (routine, "negative mode number",        ERROR);
+  if (ki > _nz) Veclib::alert (routine, "mode number exceeds maximum", ERROR);
 
   for (i = 0; i < nel; i++) {
     E      = _elmt[i];
@@ -412,7 +412,7 @@ ostream& operator << (ostream& strm,
   for (i = 0; i < F._nz; i++) {
     strm.write((char*) F._plane[i], static_cast<int> (nP * sizeof(real_t)));
     if (strm.bad())
-      Veclib::messg (routine, "unable to write binary output", ERROR);
+      Veclib::alert (routine, "unable to write binary output", ERROR);
   }
 
   return strm;
@@ -436,7 +436,7 @@ istream& operator >> (istream& strm,
   for (i = 0; i < F._nz; i++) {
     strm.read ((char*) F._plane[i], static_cast<int>(nP * sizeof(real_t))); 
     if (strm.bad())
-      Veclib::messg (routine, "unable to read binary input", ERROR);
+      Veclib::alert (routine, "unable to read binary input", ERROR);
     Veclib::zero (NP - nP, F._plane[i] + nP, 1);
   }
 
@@ -469,7 +469,7 @@ AuxField& AuxField::addToPlane (const int_t  k    ,
   const char routine[] = "AuxField::addToPlane";
 
   if (k < 0 || k >= _nz)
-    Veclib::messg (routine, "nominated plane doesn't exist", ERROR);
+    Veclib::alert (routine, "nominated plane doesn't exist", ERROR);
   else
     Veclib::sadd (Geometry::nPlane(), alpha, _plane[k], 1, _plane[k], 1);
 
@@ -486,7 +486,7 @@ AuxField& AuxField::getPlane (const int_t k  ,
   const char routine[] = "AuxField::getPlane";
 
   if (k < 0 || k >= Geometry::nZProc())
-    Veclib::messg (routine, "nominated plane doesn't exist", ERROR);
+    Veclib::alert (routine, "nominated plane doesn't exist", ERROR);
   else
     Veclib::copy (Geometry::nPlane(), _plane[k], 1, tgt, 1);
 
@@ -503,7 +503,7 @@ AuxField& AuxField::setPlane (const int_t   k  ,
   const char routine[] = "AuxField::setPlane";
 
   if (k < 0 || k >= _nz)
-    Veclib::messg (routine, "nominated plane doesn't exist", ERROR);
+    Veclib::alert (routine, "nominated plane doesn't exist", ERROR);
   else
     Veclib::copy (Geometry::nPlane(), src, 1, _plane[k], 1);
 
@@ -520,7 +520,7 @@ AuxField& AuxField::setPlane (const int_t  k    ,
   const char routine[] = "AuxField::setPlane";
 
   if (k < 0 || k >= _nz)
-    Veclib::messg (routine, "nominated plane doesn't exist", ERROR);
+    Veclib::alert (routine, "nominated plane doesn't exist", ERROR);
   else {
     if (alpha == 0.0)
       Veclib::zero (Geometry::nPlane(), _plane[k], 1);
@@ -543,7 +543,7 @@ void AuxField::swapData (AuxField* x,
    real_t* tmp;
 
   if (x -> _size != y -> _size)
-    Veclib::messg (routine, "non-congruent inputs", ERROR);
+    Veclib::alert (routine, "non-congruent inputs", ERROR);
  
   tmp        = x -> _data;
   x -> _data = y -> _data;
@@ -637,7 +637,7 @@ void AuxField::couple (AuxField*   v  ,
       Veclib::svvpt (nP, 0.5, Vi, 1, tp, 1, Vi, 1);
     }
   } else
-    Veclib::messg (routine, "unknown direction given", ERROR);
+    Veclib::alert (routine, "unknown direction given", ERROR);
 }
 
 
@@ -809,7 +809,7 @@ real_t AuxField::CFL (const int_t dir,
     break;
   }
   default:
-    Veclib::messg (routine, "nominated direction out of range [0--2]", ERROR);
+    Veclib::alert (routine, "nominated direction out of range [0--2]", ERROR);
     break;
   }
   

@@ -52,7 +52,7 @@ NumberSys::NumberSys (const vector<AssemblyMap*>& allMaps,
 	  sprintf (err,
 		   "field %c, mode %1d: can't find matching AssemblyMap",
 		   name, mode);
-	  Veclib::messg (routine, err, ERROR);
+	  Veclib::alert (routine, err, ERROR);
 	}
       }
 }

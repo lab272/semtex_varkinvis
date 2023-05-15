@@ -198,7 +198,7 @@ static void getargs (int       argc  ,
     case 'm':
       --argc; ++argv;
       mapfl = new ifstream (*argv);
-      if (mapfl -> bad()) Veclib::messg (prog, "unable to open map file",ERROR);
+      if (mapfl -> bad()) Veclib::alert (prog, "unable to open map file",ERROR);
       break;
     case 'r':
       revpar = true;
@@ -211,7 +211,7 @@ static void getargs (int       argc  ,
 
   if (argc == 1) {
     input = new ifstream (*argv);
-    if (input -> bad()) Veclib::messg (prog, "unable to open input file",ERROR);
+    if (input -> bad()) Veclib::alert (prog, "unable to open input file",ERROR);
   } else input = &cin;
 }
 
@@ -232,17 +232,17 @@ static void loadmap (Header&        headr    ,
   
   if (!file) {
     sprintf (err, "cannot find map file %s", buf);
-    Veclib::messg (prog, err, ERROR);
+    Veclib::alert (prog, err, ERROR);
   }
 
   file >> NR >> NS >> NEL >> NEL;
   file.ignore (StrMax, '\n');
 
   if (NR != np || NS != np || NEL != nel)
-    Veclib::messg (prog, "map file doesn't conform with session file",   ERROR);
+    Veclib::alert (prog, "map file doesn't conform with session file",   ERROR);
   file >> generator;
   if (!(generator == 'x' || generator == 'y'))
-    Veclib::messg (prog, "symmetry generator must be either 'x' or 'y'", ERROR);
+    Veclib::alert (prog, "symmetry generator must be either 'x' or 'y'", ERROR);
   
   file >> NMAP;
 
@@ -252,7 +252,7 @@ static void loadmap (Header&        headr    ,
   for (i = 0; i < NMAP; i++) file >> positive[i] >> negative[i];
 
   if (!file)
-    Veclib::messg (prog, "bad (premature end of?) map file", ERROR);
+    Veclib::alert (prog, "bad (premature end of?) map file", ERROR);
 }
 
 

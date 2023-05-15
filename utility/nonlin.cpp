@@ -172,12 +172,12 @@ static void getargs (int        argc   ,
     if (file -> fail()) {
       cerr << usage;
       sprintf (buf, "unable to open field file: %s", argv[1]);
-      Veclib::messg (prog, buf, ERROR);
+      Veclib::alert (prog, buf, ERROR);
     }
     break;
   default:
     cerr << usage;
-    Veclib::messg (prog, "session file not supplied", ERROR);
+    Veclib::alert (prog, "session file not supplied", ERROR);
     break;
   }  
 }
@@ -227,7 +227,7 @@ static void getDump (istream&           file,
 
   file.getline (buf, StrMax);
 
-  if (!strstr (buf, "Session")) Veclib::messg (prog, "not a field file", ERROR);
+  if (!strstr (buf, "Session")) Veclib::alert (prog, "not a field file", ERROR);
   file.getline (buf, StrMax);
 
   // -- Input numerical description of field sizes.
@@ -236,7 +236,7 @@ static void getDump (istream&           file,
   file.getline (buf, StrMax);
   
   if (np != Geometry::nP() || nz != Geometry::nZ() || nel != Geometry::nElmt())
-    Veclib::messg (prog, "input file mismatch with session file", ERROR);
+    Veclib::alert (prog, "input file mismatch with session file", ERROR);
 
   file.getline (buf, StrMax);
   file.getline (buf, StrMax);
@@ -252,7 +252,7 @@ static void getDump (istream&           file,
 
   if      (strstr (fields, "uvw")) ncom = 3;
   else if (strstr (fields, "uv"))  ncom = 2;
-  else Veclib::messg (prog, "input file lacks velocity components", ERROR);
+  else Veclib::alert (prog, "input file lacks velocity components", ERROR);
 
   u.resize (ncom);
   n.resize (ncom);
@@ -287,7 +287,7 @@ static void getDump (istream&           file,
     }
   }
 
-  if (file.fail ()) Veclib::messg (prog, "problem reading input data", ERROR);
+  if (file.fail ()) Veclib::alert (prog, "problem reading input data", ERROR);
 
   // -- Clear all nonlinear storage areas.
 
@@ -305,9 +305,9 @@ static bool doSwap (const char* ffmt)
   Veclib::describeFormat (mfmt);   
 
   if (!strstr (ffmt, "binary"))
-    Veclib::messg (prog, "input field file not in binary format", ERROR);
+    Veclib::alert (prog, "input field file not in binary format", ERROR);
   else if (!strstr (ffmt, "endian"))
-    Veclib::messg (prog, "input field file in unknown binary format", WARNING);
+    Veclib::alert (prog, "input field file in unknown binary format", WARNING);
 
   return (strstr (ffmt, "big") && strstr (mfmt, "little")) || 
          (strstr (mfmt, "big") && strstr (ffmt, "little"));

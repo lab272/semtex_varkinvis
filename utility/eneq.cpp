@@ -158,7 +158,7 @@ int main (int    argc,
   getargs (argc, argv, MKE, session, dump);
 
   avgfile.open (dump, ios::in);
-  if (!avgfile) Veclib::messg (prog, "no field file", ERROR);
+  if (!avgfile) Veclib::alert (prog, "no field file", ERROR);
   
   getMesh (session, elmt);
   makeBuf (output, work, elmt);
@@ -303,7 +303,7 @@ static bool getDump (ifstream&             file,
 
   if (file.getline(buf, StrMax).eof()) return false;
   
-  if (!strstr (buf, "Session")) Veclib::messg (prog, "not a field file", ERROR);
+  if (!strstr (buf, "Session")) Veclib::alert (prog, "not a field file", ERROR);
   file.getline (buf, StrMax);
 
   // -- Input numerical description of field sizes.
@@ -312,7 +312,7 @@ static bool getDump (ifstream&             file,
   file.getline (buf, StrMax);
   
   if (np != Geometry::nP() || nz != Geometry::nZ() || nel != Geometry::nElmt())
-    Veclib::messg (prog, "size of dump mismatch with session file", ERROR);
+    Veclib::alert (prog, "size of dump mismatch with session file", ERROR);
 
   file.getline (buf, StrMax);
   file.getline (buf, StrMax);
@@ -337,7 +337,7 @@ static bool getDump (ifstream&             file,
     for (i = 0; i < nf; i++)
       u[fields[i]] = new AuxField (new real_t[ntot], nz, elmt, fields[i]);
   } else if (strcmp (fieldNames (u), fields) != 0)
-    Veclib::messg (prog, "fields mismatch with first dump in file", ERROR);
+    Veclib::alert (prog, "fields mismatch with first dump in file", ERROR);
 
   // -- Read binary field data.
 
@@ -360,9 +360,9 @@ static bool doSwap (const char* ffmt)
   Veclib::describeFormat (mfmt);   
 
   if (!strstr (ffmt, "binary"))
-    Veclib::messg (prog, "input field file not in binary format", ERROR);
+    Veclib::alert (prog, "input field file not in binary format", ERROR);
   else if (!strstr (ffmt, "endian"))
-    Veclib::messg (prog, "input field file in unknown binary format", WARNING);
+    Veclib::alert (prog, "input field file in unknown binary format", WARNING);
 
   return (strstr (ffmt, "big") && strstr (mfmt, "little")) || 
          (strstr (mfmt, "big") && strstr (ffmt, "little"));
@@ -391,24 +391,24 @@ static void meanflo (map<char, AuxField*>& in  ,
         if (strcmp (names, list2dc) != 0) {
           sprintf
 	    (err,"list of names should match %s: have %s", list2dc, names);
-          Veclib::messg (prog, err, ERROR);
+          Veclib::alert (prog, err, ERROR);
         } 
       } else if (strcmp (names, list3dc) != 0) {
         sprintf
 	  (err,"list of names should match %s: have %s", list3dc, names);
-        Veclib::messg (prog, err, ERROR);
+        Veclib::alert (prog, err, ERROR);
       }
   }else{
   if (nvel == 2) {
     if (strcmp (names, list2d) != 0) {
       sprintf
 	(err,"list of names should match %s: have %s", list2d, names);
-      Veclib::messg (prog, err, ERROR);
+      Veclib::alert (prog, err, ERROR);
     } 
   } else if (strcmp (names, list3d) != 0) {
     sprintf
       (err,"list of names should match %s: have %s", list3d, names);
-    Veclib::messg (prog, err, ERROR);
+    Veclib::alert (prog, err, ERROR);
   }
   }
   // -- Turn ABC... into Reynolds stresses.
@@ -599,34 +599,34 @@ static void covary  (map<char, AuxField*>& in  ,
         if (strcmp (names, list2dc) != 0) {
           sprintf
 	    (err,"list of names should match %s: have %s", list2dc, names);
-          Veclib::messg (prog, err, ERROR);
+          Veclib::alert (prog, err, ERROR);
         } 
       } else if (strcmp (names, list3dc) != 0) {
         sprintf
 	  (err,"list of names should match %s: have %s", list3dc, names);
-        Veclib::messg (prog, err, ERROR);
+        Veclib::alert (prog, err, ERROR);
       }
   }else{
   if (nvel == 2) {
     if (strcmp (names, list2d) != 0) {
       sprintf
 	(err,"list of names should match %s: have %s", list2d, names);
-      Veclib::messg (prog, err, ERROR);
+      Veclib::alert (prog, err, ERROR);
     } 
   } else if (strcmp (names, list3d) != 0) {
     sprintf
       (err,"list of names should match %s: have %s", list3d, names);
-    Veclib::messg (prog, err, ERROR);
+    Veclib::alert (prog, err, ERROR);
   }
   }
  /* if (nvel == 2) {
     if (strcmp (names, list2d) != 0) {
       sprintf (err,"list of names should match %s: have %s", list2d, names);
-      Veclib::messg (prog, err, ERROR);
+      Veclib::alert (prog, err, ERROR);
     } 
   } else if (strcmp (names, list3d) != 0) {
     sprintf (err,"list of names should match %s: have %s", list3d, names);
-    Veclib::messg (prog, err, ERROR);
+    Veclib::alert (prog, err, ERROR);
   }
 */
   // -- Deal with all the correlations first, before any differentiation.

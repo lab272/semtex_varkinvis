@@ -26,6 +26,16 @@ int_t Geometry::_psize = 0;
 Geometry::CoordSys Geometry::_csys = Geometry::Cartesian;
 
 
+static int_t roundUp (const int_t n, const int_t a, const int_t b)
+// ---------------------------------------------------------------------------
+// Return the first integer greater than or equal to n that has both
+// factors a and b.  We assume that all inputs are positive.
+// ---------------------------------------------------------------------------
+{
+  int_t m = n; while (m%a || m%b) m++; return m;
+}
+
+
 void Geometry::set (const int_t    NP,
 		    const int_t    NZ,
 		    const int_t    NE,
@@ -64,7 +74,7 @@ void Geometry::set (const int_t    NP,
 
   if (_nz > 1 && _nz & 1) {	// -- 3D problems must have NZ even.
     sprintf (err, "N_Z must be even (%1d)", _nz);
-    Veclib::messg (routine, err, ERROR);
+    Veclib::alert (routine, err, ERROR);
   }
 
   if (_nproc > 1) {		// -- Concurrent execution restrictions.
@@ -72,20 +82,20 @@ void Geometry::set (const int_t    NP,
     if (_nz % (2 * _nproc)) {
       sprintf (err, "No. of planes (%1d) per processor (%1d) must be even",
 	       _nz, _nproc);
-      Veclib::messg (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     }
 
-    if (_nproc << 1 > _nz) {
+    if (_nproc << 1 > _nz) 
       sprintf (err, "No. of processors (%1d) can at most be half N_Z (%1d)",
 	       _nproc, _nz);
-      Veclib::messg (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     }
-
-    _psize  = nPlane();
-    _psize += 2 * _nproc - nPlane() % (2 * _nproc);
-
+    _psize = roundUp (nPlane(), _nproc, 2);
+    
   } else {
-
-    _psize = nPlane() + (nPlane() % 2);
+    if (_nz > 1)
+      _psize = roundUp (nPlane(), 1, 2);
+    else
+      _psize = roundUp (nPlane(), 1, 1);
   }
 }

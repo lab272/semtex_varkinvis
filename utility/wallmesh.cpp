@@ -63,7 +63,7 @@ int main (int    argc,
 
   bman = new BCmgr (file, elmt);
 
-  if (bman -> nWall() == 0) Veclib::messg (prog, "no walls found", ERROR);
+  if (bman -> nWall() == 0) Veclib::alert (prog, "no walls found", ERROR);
 
   readMesh (*meshfile, x, y, z);
   
@@ -93,7 +93,7 @@ static void getargs (int       argc,
     case 'h': cerr << usage; exit (EXIT_SUCCESS); break;
     default:
       sprintf (err, "illegal option: %c\n", c);
-      Veclib::messg (prog, err, ERROR); break;
+      Veclib::alert (prog, err, ERROR); break;
     }
 
   switch (argc) {
@@ -104,7 +104,7 @@ static void getargs (int       argc,
   case 2:
     sess = argv[0];
     mesh = new ifstream (argv[1]);
-    if (mesh -> fail()) Veclib::messg (prog, "couldn't open mesh file", ERROR);
+    if (mesh -> fail()) Veclib::alert (prog, "couldn't open mesh file", ERROR);
     break;
   default:
     cerr << usage;
@@ -128,7 +128,7 @@ static void readMesh (istream&        file,
 
   file.getline (buf, StrMax);
   if (!strstr (buf, "NR NS NZ NEL"))
-    Veclib::messg (prog, "input not a mesh file", ERROR);
+    Veclib::alert (prog, "input not a mesh file", ERROR);
 
   string s (buf);
   istringstream ss (buf);
@@ -138,7 +138,7 @@ static void readMesh (istream&        file,
       nz  != Femlib::ivalue ("N_Z") ||
       nel != Femlib::ivalue ("NEL") ||
       nr  != ns)
-    Veclib::messg (prog, "input mesh does not match session file", ERROR);
+    Veclib::alert (prog, "input mesh does not match session file", ERROR);
 
   ntot = nr * ns * nel;
 
@@ -151,7 +151,7 @@ static void readMesh (istream&        file,
   if (nz > 1) for (i = 0; i <= nz; i++) file >> z[i];
 
   if (!file)
-    Veclib::messg (prog, "reached end of mesh file prematurely", ERROR);
+    Veclib::alert (prog, "reached end of mesh file prematurely", ERROR);
 }
 
 

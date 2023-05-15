@@ -82,10 +82,10 @@ int main (int    argc,
 
   if (basis == GLJ) {
     if (np < 3)
-      Veclib::messg (prog, "minimum N_P is 3 for GLL mesh",     ERROR);
+      Veclib::alert (prog, "minimum N_P is 3 for GLL mesh",     ERROR);
   } else {
     if (np < 2)
-      Veclib::messg (prog, "minimum N_P is 2 for uniform mesh", ERROR);
+      Veclib::alert (prog, "minimum N_P is 2 for uniform mesh", ERROR);
   }
 
   if   (verb) Femlib::ivalue ("VERBOSE", verb);
@@ -225,10 +225,10 @@ static void getargs (int     argc   ,
       break;
     default:
       sprintf (err, "illegal option: %c\n", c);
-      Veclib::messg (prog, err, ERROR);
+      Veclib::alert (prog, err, ERROR);
       break;
     }
 
   if   (argc == 1) session = *argv;
-  else             Veclib::messg (prog, "must provide session file", ERROR);
+  else             Veclib::alert (prog, "must provide session file", ERROR);
 }

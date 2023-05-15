@@ -254,7 +254,7 @@ static void getargs (int       argc    ,
 	Xmin = atof (tok);
 	set = 1;
       } else
-	Veclib::messg (prog, "couldn't parse xmin from box string", ERROR);
+	Veclib::alert (prog, "couldn't parse xmin from box string", ERROR);
       while (tok = strtok (0, ","))
 	switch (++set) {
 	case 2:
@@ -267,12 +267,12 @@ static void getargs (int       argc    ,
 	  Ymax = atof (tok);
 	  break;
 	default:
-	  Veclib::messg (prog, "too many numbers in box string", ERROR);
+	  Veclib::alert (prog, "too many numbers in box string", ERROR);
 	    break;
 	  }
 	if (set != 4) {
 	  sprintf (err, "wrong number of parameters in box string (%1d)",set);
-	  Veclib::messg (prog, err, ERROR);
+	  Veclib::alert (prog, err, ERROR);
 	}
       break;
     default:
@@ -284,7 +284,7 @@ static void getargs (int       argc    ,
   if (argc == 1) {
     input = new ifstream (*argv);
     if (input -> fail())
-      Veclib::messg (prog, "unable to open geometry file", ERROR);
+      Veclib::alert (prog, "unable to open geometry file", ERROR);
   } else input = &cin;
 }
 
@@ -313,7 +313,7 @@ static void readmesh (istream&        file,
 
   if (!strstr (buf, "NR NS NZ NEL")) {
     sprintf (err, "mesh header line should include NR NS NZ NEL: %s", buf);
-    Veclib::messg (routine, err, ERROR);
+    Veclib::alert (routine, err, ERROR);
   }
 
   ntot = nr * ns * nel;
@@ -328,6 +328,6 @@ static void readmesh (istream&        file,
     ymax = max (ymax, y[i]);
   }
 
-  if (file.fail()) Veclib::messg (prog, "problem reading mesh", ERROR);
+  if (file.fail()) Veclib::alert (prog, "problem reading mesh", ERROR);
 }
 

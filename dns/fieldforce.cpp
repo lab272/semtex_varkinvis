@@ -86,7 +86,7 @@ FieldForce::FieldForce (Domain* D   ,
     real_t dummy;
     if (_CSB_enabled &&
 	file -> valueFromSection (&dummy, "FORCE", "BOUSSINESQ_TREF"))
-      Veclib::messg (routine,
+      Veclib::alert (routine,
 		     "cannot select regular Boussinesq and CSB", ERROR);
   }
 
@@ -253,7 +253,7 @@ void VirtualForce::readSteadyFromFile (char*              fname,
   if (!input) {
     char s[StrMax];
     sprintf (s, "can't open '%s' file", fname);
-    Veclib::messg (routine, s, ERROR);
+    Veclib::alert (routine, s, ERROR);
   }
   readField (input, a);
   input.close ();
@@ -420,7 +420,7 @@ WhiteNoiseForce::WhiteNoiseForce (Domain* D   ,
   _mode = -1;
   if (file -> valueFromSection (&_mode, "FORCE", "WHITE_MODE")) {
     if (_mode != -1)
-      Veclib::messg (routine,
+      Veclib::alert (routine,
 		     "WHITE_MODE deprecated, physical space only", WARNING);
     VERBOSE cout << "    " << "WHITE_MODE" << " = " << _mode << endl;
   }
@@ -772,7 +772,7 @@ void CoriolisForce::add (AuxField*         ff ,
   if (com >= NCOM) return; // -- No Coriolis force applied to the scalar field
 
   if (NCOM == 2 && Geometry::cylindrical())
-    Veclib::messg (routine, "2C: cylindrical not implemented yet.", ERROR);
+    Veclib::alert (routine, "2C: cylindrical not implemented yet.", ERROR);
   if (_unsteady) {
     if (com == 0) 
       for (i = 0; i < 3; i++) {
@@ -824,7 +824,7 @@ SFDForce::SFDForce (Domain* D   ,
 	file -> valueFromSection (&_SFD_CHI,   "FORCE", "SFD_CHI"  ))) return;
 
   if ((_SFD_DELTA < EPSDP) || (_SFD_CHI < EPSDP)) {
-    VERBOSE Veclib::messg (routine,
+    VERBOSE Veclib::alert (routine,
 		    "SFD_DELTA & SFD_CHI must both be positive to set SFD",
 		     REMARK);
     return;
@@ -948,7 +948,7 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
   if (file -> valueFromSection (&gravMag, "FORCE", "BOUSSINESQ_GRAVITY"))
     VERBOSE cout << "    BOUSSINESQ_GRAVITY = " << gravMag << endl;
   if ((gravMag < -EPSDP) || (fabs(_BETAT) < -EPSDP))
-    Veclib::messg (routine,
+    Veclib::alert (routine,
 		   "gravity and/or expansion coeff. magnitudes < 0", ERROR);
 
   if (Geometry::cylindrical()) {
@@ -962,7 +962,7 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
   }
   
   if ((norm = sqrt(_gx*_gx + _gy*_gy)) < EPSDP)
-    Veclib::messg (routine, "no active gravity vector component", REMARK);
+    Veclib::alert (routine, "no active gravity vector component", REMARK);
   else {
     _gx *= gravMag/norm;
     _gy *= gravMag/norm;
@@ -985,12 +985,12 @@ BuoyancyForce::BuoyancyForce (Domain* D   ,
       VERBOSE cout << "    Boussinesq centrifugal buoyancy enabled" << endl;
       if (Geometry::cylindrical()) {
 	if (!file -> valueFromSection (&_omega, "FORCE", "CORIOLIS_OMEGA_X")) {
-	  Veclib::messg (routine,
+	  Veclib::alert (routine,
 			 "could not find (expected) CORIOLIS_OMEGA_X",ERROR);
 	}
       } else {			// -- Cartesian.
 	if (!file -> valueFromSection (&_omega, "FORCE", "CORIOLIS_OMEGA_Z")) {
-	  Veclib::messg (routine,
+	  Veclib::alert (routine,
 			 "could not find (expected) CORIOLIS_OMEGA_Z", ERROR);
 	}
       }

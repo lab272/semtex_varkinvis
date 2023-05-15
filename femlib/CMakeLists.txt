@@ -1,8 +1,8 @@
 # -- NB:
 #
-#    The only semtex routine to directly require bison/yacc   is initial.y.
+#    The only semtex routine to directly require bison/yacc is initial.y.
 #
-#    The Fortran source files below are written in Fortran77.  Those
+#    The Fortran source files below are written in Fortran66/77.  Those
 #    with extension .F will be run through the C preprocessor prior to
 #    compilation; those with extension .f will be compiled without
 #    preprocessing.

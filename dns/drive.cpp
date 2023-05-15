@@ -84,7 +84,7 @@ int main (int    argc,
   preprocess (session, file, mesh, elmt, bman, domain, FF);
 
   if ((!domain -> hasScalar()) && freeze)
-    Veclib::messg (prog, "need scalar declared if velocity is frozen", ERROR);
+    Veclib::alert (prog, "need scalar declared if velocity is frozen", ERROR);
 
   analyst = new DNSAnalyser (domain, bman, file);
 
@@ -167,7 +167,7 @@ static void getargs (int    argc   ,
       break;
     }
 
-  if   (argc != 1) Veclib::messg (routine,
+  if   (argc != 1) Veclib::alert (routine,
 				   "no session definition file", ERROR);
   else             session = *argv;
 }
@@ -263,7 +263,7 @@ static void preprocess (const char*       session,
   // -- Sanity checks on installed tokens.  Could be more extensive.
 
   if (Femlib::ivalue ("SVV_MN") > Geometry::nP())
-    Veclib::messg (routine, "SVV_MN exceeds N_P",   ERROR);
+    Veclib::alert (routine, "SVV_MN exceeds N_P",   ERROR);
   if (Femlib::ivalue ("SVV_MZ") > Geometry::nMode())
-    Veclib::messg (routine, "SVV_MZ exceeds N_Z/2", ERROR);
+    Veclib::alert (routine, "SVV_MZ exceeds N_Z/2", ERROR);
 }

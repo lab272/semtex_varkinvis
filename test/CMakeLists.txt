@@ -60,7 +60,7 @@ add_test(PMC2    ${CMAKE_SOURCE_DIR}/test/testregression ""
 
 # -- Parallel tests of elliptic and dns for 3D problems:
 
-if(WITH_MPI)
+if(USE_MPI)
   add_test(laplace3_mp ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -np 2"
   		   ${CMAKE_CURRENT_BINARY_DIR} elliptic_mp laplace3)
   add_test(taylor3_mp ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -np 2"

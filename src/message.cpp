@@ -11,7 +11,7 @@
 //  Math Mod, V30N11: 1229-1248.
 //
 // If you are looking for routines named "message()" or
-// "Veclib::messg()", these are meant for exception warnings and are
+// "Veclib::alert()", these are meant for exception warnings and are
 // part of semtex/veclib.
 //
 // Copyright (c) 1996+, Hugh M Blackburn
@@ -99,13 +99,13 @@ namespace Message {
     int ntot, dim_sizes[2], wrap_around[] = {0, 0}, free_coords[2], reorder = 1;
     
     if (npart2d < 1)
-      Veclib::messg
+      Veclib::alert
     	(routine, "no. of 2D partitions must be at least 1", ERROR);
     
     MPI_Comm_size (MPI_COMM_WORLD, &ntot);
 
     if (ntot % npart2d)
-      Veclib::messg
+      Veclib::alert
     	(routine, "no. of 2D partitions must factor no. of processes", ERROR);
 
 #if defined(XXT_EX)
@@ -170,7 +170,7 @@ namespace Message {
     //    (say it is a column).
 
     if (npart2d != 1)
-      Veclib::messg
+      Veclib::alert
     	(routine, "no. of 2D partitions for Fourier-parallel must be 1", ERROR);
 
     dim_sizes[0]   = ntot;

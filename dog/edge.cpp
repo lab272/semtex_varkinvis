@@ -41,7 +41,7 @@ Edge::Edge (const char*    grp ,
   case 3: _doffset += 0;               _dskip = -_np; break;
   default:
     sprintf (err, "cannot construct edge %1d", _side + 1);
-    Veclib::messg (routine, err, ERROR);
+    Veclib::alert (routine, err, ERROR);
   }
 
   _elmt -> sideGeom (_side, _x, _y, _nx, _ny, _area);

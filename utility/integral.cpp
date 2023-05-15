@@ -67,7 +67,7 @@ int main (int    argc,
 
   if (dump) {
     fldfile = new ifstream (dump);
-    if (fldfile -> fail()) Veclib::messg (prog, "no field file", ERROR);
+    if (fldfile -> fail()) Veclib::alert (prog, "no field file", ERROR);
   } else fldfile = &cin;
 
   // -- Set up 2D mesh information.
@@ -143,7 +143,7 @@ static void getargs (int    argc   ,
 
   if      (argc == 1)   session = argv[0];
   else if (argc == 2) { session = argv[0]; dump = argv[1]; }
-  else                  Veclib::messg (prog, usage, ERROR);
+  else                  Veclib::alert (prog, usage, ERROR);
 }
 
 
@@ -166,7 +166,7 @@ static bool getDump (istream&           file,
   if (file.getline(buf, StrMax).eof()) return 0;
   
   if (!strstr (buf, "Session"))
-    Veclib::messg (prog, "not a field file", ERROR);
+    Veclib::alert (prog, "not a field file", ERROR);
   file.getline (buf, StrMax);
 
   // -- Input numerical description of field sizes.
@@ -175,7 +175,7 @@ static bool getDump (istream&           file,
   file.getline (buf, StrMax);
   
   if (np != npnew || nz != nznew || nel != nelnew)
-    Veclib::messg (prog, "size of dump mismatch with session file", ERROR);
+    Veclib::alert (prog, "size of dump mismatch with session file", ERROR);
 
   file.getline (buf, StrMax);
   file.getline (buf, StrMax);
@@ -203,7 +203,7 @@ static bool getDump (istream&           file,
       u[i]  = new AuxField (alloc, nz, Esys, fields[i]);
     }
   } else if (u.size() != nf) 
-    Veclib::messg
+    Veclib::alert
       (prog, "number of fields mismatch with first dump in file", ERROR);
 
   // -- Read binary field data.
@@ -227,9 +227,9 @@ static bool doSwap (const char* ffmt)
   Veclib::describeFormat (mfmt);   
 
   if (!strstr (ffmt, "binary"))
-    Veclib::messg (prog, "input field file not in binary format", ERROR);
+    Veclib::alert (prog, "input field file not in binary format", ERROR);
   else if (!strstr (ffmt, "endian"))
-    Veclib::messg (prog, "input field file in unknown binary format", WARNING);
+    Veclib::alert (prog, "input field file in unknown binary format", WARNING);
 
   return (strstr (ffmt, "big") && strstr (mfmt, "little")) || 
          (strstr (mfmt, "big") && strstr (ffmt, "little"));

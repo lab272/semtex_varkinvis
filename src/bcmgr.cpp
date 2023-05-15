@@ -250,15 +250,15 @@ BCmgr::BCmgr (FEML*             file,
       buf[i] = '\0';
       file -> stream() >> tag;
       if (!(strstr (tag,    "/FIELDS")))
-	   Veclib::messg (routine, "FIELDS section not closed", ERROR);
-    } else Veclib::messg (routine, "FIELDS section not closed", ERROR);
-  } else   Veclib::messg (routine, "FIELDS section not found",  ERROR);
+	   Veclib::alert (routine, "FIELDS section not closed", ERROR);
+    } else Veclib::alert (routine, "FIELDS section not closed", ERROR);
+  } else   Veclib::alert (routine, "FIELDS section not found",  ERROR);
 
   strcpy ((_fields = new char [strlen (buf) + 1]), buf);
 
   if (!file -> seek ("GROUPS")) {
     if (verbose)
-      Veclib::messg
+      Veclib::alert
 	(routine, "no GROUPS, assuming no boundary conditions", WARNING);
     return;
   }
@@ -308,7 +308,7 @@ BCmgr::BCmgr (FEML*             file,
 	tagc = tag[1];
       else {
 	sprintf (err, "unrecognized BC tag: %s", tag);
-	Veclib::messg (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
       }
 
       // -- Decide if this is a value or function BC.
@@ -348,7 +348,7 @@ BCmgr::BCmgr (FEML*             file,
       case 'D': case 'E':	// -- Dirichlet/Essential BC.
 	if (testc != '=') {
 	  sprintf (err, "expected an '=' in setting field '%c' BC", fieldc);
-	  Veclib::messg (routine, err, ERROR);
+	  Veclib::alert (routine, err, ERROR);
 	}
 	if   (*trailer != 0) C = new EssentialFunction (buf);
 	else                 C = new EssentialConstant (buf);
@@ -357,7 +357,7 @@ BCmgr::BCmgr (FEML*             file,
       case 'N':			// -- Neumann/Natural BC.
 	if (testc != '=') {
 	  sprintf (err, "expected an '=' in setting field '%c' BC", fieldc);
-	  Veclib::messg (routine, err, ERROR);
+	  Veclib::alert (routine, err, ERROR);
 	}
 	if   (*trailer != 0) C = new NaturalFunction (buf);
 	else                 C = new NaturalConstant (buf);
@@ -366,11 +366,11 @@ BCmgr::BCmgr (FEML*             file,
       case 'M':			// -- Mixed BC.
 	if (testc != '=') {
 	  sprintf (err, "expected an '=' in setting field '%c' BC", fieldc);
-	  Veclib::messg (routine, err, ERROR);
+	  Veclib::alert (routine, err, ERROR);
 	}
 	if (!(strchr (buf, ';') || strchr (buf, ','))) {
 	  sprintf (buf,"can't find multiplier and reference value in: %s",buf);
-	  Veclib::messg (routine, buf, ERROR);
+	  Veclib::alert (routine, buf, ERROR);
 	}
 	C = new MixedConstant (buf);
 	break;
@@ -378,14 +378,14 @@ BCmgr::BCmgr (FEML*             file,
       case 'A':			// -- Axis BC.
 
 	if (Geometry::system() != Geometry::Cylindrical)
-	  Veclib::messg
+	  Veclib::alert
 	    (routine, "axis BCs disallowed in Cartesian coords",   ERROR);
 
 	// -- Create two kinds to be retrieved later.
 	//    Ensure that the group name is "axis" to aid retrieval.
 
 	if (!strstr (groupInfo (groupc), "axis"))
-	  Veclib::messg
+	  Veclib::alert
 	    (routine, "type 'A' BC must belong to group \"axis\"", ERROR);
 
 	strcpy (buf, "0.0");
@@ -404,7 +404,7 @@ BCmgr::BCmgr (FEML*             file,
       case 'H':		// -- "High Order" computed natural pressure BC.
 	if (fieldc != 'p') {
 	  sprintf (err, "expected name 'p' with HOPBC, read '%c'", fieldc);
-	  Veclib::messg (routine, err, ERROR);
+	  Veclib::alert (routine, err, ERROR);
 	}
 	C = new NaturalComputed (this, 'p');
 	break;
@@ -412,7 +412,7 @@ BCmgr::BCmgr (FEML*             file,
       case 'O':			// -- Open BC.
 
 	if (!strstr (groupInfo (groupc), "open"))
-	  Veclib::messg
+	  Veclib::alert
 	    (routine,"type 'O' BC must belong to group \"open\"",ERROR);
 
 	if      (fieldc == 'u') C = new MixedComputed (this, 'u');
@@ -428,7 +428,7 @@ BCmgr::BCmgr (FEML*             file,
 #endif
 	else {
 	  sprintf (err,"field name '%c'for open BC not in 'uvwpc'", fieldc);
-	  Veclib::messg (routine, err, ERROR);
+	  Veclib::alert (routine, err, ERROR);
 	}
 	break;
 	
@@ -439,7 +439,7 @@ BCmgr::BCmgr (FEML*             file,
 	                        //    and with dw/dn + K w = 0.
                                
 	if (!strstr (groupInfo (groupc), "inlet"))
-	  Veclib::messg
+	  Veclib::alert
 	    (routine, "type 'I' BC must belong to group \"inlet\"", ERROR);
 
 	if      (fieldc == 'u') C = new MixedComputed (this, 'u');
@@ -459,14 +459,14 @@ BCmgr::BCmgr (FEML*             file,
 	}
 	else {
 	  sprintf (err,"field name '%c' for openS BC not in 'uvwpc'", fieldc);
-	  Veclib::messg (routine, err, ERROR);
+	  Veclib::alert (routine, err, ERROR);
 	}
 	break;
 #endif	
 
       default:
 	sprintf (err, "unrecognized BC identifier: %c", tagc);
-	Veclib::messg (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
 	break;
       }
 
@@ -480,7 +480,7 @@ BCmgr::BCmgr (FEML*             file,
 	  || gat[2] != tagc
 	  || gat[3] != '>') {
 	sprintf (err, "close tag %s didn't match open tag %s", gat, tag);
-	Veclib::messg (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
       }
 
       // -- Install new Condition record in internal list.
@@ -547,7 +547,7 @@ const Condition* BCmgr::getCondition (const char  group,
 	  break;
 	default:
 	  sprintf (err, "unrecognised field '%c' on axis", field);
-	  Veclib::messg (routine, err, ERROR);
+	  Veclib::alert (routine, err, ERROR);
 	  break;
 	} 
 
@@ -557,7 +557,7 @@ const Condition* BCmgr::getCondition (const char  group,
   }
 
   sprintf (err, "can't find record for group '%c', field '%c'", group, field);
-  Veclib::messg (routine, err, ERROR);
+  Veclib::alert (routine, err, ERROR);
   return 0;
 }
 
@@ -566,7 +566,7 @@ const char* BCmgr::groupInfo (const char name) const
 // ---------------------------------------------------------------------------
 // Given a group name, return pointer to string descriptor.
 //
-// Force a halt on failure.  
+// Force a halt on failure.
 // ---------------------------------------------------------------------------
 {
   const char  routine[] = "BCmgr::groupInfo";
@@ -577,7 +577,7 @@ const char* BCmgr::groupInfo (const char name) const
   for (i = 0; i < N; i++) if (name == _group[i]) return _descript[i];
 
   sprintf (err, "unknown group: %c", name);
-  Veclib::messg (routine, err, ERROR);
+  Veclib::alert (routine, err, ERROR);
   return 0;
 }
 
@@ -621,7 +621,7 @@ void BCmgr::buildsurf (FEML*             file,
       file -> stream() >> tag;
       if (strcmp (tag, "</B>") != 0) {
 	sprintf (err, "Surface %1d: couldn't close tag <B> with %s", t, tag);
-	Veclib::messg (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
       }
     } else
       file -> stream().ignore (StrMax, '\n');
@@ -644,7 +644,7 @@ void BCmgr::buildsurf (FEML*             file,
 		     BCT -> elmt + 1,
 		     BCT -> side + 1,
 		     i, work[i]);
-	    Veclib::messg (routine, err, ERROR);
+	    Veclib::alert (routine, err, ERROR);
 	  }
       }
     }
@@ -1498,7 +1498,7 @@ void BCmgr::evaluateCMBCu (const Field* P   , // Pressure field.
   if (Je < 1) return;		// -- No evaluation during Field creation.
 
   if (!strchr ("uvw", cmpt))
-    Veclib::messg ("BCmgr::evaluateCMBCu", 
+    Veclib::alert ("BCmgr::evaluateCMBCu", 
 	     "called with unknown velocity component", ERROR);
 
   Veclib::zero (_nP, tgt, 1);

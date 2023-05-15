@@ -1187,7 +1187,7 @@ class Veclib {
   static double clock ()
   { return dclock () ; }
 
-  static void messg (const char *routine, const char *txt, int level)
+  static void alert (const char *routine, const char *txt, int level)
   { message (routine, txt, level); }
  
   static void scatr (int_t n, const double* x, const int_t* y, double* z)

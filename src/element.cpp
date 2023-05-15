@@ -27,7 +27,7 @@ Element::Element (const int_t id,
   const char routine[] = "Element::Element";
 
   if (_np < 2)
-    Veclib::messg (routine, "need > 2 knots for element edges", ERROR);
+    Veclib::alert (routine, "need > 2 knots for element edges", ERROR);
 
   Femlib::quadrature (&_zr, &_wr, &_DVr, &_DTr, _np, GLJ, 0.0, 0.0);
 
@@ -191,10 +191,10 @@ void Element::HelmholtzSC (const real_t lambda2,
 
   if (_nint) {
     Lapack::getrf (_nint, _nint, hii, _nint, iwrk, info);
-    if (info) Veclib::messg (routine, "matrix hii has singular factor", ERROR);
+    if (info) Veclib::alert (routine, "matrix hii has singular factor", ERROR);
 
     Lapack::getri (_nint, hii, _nint, iwrk, rwrk, _nint*_next, info);
-    if (info) Veclib::messg (routine, "matrix hii is singular", ERROR);
+    if (info) Veclib::alert (routine, "matrix hii is singular", ERROR);
 
     Blas::mxm    (hbi, _next, hii, _nint, rwrk, _nint);
     Blas::mxmts  (rwrk, _next, hbi, _nint, hbb, _next);
@@ -1338,7 +1338,7 @@ void Element::mapping ()
 
   if (jac[Veclib::imin (_npnp, jac, 1)] < EPS) {
     sprintf (err, "Jacobian of element %1d nonpositive", _id + 1);
-    Veclib::messg (routine, err, ERROR);
+    Veclib::alert (routine, err, ERROR);
   }
 
   // -- Construct quadrature weights.
@@ -1651,7 +1651,7 @@ void Element::sideGeom (const int_t side,
 //  --------------------------------------------------------------------------
 {
   if (side < 0 || side >= 4)
-    Veclib::messg ("Element::sideGeom", "illegal side", ERROR);
+    Veclib::alert ("Element::sideGeom", "illegal side", ERROR);
 
   int_t low, skip;
   real_t         *xr, *xs, *yr, *ys, *len;

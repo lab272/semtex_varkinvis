@@ -103,5 +103,5 @@ static void getargs (int    argc   ,
     }
 
   if      (argc == 1)   session = argv[0];
-  else                  Veclib::messg (prog, usage, ERROR);
+  else                  Veclib::alert (prog, usage, ERROR);
 }

@@ -1,9 +1,9 @@
 //////////////////////////////////////////////////////////////////////////////
-/// auxfield.cpp: routines for AuxField class, including Fourier
-/// expansions.  See also auxfield.h.  AuxFields amount to collections
-/// of element storage information and know nothing about mesh
-/// connectivity, or BCs (the Field class, derived from AuxField
-/// class, holds those kinds of extra data).
+// auxfield.cpp: routines for AuxField class, including Fourier
+// expansions.  See also auxfield.h.  AuxFields amount to collections
+// of element storage information and know nothing about mesh
+// connectivity, or BCs (the Field class, derived from AuxField
+// class, holds those kinds of extra data).
 //
 //  Copyright (c) 1994+, Hugh M Blackburn
 //////////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@ AuxField::AuxField (real_t*           alloc, // -- Amount of storage per proc.
   int_t       k;
 
   if (Geometry::nElmt() != _elmt.size())
-    Veclib::messg
+    Veclib::alert
       (routine, "conflicting number of elements in input data", ERROR);
 
   _plane = new real_t* [static_cast<size_t> (_nz)];
@@ -90,7 +90,7 @@ AuxField& AuxField::operator /= (const real_t val)
 //  --------------------------------------------------------------------------
 {
   if   (val == 0.0)
-    Veclib::messg ("AuxField::op /= real_t", "divide by zero", ERROR);
+    Veclib::alert ("AuxField::op /= real_t", "divide by zero", ERROR);
   else              Blas::scal (_size, 1.0 / val, _data, 1);
 
   return *this;
@@ -201,9 +201,9 @@ AuxField& AuxField::extractMode (const AuxField& src ,
   const int_t nP        = Geometry::planeSize();
 
   if ((src._size / (src._nz / _nz)) != _size)
-    Veclib::messg (routine, "non-congruent inputs", ERROR);
+    Veclib::alert (routine, "non-congruent inputs", ERROR);
   if (mode > Geometry::nModeProc())
-    Veclib::messg (routine, "non enough Fourier modes", ERROR);
+    Veclib::alert (routine, "non enough Fourier modes", ERROR);
 
   Veclib::copy (nP, src._plane[2*mode], 1, _plane[0], 1);
   if (src._nz > 1)
@@ -232,7 +232,7 @@ AuxField& AuxField::innerProduct (const vector <AuxField*>& a   ,
   int_t       i;
 
   if (_size != a[0]->_size || _size != b[0]->_size)
-    Veclib::messg (routine, "non-congruent inputs", ERROR);
+    Veclib::alert (routine, "non-congruent inputs", ERROR);
   
   Veclib::zero (_size, _data, 1);
 
@@ -262,9 +262,9 @@ AuxField& AuxField::innerProductMode (const vector <AuxField*>& a   ,
   int_t       i, k;
 
   if (_size != a[0]->_size || _size != b[0]->_size)
-    Veclib::messg (routine, "non-congruent inputs", ERROR);
+    Veclib::alert (routine, "non-congruent inputs", ERROR);
   if (_nz != 2 || a[0]->_nz != 2 || b[0]->_nz != 2)
-      Veclib::messg (routine, "number of z planes must be 2 here", ERROR);
+      Veclib::alert (routine, "number of z planes must be 2 here", ERROR);
 
   Veclib::zero (_size, _data, 1);
 
@@ -418,7 +418,7 @@ AuxField& AuxField::times (const AuxField& a,
   const char routine[] = "AuxField::times";
 
   if (_size != a._size || _size != b._size)
-    Veclib::messg (routine, "non-congruent inputs", ERROR);
+    Veclib::alert (routine, "non-congruent inputs", ERROR);
   
   Veclib::vmul (_size, a._data, 1, b._data, 1, _data, 1);
 
@@ -436,7 +436,7 @@ AuxField& AuxField::divide (const AuxField& a,
   const char routine[] = "AuxField::divide";
 
   if (_size != a._size || _size != b._size)
-    Veclib::messg (routine, "non-congruent inputs", ERROR);
+    Veclib::alert (routine, "non-congruent inputs", ERROR);
   
   Veclib::vdiv (_size, a._data, 1, b._data, 1, _data, 1);
 
@@ -454,7 +454,7 @@ AuxField& AuxField::timesPlus (const AuxField& a,
   const char routine[] = "AuxField::timesPlus";
 
   if (_size != a._size || _size != b._size)
-    Veclib::messg (routine, "non-congruent inputs", ERROR);
+    Veclib::alert (routine, "non-congruent inputs", ERROR);
 
   Veclib::vvtvp (_size, a._data, 1, b._data, 1, _data, 1, _data, 1);
 
@@ -472,7 +472,7 @@ AuxField& AuxField::timesMinus (const AuxField& a,
   const char routine[] = "AuxField::timesMinus";
 
   if (_size != a._size || _size != b._size)
-    Veclib::messg (routine, "non-congruent inputs", ERROR);
+    Veclib::alert (routine, "non-congruent inputs", ERROR);
 
   Veclib::vvvtm (_size, _data, 1, a._data, 1, b._data, 1, _data, 1);
 
@@ -488,7 +488,7 @@ AuxField& AuxField::axpy (const real_t    alpha,
 {
   const char routine[] = "AuxField::axpy";
 
-  if (_size != x._size) Veclib::messg (routine, "non-congruent inputs", ERROR);
+  if (_size != x._size) Veclib::alert (routine, "non-congruent inputs", ERROR);
 
   Blas::axpy (_size, alpha, x._data, 1, _data, 1);
 
@@ -595,7 +595,7 @@ AuxField& AuxField::gradient (const int_t dir)
     break;
   }
   default:
-    Veclib::messg (routine, "nominated direction out of range [0--2]", ERROR);
+    Veclib::alert (routine, "nominated direction out of range [0--2]", ERROR);
     break;
   }
 
@@ -653,7 +653,7 @@ AuxField& AuxField::gradient (const int_t dir)
     break;
   }
   default:
-    Veclib::messg (routine, "nominated direction out of range [0--2]", ERROR);
+    Veclib::alert (routine, "nominated direction out of range [0--2]", ERROR);
     break;
   }
 #endif
@@ -751,7 +751,7 @@ void AuxField::gradient (const int_t nZ ,
     break;
   }
   default:
-    Veclib::messg (routine, "nominated direction out of range [0--2]", ERROR);
+    Veclib::alert (routine, "nominated direction out of range [0--2]", ERROR);
     break;
   }
 
@@ -800,7 +800,7 @@ void AuxField::gradient (const int_t nZ ,
     break;
   }
   default:
-    Veclib::messg (routine, "nominated direction out of range [0--2]", ERROR);
+    Veclib::alert (routine, "nominated direction out of range [0--2]", ERROR);
     break;
   }
 #endif
@@ -822,7 +822,7 @@ void AuxField::errors (const Mesh* mesh    ,
   const char routine[] = "AuxField::errors";
 
   if (!function) {
-    Veclib::messg (routine, "empty function string", WARNING);
+    Veclib::alert (routine, "empty function string", WARNING);
     return;
   }
   
@@ -864,7 +864,7 @@ void AuxField::errors (const Mesh* mesh    ,
      << name()
      << "' error norms (inf, L2, H1): "
      << Li << "  " << L2 << "  " << H1;
-  Veclib::messg ("Field", sf.str().c_str(), REMARK);
+  Veclib::alert ("Field", sf.str().c_str(), REMARK);
 }
 
 
@@ -909,8 +909,8 @@ real_t AuxField::mode_L2 (const int_t mode) const
   int_t       i;
   Element*    E;
   
-  if (kr < 0  ) Veclib::messg (routine, "negative mode number",        ERROR);
-  if (ki > _nz) Veclib::messg (routine, "mode number exceeds maximum", ERROR);
+  if (kr < 0  ) Veclib::alert (routine, "negative mode number",        ERROR);
+  if (ki > _nz) Veclib::alert (routine, "mode number exceeds maximum", ERROR);
 
   Re = _plane[kr]; Im = (_nz > 1) ? _plane[ki] : NULL;
 
@@ -1020,7 +1020,7 @@ ostream& operator << (ostream&  strm,
         strm.write(reinterpret_cast<char*>(F._plane[i]),
 		   static_cast<int_t>(nP * sizeof (real_t))); 
         if (strm.bad())
-	  Veclib::messg (routine, "unable to write binary output", ERROR);
+	  Veclib::alert (routine, "unable to write binary output", ERROR);
 
       for (k = 1; k < nProc; k++)
 	for (i = 0; i < F._nz; i++) {
@@ -1028,7 +1028,7 @@ ostream& operator << (ostream&  strm,
 	  strm.write(reinterpret_cast<char*>(&buffer[0]),
 		     static_cast<int_t>(nP * sizeof (real_t))); 
           if (strm.bad()) 
-	    Veclib::messg (routine, "unable to write binary output", ERROR);
+	    Veclib::alert (routine, "unable to write binary output", ERROR);
 	}
 
     } else for (i = 0; i < F._nz; i++) Message::send (F._plane[i], NP, 0);
@@ -1039,7 +1039,7 @@ ostream& operator << (ostream&  strm,
       strm.write(reinterpret_cast<char*>(F._plane[i]),
 		 static_cast<int_t>(nP * sizeof (real_t))); 
       if (strm.bad())
-	Veclib::messg (routine, "unable to write binary output", ERROR);
+	Veclib::alert (routine, "unable to write binary output", ERROR);
     }
   }
 
@@ -1071,7 +1071,7 @@ istream& operator >> (istream&  strm,
 	strm.read (reinterpret_cast<char*>(F._plane[i]),
 		   static_cast<int_t>(nP * sizeof (real_t))); 
         if (strm.bad()) 
-	  Veclib::messg (routine, "unable to read binary input", ERROR);
+	  Veclib::alert (routine, "unable to read binary input", ERROR);
 	Veclib::zero (NP - nP, F._plane[i] + nP, 1);
       }
 
@@ -1080,7 +1080,7 @@ istream& operator >> (istream&  strm,
 	  strm.read (reinterpret_cast<char*>(&buffer[0]), 
 		     static_cast<int_t>(nP * sizeof (real_t))); 
           if (strm.bad()) 
-	    Veclib::messg (routine, "unable to read binary input", ERROR);
+	    Veclib::alert (routine, "unable to read binary input", ERROR);
 	  Veclib::zero  (NP - nP, &buffer[0] + nP, 1);
 	  Message::send (&buffer[0], NP, k);
 	}
@@ -1093,7 +1093,7 @@ istream& operator >> (istream&  strm,
       strm.read (reinterpret_cast<char*>(F._plane[i]),
 		 static_cast<int_t>(nP * sizeof (real_t))); 
       if (strm.bad()) 
-	Veclib::messg (routine, "unable to read binary input", ERROR);
+	Veclib::alert (routine, "unable to read binary input", ERROR);
       Veclib::zero (NP - nP, F._plane[i] + nP, 1);
     }
   }
@@ -1244,7 +1244,7 @@ AuxField& AuxField::addToPlane (const int_t  k    ,
   const char routine[] = "AuxField::addToPlane";
 
   if (k < 0 || k >= _nz)
-    Veclib::messg (routine, "nominated plane doesn't exist", ERROR);
+    Veclib::alert (routine, "nominated plane doesn't exist", ERROR);
   else
     Veclib::sadd (Geometry::nPlane(), alpha, _plane[k], 1, _plane[k], 1);
 
@@ -1261,7 +1261,7 @@ AuxField& AuxField::getPlane (const int_t k  ,
   const char routine[] = "AuxField::getPlane";
 
   if (k < 0 || k >= _nz)
-    Veclib::messg (routine, "nominated plane doesn't exist", ERROR);
+    Veclib::alert (routine, "nominated plane doesn't exist", ERROR);
   else
     Veclib::copy (Geometry::nPlane(), _plane[k], 1, tgt, 1);
 
@@ -1278,7 +1278,7 @@ AuxField& AuxField::setPlane (const int_t   k  ,
   const char routine[] = "AuxField::setPlane";
 
   if (k < 0 || k >= _nz)
-    Veclib::messg (routine, "nominated plane doesn't exist", ERROR);
+    Veclib::alert (routine, "nominated plane doesn't exist", ERROR);
   else
     Veclib::copy (Geometry::nPlane(), src, 1, _plane[k], 1);
 
@@ -1295,7 +1295,7 @@ AuxField& AuxField::addToPlane (const int_t   k  ,
   const char routine[] = "AuxField::setPlane";
 
   if (k < 0 || k >= _nz)
-    Veclib::messg (routine, "nominated plane doesn't exist", ERROR);
+    Veclib::alert (routine, "nominated plane doesn't exist", ERROR);
   else
     Veclib::vadd (Geometry::nPlane(), src, 1, _plane[k], 1, _plane[k], 1);
 
@@ -1312,7 +1312,7 @@ AuxField& AuxField::setPlane (const int_t  k    ,
   const char routine[] = "AuxField::setPlane";
 
   if (k < 0 || k >= _nz)
-    Veclib::messg (routine, "nominated plane doesn't exist", ERROR);
+    Veclib::alert (routine, "nominated plane doesn't exist", ERROR);
   else {
     if (alpha == 0.0)
       Veclib::zero (Geometry::nPlane(), _plane[k], 1);
@@ -1335,7 +1335,7 @@ void AuxField::swapData (AuxField* x,
   real_t*    tmp;
 
   if (x -> _size != y -> _size)
-    Veclib::messg (routine, "non-congruent inputs", ERROR);
+    Veclib::alert (routine, "non-congruent inputs", ERROR);
  
   tmp        = x -> _data;
   x -> _data = y -> _data;
@@ -1424,7 +1424,7 @@ void AuxField::couple (AuxField*   v  ,
     }
 
   } else
-    Veclib::messg (routine, "unknown direction given", ERROR);
+    Veclib::alert (routine, "unknown direction given", ERROR);
 }
 
 
@@ -1765,7 +1765,7 @@ real_t AuxField::CFL (const int_t dir, int_t& el) const
     break;
   }
   default:
-    Veclib::messg (routine, "nominated direction out of range [0--2]", ERROR);
+    Veclib::alert (routine, "nominated direction out of range [0--2]", ERROR);
     break;
   }
   
@@ -1794,7 +1794,7 @@ AuxField& AuxField::vvmvt    (const AuxField& w,
   const char routine[] = "AuxField::vvmvt";
 
   if (_size != w._size || _size != x._size || _size != y._size)
-    Veclib::messg (routine, "non-congruent inputs", ERROR);
+    Veclib::alert (routine, "non-congruent inputs", ERROR);
 
   Veclib::vvmvt (_size, w._data, 1, x._data, 1, y._data, 1, _data, 1);
 
@@ -1814,14 +1814,14 @@ AuxField& AuxField::mag (const vector <AuxField*>& a)
   const int_t ncom     = a.size();
   if (ncom == 2) {
     if (_size != a[0]->_size || _size != a[1]->_size)
-      Veclib::messg (routine, "non-congruent inputs", ERROR);
+      Veclib::alert (routine, "non-congruent inputs", ERROR);
     Veclib::vhypot (_size, a[0]->_data, 1, a[1]->_data, 1, _data, 1);
   } else if (ncom == 3) {
     if (_size != a[2]->_size || _size != a[0]->_size || _size != a[1]->_size)
-      Veclib::messg (routine, "non-congruent inputs", ERROR);
+      Veclib::alert (routine, "non-congruent inputs", ERROR);
     Veclib::vmag (_size,a[2]->_data,1, a[0]->_data,1, a[1]->_data,1, _data,1);
   } else
-    Veclib::messg (routine, "need 2D or 3D vector",   ERROR);
+    Veclib::alert (routine, "need 2D or 3D vector",   ERROR);
   return *this;
 }
 

@@ -47,7 +47,7 @@ void Integration::StifflyStable (const int_t n    ,
     coeff[3] = -1.0 / 3.0;
     break;
   default:
-    Veclib::messg (routine, "requested order out of range", ERROR);
+    Veclib::alert (routine, "requested order out of range", ERROR);
     break;
   }
 }
@@ -77,7 +77,7 @@ void Integration::Extrapolation (const int_t n    ,
     coeff[2] =  1.0;
     break;
   default:
-    Veclib::messg (routine, "requested order out of range", ERROR);
+    Veclib::alert (routine, "requested order out of range", ERROR);
     break;
   }
 }
@@ -105,7 +105,7 @@ void Integration::AdamsBashforth  (const int_t n    ,
     coeff[2] =   5.0 / 12.0;
     break;
   default:
-    Veclib::messg (routine, "requested order out of range", ERROR);
+    Veclib::alert (routine, "requested order out of range", ERROR);
     break;
   }
 }
@@ -138,7 +138,7 @@ void Integration::AdamsMoulton (const int_t n    ,
     coeff[2] = -5.0 / 24.0;
     coeff[3] =  1.0 / 24.0;
     break;
-  default: Veclib::messg (routine, "requested order out of range", ERROR);
+  default: Veclib::alert (routine, "requested order out of range", ERROR);
     break;
   }
 }

@@ -1,4 +1,3 @@
-
 # if (EXISTS ${CMAKE_SOURCE_DIR}/dog)
 #  option (WITH_FLIP   "Build dog with half-period map"                 OFF)
 #  option (WITH_ARPACK "Build dog with ARPACK"                          OFF)

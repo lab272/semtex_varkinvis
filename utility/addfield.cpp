@@ -144,7 +144,7 @@ int main (int    argc,
   getargs (argc, argv, session, dump, func, add, smooth);
 
   file.open (dump, ios::in);
-  if (!file) Veclib::messg (prog, "no field file", ERROR);
+  if (!file) Veclib::alert (prog, "no field file", ERROR);
   
   // -- Set up domain.
 
@@ -166,7 +166,7 @@ int main (int    argc,
   if (NDIM == 2) add[VORTEXCORE] = false;
 
   for (p = 0, i = 0; i < FLAG_MAX; i++) p += (add[i]) ? 1 : 0;
-  if  (p == 0) Veclib::messg (prog, "nothing to be done", ERROR);
+  if  (p == 0) Veclib::alert (prog, "nothing to be done", ERROR);
 
   // -- Check if we just have the (first two) cases not requiring derivatives.
 
@@ -207,7 +207,7 @@ int main (int    argc,
   fields = fieldNames(file);
   if      (strstr (fields, "uvw")) NCOM = 3;
   else if (strstr (fields, "uv"))  NCOM = 2;
-  else Veclib::messg
+  else Veclib::alert
 	 (prog, "lacking velocity components: is session valid?", ERROR);
   
   if (nFields == 1)		// -- Scalar original field.
@@ -376,7 +376,7 @@ int main (int    argc,
       ko = addfield.find(fields[k]);
       if (ko != addfield.end()) {
 	sprintf (err,"found field %c in input, overwriting", fields[k]);
-	Veclib::messg (prog, err, WARNING);  
+	Veclib::alert (prog, err, WARNING);  
       } else
 	outbuf[i++] = ki -> second;
     }
@@ -455,8 +455,8 @@ static void getargs (int    argc   ,
   for (i = 0; i < FLAG_MAX; i++) sum += (flag[i]) ? 1 : 0;
   if (!sum) flag[ENERGY] = true;
 
-  if   (!session)  Veclib::messg (prog, "no session file", ERROR);
-  if   (argc != 1) Veclib::messg (prog, "no field file",   ERROR);
+  if   (!session)  Veclib::alert (prog, "no session file", ERROR);
+  if   (argc != 1) Veclib::alert (prog, "no field file",   ERROR);
   else             dump = *argv;
 }
 
@@ -520,7 +520,7 @@ static bool getDump (ifstream&             file  ,
   
   if (file.getline(buf, StrMax).eof()) return false;
   
-  if (!strstr (buf, "Session")) Veclib::messg (prog, "not a field file", ERROR);
+  if (!strstr (buf, "Session")) Veclib::alert (prog, "not a field file", ERROR);
   file.getline (buf, StrMax);
 
   // -- Input numerical description of field sizes.
@@ -529,7 +529,7 @@ static bool getDump (ifstream&             file  ,
   file.getline (buf, StrMax);
   
   if (np != Geometry::nP() || nz != Geometry::nZ() || nel != Geometry::nElmt())
-    Veclib::messg (prog, "size of dump mismatch with session file", ERROR);
+    Veclib::alert (prog, "size of dump mismatch with session file", ERROR);
 
   file.getline (buf, StrMax);
   file.getline (buf, StrMax);
@@ -550,7 +550,7 @@ static bool getDump (ifstream&             file  ,
   
   if (u.size() != 0) {
     if (strcmp (fieldn, fields) != 0)
-      Veclib::messg (prog, "fields mismatch with first dump in file", ERROR);
+      Veclib::alert (prog, "fields mismatch with first dump in file", ERROR);
   }
   
   for (i = 0; i < nf; i++) {
@@ -573,9 +573,9 @@ static bool doSwap (const char* ffmt)
   Veclib::describeFormat (mfmt);   
 
   if (!strstr (ffmt, "binary"))
-    Veclib::messg (prog, "input field file not in binary format", ERROR);
+    Veclib::alert (prog, "input field file not in binary format", ERROR);
   else if (!strstr (ffmt, "endian"))
-    Veclib::messg (prog, "input field file in unknown binary format", WARNING);
+    Veclib::alert (prog, "input field file in unknown binary format", WARNING);
 
   return (strstr (ffmt, "big") && strstr (mfmt, "little")) || 
     (strstr (mfmt, "big") && strstr (ffmt, "little"));

@@ -30,7 +30,7 @@ DNSAnalyser::DNSAnalyser (Domain* D   ,
       // -- Open state-variable file.
 
       _flx_strm.open (strcat (strcpy (str, _src -> name), ".flx"));
-      if (!_flx_strm) Veclib::messg (routine, "can't open flux file", ERROR);
+      if (!_flx_strm) Veclib::alert (routine, "can't open flux file", ERROR);
 
       _flx_strm << "# DNS state information file"      << endl;
       if (_src -> hasScalar()) {
@@ -67,7 +67,7 @@ DNSAnalyser::DNSAnalyser (Domain* D   ,
 
       ROOTONLY {
 	_wss_strm.open (strcat (strcpy (str, _src -> name), ".wss"));
-	if (!_wss_strm) Veclib::messg (routine, "can't open WSS file", ERROR);
+	if (!_wss_strm) Veclib::alert (routine, "can't open WSS file", ERROR);
       }
     }
   }
@@ -223,7 +223,7 @@ void DNSAnalyser::analyse (AuxField** work0,
 	  sprintf (s2, "binary "); Veclib::describeFormat  (s2 + strlen (s2));
 	  sprintf (s1, Hdr_Fmt[9], s2);                       _wss_strm << s1;
 
-	  if (!_wss_strm) Veclib::messg (routine,
+	  if (!_wss_strm) Veclib::alert (routine,
 					 "failed writing WSS header", ERROR);
 	  _wss_strm << flush;
 	}
@@ -238,7 +238,7 @@ void DNSAnalyser::analyse (AuxField** work0,
 		_wss_strm.write(reinterpret_cast<char*>(plane),
 				static_cast<int_t>(_nline * sizeof (real_t))); 
 		if (_wss_strm.bad())
-		  Veclib::messg (routine,
+		  Veclib::alert (routine,
 				 "unable to write binary output", ERROR);
 	      }
 	      for (k = 1; k < nPR; k++)
@@ -247,7 +247,7 @@ void DNSAnalyser::analyse (AuxField** work0,
 		  _wss_strm.write(reinterpret_cast<char*>(&buffer[0]),
 				  static_cast<int_t>(_nline * sizeof(real_t))); 
 		  if (_wss_strm.bad())
-		    Veclib::messg (routine,
+		    Veclib::alert (routine,
 				   "unable to write binary output", ERROR);
 		}
 	      _wss_strm << flush;
@@ -263,7 +263,7 @@ void DNSAnalyser::analyse (AuxField** work0,
 	      _wss_strm.write (reinterpret_cast<char*>(plane),
 			       static_cast<int_t>(_nline * sizeof (real_t))); 
 	      if (_wss_strm.bad())
-		Veclib::messg (routine,
+		Veclib::alert (routine,
 			       "unable to write binary output", ERROR);
 	    }
 	  _wss_strm << flush;
