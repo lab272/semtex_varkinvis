@@ -31,9 +31,7 @@ static int_t roundUp (const int_t n, const int_t a, const int_t b)
 // Return the first integer greater than or equal to n that has both
 // factors a and b.  We assume that all inputs are positive.
 // ---------------------------------------------------------------------------
-{
-  int_t m = n; while (m%a || m%b) m++; return m;
-}
+{ int_t m = n; while (m%a || m%b) m++; return m; }
 
 
 void Geometry::set (const int_t    NP,
@@ -85,7 +83,7 @@ void Geometry::set (const int_t    NP,
       Veclib::alert (routine, err, ERROR);
     }
 
-    if (_nproc << 1 > _nz) 
+    if (_nproc << 1 > _nz) {
       sprintf (err, "No. of processors (%1d) can at most be half N_Z (%1d)",
 	       _nproc, _nz);
       Veclib::alert (routine, err, ERROR);
@@ -96,6 +94,6 @@ void Geometry::set (const int_t    NP,
     if (_nz > 1)
       _psize = roundUp (nPlane(), 1, 2);
     else
-      _psize = roundUp (nPlane(), 1, 1);
+      _psize = nPlane();
   }
 }
