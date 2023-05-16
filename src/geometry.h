@@ -1,15 +1,13 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
-#include "cfemdef.h"
+#include <cfemdef.h>
 
 class Geometry
 // ===========================================================================
 // Details of the logical/storage (as opposed to geometric)
 // representation used for scalar fields.  Static functions make
 // information globally accessible.
-//
-// Copyright (c) 1994+, Hugh M Blackburn
 //
 // In all cases, 2D quad elements are employed, with a possible
 // extension by Fourier expansions in the third dimension.  While the
@@ -22,10 +20,13 @@ class Geometry
 // geometry has been extended to include the processor ID, number of
 // processors, number of data planes per processor, etc.
 //
+// Copyright (c) 1994+, Hugh M Blackburn
 // ===========================================================================
 {
 public:
   enum CoordSys { Cartesian, Cylindrical };
+
+  Geometry(); 
 
   static void set (const int_t, const int_t, const int_t, const CoordSys);
 

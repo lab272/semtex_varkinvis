@@ -34,6 +34,7 @@ friend class    Field;
 friend class    BCmgr;
 
 public:
+  
   AuxField (real_t*, const int_t, vector<Element*>&, const char = 0);
 
   char          name     ()      const { return _name; }

@@ -4,7 +4,11 @@
 # -- Set up is for out-of-source builds, typically run from within the
 #    build subdirectory, e.g.: cd build; cmake ..; make
 
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.4)
+project (semtex
+	 VERSION     11.0
+	 DESCRIPTION "Spectral element x Fourier DNS code"
+	 LANGUAGES   C CXX Fortran )
 
 # -- Vendor-specific switches:
 
@@ -68,13 +72,11 @@ elseif (DEFINED ENV{BLA_VENDOR})
 
 endif()	   
 
-project (semtex C CXX Fortran)
-
 # -- Pull in the pre-processor flags, which can optionally be set on
 #    the comamnd line (if not enabled here).  E.g. cmake -DDEBUG=ON ..
 
 option (USE_MPI  "Build dns+elliptic solvers with MPI"            ON )
-option (USE_XXT  "Build dns+elliptic solvers with XXT"            ON )
+option (USE_XXT  "Build dns+elliptic solvers with XXT"            OFF)
 option (DEBUG    "Build with debugging preprocessor conditionals" OFF)
 
 if (DEBUG)
@@ -155,8 +157,6 @@ include (utility/CMakeLists.txt)
 enable_testing ()
 include (test/CMakeLists.txt)
 
-# -- Optional compilation of linear stability codes, if supplied.
+# -- Build linear stability codes.
 
-if (EXISTS ${CMAKE_SOURCE_DIR}/dog)
-  include (${CMAKE_SOURCE_DIR}/dog/CMakeLists.txt)
-endif()
+include (dog/CMakeLists.txt)

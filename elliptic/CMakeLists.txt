@@ -1,4 +1,4 @@
-# -- Definitions used to compile elliptic solver.
+# -- Definitions used to compile "elliptic" solver.
 
 set (ell_src
   ${CMAKE_CURRENT_LIST_DIR}/../src/message.cpp

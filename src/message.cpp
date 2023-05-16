@@ -83,7 +83,7 @@ namespace Message {
   // message-passing manager (e.g. mpirun) and pre-exists at time of
   // entry to this routine, while the requested number of 2D
   // partitions is a command-line argument to the semtex executable it
-  // manages (e.g. dns_mp), and is supplied as an input argument here.
+  // manages (e.g. dns_mp), and is supplied as input argument npart2d.
   //
   // We check that npart2d is a factor of the available number of
   // processes, but further checking will likely need to be carried

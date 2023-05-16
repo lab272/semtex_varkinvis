@@ -1,4 +1,4 @@
-# -- Definitions used to compile dns solver.
+# -- Definitions used to compile "dns" solver.
 
 set (dns_src
   ${CMAKE_CURRENT_LIST_DIR}/../src/message.cpp

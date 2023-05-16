@@ -63,6 +63,8 @@ void Geometry::set (const int_t    NP,
 {
   static char routine[] = "Geometry::set", err[StrMax];
 
+  if (_np) Veclib::alert (routine, "cannot re-initialise Geometry", ERROR);
+
   _pid   = Femlib::ivalue ("I_PROC");
   _nproc = Femlib::ivalue ("N_PROC");
 
