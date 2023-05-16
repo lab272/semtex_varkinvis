@@ -2,7 +2,6 @@
  * operators.c: operators for mesh points, derivatives, quadratures.
  *
  * Copyright (c) 1994+ Hugh M Blackburn
- *
  *****************************************************************************/
 
 #include <stdio.h>

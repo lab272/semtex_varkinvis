@@ -179,9 +179,9 @@ void intmat_g (const int_t   K   ,
  * Reference: Abramowitz & Stegun 25.2.2.
  * ------------------------------------------------------------------------- */
 {
-   int_t   i, j, k, l;
-   real_t* a;
-   real_t  prod;
+  int_t   i, j, k, l;
+  real_t* a;
+  real_t  prod;
 
   a = dvector (0, K-1);
   dfill (K, 1.0, a, 1);
@@ -228,9 +228,9 @@ static void JACOBF (const int_t  n     ,
  *   "FORTRAN Routines for Spectral Methods", D. Funaro, 1993
  * ------------------------------------------------------------------------- */
 {
-   int_t  i;
-   real_t y, ym, yp, dy, dym, dyp, ys, dys, apb;
-   real_t di, c0, c1, c2, c3, c4;
+  int_t  i;
+  real_t y, ym, yp, dy, dym, dyp, ys, dys, apb;
+  real_t di, c0, c1, c2, c3, c4;
 
   *poly = y  = 1.0;
   *pder = dy = 0.0;
@@ -284,8 +284,8 @@ void JACG (const int_t  n    ,
  * Alpha, beta = 0.0 => Gauss-Legendre; = -0.5 => Chebyshev.
  * ------------------------------------------------------------------------- */
 {
-   int_t  i, j, k, np, nh;
-   real_t dth, recsum, x, delx;
+  int_t  i, j, k, np, nh;
+  real_t dth, recsum, x, delx;
   real_t          poly, pder, polym1, pderm1, polym2, pderm2;
 
   np  = n + 1;
@@ -329,8 +329,8 @@ void JACGR (const int_t  n    ,
  * Alpha, beta = 0.0 => Gauss-Legendre; = -0.5 => Chebyshev.
  * ------------------------------------------------------------------------- */
 {
-   int_t  np, i, j, k;
-   real_t x, delx, con, recsum;
+  int_t  np, i, j, k;
+  real_t x, delx, con, recsum;
   real_t          pn, pdn, pnp1, pdnp1, pnm1, pdnm1, func, funcd;
 
   np  = n + 1;
@@ -619,8 +619,8 @@ void DGLL (const int_t   nz,
  * NB: D & DT are both nz x nz.  Canuto et al. eq (2.3.25).
  * ------------------------------------------------------------------------- */
 {
-   int_t  i, j, n;
-   real_t d0;
+  int_t  i, j, n;
+  real_t d0;
 
   if (nz < 2) { D[0][0] = DT[0][0] = 0.0; return; }
   
@@ -680,8 +680,8 @@ void uniknot (const int_t nk,
  * Return nk knot points with uniform spacing on [-1, 1].
  * ------------------------------------------------------------------------- */
 {
-   int_t  i, nh;
-   real_t dx;
+  int_t  i, nh;
+  real_t dx;
 
   if (nk < 2) { *k = 0.0; return; }
 

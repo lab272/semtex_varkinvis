@@ -28,27 +28,7 @@
  * @file utility/project.cpp
  * @ingroup group_utility
  *****************************************************************************/
-// Copyright (c) 1996 <--> $Date$, Hugh Blackburn
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
+// Copyright (c) 1996+, Hugh M Blackburn
 
 #include <sem.h>
 
@@ -116,7 +96,7 @@ Field2DF::Field2DF (const int_t nR  ,
 // Field2DF constructor. 
 // ---------------------------------------------------------------------------
 {
-   int_t i;
+  int_t i;
   
   nplane = nrns * nel;
   if (nplane > 1 && nplane & 1) nplane++;
@@ -164,19 +144,22 @@ Field2DF& Field2DF::operator = (const Field2DF& rhs)
 
   else {			// -- Perform projection.
 
-     int_t  i, k;
-     real_t *LHS, *RHS;
+    int_t           i, k;
+    real_t          *LHS, *RHS;
     const real_t    *IN,  *IT;
     const int_t     nzm = min (rhs.nz, nz);
     vector<real_t>  work (rhs.nr * nr);
     real_t*         tmp = &work[0];
 
     if      (uniform == +1)
-      Femlib::projection (&IN, &IT, rhs.nr, GLJ, 0.0, 0.0, nr, TRZ, 0.0, 0.0);
+      Femlib::projection (&IN, &IT, rhs.nr, GLJ, JAC_ALFA, JAC_BETA,
+			                nr, TRZ, 0.0, 0.0);
     else if (uniform == -1) 
-      Femlib::projection (&IN, &IT, rhs.nr, TRZ, 0.0, 0.0, nr, GLJ, 0.0, 0.0);
+      Femlib::projection (&IN, &IT, rhs.nr, TRZ, 0.0, 0.0,
+			                nr, GLJ, JAC_ALFA, JAC_BETA);
     else
-      Femlib::projection (&IN, &IT, rhs.nr, GLJ, 0.0, 0.0, nr, GLJ, 0.0, 0.0);
+      Femlib::projection (&IN, &IT, rhs.nr, GLJ, JAC_ALFA, JAC_BETA,
+			                nr, GLJ, JAC_ALFA, JAC_BETA);
 
     for (k = 0; k < nzm; k++) {	// -- 2D planar projections.
       LHS = plane[k];
