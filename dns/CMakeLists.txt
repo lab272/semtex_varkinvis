@@ -23,9 +23,9 @@ target_link_libraries      (dns src fem vec ${import_serial_libs})
 
 # -- Add multi-process (_mp) executable if possible.
 
-if (MPI_FOUND)
+if (USE_MPI)
   add_executable             (dns_mp ${dns_src})
   target_compile_definitions (dns_mp PRIVATE -DMPI)
   target_include_directories (dns_mp PUBLIC src dns)
   target_link_libraries      (dns_mp src fem_mp vec ${import_par_libs})
-endif (MPI_FOUND)
+endif (USE_MPI)

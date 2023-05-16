@@ -19,9 +19,9 @@ target_link_libraries      (elliptic src fem vec ${import_serial_libs})
 
 # -- Add multi-process (_mp) executable if possible.
 
-if (MPI_FOUND)
+if (USE_MPI)
   add_executable             (elliptic_mp ${ell_src})
   target_compile_definitions (elliptic_mp PRIVATE -DMPI)
   target_include_directories (elliptic_mp PUBLIC src)
   target_link_libraries      (elliptic_mp src fem_mp vec ${import_par_libs})
-endif (MPI_FOUND)
+endif (USE_MPI)
