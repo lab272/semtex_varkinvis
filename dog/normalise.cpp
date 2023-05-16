@@ -1,15 +1,15 @@
 ///////////////////////////////////////////////////////////////////////////////
-// normalize.cpp: normalize/rescale an eigenmode, either on the basis of
+// normalise.cpp: normalise/rescale an eigenmode, either on the basis of
 // kinetic energy or pressure.
 //
 // Synopsis:
 // --------
-// normalize [-h] [-p] [-s scale] [-z] session [session.fld]
+// normalise [-h] [-p] [-s scale] [-z] session [session.fld]
 //
 // Description: 
 // ----------- 
 // 
-// Given a velocity + pressure field, normalize it so that it has either
+// Given a velocity + pressure field, normalise it so that it has either
 //
 // \sqrt[(\int u . u dA)/A] = 1 (kinetic energy)
 //
@@ -40,7 +40,7 @@
 #include <sem.h>
 #include <data2df.h>
 
-static char  prog[]  = "normalize";
+static char  prog[]  = "normalise";
 static int_t verbose = 0;
 static void  getargs  (int, char**, char*&, char*&, bool&, bool&, real_t&);
 static int_t getDump  (istream&, vector<AuxField*>&, Header&, 
@@ -126,11 +126,11 @@ static void getargs (int     argc    ,
 // Deal with command-line arguments.
 // ---------------------------------------------------------------------------
 {
-  char usage[] = "Usage: normalize [options] session [session.fld]\n"
+  char usage[] = "Usage: normalise [options] session [session.fld]\n"
     "options:\n"
     "-h       ... print this message\n"
     "-p       ... mode normalization on pressure rather than velocity\n"
-    "-s scale ... multiplicative scale applied after normalization\n"
+    "-s scale ... multiplicative scale applied after normalisation\n"
     "-z       ... demean each field (mass-weighted)\n";
  
   while (--argc && **++argv == '-')

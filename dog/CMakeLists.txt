@@ -18,7 +18,6 @@ set (override_src
      ${CMAKE_CURRENT_LIST_DIR}/field.cpp
      ${CMAKE_CURRENT_LIST_DIR}/geometry.cpp
 )
-
 add_library (override STATIC ${override_src})
 target_include_directories (override PUBLIC dog src)
 
@@ -69,7 +68,6 @@ set (lns_src
      ${CMAKE_CURRENT_LIST_DIR}/integrate.cpp
      ${CMAKE_CURRENT_LIST_DIR}/stabanalysis.cpp
 )
-
 add_executable             (lns ${lns_src})
 target_include_directories (lns PUBLIC dog src)
 target_link_libraries      (lns override src fem vec ${import_serial_libs})
@@ -77,11 +75,11 @@ target_link_libraries      (lns override src fem vec ${import_serial_libs})
 # -- Utilities follow.  See dog user guide or source file headers.
     
 set (norm_src
-     ${CMAKE_CURRENT_LIST_DIR}/normalize.cpp
+     ${CMAKE_CURRENT_LIST_DIR}/normalise.cpp
 )
-add_executable             (normalize ${norm_src})
-target_include_directories (normalize PUBLIC dog src)
-target_link_libraries      (normalize override src fem vec ${import_serial_libs})
+add_executable            (normalise ${norm_src})
+target_include_directories(normalise PUBLIC dog src)
+target_link_libraries     (normalise override src fem vec ${import_serial_libs})
 
 add_executable (symmetrise
      ${CMAKE_CURRENT_LIST_DIR}/symmetrise.cpp

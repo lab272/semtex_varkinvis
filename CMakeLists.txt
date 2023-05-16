@@ -28,21 +28,21 @@ if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
 
 # -- N.B.: we have turned off all warnings via the -w flag.  Use with care!
 
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-    -w \
-    -Wno-parentheses \
-    -Wno-unused-value \
-    -Wno-format \
-    -Wno-format-security \
-    -Wno-switch \
-    -Wno-deprecated-declarations" )
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 \
+    -w ")
+#    -Wno-parentheses \
+#    -Wno-unused-value \
+#    -Wno-format \
+#    -Wno-format-security \
+#    -Wno-switch \
+#    -Wno-deprecated-declarations" )
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
-    -w \
-    -Wno-parentheses \
-    -Wno-implicit-function-declaration \
-    -Wno-format \
-    -Wno-format-security \
-    -Wno-deprecated-declarations" )
+    -w -std=c11 ")
+#    -Wno-parentheses \
+#    -Wno-implicit-function-declaration \
+#    -Wno-format \
+#    -Wno-format-security \
+#    -Wno-deprecated-declarations" )
   set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -std=legacy" )
    
 elseif (DEFINED ENV{BLA_VENDOR})
@@ -51,23 +51,21 @@ elseif (DEFINED ENV{BLA_VENDOR})
    
   message (STATUS "Building with vendor BLAS and LAPACK: " "$ENV{BLA_VENDOR}")
 
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-    -w \
-    -std=c++11 \
-    -Wno-parentheses \
-    -Wno-unused-value \
-    -Wno-format \
-    -Wno-format-security \
-    -Wno-switch \
-    -Wno-deprecated-declarations" )
-  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
-    -w \
-    -std=c11 \
-    -Wno-parentheses \
-    -Wno-implicit-function-declaration \
-    -Wno-format \
-    -Wno-format-security \
-    -Wno-deprecated-declarations" )
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 \
+    -w ")
+#    -Wno-parentheses \
+#    -Wno-unused-value \
+#    -Wno-format \
+#    -Wno-format-security \
+#    -Wno-switch \
+#    -Wno-deprecated-declarations" )
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 \
+    -w ")
+#    -Wno-parentheses \
+#    -Wno-implicit-function-declaration \
+#    -Wno-format \
+#    -Wno-format-security \
+#    -Wno-deprecated-declarations" )
   set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -f66" )
 
 endif()	   

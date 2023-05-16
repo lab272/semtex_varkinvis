@@ -13,8 +13,7 @@ set (dns_src
 include_directories (veclib femlib ${MPI_C_INCLUDE_PATH})
 
 set (import_serial_libs ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-set (import_par_libs    ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES}
-                        ${MPI_C_LIBRARIES})
+set (import_par_libs    ${import_serial_libs} ${MPI_C_LIBRARIES})
 
 # -- Default/serial executable (no MPI).
 
