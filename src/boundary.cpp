@@ -1,14 +1,14 @@
 //////////////////////////////////////////////////////////////////////////////
 // boundary.cpp: implement Boundary class functions.
 //
-// Copyright (c) 1994+, Hugh M Blackburn
-//
 // SYNOPSIS
 // --------
 // Boundaries correspond to domain edges that have boundary conditions
 // applied (as opposed to periodic edges).  The ordering of internal
 // storage for condition values and geometric factors corresponds to a
 // CCW traverse of 2D element edges.
+//
+// Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -103,8 +103,8 @@ void Boundary::print () const
 // (Debugging) utility to print internal information.
 // ---------------------------------------------------------------------------
 {
-  //const char* info;
-  char info[StrMax];
+  char  info[StrMax];
+  int_t i;
 
   cout << "** Boundary id: " << _id + 1 << " -> ";
   cout << _elmt ->  ID() + 1 << "." << _side + 1;
@@ -117,8 +117,14 @@ void Boundary::print () const
   cout << "  " << _np << " (number of points along edge)" << endl;
   cout << "         nx             ny             area";
   cout << endl;
-  
+
+#if 1
+  cout << setw(15);
+  for (i = 0; i < _np; i++)
+    cout << _nx[i] << _ny[i] << _area[i] << endl;
+#else  
   printVector (cout, "rrr", _np, _nx, _ny, _area);
+#endif
 }
 
 

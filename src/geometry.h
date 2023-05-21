@@ -7,26 +7,27 @@ class Geometry
 // ===========================================================================
 // Details of the logical/storage (as opposed to geometric)
 // representation used for scalar fields.  Static functions make
-// information globally accessible.
+// information globally accessible - this is effectively a singleton
+// class, with no constructor.
 //
 // In all cases, 2D quad elements are employed, with a possible
 // extension by Fourier expansions in the third dimension.  While the
-// representation implied by this class is not necessarily conforming,
-// the same order of interpolation is used in each element.
-// Equal-order interpolation is used in each direction on faces of
-// quads.
+// representation implied by this class is not necessarily (if
+// typically) conforming, the same order of interpolation is used in
+// each element.  Equal-order interpolation is used in each direction
+// on faces of quads.
 //
 // With the introduction of concurrent execution, the concept of
 // geometry has been extended to include the processor ID, number of
-// processors, number of data planes per processor, etc.
+// processors, number of data planes per processor, etc.  And with the
+// possibility of 2D partitioning, we allow a distinction between the
+// number of elements in the partition and those in the whole 2D mesh.
 //
 // Copyright (c) 1994+, Hugh M Blackburn
 // ===========================================================================
 {
 public:
   enum CoordSys { Cartesian, Cylindrical };
-
-  Geometry(); 
 
   static void set (const int_t, const int_t, const int_t, const CoordSys);
 

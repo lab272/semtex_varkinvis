@@ -247,6 +247,117 @@ Mesh::Mesh (FEML*      f    ,
 }
 
 
+void Mesh::partMap (const int_t    npart2d,
+		    const int_t    ipart2d,
+		    vector<int_t>& onProc ) const
+// ---------------------------------------------------------------------------
+// Given a requested number of 2D mesh partitions and the index of the
+// current partition, return vector onProc with the 0-based indices of Mesh
+// elements that will reside on the current process.
+//
+// If there is only one process, or only a single partition is
+// requested, onProc is returned as an nEl()-long vector filled with
+// indices 0..nEl()-1.
+//
+// The partitioning is handled by Scotch library routines (see manual, 8.7.3).
+// (Bug alert warning: we rely on int and int_t being the same type.) 
+// ---------------------------------------------------------------------------
+{
+  const char  routine[] = "Mesh::partMap";
+  const int_t NEL = this -> nEl();
+  int_t       i, j;
+
+  if (npart2d == 1) {		// -- No 2D partitioning.
+    
+    if (ipart2d != 0)		// -- 0-based indexing.
+      Veclib::alert (routine, "Single partition: ipart2d must be 0", ERROR);
+
+    onProc.resize (NEL);
+    for (i = 0; i < NEL; i++) onProc[i] = i;
+
+    return;
+
+  } else {
+  
+#if defined (XXT_EX)
+     
+    if (npart2d < 1 || npart2d > NEL)
+      Veclib::alert
+	(routine, "number of requested partitions must be <= nEl", ERROR);
+
+    if (ipart2d < 0 || ipart2d > NEL-1)
+      Veclib::alert
+	(routine, "index of requested partition must be in 0 .. nEl-1", ERROR);
+
+    vector<int_t> adjncy, xadj;
+    SCOTCH_Graph  scGraph;
+    SCOTCH_Strat  scStrat;
+    int           ierr;
+    vector<int>   parttab (NEL);
+
+    this -> buildDualGraph (adjncy, xadj, 0);
+
+#if 0  
+    cout << "-- xadj:";
+    for (i = 0; i <= NEL; i++)
+      cout << " " << xadj[i];
+    cout << endl;
+
+    cout << "-- adjncy:";
+    for (i = 0; i < adjncy.size(); i++)
+      cout << " " << adjncy[i];
+    cout << endl;
+#endif
+ 
+    ierr = SCOTCH_graphBuild (&scGraph, 0, NEL, &xadj[0], &xadj[1],
+			      NULL, NULL, xadj[NEL], &adjncy[0], NULL);
+
+    if (ierr) Veclib::alert (routine, "SCOTCH_graphBuild error return", ERROR); 
+
+    ierr = SCOTCH_stratInit (&scStrat);
+
+    if (ierr) Veclib::alert (routine, "SCOTCH_stratInit error return",  ERROR); 
+
+    ierr = SCOTCH_graphPart (&scGraph, npart2d, &scStrat, &parttab[0]);
+
+    if (ierr) Veclib::alert (routine, "SCOTCH_graphPart error return",  ERROR);
+
+#if 0
+    // -- Print up the partitioning info (see 8.7.3 of user manual).
+
+    cout << "-- Number of partitions: " << npart2d << endl;
+    cout << "-- parttab:" << endl;
+    for (i = 0; i < NEL; i++)
+      cout << parttab[i] << " ";
+    cout << endl;
+#endif
+  
+    SCOTCH_graphExit (&scGraph);
+    SCOTCH_stratExit (&scStrat);
+
+    // -- Now we fill up onProc.  Ordering will be monotonic increasing.
+
+    const int_t nElPart = Veclib::match (NEL, ipart2d, &parttab[0], 1);
+
+    onProc.resize (nElPart);
+    for (i = 0, j = 0; i < NEL; i++)
+      if (parttab[i] == ipart2d)
+	onProc[j++] = i;
+
+    if (j != nElPart) // -- Never happen.
+      Veclib::alert
+	(routine, "Mismatched counts of on-partition elements", ERROR); 
+
+#else
+    
+    Veclib::alert
+      (routine, "This executable doesn't allow 2D partitioning", ERROR);
+    
+#endif
+  }
+}
+
+
 void Mesh::assemble (const bool printVacancy)
 // ---------------------------------------------------------------------------
 // Traverse Elmts and fill in Side-based connectivity information.
@@ -1030,7 +1141,9 @@ void Mesh::buildDualGraph (vector<int_t>& adjncy,  // -- Length TBD.
 // These describe element-element side connectivity information and
 // may be used e.g. for partitioning.
 //
-// See e.g. George & Liu (1981) for description of adjncy and xadj structure.  
+// See George & Liu (1981) for description of adjncy and xadj
+// structure, or the Scotch user guide, where they are referred to as
+// edgetab and verttab (figure 16).
 // ---------------------------------------------------------------------------
 {
   const int_t            nElmt = this -> nEl();

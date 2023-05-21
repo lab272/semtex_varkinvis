@@ -1,6 +1,7 @@
 # -- Definitions used to compile "elliptic" solver.
 
 set (ell_src
+  ${CMAKE_CURRENT_LIST_DIR}/../src/mesh.cpp
   ${CMAKE_CURRENT_LIST_DIR}/../src/message.cpp
   ${CMAKE_CURRENT_LIST_DIR}/helmholtz.cpp
   ${CMAKE_CURRENT_LIST_DIR}/drive.cpp
@@ -8,9 +9,9 @@ set (ell_src
 
 include_directories (veclib femlib ${MPI_C_INCLUDE_PATH})
 
-set (import_serial_libs ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-set (import_par_libs    ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES}
-    			${MPI_C_LIBRARIES})
+set (import_serial_libs ${BLAS_LIBRARIES}  ${LAPACK_LIBRARIES})
+set (import_par_libs    ${BLAS_LIBRARIES}  ${LAPACK_LIBRARIES}
+                        ${MPI_C_LIBRARIES} ${SCOTCH_LIBRARY}  )
 
 # -- Default/serial executable (no MPI).
 

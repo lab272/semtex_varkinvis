@@ -41,27 +41,7 @@
  * @file utility/convert.c
  * @ingroup group_utility
  *****************************************************************************/
-/* Copyright (c) 1994 <--> $Date$, Hugh Blackburn
- * --
- * This file is part of Semtex.
- * 
- * Semtex is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- * 
- * Semtex is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with Semtex (see the file COPYING); if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA
- *****************************************************************************/
-
-static char RCS[] = "$Id$";
+/* Copyright (c) 1994+, Hugh M Blackburn */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -86,7 +66,6 @@ static char  usage[] = "Usage: convert [-format] [-h] [-v] [-o output] "
                        "  -o output ... output to named file\n"
                        "  -z        ... zero Time and Step in output\n";
     
-
 static void   getargs      (int, char**, FILE**, FILE**, FORMAT*, int*, int*);
 static void   error        (const char*);
 static void   get_data     (FILE*, const int, const FORMAT, const FORMAT,
@@ -426,9 +405,9 @@ static void get_data (FILE*        fp      ,
  * not the selected set.
  * ------------------------------------------------------------------------- */
 {
-   int i, j;
-  char         err[FILENAME_MAX];
-  const int    swap = format != machine;
+  const int swap = format != machine;
+  char      err[FILENAME_MAX];
+  int       i, j;
 
   switch (format) {
 
@@ -487,9 +466,9 @@ static void put_data (FILE*        fp     ,
  * Write from data to fp, according to input and desired output formats.
  * ------------------------------------------------------------------------- */
 {
-  char         err[FILENAME_MAX];
-   int i, j;
-  const int    swap = outputF != architecture ();
+  const int swap = outputF != architecture ();
+  char      err[FILENAME_MAX];
+  int       i, j;
 
   switch (outputF) {
 

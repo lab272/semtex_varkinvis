@@ -466,7 +466,8 @@ istream& operator >> (istream& file,
   file >> hdr.flds;                              file.getline(s, StrMax);
   file.get(hdr.frmt, 26);                        file.getline(s, StrMax);
 
-  if (!file) Veclib::alert (routine, "failed reading header information", ERROR);
+  if (!file)
+    Veclib::alert (routine, "failed reading header information", ERROR);
   return file;
 }
 
@@ -512,7 +513,8 @@ ostream& operator << (ostream& file,
 
   sprintf  (s1, hdr_fmt[9], s2);                              file << s1;
 
-  if (!file) Veclib::alert (routine, "failed writing field file header", ERROR);
+  if (!file)
+    Veclib::alert (routine, "failed writing field file header", ERROR);
   file << flush;
 
   return file;

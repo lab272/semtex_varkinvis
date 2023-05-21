@@ -343,6 +343,7 @@ extern "C" {
   int_t  iimin  (int_t n, const int_t*  x, int_t incx);
   int_t  ismin  (int_t n, const float*  x, int_t incx);
   int_t  icount (int_t n, const int_t*  x, int_t incx);
+  int_t  imatch (int_t n, const int_t   alpha, const int_t*  x, int_t incx);  
   int_t  ifirst (int_t n, const int_t*  x, int_t incx);
   int_t  lany   (int_t n, const int_t*  x, int_t incx);  
   int_t  lisame (int_t n, const int_t*  x, int_t incx,
@@ -1132,6 +1133,8 @@ class Veclib {
 
   static int_t count (int_t n, const int_t *x, int_t incx)
   { return icount (n, x, incx); }
+  static int_t match (int_t n, const int_t alpha, const int_t *x, int_t incx)
+  { return imatch (n, alpha, x, incx); }
   static int_t first (int_t n, const int_t *x, int_t incx)
   { return ifirst (n, x, incx); }
   static int_t any   (int_t n, const int_t *x, int_t incx)

@@ -577,7 +577,7 @@ ostream& operator << (ostream& strm,
 // ---------------------------------------------------------------------------
 // Output all Domain field variables on ostream in prism-compatible
 // form.  Binary output only.  Note that output is only done on root
-// processor.
+// process..
 // ---------------------------------------------------------------------------
 {
   int_t             i;

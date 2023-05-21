@@ -3,6 +3,11 @@
 //
 // Most routines are inlined in header file geometry.h
 //
+// This is effectively a singleton class.  We might want to put the
+// static 'private' data somewhere else that is only loaded by
+// top-level executables in order to prevent possible conflicts if we
+// override the definitions in this file elsewhere.
+//
 // Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 

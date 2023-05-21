@@ -1,5 +1,5 @@
 /*****************************************************************************
- * lxsame: return 1 if all elements of x any y match, else zero.
+ * lxsame: return 1 if all elements of x and y match, else zero.
  *
  * Floating point versions use absolute tolerances on the allowable difference.
  *****************************************************************************/
@@ -21,7 +21,7 @@ int_t lisame (int_t n,
 	      const int_t* x, int_t incx,
 	      const int_t* y, int_t incy)
 { 
-   int_t i;
+  int_t i;
 
   x += (incx < 0) ? (-n + 1) * incx : 0;
   y += (incy < 0) ? (-n + 1) * incy : 0;
@@ -36,7 +36,7 @@ int_t ldsame (int_t n,
 	      const double* x, int_t incx,
 	      const double* y, int_t incy)
 { 
-   int_t i;
+  int_t i;
 
   x += (incx < 0) ? (-n + 1) * incx : 0;
   y += (incy < 0) ? (-n + 1) * incy : 0;
@@ -51,7 +51,7 @@ int_t lssame (int_t n,
 	      const float* x, int_t incx,
 	      const float* y, int_t incy)
 { 
-   int_t i;
+  int_t i;
 
   x += (incx < 0) ? (-n + 1) * incx : 0;
   y += (incy < 0) ? (-n + 1) * incy : 0;

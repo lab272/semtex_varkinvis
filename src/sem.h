@@ -81,7 +81,6 @@ class NumberSys;
 #include <history.h>
 #include <integration.h>
 #include <message.h>
-#include <misc.h>
 #include <numbersys.h>
 #include <particle.h>
 #include <statistics.h>

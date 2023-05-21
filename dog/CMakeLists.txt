@@ -3,8 +3,8 @@
 
 # -- Refer to drive.cpp regarding these options for dog:
 
-option (WITH_FLIP   "Build dog with half-period map"  OFF )
-option (WITH_ARPACK "Build dog with ARPACK"           Off )
+option (WITH_FLIP   "Build dog with half-period map"  OFF)
+option (WITH_ARPACK "Build dog with ARPACK"           OFF)
 
 # -- Local overrides for standard semtex/src files:
 

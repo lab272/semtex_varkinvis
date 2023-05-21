@@ -137,4 +137,9 @@ private:
 
 };
 
+
+void readField  (istream&, vector<AuxField*>&);
+void writeField (ostream&, const char*, const int_t, const real_t,
+		 vector<AuxField*>&);
+
 #endif

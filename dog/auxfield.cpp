@@ -3,7 +3,7 @@
 //
 // Modified for stability analysis.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn.
+// Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -939,4 +939,126 @@ AuxField& AuxField::smooth (const int_t   nglobal    ,
   }
 
   return *this;
+}
+
+void writeField (ostream&           file   ,
+		 const char*        session,
+		 const int_t        runstep,
+		 const real_t       runtime,
+		 vector<AuxField*>& field  )
+// ---------------------------------------------------------------------------
+// Write fields out to an opened file, binary semtex/nekton format.
+// Output is only done by the root processor.
+//  
+// NB: the header (including newlines) is always 351 bytes in length.
+// ---------------------------------------------------------------------------
+{
+  const char routine [] = "writeField";
+  const char *hdr_fmt[] = { 
+    "%-25s "    "Session\n",
+    "%-25s "    "Created\n",
+    "%-25s "    "Nr, Ns, Nz, Elements\n",
+    "%-25d "    "Step\n",
+    "%-25.6g "  "Time\n",
+    "%-25.6g "  "Time step\n",
+    "%-25.6g "  "Kinvis\n",
+    "%-25.6g "  "Beta\n",
+    "%-25s "    "Fields written\n",
+    "%-25s "    "Format\n"
+  };
+
+  char        s1[StrMax], s2[StrMax];
+  time_t      tp (time (0));
+  int_t       i;
+  const int_t N = field.size();
+
+  if (N < 1) return;
+
+  ROOTONLY {
+    sprintf (s1, hdr_fmt[0], session);
+    file << s1;
+    strftime (s2, 25, "%a %b %d %H:%M:%S %Y", localtime (&tp));
+    sprintf  (s1, hdr_fmt[1], s2);
+    file << s1;
+
+    field[0] -> describe (s2);
+    sprintf (s1, hdr_fmt[2], s2);
+    file << s1;
+
+    sprintf (s1, hdr_fmt[3], runstep);
+    file << s1;
+
+    sprintf (s1, hdr_fmt[4], runtime);
+    file << s1;
+
+    sprintf (s1, hdr_fmt[5], Femlib::value ("D_T"));
+    file << s1;
+
+    sprintf (s1, hdr_fmt[6], Femlib::value ("KINVIS"));
+    file << s1;
+
+    sprintf (s1, hdr_fmt[7], Femlib::value ("BETA"));
+    file << s1;
+
+    for (i = 0; i < N; i++) s2[i] = field[i] -> name();
+    s2[i] = '\0';
+    sprintf (s1, hdr_fmt[8], s2);
+    file << s1;
+
+    sprintf (s2, "binary ");
+    Veclib::describeFormat (s2 + strlen (s2));
+    sprintf (s1, hdr_fmt[9], s2);
+    file << s1;
+  }
+
+  for (i = 0; i < N; i++) file << *field[i];
+
+  ROOTONLY {
+    if (!file) Veclib::alert (routine, "failed writing field file", ERROR);
+    file << flush;
+  }
+}
+
+
+void readField (istream&           file ,
+                vector<AuxField*>& field)
+// ---------------------------------------------------------------------------
+// Read fields from an opened file, binary semtex/nekton format.
+// ---------------------------------------------------------------------------
+{
+  const char  routine [] = "readField";
+  const int_t N = field.size();
+  int_t       i;
+
+  if (N < 1) return;
+
+  // -- Read header, check sizes.
+  
+  Header *hdr = new Header;
+  file >> *hdr;
+
+  ROOTONLY {
+    if (hdr->nr != Geometry::nP() || hdr->ns != Geometry::nP())
+      Veclib::alert (routine, "element size mismatch",       ERROR);
+    if (hdr->nz != Geometry::nZ())
+      Veclib::alert (routine, "number of z planes mismatch", ERROR);
+    if (hdr->nel != Geometry::nElmt())
+      Veclib::alert (routine, "number of elements mismatch", ERROR);
+  }
+
+  // -- Walk through fields, read appropriate one.
+  
+  char *type = hdr->flds;
+  while (*type != 0) {
+    bool skip = true;
+    ROOTONLY cout << " type: " << *type;
+    for (i = 0; i < N; i++)
+      if (*type == field[i]->name()) {
+	file >> *field[i];
+	ROOTONLY cout << "(reading)" << endl;
+	skip = false;
+      }
+    if (skip) file.seekg (Geometry::nTot() * sizeof (real_t), ios::cur);
+    type++;
+  }
 }

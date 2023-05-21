@@ -172,6 +172,7 @@ static void preprocess (const char*       session,
   Geometry::CoordSys space;
   int_t              i, np, nz, nel;
   int                ipart2d, npartz, ipartz;
+  vector<int_t>      elmtMap;
 
   // -- Initialise problem and set up mesh geometry.
 
@@ -182,13 +183,16 @@ static void preprocess (const char*       session,
 
   Message::grid ((int) npart2d, ipart2d, npartz, ipartz);
 
+  mesh -> partMap (npart2d, ipart2d, elmtMap);
+
   VERBOSE cout << "done" << endl;
 
   // -- Set up global geometry variables.
 
   VERBOSE cout << "Setting geometry ... ";
 
-  nel   =  mesh -> nEl();
+  //  nel   =  mesh -> nEl();
+  nel   =  elmtMap.size();
   np    =  Femlib::ivalue ("N_P");
   nz    =  Femlib::ivalue ("N_Z");
   space = (Femlib::ivalue ("CYLINDRICAL")) ? 
@@ -205,7 +209,7 @@ static void preprocess (const char*       session,
   VERBOSE cout << "Building elements ... ";
 
   elmt.resize (nel);
-  for (i = 0; i < nel; i++) elmt[i] = new Element (i, np, mesh);
+  for (i = 0; i < nel; i++) elmt[i] = new Element (elmtMap[i], np, mesh);
 
   VERBOSE cout << "done" << endl;
 

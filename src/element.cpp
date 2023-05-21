@@ -451,7 +451,7 @@ void Element::bndryDsSum (const int_t*  btog,
 // is using in smoothing Fields along element boundaries.
 //  --------------------------------------------------------------------------
 {
-  const int_t     loopcnt = _next; // -- Workaround for NEC vectorisation.
+  const  int_t loopcnt = _next; // -- Workaround for NEC vectorisation.
   int_t  i, e;
   real_t w;
 
@@ -496,8 +496,8 @@ void Element::bndryMask (const int_t*  bmsk,
 // not used and may be zero also.
 //  --------------------------------------------------------------------------
 {
-  int_t i, e;
-  const int_t    loopcnt = _next;
+  int_t       i, e;
+  const int_t loopcnt = _next;
 
   if (src) {
     for (i = 0; i < _next; i++) {
@@ -614,7 +614,7 @@ void Element::sideEval (const int_t  side,
 //  --------------------------------------------------------------------------
 {
   vector<real_t> work(_np + _np);
-  int_t estart, skip;
+  int_t          estart, skip;
   real_t         *x, *y;
 
   this -> terminal (side, estart, skip);
@@ -647,8 +647,8 @@ void Element::sideGrad (const int_t   side,
 // Work vector is 2 * _np long.
 //  --------------------------------------------------------------------------
 {
-  int_t d, estart, skip;
-  real_t         *ddr, *dds;
+  int_t  d, estart, skip;
+  real_t *ddr, *dds;
 
   this -> terminal (side, estart, skip);
 
@@ -856,10 +856,9 @@ real_t Element::norm_H1 (const real_t* src) const
 // Return Sobolev-1 norm of Element value, using Element quadrature rule.
 //  --------------------------------------------------------------------------
 {
-  real_t H1 = 0;
-  int_t  i;
-  vector<real_t>  work (3 * _npnp);
-  real_t *dA = _Q4, *u = &work[0], *gw = u + _npnp;
+  int_t          i;
+  vector<real_t> work (3 * _npnp);
+  real_t         H1 = 0., *dA = _Q4, *u = &work[0], *gw = u + _npnp;
 
   // -- Add in L2 norm of u.
 
@@ -886,10 +885,10 @@ void Element::divY (real_t* src) const
 // gradient.
 //  --------------------------------------------------------------------------
 {
-  const int_t      loopcnt = _npnp; // -- Workaround for NEC vectorisation.
-  int_t   i;
-  real_t  rad, rinv;
-  real_t* y = _ymesh;
+  const int_t loopcnt = _npnp; // -- Workaround for NEC vectorisation.
+  int_t       i;
+  real_t      rad, rinv;
+  real_t*     y = _ymesh;
 
   for (i = 0; i < loopcnt; i++) {
     rad     = y[i];
@@ -1033,7 +1032,7 @@ void Element::sideDivY2 (const int_t   side,
   int_t        i, base, skip;
   real_t       r, rinv2, *y;
   const real_t *s;
-  const int_t           loopcnt = _np;
+  const int_t  loopcnt = _np;
 
   switch (side) {
   case 0: 
@@ -1241,8 +1240,8 @@ real_t Element::CFL (const real_t* u   ,
 // Input vector work to be _npnp long.
 //  --------------------------------------------------------------------------
 {
-  const int_t    loopcnt = _npnp;
-  int_t i;
+  const int_t loopcnt = _npnp;
+  int_t       i;
 
   Veclib::zero (loopcnt, work, 1);
 
@@ -1455,10 +1454,10 @@ void Element::HelmholtzRow (const real_t lambda2,
 // (The 1/r^2 factor in the mass matrix is only for cylindrical coordinates.)
 //  --------------------------------------------------------------------------
 {
-  const real_t   r2   = sqr (_ymesh[Veclib::row_major(i,j,_np)]);
-  const real_t   hCon = (_cyl && r2>EPSDP)?(betak2/r2+lambda2):betak2+lambda2;
-  const real_t   *dtr, *dts, *dvr, *dvs;
-  int_t m, n;
+  const real_t r2   = sqr (_ymesh[Veclib::row_major(i,j,_np)]);
+  const real_t hCon = (_cyl && r2>EPSDP)?(betak2/r2+lambda2):betak2+lambda2;
+  const real_t *dtr, *dts, *dvr, *dvs;
+  int_t        m, n;
 
   // -- If we are setting up a viscous matrix, use SVV-stabilised operators.
 
@@ -1503,10 +1502,10 @@ void Element::HelmholtzDiag (const real_t lambda2,
 // except that m, n = i, j.
 //  --------------------------------------------------------------------------
 {
-  int_t  i, j, ij;
-  real_t *dg = work, *tmp = work + _npnp;
-  const real_t    *dtr, *dts, *dvr, *dvs;
-  real_t          r2, HCon;
+  int_t        i, j, ij;
+  real_t       *dg = work, *tmp = work + _npnp;
+  const real_t *dtr, *dts, *dvr, *dvs;
+  real_t       r2, HCon;
 
   // -- If we are setting up a viscous matrix, use SVV-stabilised operators.
 
@@ -1555,10 +1554,10 @@ void Element::HelmholtzKern (const real_t lambda2,
 // Lambda2 is the Helmholtz constant, betak2 is the mode Fourier constant.
 //  --------------------------------------------------------------------------
 {
-  const int_t     loopcnt = _npnp; // -- Workaround for NEC vectorisation.
-  int_t  ij;
-  real_t tmp, r2, hCon;
-  real_t *g1 = _Q1, *g2 = _Q2, *g3 = _Q3, *g4 = _Q4, *r = _ymesh;
+  const int_t loopcnt = _npnp; // -- Workaround for NEC vectorisation.
+  int_t       ij;
+  real_t      tmp, r2, hCon;
+  real_t      *g1 = _Q1, *g2 = _Q2, *g3 = _Q3, *g4 = _Q4, *r = _ymesh;
 
   if (_cyl) {
     if (g3) {
@@ -1613,7 +1612,7 @@ void Element::HelmholtzOp (const real_t lambda2,
 // Input work must be 2*_npnp long.
 //  --------------------------------------------------------------------------
 {
-  real_t *R = wrk, *S = wrk + _npnp;
+  real_t       *R = wrk, *S = wrk + _npnp;
   const real_t *dtr, *dts, *dvr, *dvs;
 
   // -- If we are setting up a viscous matrix, use SVV-stabilised operators.
@@ -1653,7 +1652,7 @@ void Element::sideGeom (const int_t side,
   if (side < 0 || side >= 4)
     Veclib::alert ("Element::sideGeom", "illegal side", ERROR);
 
-  int_t low, skip;
+  int_t          low, skip;
   real_t         *xr, *xs, *yr, *ys, *len;
   vector<real_t> work (_np + _np);
 
@@ -1766,13 +1765,13 @@ void Element::crossXPlus (const int             com,
 // Add the com'th component of the cross product of a and X to tgt.
 //  --------------------------------------------------------------------------
 {
-  const int  c0[] = {1, 2, 0},	// -- lookup tables for 3-D vector product
-             c1[] = {2, 0, 1};
+  const int     c0[] = {1, 2, 0},  // -- lookup tables for 3-D vector product
+                c1[] = {2, 0, 1};
   const real_t* mesh[] = {_xmesh, _ymesh};
-  const int  bP = Geometry::basePlane ();
-  const int  nz = Geometry::nZ();
-  const int  nPlane = Geometry::nPlane ();
-  double alpha;
+  const int     bP = Geometry::basePlane ();
+  const int     nz = Geometry::nZ();
+  const int     nPlane = Geometry::nPlane ();
+  double        alpha;
 
   // -- Cartesian: z is constant, must be given
   //    Cylindrical: since everything (vector a and the result) is in local
