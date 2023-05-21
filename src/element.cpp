@@ -24,11 +24,8 @@ Element::Element (const int_t id,
   _nint (_npnp - _next),
   _cyl  (Geometry::cylindrical())
 {
-  const char routine[] = "Element::Element";
-
-  if (_np < 2)
-    Veclib::alert (routine, "need > 2 knots for element edges", ERROR);
-
+  assert ((_np > 2) && "need > 2 knots for element edges");
+  
   Femlib::quadrature (&_zr, &_wr, &_DVr, &_DTr, _np, GLJ, 0.0, 0.0);
 
   // -- Make special SVV-modified differentiation matrices if required.
@@ -1649,9 +1646,8 @@ void Element::sideGeom (const int_t side,
 // copy.
 //  --------------------------------------------------------------------------
 {
-  if (side < 0 || side >= 4)
-    Veclib::alert ("Element::sideGeom", "illegal side", ERROR);
-
+  assert ((side > 0 && side < 4) && "quad elements must have 4 sides");
+  
   int_t          low, skip;
   real_t         *xr, *xs, *yr, *ys, *len;
   vector<real_t> work (_np + _np);

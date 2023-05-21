@@ -1,7 +1,6 @@
 /*****************************************************************************
  * fourier.c
  *
- * Copyright (c) 1999+, Hugh M Blackburn
  *
  * 1D Fourier transform routines for real data fields based on
  * FFTPACK, Temperton FFT routines (default), or vendor-supplied
@@ -30,6 +29,7 @@
  * as the imaginary part of mode 0).  The transform length is assumed
  * to stay fixed during execution.
  *
+ * Copyright (c) 1999+, Hugh M Blackburn
  *****************************************************************************/
 
 #include <stdio.h>
