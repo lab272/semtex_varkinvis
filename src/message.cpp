@@ -107,63 +107,6 @@ namespace Message {
     if (ntot % npart2d)
       Veclib::alert
     	(routine, "no. of 2D partitions must factor no. of processes", ERROR);
-
-#if defined(XXT_EX)
-    
-    // -- Will allow 2D mesh partitioning (rows) as well as being
-    //    parallel across Fourier modes (columns).  But, potentially,
-    //    the number of Fourier modes can be only 1. So we may need a
-    //    1D Cartesian MPI grid with only a single row/column (i.e. a
-    //    line).
-
-    if (ntot == npart2d) { // -- Solution is 2D.
-
-      // -- Make a row communicator.
-
-      dim_sizes[0]   = ntot;
-  
-      MPI_Cart_create (MPI_COMM_WORLD,
-		       1, dim_sizes, wrap_around, reorder, &grid_comm);
-
-      free_coords[0] = 1;
-
-      MPI_Cart_sub   (grid_comm, free_coords, &row_comm);
-
-      MPI_Comm_rank  (row_comm,  &ipart2d);
-
-      npartz = 1;
-      ipartz = 0;
-      
-    } else {		  // -- 3D solution with both 2D and z partitions.
-
-      // -- Create both row and column communicators.
-
-      int grid_rank, coordinates[2];
-
-      dim_sizes[0] = npart2d;
-      dim_sizes[1] = npartz = ntot / npart2d;
-  
-      MPI_Cart_create  (MPI_COMM_WORLD,
-			2, dim_sizes, wrap_around, reorder, &grid_comm);
-
-      free_coords[0] = 0;
-      free_coords[1] = 1;
-
-      MPI_Cart_sub    (grid_comm, free_coords, &row_comm);
-
-      free_coords[0] = 1;
-      free_coords[1] = 0;
-
-      MPI_Cart_sub    (grid_comm, free_coords, &col_comm);
-
-      MPI_Comm_rank   (grid_comm, &grid_rank);
-      MPI_Cart_coords (grid_comm,  grid_rank, 2, coordinates)
-
-      ipart2d = coordinates[0];
-      ipartz  = coordinates[1];
-    }
-
-#else    
     
     // -- Old-style semtex, parallel-across-Fourier modes, with only a
     //    single 2D mesh partition.  Allocate a 1D Cartesian MPI grid
@@ -188,8 +131,6 @@ namespace Message {
     npartz  = ntot;
     ipart2d = 0;
 
-#endif
-    
 #else
     // -- Serial execution; supply default return values (not used).
     

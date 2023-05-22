@@ -6,7 +6,7 @@
 
 cmake_minimum_required (VERSION 3.4)
 project (semtex
-	 VERSION     11.0
+	 VERSION     10.5
 	 DESCRIPTION "Spectral element x Fourier DNS code"
 	 LANGUAGES   C CXX Fortran )
 
@@ -14,7 +14,6 @@ project (semtex
 #    the comamnd line (if not enabled here).  E.g. cmake -DDEBUG=ON ..
 
 option (USE_MPI  "Build dns+elliptic solvers with MPI"            ON)
-option (USE_XXT  "Build dns+elliptic solvers with XXT"            OFF)
 option (BLD_DOG  "Build dog stability analysis solver and utils"  ON)
 option (DEBUG    "Build with debugging preprocessor conditionals" OFF)
 
@@ -61,19 +60,8 @@ elseif (DEFINED ENV{BLA_VENDOR})
 
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 \
     -w ")
-#    -Wno-parentheses \
-#    -Wno-unused-value \
-#    -Wno-format \
-#    -Wno-format-security \
-#    -Wno-switch \
-#    -Wno-deprecated-declarations" )
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 \
     -w ")
-#    -Wno-parentheses \
-#    -Wno-implicit-function-declaration \
-#    -Wno-format \
-#    -Wno-format-security \
-#    -Wno-deprecated-declarations" )
   set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -f66" )
 
 endif()	   
@@ -98,39 +86,6 @@ if (USE_MPI)
     message (STATUS "Building codes elliptic_mp and dns_mp with MPI support.")
   endif (MPI_FOUND)
 endif (USE_MPI)
-
-# -- For 2D partitioned solver option, we will use XXT and Scotch together.
-
-if (USE_XXT)
-
-  if (NOT MPI_FOUND)
-    message (FATAL_ERROR "MPI is needed to compile with XXT.")
-  endif (NOT MPI_FOUND)
-
-  # -- Set up to compile third-party library dependencies that we can
-  #    supply, as they are less likely to be already available.
-
-  #    Add support for CMAKE_DEPENDENT_OPTION:
-
-  include (CMakeDependentOption)
-  include (CMakeParseArguments)
-
-  set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
-  set (TPSRC   ${CMAKE_SOURCE_DIR}/ThirdParty)
-  set (TPBUILD ${CMAKE_SOURCE_DIR}/ThirdParty)
-  set (TPDIST  ${CMAKE_BINARY_DIR}/ThirdParty/dist)
-  set (TPINC   ${CMAKE_INSTALL_PREFIX}/include/ThirdParty)
-  # -- the following for monash storage:
-  #set (TPURL   https://users.monash.edu.au/~bburn/src)
-  # -- the following for gitlab storage:
-  # -- see https://stackoverflow.com/questions/56943327
-  set (TPURL https://gitlab.com/api/v4/projects/32564913/repository/files)
-
-  include (SemtexCommon)
-  include (ThirdPartyScotch)
-  include (ThirdPartyMPI)
-
-endif (USE_XXT)
 
 # -- Build semtex libraries.
 

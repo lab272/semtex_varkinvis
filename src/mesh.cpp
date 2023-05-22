@@ -92,10 +92,6 @@
 #include <sstream>
 #include <algorithm>
 
-#if defined(XXT_EX)
-#include <scotch.h>
-#endif
-
 using namespace std;
 
 #include <utility.h>
@@ -278,82 +274,10 @@ void Mesh::partMap (const int_t    npart2d,
     return;
 
   } else {
-  
-#if defined (XXT_EX)
-     
-    if (npart2d < 1 || npart2d > NEL)
-      Veclib::alert
-	(routine, "number of requested partitions must be <= nEl", ERROR);
-
-    if (ipart2d < 0 || ipart2d > NEL-1)
-      Veclib::alert
-	(routine, "index of requested partition must be in 0 .. nEl-1", ERROR);
-
-    vector<int_t> adjncy, xadj;
-    SCOTCH_Graph  scGraph;
-    SCOTCH_Strat  scStrat;
-    int           ierr;
-    vector<int>   parttab (NEL);
-
-    this -> buildDualGraph (adjncy, xadj, 0);
-
-#if 0  
-    cout << "-- xadj:";
-    for (i = 0; i <= NEL; i++)
-      cout << " " << xadj[i];
-    cout << endl;
-
-    cout << "-- adjncy:";
-    for (i = 0; i < adjncy.size(); i++)
-      cout << " " << adjncy[i];
-    cout << endl;
-#endif
- 
-    ierr = SCOTCH_graphBuild (&scGraph, 0, NEL, &xadj[0], &xadj[1],
-			      NULL, NULL, xadj[NEL], &adjncy[0], NULL);
-
-    if (ierr) Veclib::alert (routine, "SCOTCH_graphBuild error return", ERROR); 
-
-    ierr = SCOTCH_stratInit (&scStrat);
-
-    if (ierr) Veclib::alert (routine, "SCOTCH_stratInit error return",  ERROR); 
-
-    ierr = SCOTCH_graphPart (&scGraph, npart2d, &scStrat, &parttab[0]);
-
-    if (ierr) Veclib::alert (routine, "SCOTCH_graphPart error return",  ERROR);
-
-#if 0
-    // -- Print up the partitioning info (see 8.7.3 of user manual).
-
-    cout << "-- Number of partitions: " << npart2d << endl;
-    cout << "-- parttab:" << endl;
-    for (i = 0; i < NEL; i++)
-      cout << parttab[i] << " ";
-    cout << endl;
-#endif
-  
-    SCOTCH_graphExit (&scGraph);
-    SCOTCH_stratExit (&scStrat);
-
-    // -- Now we fill up onProc.  Ordering will be monotonic increasing.
-
-    const int_t nElPart = Veclib::match (NEL, ipart2d, &parttab[0], 1);
-
-    onProc.resize (nElPart);
-    for (i = 0, j = 0; i < NEL; i++)
-      if (parttab[i] == ipart2d)
-	onProc[j++] = i;
-
-    if (j != nElPart) // -- Never happen.
-      Veclib::alert
-	(routine, "Mismatched counts of on-partition elements", ERROR); 
-
-#else
     
     Veclib::alert
       (routine, "This executable doesn't allow 2D partitioning", ERROR);
     
-#endif
   }
 }
 
