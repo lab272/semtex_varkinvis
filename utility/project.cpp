@@ -96,7 +96,7 @@ Field2DF::Field2DF (const int_t nR  ,
 // Field2DF constructor. 
 // ---------------------------------------------------------------------------
 {
-   int_t i;
+  int_t i;
   
   nplane = nrns * nel;
   if (nplane > 1 && nplane & 1) nplane++;
@@ -137,26 +137,29 @@ Field2DF& Field2DF::operator = (const Field2DF& rhs)
 // ---------------------------------------------------------------------------
 {
   if (rhs.nel != nel)
-    Veclib::alert ("Field2DF::operator =", "fields can't conform", ERROR);
+    message ("Field2DF::operator =", "fields can't conform", ERROR);
 
   if (rhs.nr == nr && rhs.ns == ns && rhs.nz == nz) // -- No project, just copy.
     Veclib::copy (ntot, rhs.data, 1, data, 1);
 
   else {			// -- Perform projection.
 
-     int_t  i, k;
-     real_t *LHS, *RHS;
+    int_t           i, k;
+    real_t          *LHS, *RHS;
     const real_t    *IN,  *IT;
     const int_t     nzm = min (rhs.nz, nz);
     vector<real_t>  work (rhs.nr * nr);
     real_t*         tmp = &work[0];
 
     if      (uniform == +1)
-      Femlib::projection (&IN, &IT, rhs.nr, GLJ, 0.0, 0.0, nr, TRZ, 0.0, 0.0);
+      Femlib::projection (&IN, &IT, rhs.nr, GLJ, JAC_ALFA, JAC_BETA,
+			                nr, TRZ, 0.0, 0.0);
     else if (uniform == -1) 
-      Femlib::projection (&IN, &IT, rhs.nr, TRZ, 0.0, 0.0, nr, GLJ, 0.0, 0.0);
+      Femlib::projection (&IN, &IT, rhs.nr, TRZ, 0.0, 0.0,
+			                nr, GLJ, JAC_ALFA, JAC_BETA);
     else
-      Femlib::projection (&IN, &IT, rhs.nr, GLJ, 0.0, 0.0, nr, GLJ, 0.0, 0.0);
+      Femlib::projection (&IN, &IT, rhs.nr, GLJ, JAC_ALFA, JAC_BETA,
+			                nr, GLJ, JAC_ALFA, JAC_BETA);
 
     for (k = 0; k < nzm; k++) {	// -- 2D planar projections.
       LHS = plane[k];
@@ -262,7 +265,7 @@ int main (int    argc,
   istream*          input;
   vector<Field2DF*> Uold, Unew;
 
-  Femlib::init ();
+  Femlib::initialize (&argc, &argv);
 
   getargs (argc, argv, nRnew, nZnew, keepW, input);
 
@@ -306,7 +309,7 @@ int main (int    argc,
       break;
 
     default:			// -- Whoops.
-      Veclib::alert (prog, "unrecognized conversion", ERROR);
+      message (prog, "unrecognized conversion", ERROR);
       break;
     }
 
@@ -316,6 +319,7 @@ int main (int    argc,
     }
   }
   
+  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -370,8 +374,7 @@ static void getargs (int       argc ,
 
   if (argc == 1) {
     input = new ifstream (*argv);
-    if (input -> fail())
-      Veclib::alert (prog, "unable to open input file", ERROR);
+    if (input -> fail()) message (prog, "unable to open input file", ERROR);
   } else input = &cin;
 }
 
@@ -386,9 +389,9 @@ static bool doSwap (const char* ffmt)
   Veclib::describeFormat (mfmt);   
 
   if (!strstr (ffmt, "binary"))
-    Veclib::alert (prog, "input field file not in binary format", ERROR);
+    message (prog, "input field file not in binary format", ERROR);
   else if (!strstr (ffmt, "endian"))
-    Veclib::alert (prog, "input field file in unknown binary format", WARNING);
+    message (prog, "input field file in unknown binary format", WARNING);
 
   return (strstr (ffmt, "big") && strstr (mfmt, "little")) || 
          (strstr (mfmt, "big") && strstr (ffmt, "little"));
@@ -431,7 +434,7 @@ static bool getDump (istream&           ifile ,
 
   if (ifile.getline(buf, StrMax).eof()) return 0;
   
-  if (!strstr (buf, "Session")) Veclib::alert (prog, "not a field file", ERROR);
+  if (!strstr (buf, "Session")) message (prog, "not a field file", ERROR);
   ofile << buf << endl;
   ifile.getline (buf, StrMax);
   ofile << buf << endl;

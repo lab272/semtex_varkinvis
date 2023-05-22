@@ -8,28 +8,7 @@
  * @file utility/sem2tec.c
  * @ingroup group_utility
  * **************************************************************************/
-/* Copyright (c) 1990 <--> $Date$, 
- *   Ron Henderson, Hugh Blackburn
- * --
- * This file is part of Semtex.
- * 
- * Semtex is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- * 
- * Semtex is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with Semtex (see the file COPYING); if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA
- *****************************************************************************/
-
-static char RCS[] = "$Id$";
+/* Copyright (c) 1990+,  Ron Henderson, Hugh M Blackburn */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -44,17 +23,17 @@ static char RCS[] = "$Id$";
 #define MAXFIELDS 50
 
 static char usage[] = 
-  "usage: sem2tec [options] session[.fld]\n"
-  "options:\n"
-  "-h       ... print this message\n"
-  "-o file  ... write output to the named file instead of running preplot\n" 
-  "-c       ... if nz > 1, perform Cylindrical to Cartesian mesh transformation\n"
-  "-m file  ... read the mesh from the named file (instead of stdin)\n"
-  "-d <num> ... extract dump <num> from file\n"
-  "-n <num> ... evaluate the solution on an evenly-spaced mesh with N X N\n"
-  "             points.  If N = 0, then no interpolation is done, i.e., the\n"
-  "             output mesh will be on a standard GLL-spectral element mesh\n"
-  "-w       ... extend the data by one additional plane in the z-direction\n";
+"usage: sem2tec [options] session[.fld]\n"
+"options:\n"
+"-h       ... print this message\n"
+"-o file  ... write output to the named file instead of running preplot\n" 
+"-c       ... if nz > 1, perform Cylindrical to Cartesian mesh transformation\n"
+"-m file  ... read the mesh from the named file (instead of stdin)\n"
+"-d <num> ... extract dump <num> from file\n"
+"-n <num> ... evaluate the solution on an evenly-spaced mesh with N X N\n"
+"             points.  If N = 0, then no interpolation is done, i.e., the\n"
+"             output mesh will be on a standard GLL-spectral element mesh\n"
+"-w       ... extend the data by one additional plane in the z-direction\n";
 
 static FILE    *fp_fld = 0,          /* default input files */
                *fp_msh = 0;
@@ -375,8 +354,8 @@ static void interpolate (void)
 
   /* -- Compute interpolation matrices. */
 
-  proj (&imr, &itmr, nr, GLJ, 0.0, 0.0, np, TRZ, 0.0, 0.0);
-  proj (&ims, &itms, ns, GLJ, 0.0, 0.0, np, TRZ, 0.0, 0.0);
+  proj (&imr, &itmr, nr, GLJ, JAC_ALFA, JAC_BETA, np, TRZ, 0.0, 0.0);
+  proj (&ims, &itms, ns, GLJ, JAC_ALFA, JAC_BETA, np, TRZ, 0.0, 0.0);
 
   /* -- Interpolate the mesh. */
 

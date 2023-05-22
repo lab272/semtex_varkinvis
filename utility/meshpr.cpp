@@ -1,5 +1,5 @@
 /*****************************************************************************
- * meshpr.cpp: utility to generate mesh nodes from mesh description file.
+ * meshpr: utility to generate mesh nodes from mesh description file.
  *
  * Usage
  * -----
@@ -15,7 +15,7 @@
  *   -z <num> ... override number of planes to be num
  *   -b <num> ... override wavenumber beta to be <num> (3D)
  *
- * Prism-compatible output.
+ * Semtex/prism-compatible output.
  *
  * Synopsis
  * --------
@@ -31,7 +31,8 @@
  * @file utility/meshpr.cpp
  * @ingroup group_utility
  *****************************************************************************/
-// Copyright (c) 1995+, Hugh M Blackburn
+// Copyright (c) 1995 <--> $Date$, Hugh Blackburn
+
 
 #include <cstdlib>
 #include <iostream>
@@ -39,16 +40,14 @@
 
 using namespace std;
 
-#include <cfemdef.h>
-#include <femlib.h>
-#include <utility.h>
-#include <veclib.h>
-#include <mesh.h>
+#include "cfemdef.h"
+#include "femlib.h"
+#include "utility.h"
+#include "mesh.h"
 
 static char prog[] = "meshpr";
 static void getargs (int_t, char**, char*&, int_t&, bool&, bool&,
 		     int_t&, int_t&, bool&, int_t&, real_t&);
-
 
 int main (int    argc,
 	  char** argv)
@@ -67,8 +66,7 @@ int main (int    argc,
   real_t beta    = -1.;
   bool   check = true, surf = false, threed = false;
 
-  Femlib::init ();
-  
+  Femlib::initialize (&argc, &argv);
   getargs (argc,argv, session, verb, check, surf, np, nz, threed, basis, beta);
 
   // -- Set up to read from file, initialize Femlib parsing.
@@ -81,11 +79,9 @@ int main (int    argc,
     np = Femlib::ivalue ("N_P");
 
   if (basis == GLJ) {
-    if (np < 3)
-      Veclib::alert (prog, "minimum N_P is 3 for GLL mesh",     ERROR);
+    if (np < 3) message (prog, "minimum N_P is 3 for GLL mesh",     ERROR);
   } else {
-    if (np < 2)
-      Veclib::alert (prog, "minimum N_P is 2 for uniform mesh", ERROR);
+    if (np < 2) message (prog, "minimum N_P is 2 for uniform mesh", ERROR);
   }
 
   if   (verb) Femlib::ivalue ("VERBOSE", verb);
@@ -122,8 +118,8 @@ int main (int    argc,
       Femlib::equispacedMesh (np, &unimesh[0]);
       zero_r = zero_s = &unimesh[0];
     } else {
-      Femlib::quadrature (&zero_r, 0, 0, 0, np, GLJ, 0.0, 0.0);
-      Femlib::quadrature (&zero_s, 0, 0, 0, np, GLJ, 0.0, 0.0);
+      Femlib::quadrature (&zero_r, 0, 0, 0, np, GLJ, JAC_ALFA, JAC_BETA);
+      Femlib::quadrature (&zero_s, 0, 0, 0, np, GLJ, JAC_ALFA, JAC_BETA);
     }
 
     if (threed) {
@@ -157,6 +153,7 @@ int main (int    argc,
     }
   }
 
+  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -225,10 +222,10 @@ static void getargs (int     argc   ,
       break;
     default:
       sprintf (err, "illegal option: %c\n", c);
-      Veclib::alert (prog, err, ERROR);
+      message (prog, err, ERROR);
       break;
     }
 
   if   (argc == 1) session = *argv;
-  else             Veclib::alert (prog, "must provide session file", ERROR);
+  else             message (prog, "must provide session file", ERROR);
 }

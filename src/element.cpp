@@ -26,7 +26,7 @@ Element::Element (const int_t id,
 {
   assert ((_np > 2) && "need > 2 knots for element edges");
   
-  Femlib::quadrature (&_zr, &_wr, &_DVr, &_DTr, _np, GLJ, 0.0, 0.0);
+  Femlib::quadrature (&_zr, &_wr, &_DVr, &_DTr, _np, GLJ, JAC_ALFA, JAC_BETA);
 
   // -- Make special SVV-modified differentiation matrices if required.
 
@@ -430,8 +430,10 @@ void Element::project (const int_t   nsrc,
 {
   const real_t *IN, *IT;
 
-  Femlib::projection (0, &IT, nsrc, GLJ, 0.0, 0.0, ntgt, GLJ, 0.0, 0.0);
-  Femlib::projection (&IN, 0, nsrc, GLJ, 0.0, 0.0, ntgt, GLJ, 0.0, 0.0);
+  Femlib::projection (0, &IT, nsrc, GLJ, JAC_ALFA, JAC_BETA,
+		              ntgt, GLJ, JAC_ALFA, JAC_BETA);
+  Femlib::projection (&IN, 0, nsrc, GLJ, JAC_ALFA, JAC_BETA,
+		              ntgt, GLJ, JAC_ALFA, JAC_BETA);
   
   Blas::mxm (src, nsrc, IT,   nsrc, work, ntgt);
   Blas::mxm (IN,  ntgt, work, nsrc, tgt,  ntgt);
@@ -1141,7 +1143,8 @@ bool Element::locate (const real_t x    ,
 
   i = 0;
   do {
-    Femlib::interpolation (ir,is,dr,ds,_np,GLJ,0.0,0.0,_np,GLJ,0.0,0.0,r,s);
+    Femlib::interpolation (ir,is,dr,ds,_np,GLJ,JAC_ALFA,JAC_BETA,
+			               _np,GLJ,JAC_ALFA,JAC_BETA,r,s);
 
                Blas::mxv (_xmesh, _np, ir, _np, tp);
     F[0] = x - Blas::dot (_np, is, 1, tp, 1);
@@ -1205,7 +1208,8 @@ real_t Element::probe (const real_t  r   ,
   real_t* is = ir + _np;
   real_t* tp = is + _np;
 
-  Femlib::interpolation (ir,is,0,0,_np,GLJ,0.0,0.0,_np,GLJ,0.0,0.0,r,s);
+  Femlib::interpolation (ir,is,0,0,_np,GLJ,JAC_ALFA,JAC_BETA,
+			           _np,GLJ,JAC_ALFA,JAC_BETA,r,s);
 
   Blas::mxv        (src, _np, ir, _np, tp);
   return Blas::dot (_np, is, 1, tp, 1);
