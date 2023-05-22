@@ -528,8 +528,8 @@ AuxField& AuxField::gradient (const int_t dir)
   int_t  i, k;
   const real_t    *DV, *DT;
 
-  Femlib::quadrature (0, 0, &DV, 0  , np, GLJ, 0.0, 0.0);
-  Femlib::quadrature (0, 0, 0  , &DT, np, GLJ, 0.0, 0.0);
+  Femlib::quadrature (0, 0, &DV, 0  , np, GLJ, JAC_ALFA, JAC_BETA);
+  Femlib::quadrature (0, 0, 0  , &DT, np, GLJ, JAC_ALFA, JAC_BETA);
 
   switch (dir) {
 
@@ -689,8 +689,8 @@ void AuxField::gradient (const int_t nZ ,
   real_t *plane, *xr, *xs, *Re, *Im;
   const real_t    *DV, *DT;
 
-  Femlib::quadrature (0, 0, &DV, 0   , np, GLJ, 0.0, 0.0);
-  Femlib::quadrature (0, 0, 0   , &DT, np, GLJ, 0.0, 0.0);
+  Femlib::quadrature (0, 0, &DV, 0   , np, GLJ, JAC_ALFA, JAC_BETA);
+  Femlib::quadrature (0, 0, 0   , &DT, np, GLJ, JAC_ALFA, JAC_BETA);
 
   switch (dir) {
 
@@ -1915,8 +1915,10 @@ AuxField& AuxField::projStab (const real_t alpha,
   Femlib::mesh (GLL, GLL, np, nm, 0, &PF, &PT, 0, 0);
   Femlib::mesh (GLL, GLL, nm, np, 0, &IB, &IT, 0, 0);
 #else
-  Femlib::projection (&PF, &PT, np, GLJ, 0.0, 0.0, nm, GLJ, 0.0, 0.0);
-  Femlib::projection (&IB, &IT, nm, GLJ, 0.0, 0.0, np, GLJ, 0.0, 0.0);
+  Femlib::projection (&PF, &PT, np, GLJ, JAC_ALFA, JAC_BETA,
+		                nm, GLJ, JAC_ALFA, JAC_BETA);
+  Femlib::projection (&IB, &IT, nm, GLJ, JAC_ALFA, JAC_BETA,
+		      np, GLJ, JAC_ALFA, JAC_BETA);
 #endif
   Blas::mxm    (IB, np, PF, nm, A, np);
   Blas::mxm    (PT, np, IT, nm, B, np);

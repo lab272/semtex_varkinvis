@@ -16,8 +16,6 @@
 // SVV_EPSN <==> \epsilon_{zr}, SVV_MN <==> M_zr
 // SVV_EPSZ <==> \epsilon_\phi, SVV_MZ <==> M_\phi
 //
-// Copyright (c) 2004 <--> $Date$, Hugh Blackburn
-//
 // 1.  C Xu & R Pasquetti (2004), 'Stabilized spectral element
 //     computations of high Reynolds number incompressible flows', JCP
 //     196, 680-704.
@@ -26,9 +24,9 @@
 //     'Adapting the spectral vanishing viscosity method for
 //     large-eddy simulations in cylindrical configurations', JCP 231,
 //     3389--3405.
+//
+// Copyright (c) 2004+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <map>
 
@@ -152,7 +150,7 @@ void operators (const int_t    np ,
     // -- Gather up the various matrices.
 
     for (i = 0; i < np; i++) sqrtS[i] = sqrt (S[i]);
-    Femlib::quadrature (0, 0, &DV, 0, np, 'L', 0.0, 0.0);
+    Femlib::quadrature (0, 0, &DV, 0, np, 'L', JAC_ALFA, JAC_BETA);
 
 #if 1  // -- Legendre polynomial transform.
     Femlib::legTran (np, &MF, 0, &MI, 0, 0, 0);
@@ -205,7 +203,7 @@ int main (int    argc,
   for (i = 0; i < np; i++) cout << c[i] << "  ";
   cout << endl;
 
-  Femlib::quadrature (0, 0, &S, 0, np, 'L', 0.0, 0.0);
+  Femlib::quadrature (0, 0, &S, 0, np, 'L', JAC_ALFA, JAC_BETA);
 
   cout << "-- The original matrix D" << endl;
   for (i = 0; i < np; i++) {

@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// field.cpp: Derived from AuxField, Field adds boundary conditions,
-/// global numbering, and the ability to solve Helmholtz problems.
-/// See also field.h.
+// field.cpp: Derived from AuxField, Field adds boundary conditions,
+// global numbering, and the ability to solve Helmholtz problems.
+// See also field.h.
 //
 // Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
@@ -373,8 +373,8 @@ void Field::HelmholtzOperator (const real_t* x      ,
   const real_t *DV, *DT;
   real_t       *P = work, *R = P + ntot, *S = R + ntot;
 
-  Femlib::quadrature (0, 0, &DV, 0  , np, GLJ, 0.0, 0.0);
-  Femlib::quadrature (0, 0, 0  , &DT, np, GLJ, 0.0, 0.0);
+  Femlib::quadrature (0, 0, &DV, 0  , np, GLJ, JAC_ALFA, JAC_BETA);
+  Femlib::quadrature (0, 0, 0  , &DT, np, GLJ, JAC_ALFA, JAC_BETA);
 
   Veclib::zero (ntot + ntot, R, 1);
 
