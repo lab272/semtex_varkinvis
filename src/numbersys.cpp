@@ -5,8 +5,6 @@
 // infomation for element-edge nodes appropriate to a given Field and
 // Fourier mode.
 //
-// Copyright (c) 2022+, Hugh M Blackburn
-//
 // The information to be returned by class functions are the global
 // numbering scheme (assembly map) for a given Field and Fourier mode
 // number.  There is one NumberSys for each Field, but a possible
@@ -19,6 +17,7 @@
 // 2(+); subsequently, the correct local system is selected based on
 // the requested zero-based mode index.
 //
+// Copyright (c) 2022+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -53,7 +52,7 @@ NumberSys::NumberSys (const vector<AssemblyMap*>& allMaps,
 	  sprintf (err,
 		   "field %c, mode %1d: can't find matching AssemblyMap",
 		   name, mode);
-	  message (routine, err, ERROR);
+	  Veclib::alert (routine, err, ERROR);
 	}
       }
 }

@@ -44,27 +44,7 @@
  * @file utility/interp.cpp
  * @ingroup group_utility
  *****************************************************************************/
-// Copyright (c) 1997 <--> $Date$, Hugh Blackburn
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
+// Copyright (c) 1997+, Hugh M Blackburn
 
 #include <ctime>
 #include <sem.h>
@@ -109,13 +89,12 @@ int main (int    argc,
   vector<AuxField*> u;
   bool              quiet = false;
 
-  // -- Initialize.
-
-  Femlib::initialize (&argc, &argv);
-  getargs            (argc, argv, quiet, session, dump, points);
+  Femlib::init ();
+  
+  getargs (argc, argv, quiet, session, dump, points);
 
   fldfile.open (dump, ios::in);
-  if (!fldfile) message (prog, "no field file", ERROR);
+  if (!fldfile) Veclib::alert (prog, "no field file", ERROR);
 
   // -- Set up 2D mesh information.
   
@@ -136,7 +115,7 @@ int main (int    argc,
   if (points) {
     pntfile = new ifstream (points);
     if (pntfile -> fail())
-      message (prog, "unable to open point file", ERROR);
+      Veclib::alert (prog, "unable to open point file", ERROR);
   } else 
     pntfile = &cin;
 
@@ -161,7 +140,6 @@ int main (int    argc,
 	for (j = 0; j < nf; j++) {
 	  if   (elmt[i]) c = u[j] -> probe (elmt[i], r[i], s[i], k);
 	  else           c = 0.0;
-//	  cout << setw(15) <<  c;
 	  cout << setw(20) <<  c;
 	}
 	if (verbose && !((i + 1)% nreport))
@@ -172,7 +150,6 @@ int main (int    argc,
       }
   }
 
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -228,8 +205,8 @@ static void getargs (int    argc   ,
       break;
     }
 
-  if   (!session)  message (prog, "no session file", ERROR);
-  if   (argc != 1) message (prog, "no field file",   ERROR);
+  if   (!session)  Veclib::alert (prog, "no session file", ERROR);
+  if   (argc != 1) Veclib::alert (prog, "no field file",   ERROR);
   else             dump = *argv;
 }
 
@@ -277,7 +254,7 @@ static void loadPoints (istream&        pfile,
 
   if (np && num != ntot) {
     sprintf (buf, "No. of points (%1d) mismatches declaration (%1d)",num,ntot);
-    message (prog, buf, ERROR);
+    Veclib::alert (prog, buf, ERROR);
   }
 
   ntot = num;
@@ -367,7 +344,7 @@ static int_t getDump (ifstream&          file,
 
   if (file.getline(buf, StrMax).eof()) return 0;
   
-  if (!strstr (buf, "Session")) message (prog, "not a field file", ERROR);
+  if (!strstr (buf, "Session")) Veclib::alert (prog, "not a field file", ERROR);
   file.getline (buf, StrMax);
 
   // -- Input numerical description of field sizes.
@@ -376,7 +353,7 @@ static int_t getDump (ifstream&          file,
   file.getline (buf, StrMax);
   
   if (np != npnew || nz != nznew || nel != nelnew)
-    message (prog, "size of dump mismatch with session file", ERROR);
+    Veclib::alert (prog, "size of dump mismatch with session file", ERROR);
 
   file >> step;
   file.getline (buf, StrMax);
@@ -411,7 +388,8 @@ static int_t getDump (ifstream&          file,
     for (i = 0; i < nf; i++)
       u[i] = new AuxField (new real_t[Geometry::nTotal()], nz, Esys, fields[i]);
   } else if (u.size() != nf) 
-    message (prog, "number of fields mismatch with first dump in file", ERROR);
+    Veclib::alert
+      (prog, "number of fields mismatch with first dump in file", ERROR);
 
   // -- Read binary field data.
 
@@ -498,9 +476,9 @@ static bool doSwap (const char* ffmt)
   Veclib::describeFormat (mfmt);   
 
   if (!strstr (ffmt, "binary"))
-    message (prog, "input field file not in binary format", ERROR);
+    Veclib::alert (prog, "input field file not in binary format", ERROR);
   else if (!strstr (ffmt, "endian"))
-    message (prog, "input field file in unknown binary format", WARNING);
+    Veclib::alert (prog, "input field file in unknown binary format", WARNING);
 
   return (strstr (ffmt, "big") && strstr (mfmt, "little")) || 
          (strstr (mfmt, "big") && strstr (ffmt, "little"));

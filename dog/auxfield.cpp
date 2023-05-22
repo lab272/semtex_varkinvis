@@ -1,12 +1,10 @@
 //////////////////////////////////////////////////////////////////////////////
-// auxfield.C: routines for AuxField class, including Fourier expansions.
-//
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn.
+// auxfield.cpp: routines for AuxField class, including Fourier expansions.
 //
 // Modified for stability analysis.
+//
+// Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 
@@ -28,7 +26,8 @@ AuxField::AuxField (real_t*           alloc,
    int_t k;
 
   if (Geometry::nElmt() != _elmt.size())
-    message (routine, "conflicting number of elements in input data", ERROR);
+    Veclib::alert
+      (routine, "conflicting number of elements in input data", ERROR);
 
   _plane = new real_t* [static_cast<size_t>(_nz)];
 
@@ -87,8 +86,10 @@ AuxField& AuxField::operator /= (const real_t val)
 // Divide field storage area by val.
 // ---------------------------------------------------------------------------
 {
-  if   (val == 0.0) message ("AuxField::op /= real", "divide by zero", ERROR);
-  else              Blas::scal (_size, 1.0 / val, _data, 1);
+  if (val == 0.0)
+    Veclib::alert ("AuxField::op /= real", "divide by zero", ERROR);
+  else
+    Blas::scal (_size, 1.0 / val, _data, 1);
 
   return *this;
 }
@@ -187,7 +188,7 @@ AuxField& AuxField::times (const AuxField& a,
 {
   const char routine[] = "AuxField::times";
   
-  if (b._nz > 1) message (routine, "second operand must be real", ERROR);
+  if (b._nz > 1) Veclib::alert (routine, "second operand must be real", ERROR);
 
   Veclib::vmul (b._size, a._plane[0], 1, b._plane[0], 1, _plane[0], 1);
   if (a._nz == 2)
@@ -208,7 +209,7 @@ AuxField& AuxField::timesPlus (const AuxField& a,
 {
   const char routine[] = "AuxField::timesPlus";
 
-  if (b._nz > 1) message (routine, "second operand must be real", ERROR);
+  if (b._nz > 1) Veclib::alert (routine, "second operand must be real", ERROR);
 
   Veclib::vvtvp
     (b._size, a._plane[0], 1, b._plane[0], 1, _plane[0], 1, _plane[0], 1);
@@ -230,7 +231,7 @@ AuxField& AuxField::timesMinus (const AuxField& a,
 {
   const char routine[] = "AuxField::timesMinus";
 
-  if (b._nz > 1) message (routine, "second operand must be real", ERROR);
+  if (b._nz > 1) Veclib::alert (routine, "second operand must be real", ERROR);
 
   Veclib::vvvtm
     (b._size, _plane[0], 1, a._plane[0], 1, b._plane[0], 1, _plane[0], 1);
@@ -249,7 +250,7 @@ AuxField& AuxField::axpy (const real_t    alpha,
 {
   const char routine[] = "AuxField::axpy";
 
-  if (_size != x._size) message (routine, "non-congruent inputs", ERROR);
+  if (_size != x._size) Veclib::alert (routine, "non-congruent inputs", ERROR);
 
   Blas::axpy (_size, alpha, x._data, 1, _data, 1);
 
@@ -322,7 +323,7 @@ AuxField& AuxField::gradient (const int_t dir)
     }
   } break;
   default:
-    message (routine, "nominated direction out of range [0--2]", ERROR);
+    Veclib::alert (routine, "nominated direction out of range [0--2]", ERROR);
     break;
   }
 
@@ -345,8 +346,8 @@ real_t AuxField::mode_L2 (const int_t mode) const
   int_t       i;
   Element*    E;
   
-  if (kr < 0  ) message (routine, "negative mode number",        ERROR);
-  if (ki > _nz) message (routine, "mode number exceeds maximum", ERROR);
+  if (kr < 0  ) Veclib::alert (routine, "negative mode number",        ERROR);
+  if (ki > _nz) Veclib::alert (routine, "mode number exceeds maximum", ERROR);
 
   for (i = 0; i < nel; i++) {
     E      = _elmt[i];
@@ -401,48 +402,17 @@ real_t AuxField::area () const
 ostream& operator << (ostream& strm,
 		      AuxField& F   )
 // ---------------------------------------------------------------------------
-// Binary write of F's data area.
-//
-// For multiple-processor jobs, only the root processor does output,
-// receiving data from other processors.  This ensures that the data
-// are written out in the correct order, and that only one processor
-// needs access to the output stream. (Actually dog only has serial
-// execution.)
+// Binary write of F's data area.  Serial only (since dog is).
 // ---------------------------------------------------------------------------
 {
-  const char     routine[] = "ostream<<AuxField";
-  const int_t    NP    = Geometry::planeSize();
-  const int_t    nP    = Geometry::nPlane();
-  const int_t    nProc = Geometry::nProc();
-   int_t i, k;
+  const char  routine[] = "ostream<<AuxField";
+  const int_t nP    = Geometry::nPlane();
+  int_t       i;
 
-  if (nProc > 1) {
-
-    ROOTONLY {
-      vector<real_t> buffer (NP);
-
-      for (i = 0; i < F._nz; i++)
-        strm.write((char*) F._plane[i], static_cast<int>(nP * sizeof(real_t)));
-        if (strm.bad())
-	  message (routine, "unable to write binary output", ERROR);
-
-      for (k = 1; k < nProc; k++)
-	for (i = 0; i < F._nz; i++) {
-	  Femlib::recv (&buffer[0], NP, k);
-	  strm.write((char*)&buffer[0], static_cast<int>(nP * sizeof(real_t)));
-          if (strm.bad()) 
-	    message (routine, "unable to write binary output", ERROR);
-	}
-
-    } else for (i = 0; i < F._nz; i++) Femlib::send (F._plane[i], NP, 0);
-
-  } else {
-
-    for (i = 0; i < F._nz; i++) {
-      strm.write((char*) F._plane[i], static_cast<int> (nP * sizeof(real_t)));
-      if (strm.bad())
-	message (routine, "unable to write binary output", ERROR);
-    }
+  for (i = 0; i < F._nz; i++) {
+    strm.write((char*) F._plane[i], static_cast<int> (nP * sizeof(real_t)));
+    if (strm.bad())
+      Veclib::alert (routine, "unable to write binary output", ERROR);
   }
 
   return strm;
@@ -458,43 +428,16 @@ istream& operator >> (istream& strm,
 // This precaution is possibly unnecessary for input.
 // ---------------------------------------------------------------------------
 {
-  const char     routine[] = "istream>>AuxField";
-  const int_t    nP    = Geometry::nPlane();
-  const int_t    NP    = Geometry::planeSize();
-  const int_t    nProc = Geometry::nProc();
-   int_t i, k;
+  const char   routine[] = "istream>>AuxField";
+  const int_t  nP = Geometry::nPlane();
+  const int_t  NP = Geometry::planeSize();
+  int_t        i, k;
 
-  if (nProc > 1) {
-
-    ROOTONLY {
-      vector<real_t> buffer (NP);
-
-      for (i = 0; i < F._nz; i++) {
-	strm.read ((char*) F._plane[i], static_cast<int>(nP * sizeof(real_t)));
-        if (strm.bad()) 
-	  message (routine, "unable to read binary input", ERROR);
-	Veclib::zero (NP - nP, F._plane[i] + nP, 1);
-      }
-
-      for (k = 1; k < nProc; k++) {
-	for (i = 0; i < F._nz; i++) {
-	  strm.read ((char*)&buffer[0], static_cast<int>(nP * sizeof(real_t)));
-          if (strm.bad()) 
-	    message (routine, "unable to read binary input", ERROR);
-	  Veclib::zero (NP - nP, &buffer[0] + nP, 1);
-	  Femlib::send (&buffer[0], NP, k);
-	}
-      }
-    } else for (i = 0; i < F._nz; i++) Femlib::recv (F._plane[i], NP, 0);
-
-  } else {
-
-    for (i = 0; i < F._nz; i++) {
-      strm.read ((char*) F._plane[i], static_cast<int>(nP * sizeof(real_t))); 
-      if (strm.bad()) 
-	message (routine, "unable to read binary input", ERROR);
-      Veclib::zero (NP - nP, F._plane[i] + nP, 1);
-    }
+  for (i = 0; i < F._nz; i++) {
+    strm.read ((char*) F._plane[i], static_cast<int>(nP * sizeof(real_t))); 
+    if (strm.bad())
+      Veclib::alert (routine, "unable to read binary input", ERROR);
+    Veclib::zero (NP - nP, F._plane[i] + nP, 1);
   }
 
   return strm;
@@ -526,7 +469,7 @@ AuxField& AuxField::addToPlane (const int_t  k    ,
   const char routine[] = "AuxField::addToPlane";
 
   if (k < 0 || k >= _nz)
-    message (routine, "nominated plane doesn't exist", ERROR);
+    Veclib::alert (routine, "nominated plane doesn't exist", ERROR);
   else
     Veclib::sadd (Geometry::nPlane(), alpha, _plane[k], 1, _plane[k], 1);
 
@@ -543,7 +486,7 @@ AuxField& AuxField::getPlane (const int_t k  ,
   const char routine[] = "AuxField::getPlane";
 
   if (k < 0 || k >= Geometry::nZProc())
-    message (routine, "nominated plane doesn't exist", ERROR);
+    Veclib::alert (routine, "nominated plane doesn't exist", ERROR);
   else
     Veclib::copy (Geometry::nPlane(), _plane[k], 1, tgt, 1);
 
@@ -560,7 +503,7 @@ AuxField& AuxField::setPlane (const int_t   k  ,
   const char routine[] = "AuxField::setPlane";
 
   if (k < 0 || k >= _nz)
-    message (routine, "nominated plane doesn't exist", ERROR);
+    Veclib::alert (routine, "nominated plane doesn't exist", ERROR);
   else
     Veclib::copy (Geometry::nPlane(), src, 1, _plane[k], 1);
 
@@ -577,7 +520,7 @@ AuxField& AuxField::setPlane (const int_t  k    ,
   const char routine[] = "AuxField::setPlane";
 
   if (k < 0 || k >= _nz)
-    message (routine, "nominated plane doesn't exist", ERROR);
+    Veclib::alert (routine, "nominated plane doesn't exist", ERROR);
   else {
     if (alpha == 0.0)
       Veclib::zero (Geometry::nPlane(), _plane[k], 1);
@@ -600,7 +543,7 @@ void AuxField::swapData (AuxField* x,
    real_t* tmp;
 
   if (x -> _size != y -> _size)
-    message (routine, "non-congruent inputs", ERROR);
+    Veclib::alert (routine, "non-congruent inputs", ERROR);
  
   tmp        = x -> _data;
   x -> _data = y -> _data;
@@ -694,7 +637,7 @@ void AuxField::couple (AuxField*   v  ,
       Veclib::svvpt (nP, 0.5, Vi, 1, tp, 1, Vi, 1);
     }
   } else
-    message (routine, "unknown direction given", ERROR);
+    Veclib::alert (routine, "unknown direction given", ERROR);
 }
 
 
@@ -767,55 +710,39 @@ real_t AuxField::probe (const Element* E,
 // to the root processor for interpolation.
 // ---------------------------------------------------------------------------
 {
-  const int_t      nZ     = Geometry::nZ();
-  const int_t      nP     = Geometry::nProc();
-  const int_t      np     = Geometry::nP();
-  const int_t      NZH    = nZ >> 1;
-  const int_t      NHM    = NZH - 1;
-  const int_t      offset = E -> ID() * Geometry::nTotElmt();
-  const real_t     betaZ  = z * Femlib::value ("BETA");
+  const int_t  nZ     = Geometry::nZ();
+  const int_t  nP     = Geometry::nProc();
+  const int_t  np     = Geometry::nP();
+  const int_t  NZH    = nZ >> 1;
+  const int_t  NHM    = NZH - 1;
+  const int_t  offset = E -> ID() * Geometry::nTotElmt();
+  const real_t betaZ  = z * Femlib::value ("BETA");
 
-   int_t   k, Re, Im;
-   real_t  value, phase;
-  vector<real_t>   work (nZ + _nz + 3 * np);
-   real_t* fbuf = &work[0];
-   real_t* lbuf = fbuf + nZ;
-  real_t*          ewrk = lbuf + _nz;
+  int_t          k, Re, Im;
+  real_t         value, phase;
+  vector<real_t> work (nZ + _nz + 3 * np);
+  real_t*        fbuf = &work[0];
+  real_t*        lbuf = fbuf + nZ;
+  real_t*        ewrk = lbuf + _nz;
 
-  if (nP > 1) {
-    for (k = 0; k < _nz; k++)
-      lbuf[k] = E -> probe (r, s, _plane[k] + offset, ewrk);
-    
-    ROOTONLY {
-      Veclib::copy (_nz, lbuf, 1, fbuf, 1);
-      for (k = 1; k < nP; k++) 
-	Femlib::recv (fbuf + k * _nz, _nz, k);
-    } else
-      Femlib::send (lbuf, _nz, 0);
-
-  } else {
-    if (_nz < 3)			// -- Hey!  This is 2D!
-      return value = E -> probe (r, s, _plane[0] + offset, ewrk);
+  if (_nz < 3)			// -- Hey!  This is 2D!
+    return value = E -> probe (r, s, _plane[0] + offset, ewrk);
   
-    else {
-      for (k = 0; k < _nz; k++)
-	fbuf[k] = E -> probe (r, s, _plane[k] + offset, ewrk);
-    }
+  else {
+    for (k = 0; k < _nz; k++)
+      fbuf[k] = E -> probe (r, s, _plane[k] + offset, ewrk);
   }
 
-  ROOTONLY {
-    Blas::scal (nZ - 2, 2.0, fbuf + 2, 1);
+  Blas::scal (nZ - 2, 2.0, fbuf + 2, 1);
     
-    value  = fbuf[0];
-    value += fbuf[1] * cos (NZH * betaZ);
-    for (k = 1; k < NHM; k++) {
-      Re     = k  + k;
-      Im     = Re + 1;
-      phase  = k * betaZ;
-      value += fbuf[Re] * cos (phase) - fbuf[Im] * sin (phase);
-    }
-  } else
-    value = 0.0;
+  value  = fbuf[0];
+  value += fbuf[1] * cos (NZH * betaZ);
+  for (k = 1; k < NHM; k++) {
+    Re     = k  + k;
+    Im     = Re + 1;
+    phase  = k * betaZ;
+    value += fbuf[Re] * cos (phase) - fbuf[Im] * sin (phase);
+  }
    
   return value;
 }
@@ -882,7 +809,7 @@ real_t AuxField::CFL (const int_t dir,
     break;
   }
   default:
-    message (routine, "nominated direction out of range [0--2]", ERROR);
+    Veclib::alert (routine, "nominated direction out of range [0--2]", ERROR);
     break;
   }
   
@@ -1012,4 +939,126 @@ AuxField& AuxField::smooth (const int_t   nglobal    ,
   }
 
   return *this;
+}
+
+void writeField (ostream&           file   ,
+		 const char*        session,
+		 const int_t        runstep,
+		 const real_t       runtime,
+		 vector<AuxField*>& field  )
+// ---------------------------------------------------------------------------
+// Write fields out to an opened file, binary semtex/nekton format.
+// Output is only done by the root processor.
+//  
+// NB: the header (including newlines) is always 351 bytes in length.
+// ---------------------------------------------------------------------------
+{
+  const char routine [] = "writeField";
+  const char *hdr_fmt[] = { 
+    "%-25s "    "Session\n",
+    "%-25s "    "Created\n",
+    "%-25s "    "Nr, Ns, Nz, Elements\n",
+    "%-25d "    "Step\n",
+    "%-25.6g "  "Time\n",
+    "%-25.6g "  "Time step\n",
+    "%-25.6g "  "Kinvis\n",
+    "%-25.6g "  "Beta\n",
+    "%-25s "    "Fields written\n",
+    "%-25s "    "Format\n"
+  };
+
+  char        s1[StrMax], s2[StrMax];
+  time_t      tp (time (0));
+  int_t       i;
+  const int_t N = field.size();
+
+  if (N < 1) return;
+
+  ROOTONLY {
+    sprintf (s1, hdr_fmt[0], session);
+    file << s1;
+    strftime (s2, 25, "%a %b %d %H:%M:%S %Y", localtime (&tp));
+    sprintf  (s1, hdr_fmt[1], s2);
+    file << s1;
+
+    field[0] -> describe (s2);
+    sprintf (s1, hdr_fmt[2], s2);
+    file << s1;
+
+    sprintf (s1, hdr_fmt[3], runstep);
+    file << s1;
+
+    sprintf (s1, hdr_fmt[4], runtime);
+    file << s1;
+
+    sprintf (s1, hdr_fmt[5], Femlib::value ("D_T"));
+    file << s1;
+
+    sprintf (s1, hdr_fmt[6], Femlib::value ("KINVIS"));
+    file << s1;
+
+    sprintf (s1, hdr_fmt[7], Femlib::value ("BETA"));
+    file << s1;
+
+    for (i = 0; i < N; i++) s2[i] = field[i] -> name();
+    s2[i] = '\0';
+    sprintf (s1, hdr_fmt[8], s2);
+    file << s1;
+
+    sprintf (s2, "binary ");
+    Veclib::describeFormat (s2 + strlen (s2));
+    sprintf (s1, hdr_fmt[9], s2);
+    file << s1;
+  }
+
+  for (i = 0; i < N; i++) file << *field[i];
+
+  ROOTONLY {
+    if (!file) Veclib::alert (routine, "failed writing field file", ERROR);
+    file << flush;
+  }
+}
+
+
+void readField (istream&           file ,
+                vector<AuxField*>& field)
+// ---------------------------------------------------------------------------
+// Read fields from an opened file, binary semtex/nekton format.
+// ---------------------------------------------------------------------------
+{
+  const char  routine [] = "readField";
+  const int_t N = field.size();
+  int_t       i;
+
+  if (N < 1) return;
+
+  // -- Read header, check sizes.
+  
+  Header *hdr = new Header;
+  file >> *hdr;
+
+  ROOTONLY {
+    if (hdr->nr != Geometry::nP() || hdr->ns != Geometry::nP())
+      Veclib::alert (routine, "element size mismatch",       ERROR);
+    if (hdr->nz != Geometry::nZ())
+      Veclib::alert (routine, "number of z planes mismatch", ERROR);
+    if (hdr->nel != Geometry::nElmt())
+      Veclib::alert (routine, "number of elements mismatch", ERROR);
+  }
+
+  // -- Walk through fields, read appropriate one.
+  
+  char *type = hdr->flds;
+  while (*type != 0) {
+    bool skip = true;
+    ROOTONLY cout << " type: " << *type;
+    for (i = 0; i < N; i++)
+      if (*type == field[i]->name()) {
+	file >> *field[i];
+	ROOTONLY cout << "(reading)" << endl;
+	skip = false;
+      }
+    if (skip) file.seekg (Geometry::nTot() * sizeof (real_t), ios::cur);
+    type++;
+  }
 }

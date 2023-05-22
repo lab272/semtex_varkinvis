@@ -6,7 +6,6 @@
 // creation creation here.
 //
 // Copyright (c) 2022+, Hugh M Blackburn
-//
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -55,9 +54,9 @@ AssemblyMap::AssemblyMap (const int_t          n_p     , // Element N_P value.
   int_t       i, j;
 
   if (naiveMap.size() != liftMask.size())
-    message (routine, "sizes of input vectors don't match",    ERROR);
+    Veclib::alert (routine, "sizes of input vectors don't match",    ERROR);
   if (naiveMap.size() != Geometry::nBnode())
-    message (routine, "input vectors are of improper lengths", ERROR);
+    Veclib::alert (routine, "input vectors are of improper lengths", ERROR);
 
   _tag  .resize (0);		// -- Should initially be this in any case...
   _emask.resize (_nel);
@@ -101,7 +100,7 @@ bool AssemblyMap::willMatch (const vector<int_t>& candidate) const
   const char routine[] = "AssemblyMap::willMatch";
 
   if (candidate.size() != _bmask.size()) {
-    message (routine, "mismatched mask lengths", REMARK);
+    Veclib::alert (routine, "mismatched mask lengths", REMARK);
     return false;
   }
 

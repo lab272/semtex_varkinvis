@@ -1,6 +1,7 @@
-# -- Definitions used to compile dns solver.
+# -- Definitions used to compile "dns" solver.
 
 set (dns_src
+  ${CMAKE_CURRENT_LIST_DIR}/../src/message.cpp
   ${CMAKE_CURRENT_LIST_DIR}/dnsanalysis.cpp
   ${CMAKE_CURRENT_LIST_DIR}/fieldforce.cpp
   ${CMAKE_CURRENT_LIST_DIR}/integrate.cpp
@@ -12,8 +13,7 @@ set (dns_src
 include_directories (veclib femlib ${MPI_C_INCLUDE_PATH})
 
 set (import_serial_libs ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-set (import_par_libs    ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES}
-                        ${MPI_C_LIBRARIES})
+set (import_par_libs    ${import_serial_libs} ${MPI_C_LIBRARIES})
 
 # -- Default/serial executable (no MPI).
 
@@ -25,7 +25,7 @@ target_link_libraries      (dns src fem vec ${import_serial_libs})
 
 if (USE_MPI)
   add_executable             (dns_mp ${dns_src})
-  target_compile_definitions (dns_mp PRIVATE -DMPI)
+  target_compile_definitions (dns_mp PRIVATE -DMPI_EX)
   target_include_directories (dns_mp PUBLIC src dns)
-  target_link_libraries      (dns_mp src fem_mp vec ${import_par_libs})
+  target_link_libraries      (dns_mp src fem vec ${import_par_libs})
 endif (USE_MPI)

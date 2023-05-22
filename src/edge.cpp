@@ -1,14 +1,13 @@
 //////////////////////////////////////////////////////////////////////////////
 // edge.cpp: implement element-edge operators.
 //
-// Copyright (c) 2003+, Hugh M Blackburn
-//
 // Edges, like boundaries (to which they contribute) typically belong
 // to a named group -- regular element sides generally do not.  This
 // is not quite the same as saying that an edge lies along a domain
 // boundary, since in fact the constructor just needs a string as the
 // first argument.
 //
+// Copyright (c) 2003+, Hugh M Blackburn
 //////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -48,7 +47,7 @@ Edge::Edge (const char*    grp ,
   case 3: _doffset += 0;               _dskip = -_np; break;
   default:
     sprintf (err, "cannot construct edge %1d", _side + 1);
-    message (routine, err, ERROR);
+    Veclib::alert (routine, err, ERROR);
   }
 
   _elmt -> sideGeom (_side, _x, _y, _nx, _ny, _area);

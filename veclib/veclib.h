@@ -1,9 +1,11 @@
 #ifndef VECLIB_H
 #define VECLIB_H
 ///////////////////////////////////////////////////////////////////////////////
-// Veclib.h:  C++ wrappers for veclib subroutine calls.
+// veclib.h:  C++ wrappers for veclib subroutine calls.
 //
 // Veclib is described in the iPSC/2 Programmer's Reference Manual.
+//
+// Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cfemdef.h>
@@ -341,6 +343,7 @@ extern "C" {
   int_t  iimin  (int_t n, const int_t*  x, int_t incx);
   int_t  ismin  (int_t n, const float*  x, int_t incx);
   int_t  icount (int_t n, const int_t*  x, int_t incx);
+  int_t  imatch (int_t n, const int_t   alpha, const int_t*  x, int_t incx);  
   int_t  ifirst (int_t n, const int_t*  x, int_t incx);
   int_t  lany   (int_t n, const int_t*  x, int_t incx);  
   int_t  lisame (int_t n, const int_t*  x, int_t incx,
@@ -1130,6 +1133,8 @@ class Veclib {
 
   static int_t count (int_t n, const int_t *x, int_t incx)
   { return icount (n, x, incx); }
+  static int_t match (int_t n, const int_t alpha, const int_t *x, int_t incx)
+  { return imatch (n, alpha, x, incx); }
   static int_t first (int_t n, const int_t *x, int_t incx)
   { return ifirst (n, x, incx); }
   static int_t any   (int_t n, const int_t *x, int_t incx)
@@ -1184,8 +1189,10 @@ class Veclib {
 
   static double clock ()
   { return dclock () ; }
-  
 
+  static void alert (const char *routine, const char *txt, int level)
+  { message (routine, txt, level); }
+ 
   static void scatr (int_t n, const double* x, const int_t* y, double* z)
   { dscatr (n, x, y, z); }
   static void scatr (int_t n, const int_t*  x, const int_t* y, int_t*  z)

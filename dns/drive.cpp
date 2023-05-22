@@ -1,8 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 // drive.cpp: control spectral element DNS for incompressible flows.
 //
-// Copyright (c) 1994+, Hugh M Blackburn
-//
 // USAGE:
 // -----
 // dns [options] session
@@ -33,11 +31,12 @@
 // equations in cylindrical or Cartesian coordinates", CPC
 // 245:106804.
 //
+// Copyright (c) 1994+, Hugh M Blackburn
 //////////////////////////////////////////////////////////////////////////////
 
 #include <dns.h>
 
-#ifdef MPI
+#if defined(MPI_EX)
   static char prog[] = "dns_mp";
 #else
   static char prog[] = "dns";
@@ -64,6 +63,7 @@ int main (int    argc,
 #endif
 
   char*            session;
+  int              nproc = 1, iproc = 0, npart2d = 1;  
   bool             freeze = false;
   vector<Element*> elmt;
   FEML*            file;
@@ -73,13 +73,18 @@ int main (int    argc,
   DNSAnalyser*     analyst;
   FieldForce*      FF;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init  ();
+  Message::init (&argc, &argv, nproc, iproc);
+
+  Femlib::ivalue ("I_PROC", iproc);
+  Femlib::ivalue ("N_PROC", nproc);
+
   getargs (argc, argv, freeze, session);
 
   preprocess (session, file, mesh, elmt, bman, domain, FF);
 
   if ((!domain -> hasScalar()) && freeze)
-    message (prog, "need scalar declared if velocity is frozen", ERROR);
+    Veclib::alert (prog, "need scalar declared if velocity is frozen", ERROR);
 
   analyst = new DNSAnalyser (domain, bman, file);
 
@@ -100,7 +105,7 @@ int main (int    argc,
     }
   }
 
-  Femlib::finalize ();
+  Message::stop ();
 
   return EXIT_SUCCESS;
 }
@@ -162,7 +167,8 @@ static void getargs (int    argc   ,
       break;
     }
 
-  if   (argc != 1) message (routine, "no session definition file", ERROR);
+  if   (argc != 1) Veclib::alert (routine,
+				   "no session definition file", ERROR);
   else             session = *argv;
 }
 
@@ -183,6 +189,7 @@ static void preprocess (const char*       session,
   const int_t        verbose = Femlib::ivalue ("VERBOSE");
   Geometry::CoordSys space;
   int_t              i, np, nz, nel, procid, seed;
+  int                npart2d = 1, ipart2d, npartz, ipartz;  
 
   // -- Initialise problem and set up mesh geometry.
 
@@ -190,6 +197,8 @@ static void preprocess (const char*       session,
 
   file = new FEML (session);
   mesh = new Mesh (file);
+
+  Message::grid ((int) npart2d, ipart2d, npartz, ipartz);
 
   VERBOSE cout << "done" << endl;
 
@@ -254,7 +263,7 @@ static void preprocess (const char*       session,
   // -- Sanity checks on installed tokens.  Could be more extensive.
 
   if (Femlib::ivalue ("SVV_MN") > Geometry::nP())
-    message (routine, "SVV_MN exceeds N_P", ERROR);
+    Veclib::alert (routine, "SVV_MN exceeds N_P",   ERROR);
   if (Femlib::ivalue ("SVV_MZ") > Geometry::nMode())
-    message (routine, "SVV_MZ exceeds N_Z/2", ERROR);
+    Veclib::alert (routine, "SVV_MZ exceeds N_Z/2", ERROR);
 }

@@ -17,27 +17,7 @@
  * @file utility/wallmesh.cpp
  * @ingroup group_utility
  *****************************************************************************/
-// Copyright (c) 2004 <--> $Date$, Hugh Blackburn
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
+// Copyright (c) 2004+, Hugh M Blackburn
 
 #include <sem.h>
 
@@ -65,7 +45,8 @@ int main (int    argc,
   int_t            i, nel, np, nz;
   vector<real_t>   x, y, z;
   
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
+  
   getargs (argc, argv, session, meshfile);
 
   file = new FEML (session);
@@ -82,7 +63,7 @@ int main (int    argc,
 
   bman = new BCmgr (file, elmt);
 
-  if (bman -> nWall() == 0) message (prog, "no walls found", ERROR);
+  if (bman -> nWall() == 0) Veclib::alert (prog, "no walls found", ERROR);
 
   readMesh (*meshfile, x, y, z);
   
@@ -90,7 +71,6 @@ int main (int    argc,
 
   if (nz > 1) for (i = 0; i <= nz; i++) cout << z[i] << endl;
 
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -113,7 +93,7 @@ static void getargs (int       argc,
     case 'h': cerr << usage; exit (EXIT_SUCCESS); break;
     default:
       sprintf (err, "illegal option: %c\n", c);
-      message (prog, err, ERROR); break;
+      Veclib::alert (prog, err, ERROR); break;
     }
 
   switch (argc) {
@@ -124,7 +104,7 @@ static void getargs (int       argc,
   case 2:
     sess = argv[0];
     mesh = new ifstream (argv[1]);
-    if (mesh -> fail()) message (prog, "couldn't open mesh file", ERROR);
+    if (mesh -> fail()) Veclib::alert (prog, "couldn't open mesh file", ERROR);
     break;
   default:
     cerr << usage;
@@ -148,7 +128,7 @@ static void readMesh (istream&        file,
 
   file.getline (buf, StrMax);
   if (!strstr (buf, "NR NS NZ NEL"))
-    message (prog, "input not a mesh file", ERROR);
+    Veclib::alert (prog, "input not a mesh file", ERROR);
 
   string s (buf);
   istringstream ss (buf);
@@ -158,7 +138,7 @@ static void readMesh (istream&        file,
       nz  != Femlib::ivalue ("N_Z") ||
       nel != Femlib::ivalue ("NEL") ||
       nr  != ns)
-    message (prog, "input mesh does not match session file", ERROR);
+    Veclib::alert (prog, "input mesh does not match session file", ERROR);
 
   ntot = nr * ns * nel;
 
@@ -170,7 +150,8 @@ static void readMesh (istream&        file,
 
   if (nz > 1) for (i = 0; i <= nz; i++) file >> z[i];
 
-  if (!file) message (prog, "reached end of mesh file prematurely", ERROR);
+  if (!file)
+    Veclib::alert (prog, "reached end of mesh file prematurely", ERROR);
 }
 
 

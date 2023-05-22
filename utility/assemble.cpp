@@ -85,7 +85,8 @@ int main (int    argc,
   AssemblyMap*         N;
   vector<AssemblyMap*> allMappings; // Complete set of AssemblyMaps for domain.
   
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
+  
   getargs (argc, argv, session, verb, np, opt);
   
   if (verb) Femlib::ivalue ("VERBOSE", verb);
@@ -174,7 +175,6 @@ int main (int    argc,
 
   printup (field, allMappings);
 
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -225,12 +225,12 @@ static void getargs (int    argc   ,
       break;
     default:
       sprintf (err, "getargs: illegal option: %c\n", c);
-      message (prog, err, ERROR);
+      Veclib::alert (prog, err, ERROR);
       break;
     }
 
   if   (argc == 1) session = *argv;
-  else             message (prog, "must provide session file", ERROR);
+  else             Veclib::alert (prog, "must provide session file", ERROR);
 }
 
 
@@ -288,9 +288,9 @@ static void getfields (FEML* file ,
       field[i] = '\0';
       file->stream() >> t;
       if (!(strstr (t,   "/FIELDS")))
-	   message (prog, "FIELDS section not closed", ERROR);
-    } else message (prog, "FIELDS section not closed", ERROR);
-  } else   message (prog, "FIELDS section not found",  ERROR);
+	   Veclib::alert (prog, "FIELDS section not closed", ERROR);
+    } else Veclib::alert (prog, "FIELDS section not closed", ERROR);
+  } else   Veclib::alert (prog, "FIELDS section not found",  ERROR);
 }
 
 
@@ -328,7 +328,7 @@ static void checkVBCs (FEML*       file ,
 	tagc = tag[1];
       else {
 	sprintf (err, "unrecognized BC tag format: %s", tag);
-	message (prog, err, ERROR);
+	Veclib::alert (prog, err, ERROR);
       }
 
       file->stream() >> fieldc;
@@ -339,11 +339,11 @@ static void checkVBCs (FEML*       file ,
     
     if (!(vtag && wtag)) {
       sprintf (err, "group %c: BCs for fields 'v' & 'w' needed", groupc);
-      message (prog, err, ERROR);
+      Veclib::alert (prog, err, ERROR);
     }
     if (vtag != wtag) {
       sprintf (err, "group %c, fields 'v' & 'w': BC type mismatch", groupc);
-      message (prog, err, ERROR);
+      Veclib::alert (prog, err, ERROR);
     }
   }
 }
@@ -375,14 +375,14 @@ static void checkABCs (FEML*      file ,
 	tagc = tag[1];
       else {
 	sprintf (err, "unrecognized BC tag format: %s", tag);
-	message (prog, err, ERROR);
+	Veclib::alert (prog, err, ERROR);
       }
 
       file->stream() >> fieldc;
 
       if (groupc == atag && tagc != 'A') {
 	sprintf (err, "group '%c': field '%c' needs axis BC", groupc, fieldc);
-	message (prog, err, ERROR);
+	Veclib::alert (prog, err, ERROR);
       }
       file->stream().ignore (StrMax, '\n');
     }

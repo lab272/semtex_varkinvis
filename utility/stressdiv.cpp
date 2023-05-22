@@ -81,6 +81,7 @@
  * @file utility/stressdiv.cpp
  * @ingroup group_utility
  *****************************************************************************/
+// Copyright (c) 2010+, Hugh M Blackburn
 
 #include <sem.h>
 
@@ -115,11 +116,12 @@ int main (int    argc,
   int_t                NDIM;
   int_t                NCOM;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
+  
   getargs (argc, argv, session, dump);
 
   avgfile.open (dump, ios::in);
-  if (!avgfile) message (prog, "no field file", ERROR);
+  if (!avgfile) Veclib::alert (prog, "no field file", ERROR);
   NDIM = preScan (avgfile, NCOM);
   
   getMesh (session,      elmt, bmap, massInv, NDIM);
@@ -137,7 +139,6 @@ int main (int    argc,
     writeField (cout, session, 0, 0.0, outbuf);
   }
   
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -188,10 +189,10 @@ static int_t preScan (ifstream& file, int_t& ncom)
   int_t nz, ndim = 0;
 
   if (file.getline(buf, StrMax).eof()) 
-    message (prog, "stress file is empty", ERROR);
+    Veclib::alert (prog, "stress file is empty", ERROR);
   
   if (!strstr (buf, "Session")) 
-    message (prog, "stress file not a field file", ERROR);
+    Veclib::alert (prog, "stress file not a field file", ERROR);
   file.getline (buf, StrMax);
 
   // -- Input numerical description of field sizes.
@@ -216,7 +217,7 @@ static int_t preScan (ifstream& file, int_t& ncom)
   else if (strstr(fields, "ABC")) ncom = 2;
   
   if (ndim == 3 and ncom != 3)
-    message (prog,  "stress file must contain fields ABCDEF", ERROR);
+    Veclib::alert (prog,  "stress file must contain fields ABCDEF", ERROR);
     
   // -- All clear: rewind & return.
 
@@ -331,7 +332,7 @@ static bool getDump (ifstream&             file,
 
   if (file.getline(buf, StrMax).eof()) return false;
   
-  if (!strstr (buf, "Session")) message (prog, "not a field file", ERROR);
+  if (!strstr (buf, "Session")) Veclib::alert (prog, "not a field file", ERROR);
   file.getline (buf, StrMax);
 
   // -- Input numerical description of field sizes.
@@ -340,7 +341,7 @@ static bool getDump (ifstream&             file,
   file.getline (buf, StrMax);
   
   if (np != Geometry::nP() || nz != Geometry::nZ() || nel != Geometry::nElmt())
-    message (prog, "size of dump mismatch with session file", ERROR);
+    Veclib::alert (prog, "size of dump mismatch with session file", ERROR);
 
   file.getline (buf, StrMax);
   file.getline (buf, StrMax);
@@ -365,7 +366,7 @@ static bool getDump (ifstream&             file,
     for (i = 0; i < nf; i++)
       u[fields[i]] = new AuxField (new real_t[ntot], nz, elmt, fields[i]);
   } else if (strcmp (fieldNames (u), fields) != 0)
-    message (prog, "fields mismatch with first dump in file", ERROR);
+    Veclib::alert (prog, "fields mismatch with first dump in file", ERROR);
 
   // -- Read binary field data.
 
@@ -388,9 +389,9 @@ static bool doSwap (const char* ffmt)
   Veclib::describeFormat (mfmt);   
 
   if (!strstr (ffmt, "binary"))
-    message (prog, "input field file not in binary format", ERROR);
+    Veclib::alert (prog, "input field file not in binary format", ERROR);
   else if (!strstr (ffmt, "endian"))
-    message (prog, "input field file in unknown binary format", WARNING);
+    Veclib::alert (prog, "input field file in unknown binary format", WARNING);
 
   return (strstr (ffmt, "big") && strstr (mfmt, "little")) || 
          (strstr (mfmt, "big") && strstr (ffmt, "little"));

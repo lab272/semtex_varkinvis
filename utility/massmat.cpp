@@ -16,27 +16,7 @@
  * @file utility/massmat.cpp
  * @ingroup group_utility
  *****************************************************************************/
-// Copyright (c) 2013 <--> $Date$, Hugh Blackburn
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
+// Copyright (c) 2013+, Hugh M Blackburn
 
 #include <sem.h>
 
@@ -61,8 +41,9 @@ int main (int    argc,
 
   // -- Initialize.
 
-  Femlib::initialize (&argc, &argv);
-  getargs            (argc, argv, session);
+  Femlib::init ();
+
+  getargs (argc, argv, session);
 
   // -- Set output format and precesion. Edit these if you like.
 
@@ -94,7 +75,6 @@ int main (int    argc,
     for (j = 0; j < NPNP; j++) cout << mass[j] << endl;
   }
 
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -123,5 +103,5 @@ static void getargs (int    argc   ,
     }
 
   if      (argc == 1)   session = argv[0];
-  else                  message (prog, usage, ERROR);
+  else                  Veclib::alert (prog, usage, ERROR);
 }

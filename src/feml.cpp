@@ -3,8 +3,6 @@
 // loosely patterned on HTML and is less formal (and so, less robust)
 // than XML.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
-//
 // After initialization, FEML files are prescanned to find locations of
 // keywords.  These locations are stored, and reset by the seek function.
 //
@@ -26,6 +24,7 @@
 //
 // TO DO: move to XML.
 //
+// Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cstdlib>		// -- C standard headers.
@@ -40,6 +39,7 @@ using namespace std;
 #include <cfemdef.h>		// -- Semtex headers.
 #include <utility.h>
 #include <feml.h>
+#include <veclib.h>
 #include <femlib.h>
 
 
@@ -80,7 +80,7 @@ FEML::FEML (const char* session) :
 
   if (!_feml_file) {
     sprintf (err, "couldn't open session file %s", session);
-    message (routine, err, ERROR);
+    Veclib::alert (routine, err, ERROR);
   }
 
   check_ASCII();
@@ -95,7 +95,7 @@ FEML::FEML (const char* session) :
 
   if (i == FEML_KEYWORD_MAX) {
     sprintf (err, "Number of reserved keywords exceeds table size (%1d)", i);
-    message (routine, err, ERROR);
+    Veclib::alert (routine, err, ERROR);
   }
   
   while (_feml_file >> c) {
@@ -132,7 +132,7 @@ FEML::FEML (const char* session) :
 
 	  if (!found) {
 	    sprintf (err, "closing '>' not found for keyword %s", key);
-	    message (routine, err, ERROR);
+	    Veclib::alert (routine, err, ERROR);
 	  }
 
 	  // -- Locate closing "</key>".
@@ -161,7 +161,7 @@ FEML::FEML (const char* session) :
 
 		  if (c != '>') {
 		    sprintf (err, "closing '>' not found for /%s", key);
-		    message (routine, err, ERROR);
+		    Veclib::alert (routine, err, ERROR);
 		  }
 		}
 	      }
@@ -170,19 +170,19 @@ FEML::FEML (const char* session) :
 
 	  if (!OK) {
 	    sprintf (err, "couldn't locate </%s> to match <%s>", key, key);
-	    message (routine, err, ERROR);
+	    Veclib::alert (routine, err, ERROR);
 	  } else ++_nKey;
 	}
       }
     }
   }
 
-  if (!found) message (routine, "no keywords located", ERROR);
+  if (!found) Veclib::alert (routine, "no keywords located", ERROR);
 
   _feml_file.clear ();		// -- Reset EOF error condition.
   _feml_file.seekg (0);		// -- And rewind.
 
-  tokens ();			// -- Initialize Femlib parser.
+  tokens ();			// -- Install TOKENS defined in session.
 }
 
 
@@ -201,7 +201,7 @@ void FEML::check_ASCII ()
     for (col = 0; col < strlen(the_line); col++)
       if (!isascii(the_line[col])) {
         sprintf (err, "Non-ASCII character on line %i, col %i", line, col+1);
-        message (routine, err, ERROR);
+        Veclib::alert (routine, err, ERROR);
       }
   }
   _feml_file.clear ();          // -- Reset EOF error condition.
@@ -251,7 +251,7 @@ int_t FEML::attribute (const char* tag ,
 
   if (!seek (tag)) {
     sprintf (err, "couldn't locate tag %s in feml file", tag);
-    message (routine, err, ERROR);
+    Veclib::alert (routine, err, ERROR);
   }
 
   while (_feml_file >> buf)
@@ -261,14 +261,14 @@ int_t FEML::attribute (const char* tag ,
       while (*v && *v++ != '=');
       if (!(*v)) {
 	sprintf (err, "attribute syntax error in %s", buf);
-	message (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
       }
 
       n = atoi (v);
       break;
     } else if (strchr (buf, '>')) {
       sprintf (err, "%s not found in tag %s", attr, tag);
-      message (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     }
 
   _feml_file.ignore (STR_MAX, '\n');
@@ -280,14 +280,20 @@ int_t FEML::attribute (const char* tag ,
 bool FEML::tokens ()
 // ---------------------------------------------------------------------------
 // Install token table.  Return false if no TOKEN section is found.
-// NUMBER attribute ignored if present.  Fix any inconsistent values.
-// Parser must have been initialized before entry.
+//
+// The parser should have been initialised prior to this call, but in
+// case it hasn't, we call for initialisation (takes no action if
+// already done).
+//  
+// NUMBER attribute is ignored if present.  Fix any inconsistent values.
 // Lines with '#' at the start are ignored.
 // ---------------------------------------------------------------------------
 {
-  const char     routine[] = "FEML::tokens";
-  char           buf[STR_MAX];
-  char* u;
+  const char routine[] = "FEML::tokens";
+  char       buf[STR_MAX];
+  char*      u;
+
+  Femlib::init();
 
   if (seek ("TOKENS")) {
     _feml_file.ignore (STR_MAX, '\n');
@@ -302,7 +308,7 @@ bool FEML::tokens ()
         Femlib::ivalue ("IO_FLD",   Femlib::ivalue ("N_STEP"));
 
     if (Femlib::ivalue ("N_TIME") > 3) {
-      message (routine, "N_TIME too large, reset to 3", WARNING);
+      Veclib::alert (routine, "N_TIME too large, reset to 3", WARNING);
       Femlib::ivalue ("N_TIME", 3);
     }
 
@@ -388,7 +394,7 @@ bool FEML::echo (ostream&    stream,
 
 	  if (c != '>') {
 	    sprintf (err, "closing '>' not found for /%s", key);
-	    message (routine, err, ERROR);
+	    Veclib::alert (routine, err, ERROR);
 	  }
 	}
       }
@@ -398,7 +404,7 @@ bool FEML::echo (ostream&    stream,
 
   if (!found) {
     sprintf (err, "couldn't locate </%s> to match <%s>", key, key);
-    message (routine, err, ERROR);
+    Veclib::alert (routine, err, ERROR);
   }
 
   _feml_file >> skipws;
@@ -438,7 +444,7 @@ bool FEML::valueFromSection (real_t     *value  ,
     return false;
   } else {
     sprintf (s, "%s section not found", section);
-    message (routine, s, ERROR);
+    Veclib::alert (routine, s, ERROR);
   }
 
   return false;
@@ -473,7 +479,7 @@ bool FEML::valueFromSection (int_t      *value  ,
     return false;
   } else {
     sprintf (s, "%s section not found", section);
-    message (routine, s, ERROR);
+    Veclib::alert (routine, s, ERROR);
   }
 
   return false;
@@ -509,7 +515,7 @@ bool FEML::valueFromSection (char       *buf    ,
     return false;
   } else {
     sprintf (s, "%s section not found", section);
-    message (routine, s, ERROR);
+    Veclib::alert (routine, s, ERROR);
   }
 
   return false;
@@ -540,7 +546,7 @@ bool FEML::isStringInSection (const char *section,
     return false;
   } else {
     sprintf (s, "%s section not found", section);
-    message (routine, s, REMARK);
+    Veclib::alert (routine, s, REMARK);
   }
 
   return false;

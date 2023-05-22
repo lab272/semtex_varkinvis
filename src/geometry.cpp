@@ -3,6 +3,11 @@
 //
 // Most routines are inlined in header file geometry.h
 //
+// This is effectively a singleton class.  We might want to put the
+// static 'private' data somewhere else that is only loaded by
+// top-level executables in order to prevent possible conflicts if we
+// override the definitions in this file elsewhere.
+//
 // Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -63,6 +68,8 @@ void Geometry::set (const int_t    NP,
 {
   static char routine[] = "Geometry::set", err[StrMax];
 
+  if (_np) Veclib::alert (routine, "cannot re-initialise Geometry", ERROR);
+
   _pid   = Femlib::ivalue ("I_PROC");
   _nproc = Femlib::ivalue ("N_PROC");
 
@@ -72,7 +79,7 @@ void Geometry::set (const int_t    NP,
 
   if (_nz > 1 && _nz & 1) {	// -- 3D problems must have NZ even.
     sprintf (err, "N_Z must be even (%1d)", _nz);
-    message (routine, err, ERROR);
+    Veclib::alert (routine, err, ERROR);
   }
 
   if (_nproc > 1) {		// -- Concurrent execution restrictions.
@@ -80,13 +87,13 @@ void Geometry::set (const int_t    NP,
     if (_nz % (2 * _nproc)) {
       sprintf (err, "No. of planes (%1d) per processor (%1d) must be even",
 	       _nz, _nproc);
-      message (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     }
 
     if (_nproc << 1 > _nz) {
       sprintf (err, "No. of processors (%1d) can at most be half N_Z (%1d)",
 	       _nproc, _nz);
-      message (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     }
     _psize = roundUp (nPlane(), _nproc, 2);
     

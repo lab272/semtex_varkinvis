@@ -1,8 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 // condition.cpp: functions used to evaluate & apply BCs along element edges.
 //
-// Copyright (c) 1994+, Hugh M Blackburn
-//
 // Conditions have two abstract layers, and a terminal/concrete layer.
 // This is to allow all boundary conditions to routines to be
 // uniformly applied, use dynamic polymorphism to invoke the correct
@@ -76,6 +74,8 @@
 // [3] Dong (2015), JCP 302:300-328 
 // [4] Liu, Xie & Dong (2020), IJHFF 151:119355
 // [5] Blackburn, Lee, Albrecht & Singh (2019) CPC 254.
+//
+// Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -401,7 +401,7 @@ NaturalComputed::NaturalComputed (BCmgr*     B,
 // ---------------------------------------------------------------------------  
 {
   if (_tag != 'p')
-    message ("NaturalComputed::NaturalComputed",
+    Veclib::alert ("NaturalComputed::NaturalComputed",
 	     "tag p (pressure) is the only recognised option", ERROR);
   
   _descriptor =  "natural-computed-pressure, see KIO91";
@@ -525,7 +525,7 @@ MixedComputed::MixedComputed (BCmgr*     B,
   }
   default: {
     sprintf (buf, "unrecognised constructor tag (%c)", t);
-    message (routine, buf, ERROR);
+    Veclib::alert (routine, buf, ERROR);
   }
   }
 }

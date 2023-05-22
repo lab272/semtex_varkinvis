@@ -2,7 +2,6 @@
 // domain.cpp: implement domain class functions.
 //
 // Copyright (c) 1994+, Hugh M Blackburn
-//
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -164,7 +163,7 @@ void Domain::checkVBCs (FEML*       file ,
 	tagc = tag[1];
       else {
 	sprintf (err, "unrecognized BC tag format: %s", tag);
-	message (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
       }
 
       file->stream() >> fieldc;
@@ -175,11 +174,11 @@ void Domain::checkVBCs (FEML*       file ,
     
     if (!(vtag && wtag)) {
       sprintf (err, "group %c: BCs for fields 'v' & 'w' both needed", groupc);
-      message (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     }
     if (vtag != wtag) {
       sprintf (err, "group %c, fields 'v' & 'w': BC type mismatch", groupc);
-      message (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     }
   }
 }
@@ -235,14 +234,14 @@ void Domain::checkAxialBCs (FEML* file,
 	tagc = tag[1];
       else {
 	sprintf (err, "unrecognized BC tag format: %s", tag);
-	message (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
       }
 
       file->stream() >> fieldc;
 
       if (groupc == atag && tagc != 'A') {
 	sprintf (err, "group '%c': field '%c' needs axis BC", groupc, fieldc);
-	message (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
       }
       file->stream().ignore (StrMax, '\n');
     }
@@ -494,8 +493,6 @@ void Domain::dump ()
   if (!(periodic || final)) return;
   ofstream output;
 
-  Femlib::synchronize();
-
   ROOTONLY {
     const char  routine[] = "Domain::dump";
     char        dumpfl[StrMax], backup[StrMax], command[StrMax];
@@ -521,8 +518,8 @@ void Domain::dump ()
       else           output.open (dumpfl, ios::app);
     }
     
-    if (!output) message (routine, "can't open dump file", ERROR);
-    if (verbose) message (routine, "writing field dump",  REMARK);
+    if (!output) Veclib::alert (routine, "can't open dump file", ERROR);
+    if (verbose) Veclib::alert (routine, "writing field dump",  REMARK);
   }
 
   output << *this;
@@ -581,13 +578,16 @@ ifstream& operator >> (ifstream& strm,
   sss.str  (ss = f);
   sss >> npchk >> npchk >> nzchk >> nelchk;
   
-  if (np  != npchk ) message (routine, "element size mismatch",       ERROR);
-  if (nz  != nzchk ) message (routine, "number of z planes mismatch", ERROR);
-  if (nel != nelchk) message (routine, "number of elements mismatch", ERROR);
+  if (np  != npchk )
+    Veclib::alert (routine, "element size mismatch",       ERROR);
+  if (nz  != nzchk )
+    Veclib::alert (routine, "number of z planes mismatch", ERROR);
+  if (nel != nelchk)
+    Veclib::alert (routine, "number of elements mismatch", ERROR);
   
   ntot = np * np * nz * nel;
   if (ntot != Geometry::nTot())
-    message (routine, "declared sizes mismatch", ERROR);
+    Veclib::alert (routine, "declared sizes mismatch", ERROR);
 
   strm.getline(s,StrMax);
   sss.clear();
@@ -611,22 +611,23 @@ ifstream& operator >> (ifstream& strm,
   fields[nfields] = '\0';
   if (nfields != strlen (D.field)) {
     sprintf (err,"file: %1d fields, Domain: %1d",nfields,(int)strlen(D.field));
-    message (routine, err, ERROR);
+    Veclib::alert (routine, err, ERROR);
   }
   for (i = 0; i < nfields; i++) 
     if (!strchr (D.field, fields[i])) {
       sprintf (err,"field %c not present in Domain (%s)",fields[i],D.field);
-      message (routine, err, ERROR);
+      Veclib::alert (routine, err, ERROR);
     }
 
   strm.getline (s, StrMax);
   Veclib::describeFormat (f);
 
   if (!strstr (s, "binary"))
-    message (routine, "input field file not in binary format", ERROR);
+    Veclib::alert (routine, "input field file not in binary format", ERROR);
   
   if (!strstr (s, "endian"))
-    message (routine, "input field file in unknown binary format", WARNING);
+    Veclib::alert
+      (routine, "input field file in unknown binary format", WARNING);
   else {
     swap = ((strstr (s, "big") && strstr (f, "little")) ||
 	    (strstr (f, "big") && strstr (s, "little")) );
@@ -646,7 +647,7 @@ ifstream& operator >> (ifstream& strm,
   }
     
   ROOTONLY if (strm.bad())
-    message (routine, "failed reading field file", ERROR);
+    Veclib::alert (routine, "failed reading field file", ERROR);
     
   return strm;
 }
@@ -696,10 +697,12 @@ void Domain::loadBase()
   for (i = 0; file >> H; i++) {
 
     if (H.nr != nP || H.nel != nEl)
-      message (routine, "base flow and perturbation do not conform", ERROR);
+      Veclib::alert
+	(routine, "base flow and perturbation do not conform", ERROR);
     if ((nBase == 2 && strcmp (H.flds, "uvp" )) ||
 	(nBase == 3 && strcmp (H.flds, "uvwp")))
-      message (routine, "mismatch: No. of base components/declaration", ERROR);
+      Veclib::alert
+	(routine, "mismatch: No. of base components/declaration", ERROR);
 
     for (j = 0; j < nBase; j++) {
 
@@ -713,7 +716,8 @@ void Domain::loadBase()
       len = (H.nz - 1) * nPlane * sizeof (real_t);
       file.ignore (len); // -- Ignore higher planes.
 
-      if (file.bad()) message (routine, "unable to read binary input", ERROR);
+      if (file.bad()) Veclib::alert
+			(routine, "unable to read binary input", ERROR);
       Veclib::zero (nTot - nPlane, addr + nPlane, 1);
     }
     
@@ -727,7 +731,7 @@ void Domain::loadBase()
   file.close();
 
   if (i != nSlice)
-    message (routine, "mismatch: No. of base slices/declaration", ERROR);
+    Veclib::alert (routine, "mismatch: No. of base slices/declaration", ERROR);
 
   if (nSlice > 1) {		// -- Prepare for base flow
                                 //    reconstruction.  Default is

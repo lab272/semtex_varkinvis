@@ -6,9 +6,17 @@
 
 cmake_minimum_required (VERSION 3.4)
 project (semtex
-	 VERSION     10.5
+	 VERSION     11.0
 	 DESCRIPTION "Spectral element x Fourier DNS code"
 	 LANGUAGES   C CXX Fortran )
+
+# -- Pull in the pre-processor flag optons, which may also be set on
+#    the comamnd line (if not enabled here).  E.g. cmake -DDEBUG=ON ..
+
+option (USE_MPI  "Build dns+elliptic solvers with MPI"            ON)
+option (USE_XXT  "Build dns+elliptic solvers with XXT"            OFF)
+option (BLD_DOG  "Build dog stability analysis solver and utils"  ON)
+option (DEBUG    "Build with debugging preprocessor conditionals" OFF)
 
 # -- Vendor-specific switches:
 
@@ -70,13 +78,6 @@ elseif (DEFINED ENV{BLA_VENDOR})
 
 endif()	   
 
-# -- Pull in the pre-processor flags, which can optionally be set on
-#    the comamnd line (if not enabled here).  E.g. cmake -DDEBUG=ON ..
-
-option (USE_MPI  "Build dns+elliptic solvers with MPI"            ON )
-option (USE_XXT  "Build dns+elliptic solvers with XXT"            OFF)
-option (DEBUG    "Build with debugging preprocessor conditionals" OFF)
-
 if (DEBUG)
   set (CMAKE_BUILD_TYPE "Debug")
   message (STATUS "Building code with debug preprocessing and compilation.")
@@ -87,9 +88,9 @@ endif (DEBUG)
 
 # -- External package dependencies.
 
-find_package   (BISON  REQUIRED)
-find_package   (BLAS   REQUIRED)
-find_package   (LAPACK REQUIRED)
+find_package (BISON  REQUIRED)
+find_package (BLAS   REQUIRED)
+find_package (LAPACK REQUIRED)
 
 if (USE_MPI)
   find_package (MPI REQUIRED)
@@ -155,6 +156,7 @@ include (utility/CMakeLists.txt)
 enable_testing ()
 include (test/CMakeLists.txt)
 
-# -- Build linear stability codes.
-
-include (dog/CMakeLists.txt)
+if (BLD_DOG)
+  message (STATUS "Building codes for linear stability analysis.")
+  include (dog/CMakeLists.txt)
+endif (BLD_DOG)

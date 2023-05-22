@@ -1,15 +1,15 @@
 #ifndef MESH_H
 #define MESH_H
+
 ///////////////////////////////////////////////////////////////////////////////
 // mesh: header file for Mesh and related classes.
-//
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <vector>
 #include <string>
 
-#include "cfemdef.h"
-#include "feml.h"
+#include <cfemdef.h>
+#include <feml.h>
 
 class Curve;
 
@@ -22,32 +22,30 @@ class Mesh
 // equations.  Presently, meshes are 2D only.
 // 
 // Mesh provides seven externally-visible facilities: 
-// (1) Return number of elements in mesh,
-// (2) Generation of (BC-naive) element-boundary assembly mapping.
-// (3) Generation of element-boundary Essential BC mask vector.
-// (4) Generation of element mesh knot points.
-// (5) Print up NEKTON-style .rea information (backwards compatibility).
-// (6) Return x--y extent of mesh, based on traverse of element vertices.
-// (7) Return true if an element touches the z axis (cylindrical coords).
+// (1) Return number of elements in mesh.
+// (2) Fill a vector with indices of elements on current 2D partition.
+// (3) Generation of (BC-naive) element-boundary assembly mapping.
+// (4) Generation of element-boundary Essential BC mask vector.
+// (5) Generation of element mesh knot points.
+// (6) Print up NEKTON-style .rea information (backwards compatibility).
+// (7) Return x--y extent of mesh, based on traverse of element vertices.
+// (8) Return true if an element touches the z axis (cylindrical coords).
 //
-// (2--4) can be independently computed for arbitrary polynomial orders.
+// (3--5) can be independently computed for arbitrary polynomial orders.
 // ===========================================================================
 {
 public:
   class Node;
   class Elmt;
   class Side;
-
-  enum IDstatus { UNSET = -1 };
+  enum  IDstatus { UNSET = -1 };
 
   Mesh (FEML*, const bool = true);
 
+  void  partMap (const int_t, const int_t, vector<int_t>&) const;
+
   int_t nEl () const { return _elmtTable.size(); }
 
-#if 0
-  bool  cylindricalAxis   () const; 
-#endif
-  
   void  buildLiftMask    (const int_t, const char, const int_t, int_t*) const;
   int_t buildAssemblyMap (const int_t, int_t*) const;
   void  buildMask        (const int_t, const char, int_t*) const;
@@ -204,6 +202,5 @@ private:
   int_t     closest  (const Point&);
   real_t    arcCoord ();
 };
-
 
 #endif

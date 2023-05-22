@@ -10,7 +10,6 @@
 //
 // It is assumed that the first 2 or 3 (for 3D) entries in the Domain
 // u vector are velocity fields.
-//
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -82,7 +81,7 @@ Analyser::Analyser (Domain* D   ,
 	F = new FluidParticle (_src, ++i, P);
 	if (!(F -> inMesh())) {
 	  sprintf (str, "Particle at (%f, %f, %f) not in mesh", P.x, P.y, P.z);
-	  message (routine, str, WARNING);
+	  Veclib::alert (routine, str, WARNING);
 	} else
 	  _particle.push_back (F);
 	if (add && F -> inMesh()) {
@@ -114,7 +113,7 @@ Analyser::Analyser (Domain* D   ,
 	_history.insert (_history.end(), H);
       } else {
 	sprintf (str, "History point at (%f, %f, %f) not in mesh", x, y, z);
-	message (routine, str, WARNING);
+	Veclib::alert (routine, str, WARNING);
       }
     }
 
@@ -122,7 +121,8 @@ Analyser::Analyser (Domain* D   ,
       _his_strm.open (strcat (strcpy (str, _src -> name), ".his"));
       _his_strm.setf (ios::scientific, ios::floatfield);
       _his_strm.precision (6);
-      if (!_his_strm) message (routine, "can't open history file", ERROR);
+      if (!_his_strm)
+	Veclib::alert (routine, "can't open history file", ERROR);
     }
   }
 
@@ -141,7 +141,8 @@ Analyser::Analyser (Domain* D   ,
   if (Femlib::ivalue ("N_PHASE") > 0) {
 
     if (!Femlib::ivalue ("AVERAGE"))
-      message (routine, "if N_PHASE is set, AVERAGE > 0 also required", ERROR);
+      Veclib::alert
+	(routine, "if N_PHASE is set, AVERAGE > 0 also required", ERROR);
 
     // -- Must also have defined tokens STEPS_P (steps per period)
     //    and N_PHASE (number of phase points per period)
@@ -150,16 +151,20 @@ Analyser::Analyser (Domain* D   ,
     //    and IO_FLD = STEPS_P / N_PHASE.
 
     if (!Femlib::ivalue ("STEPS_P"))
-      message (routine, "phase averaging is on but STEPS_P not set", ERROR);
+      Veclib::alert
+	(routine, "phase averaging is on but STEPS_P not set",    ERROR);
 
     if ( Femlib::ivalue ("STEPS_P") % Femlib::ivalue ("N_PHASE") )
-      message (routine, "STEPS_P / N_PHASE non-integer", ERROR);
+      Veclib::alert
+	(routine, "STEPS_P / N_PHASE non-integer",                ERROR);
 
     if ( Femlib::ivalue ("N_STEP")  % Femlib::ivalue ("N_PHASE") )
-      message (routine, "N_STEP / N_PHASE non-integer", ERROR);
+      Veclib::alert
+	(routine, "N_STEP / N_PHASE non-integer",                 ERROR);
 
     if (Femlib::ivalue("IO_FLD") != Femlib::ivalue("STEPS_P / N_PHASE"))
-      message (routine, "phase averaging: IO_FLD != STEPS_P / N_PHASE", ERROR);
+      Veclib::alert
+	(routine, "phase averaging: IO_FLD != STEPS_P / N_PHASE", ERROR);
 
     _ph_stats = new Statistics (D);
 
@@ -350,7 +355,7 @@ void Analyser::modalEnergy ()
 		  << endl;
 
       for (i = 1; i < nProc; i++) {
-	Femlib::recv (&ek[0], N, i);
+	Message::recv (&ek[0], N, i);
 	for (m = 0; m < N; m++)
 	  _mdl_strm << setw(10) << _src -> time
 		    << setw( 5) << m + i * N
@@ -361,7 +366,7 @@ void Analyser::modalEnergy ()
       _mdl_strm.flush();
 
     } else
-      Femlib::send (&ek[0], N, 0);
+      Message::send (&ek[0], N, 0);
 
   } else
     for (m = 0; m < N; m++)
@@ -411,7 +416,7 @@ void Analyser::divergence (AuxField** work) const
 
   // This looks like it should always be true, but it's false if L2 is a NaN.
 
-  if (L2 != L2) message (routine, "forcing termination on NaN.", ERROR);
+  if (L2 != L2) Veclib::alert (routine, "forcing termination on NaN.", ERROR);
 }
 
 
@@ -465,14 +470,14 @@ void Analyser::estimateCFL (AuxField* work) const
   if (nProc > 1) {
     ROOTONLY {
       for (i = 1; i < nProc; i++) {
-	Femlib::recv (&maxProc[i], 1, i);
-	Femlib::recv (&maxElmt[i], 1, i);
-	Femlib::recv (&maxCmpt[i], 1, i);
+	Message::recv (&maxProc[i], 1, i);
+	Message::recv (&maxElmt[i], 1, i);
+	Message::recv (&maxCmpt[i], 1, i);
       }      
     } else {
-      Femlib::send (&maxProc[pid], 1, 0);
-      Femlib::send (&maxElmt[pid], 1, 0);
-      Femlib::send (&maxCmpt[pid], 1, 0);
+      Message::send (&maxProc[pid], 1, 0);
+      Message::send (&maxElmt[pid], 1, 0);
+      Message::send (&maxCmpt[pid], 1, 0);
     }
   }
 

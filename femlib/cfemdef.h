@@ -1,7 +1,7 @@
-#ifndef FEMDEF_H
-#define FEMDEF_H
+#ifndef CFEMDEF_H
+#define CFEMDEF_H
 /*****************************************************************************
- * Common names and typedefs for finite-element codes.
+ * Common names and typedefs for C or C++ finite-element codes.
  *****************************************************************************/
 
 #if defined(_SX)		/* NEC SX-4.        */
@@ -24,11 +24,11 @@ typedef Point                      Vector;
 */
 
 #if defined(CHEBYSHEV)
-#define JAC_ALFA -0.5
-#define JAC_BETA -0.5
+  #define JAC_ALFA -0.5
+  #define JAC_BETA -0.5
 #else
-#define JAC_ALFA  0.0
-#define JAC_BETA  0.0
+  #define JAC_ALFA  0.0
+  #define JAC_BETA  0.0
 #endif
 
 typedef enum quadrature_kind {

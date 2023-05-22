@@ -2,7 +2,6 @@
 // matrix.cpp: routines that generate solvers for Helmholtz problems.
 //
 // Copyright (c) 1994+, Hugh M Blackburn
-//
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -46,7 +45,9 @@ ModalMatrixSys::ModalMatrixSys (const real_t            lambda2 ,
   if (method == DIRECT) {
     ROOTONLY cout << "-- Installing matrices for field '" << name << "' [";
     cout.flush();
-    Femlib::synchronize();
+#if defined(MPI_EX)   
+    Message::sync();
+#endif    
   }
 
   for (mode = baseMode; mode < baseMode + numModes; mode++) {
@@ -84,7 +85,9 @@ ModalMatrixSys::ModalMatrixSys (const real_t            lambda2 ,
   }
 
   if (method == DIRECT) {
-    Femlib::synchronize();
+#if defined(MPI_EX)
+    Message::sync();
+#endif
     ROOTONLY cout << "]" << endl;
     cout.flush();
   }
@@ -242,7 +245,8 @@ MatrixSys::MatrixSys (const real_t            lambda2,
     
       Lapack::pbtrf ("U", _nsolve, _nband-1, _H, _nband, info);
 
-      if (info) message (routine, "failed to factor Helmholtz matrix", ERROR);
+      if (info) Veclib::alert
+		  (routine, "failed to factor Helmholtz matrix", ERROR);
 
       Family::adopt (_npack, &_H);
 
@@ -301,7 +305,8 @@ MatrixSys::MatrixSys (const real_t            lambda2,
   } break;
 
   default:
-    message (routine, "no solver of type requested -- never happen", ERROR);
+    Veclib::alert
+      (routine, "no solver of type requested -- never happen", ERROR);
     break;
   }
 }

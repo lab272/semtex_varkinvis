@@ -14,8 +14,6 @@
 // for example when the requested size is not prime-factorable by
 // 2,3,5 for the Temperton GPFA FFT routine.
 
-//
-// $Id$
 //////////////////////////////////////////////////////////////////////////////
 
 #include <cstdlib>

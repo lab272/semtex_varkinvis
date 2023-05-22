@@ -67,21 +67,21 @@ void Geometry::set (const int_t nel  ,
   else if (_Nbase == 3 && _Npert == 3 && _Nz == 2) _Cat = SO2_3D;
   else {
     sprintf (err, "illegal: N_BASE = %1d, N_PERT = %1d, N_Z = %1d",
-	     _Nbase, _Npert, _Nz); message (routine, err, ERROR);
+	     _Nbase, _Npert, _Nz); Veclib::alert (routine, err, ERROR);
   }
 
   // -- We can only allow SO2_2D if BETA != 0.
 
   if ((_Cat == SO2_2D) && (Femlib::value ("BETA") > EPSDP))
-    message
+    Veclib::alert
       (routine, "SO2_2D needs BETA=0, i.e. z-invariance, too.", ERROR);
 
   // -- Other sanity checks.
 
   if (_Nproc  > 1)
-    message (routine, "serial execution only",            ERROR);
+    Veclib::alert (routine, "serial execution only",            ERROR);
   if (_Nslice < 1)
-    message (routine, "N_SLICE must be set in session",   ERROR);
+    Veclib::alert (routine, "N_SLICE must be set in session",   ERROR);
 }
 
 

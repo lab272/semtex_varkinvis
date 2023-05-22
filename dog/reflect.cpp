@@ -9,8 +9,6 @@
 // Built from semtex/utility/data2df_template.cpp.  See also
 // dog/symmetrise.cpp and flipmap.cpp
 //
-// Copyright (c) 2010 <--> $Date$, Hugh Blackburn
-//
 // USAGE
 // -----
 // reflect [options] -m mapfile fieldfile
@@ -29,9 +27,9 @@
 // of the first half of elements used to generate the flip map has to
 // agree with the layout used on the starting mesh.  This means that
 // the design/layout of the two session files cannot be independent.
+//
+// Copyright (c) 2010+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 #include <data2df.h>
@@ -57,7 +55,8 @@ int main (int    argc,
   vector<int_t>    positive, negative;
   bool             revpar = false;                       // -- Reverse parity.
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
+  
   getargs (argc, argv, revpar, mapping, input);
 
   *input >> h;
@@ -167,7 +166,6 @@ int main (int    argc,
     cout << *u[i];
   }
 
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -178,7 +176,7 @@ static void getargs (int       argc  ,
 		     istream*& mapfl ,
 		     istream*& input )
 // ---------------------------------------------------------------------------
-// Deal with command-line arguments.  Based on dog/reflect.C.
+// Deal with command-line arguments.  Based on dog/reflect.cpp.
 // ---------------------------------------------------------------------------
 {
   char usage[] = "Usage: reflect [options] -m mapfile [file]\n"
@@ -200,7 +198,7 @@ static void getargs (int       argc  ,
     case 'm':
       --argc; ++argv;
       mapfl = new ifstream (*argv);
-      if (mapfl -> bad()) message (prog, "unable to open map file", ERROR);
+      if (mapfl -> bad()) Veclib::alert (prog, "unable to open map file",ERROR);
       break;
     case 'r':
       revpar = true;
@@ -213,7 +211,7 @@ static void getargs (int       argc  ,
 
   if (argc == 1) {
     input = new ifstream (*argv);
-    if (input -> bad()) message (prog, "unable to open input file", ERROR);
+    if (input -> bad()) Veclib::alert (prog, "unable to open input file",ERROR);
   } else input = &cin;
 }
 
@@ -234,17 +232,17 @@ static void loadmap (Header&        headr    ,
   
   if (!file) {
     sprintf (err, "cannot find map file %s", buf);
-    message (prog, err, ERROR);
+    Veclib::alert (prog, err, ERROR);
   }
 
   file >> NR >> NS >> NEL >> NEL;
   file.ignore (StrMax, '\n');
 
   if (NR != np || NS != np || NEL != nel)
-    message (prog, "map file doesn't conform with session file", ERROR);
+    Veclib::alert (prog, "map file doesn't conform with session file",   ERROR);
   file >> generator;
   if (!(generator == 'x' || generator == 'y'))
-    message (prog, "symmetry generator must be either 'x' or 'y'", ERROR);
+    Veclib::alert (prog, "symmetry generator must be either 'x' or 'y'", ERROR);
   
   file >> NMAP;
 
@@ -254,7 +252,7 @@ static void loadmap (Header&        headr    ,
   for (i = 0; i < NMAP; i++) file >> positive[i] >> negative[i];
 
   if (!file)
-    message (prog, "bad (premature end of?) map file", ERROR);
+    Veclib::alert (prog, "bad (premature end of?) map file", ERROR);
 }
 
 

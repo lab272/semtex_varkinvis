@@ -256,7 +256,7 @@ Field& Field::solve (AuxField*             f  ,
 	r2   = Blas::dot (npts, r, 1, r, 1);
       }
   
-      if (i == StepMax) message (routine, "step limit exceeded", WARNING);
+      if (i == StepMax) Veclib::alert (routine, "step limit exceeded", WARNING);
   
       // -- Unpack converged vector x, impose current essential BCs.
 
@@ -268,7 +268,7 @@ Field& Field::solve (AuxField*             f  ,
       if (static_cast<int_t>(Femlib::value ("VERBOSE")) > 1) {
 	char s[StrMax];
 	sprintf (s, ":%3d iterations, field '%c'", i, _name);
-	message (routine, s, REMARK);
+	Veclib::alert (routine, s, REMARK);
       }
     }
     break;
@@ -621,9 +621,9 @@ void Field::bTransform (const int_t sign)
       else
 	Femlib::DFTr (_sheet, nZ, _nline, sign);
   } else {
-    Femlib::exchange (_sheet, _nz, nP, FORWARD);
-    Femlib::DFTr     (_sheet, nZ, nPP, sign   );
-    Femlib::exchange (_sheet, _nz, nP, INVERSE);
+    Message::exchange (_sheet, _nz, nP, FORWARD);
+    Femlib::DFTr      (_sheet, nZ, nPP, sign   );
+    Message::exchange (_sheet, _nz, nP, INVERSE);
   }
 }
 
@@ -1018,7 +1018,7 @@ void Field::coupleBCs (Field*      v  ,
     }
 
   } else
-    message (routine, "unknown direction given", ERROR);
+    Veclib::alert (routine, "unknown direction given", ERROR);
 }
 
 
@@ -1044,7 +1044,8 @@ real_t Field::modeConstant (const char   name,
 
   if      (name == 'v') return (mode == 0) ? 1.0 : beta * mode + 1.0;
   else if (name == 'w') return (mode == 0) ? 1.0 : beta * mode - 1.0;
-  else message ("Field::modeConstant", "unrecognized Field name given", ERROR);
+  else Veclib::alert
+	 ("Field::modeConstant", "unrecognized Field name given", ERROR);
 
   return -1.0;			// -- Never happen.
 }

@@ -27,9 +27,6 @@
 // three component, cylindrical or Cartesian, but must be
 // two-dimensional.
 //
-// Copyright (c) 2012 <--> $Date$,
-//    Hugh Blackburn, Jose-Miguel Perez, Francisco Gomez.
-//
 // The eigenpairs computed in the subspace are related to the Ritz
 // estimates of those in the original space in a simple way: the
 // eigenvalues are related to those of the original system by a simple
@@ -73,9 +70,9 @@
 // [4]  F Gomez, JM Perez, HM Blackburn & V Theofilis (2015) "On the use of
 //      matrix-free shift-invert strategies for global flow instability
 //      analysis", Aerosp Sci Tech V44, 69--76.
+//
+// Copyright (c) 2012+, Hugh Blackburn, Jose-Miguel Perez, Francisco Gomez.
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <stab.h>
 
@@ -145,8 +142,8 @@ int main (int    argc,
 
   // -- Check parameter values, intialise solver output.
 
-  if (nvec < 1)      message (prog,"param error: NVEC must be > 1",      ERROR);
-  if (kdim < nvec+2) message (prog,"param error: KDIM must be >= NVEC+2",ERROR);
+  if (nvec < 1)      Veclib::alert (prog,"param error: NVEC must be > 1",      ERROR);
+  if (kdim < nvec+2) Veclib::alert (prog,"param error: KDIM must be >= NVEC+2",ERROR);
 
   strcat (strcpy (buf, session), ".evl");
   RUNINFO.open (buf, ios::out);
@@ -204,7 +201,8 @@ int main (int    argc,
   F77NAME(dnaupd) (ido=0, "I", NTOT, "LM", nvec, evtol, resid, kdim, 
 		   v, NTOT, iparam, ipntr, workd, workl, lworkl, info=1);
 
-  if (info != 0) message (prog, "ARPACK dnaupd initialisation error", ERROR);
+  if (info != 0)
+    Veclib::alert (prog, "ARPACK dnaupd initialisation error", ERROR);
 
   // -- IRAM iteration.
   
@@ -222,8 +220,10 @@ int main (int    argc,
 		     v, NTOT, iparam, ipntr, workd, workl, lworkl, info);
   }
 
-  if (info < 0) message (prog, "ARPACK dnaupd iteration error",       ERROR);
-  if (info > 0) message (prog, "ARPACK dnaupd exceeded max restarts", ERROR);
+  if (info < 0)
+    Veclib::alert (prog, "ARPACK dnaupd iteration error",       ERROR);
+  if (info > 0)
+    Veclib::alert (prog, "ARPACK dnaupd exceeded max restarts", ERROR);
   
   RUNINFO << "--" << endl;
   RUNINFO << "Converged " 
@@ -362,7 +362,7 @@ static void getargs (int      argc   ,
       break;
     }
 
-  if   (argc != 1) message (prog, "no session file",   ERROR);
+  if   (argc != 1) Veclib::alert (prog, "no session file",   ERROR);
   else             session = *argv;
 
   // -- Here is a minor hack, installs TASK in parser so it can be
@@ -470,7 +470,7 @@ static void LNS_update  (const real_t*   src,
     integrate (linAdvectT, domain, bman, analyst); break;
 
   default:
-    message ("EV_update", "Impossible task", ERROR); break;
+    Veclib::alert ("EV_update", "Impossible task", ERROR); break;
   }
 
   for (i = 0; i < ND; i++)
@@ -523,7 +523,7 @@ static void INV_update (const real_t* src  ,
 
   if (ier < 0) {
     RUNINFO.close();
-    message (prog, "Error return from iterative solver", ERROR);
+    Veclib::alert (prog, "Error return from iterative solver", ERROR);
   }
 
   Veclib::copy (NTOT, x, 1, tgt, 1);
@@ -553,7 +553,7 @@ static void INV_update (const real_t* src  ,
 
   if (ier < 0) {
     RUNINFO.close();
-    message (prog, "Error return from iterative solver", ERROR);
+    Veclib::alert (prog, "Error return from iterative solver", ERROR);
   }
 
   Veclib::copy (NTOT, x, 1, tgt, 1);

@@ -2,8 +2,6 @@
 // combine.cpp: add a perturbation/mode to a base flow, output in
 // physical space.
 //
-// Copyright (c) 2002 <--> $Date$, Hugh Blackburn
-//
 // USAGE
 // -----
 // combine [options] base pert
@@ -102,9 +100,8 @@
 // can be double the scaled wave size in Fourier space. This follows
 // the real-complex DFT conventions used throughout Semtex.
 //
+// Copyright (c) 2002+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <cstdarg>
 #include <cstdlib>
@@ -185,7 +182,8 @@ int main (int    argc,
   vector<real_t*> u;
   bool            simplescale = false;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
+  
   getargs (argc, argv, mode, wght, beta, simplescale, bFile, pFile);
   gethead (bFile, bHead);
   gethead (pFile, pHead);
@@ -203,7 +201,6 @@ int main (int    argc,
   }
   writedata (pHead, cout, nz, beta, u);
   
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -296,7 +293,7 @@ static void gethead (istream&  file  ,
 
   file.get (header.session, 25); file.getline (buf, StrMax);
   
-  if (!strstr (buf, "Session")) message (prog, "not a field file", ERROR);
+  if (!strstr (buf, "Session")) Veclib::alert (prog, "not a field file", ERROR);
 
   file.get (header.created, 25); file.ignore (StrMax, '\n');
 
@@ -318,9 +315,9 @@ static void gethead (istream&  file  ,
   file.get (header.format, 25); file.getline (buf, StrMax);
 
   if (!strstr (header.format, "binary"))
-    message (prog, "input field file not in binary format", ERROR);
+    Veclib::alert (prog, "input field file not in binary format",     ERROR);
   else if (!strstr (header.format, "-endia"))
-    message (prog, "input field file in unknown binary format", WARNING);
+    Veclib::alert (prog, "input field file in unknown binary format", WARNING);
 }
 
 
@@ -337,16 +334,18 @@ static void conform (const hdr_info& bhead,
 // ---------------------------------------------------------------------------
 {
   if (bhead.nr != phead.nr || bhead.ns != phead.ns || bhead.nel != phead.nel)
-    message (prog, "base and perturbation sizes do not conform", ERROR);
+    Veclib::alert (prog, "base and perturbation sizes do not conform", ERROR);
 
   if (bhead.nz > 1)
-    message (prog, "base should have N_Z=1", WARNING);
+    Veclib::alert (prog, "base should have N_Z=1", WARNING);
 
   if (strstr(phead.fields, "uvp") && !(strstr(bhead.fields, "uvp")))
-    message (prog, "where perturbation has fields uvp, so must base", ERROR);
+    Veclib::alert (prog,
+		   "where perturbation has fields uvp, so must base", ERROR);
 
   if (strlen(bhead.fields) > strlen(phead.fields))
-    message (prog, "more base velocity components than perturbation", ERROR);
+    Veclib::alert (prog,
+		   "more base velocity components than perturbation", ERROR);
 }
 
 
@@ -647,9 +646,9 @@ static bool doswap (const char* ffmt)
   Veclib::describeFormat (mfmt);   
 
   if (!strstr (ffmt, "binary"))
-    message (prog, "input field file not in binary format", ERROR);
+    Veclib::alert (prog, "input field file not in binary format", ERROR);
   else if (!strstr (ffmt, "-endia"))
-    message (prog, "input field file in unknown binary format", WARNING);
+    Veclib::alert (prog, "input field file in unknown binary format", WARNING);
 
   return (strstr (ffmt, "big") && strstr (mfmt, "little")) || 
          (strstr (mfmt, "big") && strstr (ffmt, "little"));

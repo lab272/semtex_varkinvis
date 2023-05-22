@@ -34,6 +34,7 @@ friend class    Field;
 friend class    BCmgr;
 
 public:
+  
   AuxField (real_t*, const int_t, vector<Element*>&, const char = 0);
 
   char          name     ()      const { return _name; }
@@ -135,5 +136,10 @@ protected:
 private:
 
 };
+
+
+void readField  (istream&, vector<AuxField*>&);
+void writeField (ostream&, const char*, const int_t, const real_t,
+		 vector<AuxField*>&);
 
 #endif

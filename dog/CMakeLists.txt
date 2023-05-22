@@ -3,8 +3,8 @@
 
 # -- Refer to drive.cpp regarding these options for dog:
 
-option (WITH_FLIP   "Build dog with half-period map"  OFF )
-option (WITH_ARPACK "Build dog with ARPACK"           Off )
+option (WITH_FLIP   "Build dog with half-period map"  OFF)
+option (WITH_ARPACK "Build dog with ARPACK"           OFF)
 
 # -- Local overrides for standard semtex/src files:
 
@@ -75,11 +75,11 @@ target_link_libraries      (lns override src fem vec ${import_serial_libs})
 # -- Utilities follow.  See dog user guide or source file headers.
     
 set (norm_src
-     ${CMAKE_CURRENT_LIST_DIR}/normalize.cpp
+     ${CMAKE_CURRENT_LIST_DIR}/normalise.cpp
 )
-add_executable            (normalize ${norm_src})
-target_include_directories(normalize PUBLIC dog src)
-target_link_libraries     (normalize override src fem vec ${import_serial_libs})
+add_executable            (normalise ${norm_src})
+target_include_directories(normalise PUBLIC dog src)
+target_link_libraries     (normalise override src fem vec ${import_serial_libs})
 
 add_executable (symmetrise
      ${CMAKE_CURRENT_LIST_DIR}/symmetrise.cpp

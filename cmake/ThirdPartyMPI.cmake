@@ -1,0 +1,36 @@
+########################################################################
+#
+# ThirdParty configuration for GS-MPI + XXt.  MPI Assumed present.
+#
+########################################################################
+
+INCLUDE(ExternalProject)
+
+EXTERNALPROJECT_ADD(
+    gsmpi-1.2.1
+    URL ${TPURL}/gsmpi-1%2E2%2E1%2Etgz/raw?ref=main
+    URL_MD5 "d02c149ef6c8e5a9fb7112a46812ea49"
+    STAMP_DIR ${TPBUILD}/stamp
+    DOWNLOAD_EXTRACT_TIMESTAMP false
+    DOWNLOAD_DIR ${TPSRC}
+    SOURCE_DIR ${TPSRC}/gsmpi-1.2.1
+    BINARY_DIR ${TPBUILD}/gsmpi-1.2.1
+    TMP_DIR ${TPBUILD}/gsmpi-1.2.1-tmp
+    INSTALL_DIR ${TPDIST}
+    CONFIGURE_COMMAND
+	${CMAKE_COMMAND}
+	-G ${CMAKE_GENERATOR}
+	-DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
+	-DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
+	-DCMAKE_BUILD_TYPE:STRING=Debug
+	-DCMAKE_INSTALL_PREFIX:PATH=${TPDIST}
+	${TPSRC}/gsmpi-1.2.1
+)
+
+THIRDPARTY_LIBRARY(GSMPI_LIBRARY STATIC gsmpi DESCRIPTION "GSMPI Library")
+THIRDPARTY_LIBRARY(XXT_LIBRARY STATIC xxt DESCRIPTION "XXT Library")
+MARK_AS_ADVANCED(GSMPI_LIBRARY)
+MARK_AS_ADVANCED(XXT_LIBRARY)
+MESSAGE(STATUS "Build GSMPI: ${GSMPI_LIBRARY}")
+MESSAGE(STATUS "Build XXT: ${XXT_LIBRARY}")
+

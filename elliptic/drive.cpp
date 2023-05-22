@@ -2,14 +2,19 @@
 // drive.cpp: compute solution to elliptic problem, optionally compare to
 // exact solution (see getoptions(), below).
 //
-// Copyright (c) 1994+, Hugh M Blackburn
-//
 // USAGE:
 // -----
 // elliptic [options] session
 //   options:
 //   -h       ... print this message
 //   -i       ... use iterative solver
+//   -v[v...] ... increase verbosity level
+//
+// elliptic_mp [options] session
+//   options:
+//   -h       ... print this message
+//   -i       ... use iterative solver
+//   -p <num> ... request number of 2D domain partitions [Default: 1] (XXT)
 //   -v[v...] ... increase verbosity level
 //
 // If session.frc is found, use this field file as forcing for the
@@ -31,21 +36,23 @@
 // element-Fourier solver for the incompressible Navier-Stokes
 // equations in cylindrical or Cartesian coordinates", CPC 245:106804
 //
+// Copyright (c) 1994+, Hugh M Blackburn
 //////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
 
-#ifdef MPI
+#if defined(MPI_EX)
   static char prog[] = "elliptic_mp";
 #else
   static char prog[] = "elliptic";
 #endif
 
-static void getargs    (int, char**, char*&);
+static void getargs    (int, char**, int_t &, char*&);
 static void getoptions (FEML*, char*&, char*&);
-static void preprocess (const char*, FEML*&, Mesh*&, vector<Element*>&,
-			BCmgr*&, Domain*&, AuxField*&);
+static void preprocess (const char*, FEML*&, Mesh*&, const int_t&,
+			vector<Element*>&, BCmgr*&, Domain*&, AuxField*&);
 static void getforcing (const char*, const char*, AuxField*);
+
 
 void Helmholtz (Domain*, AuxField*);
 
@@ -58,17 +65,22 @@ int main (int    argc,
 {
   char             *session, *forcefunc = 0, *exact = 0;
   vector<Element*> elmt;
+  int              nproc = 1, iproc = 0, npart2d = 1;
   FEML*            file;
   Mesh*            mesh;
   BCmgr*           bman;
   Domain*          domain;
   AuxField*        forcefld;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init  ();
+  Message::init (&argc, &argv, nproc, iproc);
 
-  getargs (argc, argv, session);
+  Femlib::ivalue ("I_PROC", iproc);
+  Femlib::ivalue ("N_PROC", nproc);
 
-  preprocess (session, file, mesh, elmt, bman, domain, forcefld);
+  getargs (argc, argv, npart2d, session);
+
+  preprocess (session, file, mesh, npart2d, elmt, bman, domain, forcefld);
 
   getoptions (file, forcefunc, exact);
   getforcing (session, forcefunc, forcefld);
@@ -81,7 +93,7 @@ int main (int    argc,
 
   domain -> dump();
 
-  Femlib::finalize();
+  Message::stop();
 
   return EXIT_SUCCESS;
 }
@@ -89,6 +101,7 @@ int main (int    argc,
 
 static void getargs (int    argc   ,
 		     char** argv   ,
+		     int_t& npart2d,
 		     char*& session)
 // ---------------------------------------------------------------------------
 // Install default parameters and options, parse command-line for optional
@@ -101,6 +114,9 @@ static void getargs (int    argc   ,
     "  options:\n"
     "  -h       ... print this message\n"
     "  -i       ... use iterative solver\n"
+#if defined(MPI_EX) && defined(XXT_EX)
+    "  -p <num> ... request number of 2D domain partitions [Default: 1]\n"
+#endif
     "  -v[v...] ... increase verbosity level\n";
   char buf[StrMax];
  
@@ -116,6 +132,12 @@ static void getargs (int    argc   ,
     case 'i':
       Femlib::ivalue ("ITERATIVE", static_cast<int_t>(1));
       break;
+#if defined(MPI_EX) && defined(XXT_EX)
+    case 'p':
+      if (*++argv[0]) npart2d = atoi (*argv);
+      else { --argc; npart2d = atoi (*++argv); }
+      break;
+#endif
     case 'v':
       do
 	Femlib::ivalue ("VERBOSE", Femlib::ivalue("VERBOSE")+1);
@@ -127,7 +149,7 @@ static void getargs (int    argc   ,
       break;
     }
   
-  if (argc != 1) message (routine, "no session definition file", ERROR);
+  if (argc != 1) Veclib::alert (routine, "no session definition file", ERROR);
 
   session = *argv;
 }
@@ -136,6 +158,7 @@ static void getargs (int    argc   ,
 static void preprocess (const char*       session,
 			FEML*&            file   ,
 			Mesh*&            mesh   ,
+			const int_t&      npart2d,
 			vector<Element*>& elmt   ,
 			BCmgr*&           bman   ,
 			Domain*&          domain ,
@@ -148,6 +171,8 @@ static void preprocess (const char*       session,
   const int_t        verbose = Femlib::ivalue ("VERBOSE");
   Geometry::CoordSys space;
   int_t              i, np, nz, nel;
+  int                ipart2d, npartz, ipartz;
+  vector<int_t>      elmtMap;
 
   // -- Initialise problem and set up mesh geometry.
 
@@ -156,19 +181,26 @@ static void preprocess (const char*       session,
   file = new FEML (session);
   mesh = new Mesh (file);
 
+  Message::grid ((int) npart2d, ipart2d, npartz, ipartz);
+
+  mesh -> partMap (npart2d, ipart2d, elmtMap);
+
   VERBOSE cout << "done" << endl;
 
   // -- Set up global geometry variables.
 
   VERBOSE cout << "Setting geometry ... ";
 
-  nel   =  mesh -> nEl();
+  //  nel   =  mesh -> nEl();
+  nel   =  elmtMap.size();
   np    =  Femlib::ivalue ("N_P");
   nz    =  Femlib::ivalue ("N_Z");
   space = (Femlib::ivalue ("CYLINDRICAL")) ? 
     Geometry::Cylindrical : Geometry::Cartesian;
   
   Geometry::set (np, nz, nel, space);
+
+  cout << "DONE GEOMETRY" << endl;
 
   VERBOSE cout << "done" << endl;
 
@@ -177,7 +209,7 @@ static void preprocess (const char*       session,
   VERBOSE cout << "Building elements ... ";
 
   elmt.resize (nel);
-  for (i = 0; i < nel; i++) elmt[i] = new Element (i, np, mesh);
+  for (i = 0; i < nel; i++) elmt[i] = new Element (elmtMap[i], np, mesh);
 
   VERBOSE cout << "done" << endl;
 
@@ -205,6 +237,15 @@ static void preprocess (const char*       session,
 			 Geometry::nZProc(), elmt, 'f');
 
   VERBOSE cout << "done" << endl;
+}
+
+
+static char* upperCase (char *s)
+// ---------------------------------------------------------------------------
+// Uppercase characters in null-terminated string.
+// ---------------------------------------------------------------------------
+{
+  char *z(s); while (*z = toupper (*z)) z++; return s;
 }
 
 
@@ -241,7 +282,8 @@ static void getoptions (FEML*  feml ,
     }
 
     if (strcmp (s, "</USER>") != 0)
-      message (routine, "couldn't sucessfully close <USER> section", ERROR);
+      Veclib::alert
+	(routine, "couldn't sucessfully close <USER> section", ERROR);
   }
 }
 
@@ -275,7 +317,7 @@ static void getforcing (const char* session  ,
     char          s[StrMax], f[StrMax];
 
     if (file.getline(s, StrMax).eof())
-      message (routine, "forcing file is empty", ERROR);
+      Veclib::alert (routine, "forcing file is empty", ERROR);
 
     file.getline(s,StrMax).getline(s,StrMax);
 
@@ -290,29 +332,36 @@ static void getforcing (const char* session  ,
     sss.str (ss = f);
     sss >> npchk >> npchk >> nzchk >> nelchk;
 
-    if (np  != npchk ) message (routine, "element size mismatch",       ERROR);
-    if (nz  != nzchk ) message (routine, "number of z planes mismatch", ERROR);
-    if (nel != nelchk) message (routine, "number of elements mismatch", ERROR);
+    if (np  != npchk )
+      Veclib::alert (routine, "element size mismatch",       ERROR);
+    if (nz  != nzchk )
+      Veclib::alert (routine, "number of z planes mismatch", ERROR);
+    if (nel != nelchk)
+      Veclib::alert (routine, "number of elements mismatch", ERROR);
   
     ntot = np * np * nz * nel;
     if (ntot != Geometry::nTot())
-      message (routine, "declared sizes mismatch", ERROR);
+      Veclib::alert (routine, "declared sizes mismatch", ERROR);
 
     file.getline(s,StrMax).getline(s,StrMax);
     file.getline(s,StrMax).getline(s,StrMax);
     file.getline(s,StrMax).getline(s,StrMax);
 
     nfields = 0; while (isalpha (s[nfields])) nfields++;
-    if (!nfields) message (routine, "no fields declared in forcing", ERROR);
+    if (!nfields)
+      Veclib::alert
+	(routine, "no fields declared in forcing", ERROR);
 
     file.getline (s, StrMax);
     Veclib::describeFormat (f);
 
     if (!strstr (s, "binary"))
-      message (routine, "input field file not in binary format", ERROR);
+      Veclib::alert
+	(routine, "input field file not in binary format", ERROR);
   
     if (!strstr (s, "endian"))
-      message (routine, "input field file in unknown binary format", WARNING);
+      Veclib::alert
+	(routine, "input field file in unknown binary format", WARNING);
     else {
       swab = ((strstr (s, "big") && strstr (f, "little")) ||
 	      (strstr (f, "big") && strstr (s, "little")) );

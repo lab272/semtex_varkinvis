@@ -9,8 +9,6 @@
 // consideration. Rather than only allow this BC type only for 2D
 // analysis, it seems easier to remove it completely.
 //
-// Copyright (c) 1994+, Hugh M Blackburn
-//
 // SYNOPSIS
 // --------
 // BCmgr manufactures and stores instances of classes derived from the
@@ -190,6 +188,7 @@
 // [2] Blackburn & Sherwin, JCP 197:759-778 (2004)
 // [3] Dong, Karniadakis & Chryssostomides JCP 261:83-105, (2014)
 //
+// Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -233,15 +232,16 @@ BCmgr::BCmgr (FEML*             file,
       buf[i] = '\0';
       file -> stream() >> tag;
       if (!(strstr (tag,    "/FIELDS")))
-	   message (routine, "FIELDS section not closed", ERROR);
-    } else message (routine, "FIELDS section not closed", ERROR);
-  } else   message (routine, "FIELDS section not found",  ERROR);
+	   Veclib::alert (routine, "FIELDS section not closed", ERROR);
+    } else Veclib::alert (routine, "FIELDS section not closed", ERROR);
+  } else   Veclib::alert (routine, "FIELDS section not found",  ERROR);
 
   strcpy ((_fields = new char [strlen (buf) + 1]), buf);
 
   if (!file -> seek ("GROUPS")) {
     if (verbose)
-      message (routine, "no GROUPS, assuming no boundary conditions", WARNING);
+      Veclib::alert
+	(routine, "no GROUPS, assuming no boundary conditions", WARNING);
     return;
   }
 
@@ -289,7 +289,7 @@ BCmgr::BCmgr (FEML*             file,
 	tagc = tag[1];
       else {
 	sprintf (err, "unrecognized BC tag: %s", tag);
-	message (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
       }
 
       // -- Decide if this is a value or function BC.
@@ -330,7 +330,7 @@ BCmgr::BCmgr (FEML*             file,
       case 'D': case 'E':	// -- Dirichlet/Essential BC.
 	if (testc != '=') {
 	  sprintf (err, "expected an '=' in setting field '%c' BC", fieldc);
-	  message (routine, err, ERROR);
+	  Veclib::alert (routine, err, ERROR);
 	}
 	if   (*trailer != 0) C = new EssentialFunction (buf);
 	else                 C = new EssentialConstant (buf);
@@ -339,7 +339,7 @@ BCmgr::BCmgr (FEML*             file,
       case 'N':			// -- Neumann/Natural BC.
 	if (testc != '=') {
 	  sprintf (err, "expected an '=' in setting field '%c' BC", fieldc);
-	  message (routine, err, ERROR);
+	  Veclib::alert (routine, err, ERROR);
 	}
 	if   (*trailer != 0) C = new NaturalFunction (buf);
 	else                 C = new NaturalConstant (buf);
@@ -348,11 +348,11 @@ BCmgr::BCmgr (FEML*             file,
       case 'M':			// -- Mixed BC.
 	if (testc != '=') {
 	  sprintf (err, "expected an '=' in setting field '%c' BC", fieldc);
-	  message (routine, err, ERROR);
+	  Veclib::alert (routine, err, ERROR);
 	}
 	if (!(strchr (buf, ';') || strchr (buf, ','))) {
 	  sprintf (buf,"can't find multiplier and reference value in: %s",buf);
-	  message (routine, buf, ERROR);
+	  Veclib::alert (routine, buf, ERROR);
 	}
 	C = new MixedConstant (buf);
 	break;
@@ -360,13 +360,15 @@ BCmgr::BCmgr (FEML*             file,
       case 'A':			// -- Axis BC.
 
 	if (Geometry::system() != Geometry::Cylindrical)
-	  message (routine, "axis BCs disallowed in Cartesian coords", ERROR);
+	  Veclib::alert
+	    (routine, "axis BCs disallowed in Cartesian coords", ERROR);
 
 	// -- Create two kinds to be retrieved later.
 	//    Ensure that the group name is "axis" to aid retrieval.
 
 	if (!strstr (groupInfo (groupc), "axis"))
-	  message (routine, "type 'A' BC must belong to group \"axis\"",ERROR);
+	  Veclib::alert
+	    (routine, "type 'A' BC must belong to group \"axis\"",ERROR);
 
 	strcpy (buf, "0.0");
 
@@ -384,14 +386,14 @@ BCmgr::BCmgr (FEML*             file,
       case 'H':		// -- "High Order" computed natural pressure BC.
 	if (fieldc != 'p') {
 	  sprintf (err, "expected name 'p' with HOPBC, read '%c'", fieldc);
-	  message (routine, err, ERROR);
+	  Veclib::alert (routine, err, ERROR);
 	}
 	C = new NaturalComputed (this, 'p');
 	break;
 
       default:
 	sprintf (err, "unrecognized BC identifier: %c", tagc);
-	message (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
 	break;
       }
 
@@ -405,7 +407,7 @@ BCmgr::BCmgr (FEML*             file,
 	  || gat[2] != tagc
 	  || gat[3] != '>') {
 	sprintf (err, "close tag %s didn't match open tag %s", gat, tag);
-	message (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
       }
 
       // -- Install new Condition record in internal list.
@@ -472,7 +474,7 @@ const Condition* BCmgr::getCondition (const char  group,
 	  break;
 	default:
 	  sprintf (err, "unrecognised field '%c' on axis", field);
-	  message (routine, err, ERROR);
+	  Veclib::alert (routine, err, ERROR);
 	  break;
 	} 
 
@@ -482,7 +484,7 @@ const Condition* BCmgr::getCondition (const char  group,
   }
 
   sprintf (err, "can't find record for group '%c', field '%c'", group, field);
-  message (routine, err, ERROR);
+  Veclib::alert (routine, err, ERROR);
   return 0;
 }
 
@@ -500,7 +502,7 @@ const char* BCmgr::groupInfo (const char name) const
   for (i = 0; i < N; i++) if (name == _group[i]) return _descript[i];
 
   sprintf (err, "unknown group: %c", name);
-  message (routine, err, WARNING);
+  Veclib::alert (routine, err, WARNING);
   return 0;
 }
 
@@ -544,7 +546,7 @@ void BCmgr::buildsurf (FEML*             file,
       file -> stream() >> tag;
       if (strcmp (tag, "</B>") != 0) {
 	sprintf (err, "Surface %1d: couldn't close tag <B> with %s", t, tag);
-	message (routine, err, ERROR);
+	Veclib::alert (routine, err, ERROR);
       }
     } else
       file -> stream().ignore (StrMax, '\n');
@@ -567,7 +569,7 @@ void BCmgr::buildsurf (FEML*             file,
 		     BCT -> elmt + 1,
 		     BCT -> side + 1,
 		     i, work[i]);
-	    message (routine, err, ERROR);
+	    Veclib::alert (routine, err, ERROR);
 	  }
       }
     }

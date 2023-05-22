@@ -3,29 +3,9 @@
 // prints out forces (and if appropriate, integrated scalar flux)
 // exerted on "wall" boundary group.
 //
-// Copyright (c) 1994 <--> $Date$, Hugh Blackburn
-//
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
+// Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
-static char RCS[] = "$Id$";
- 
 #include <dns.h>
 
 static bool WALLED;
@@ -50,7 +30,7 @@ DNSAnalyser::DNSAnalyser (Domain* D   ,
       // -- Open state-variable file.
 
       _flx_strm.open (strcat (strcpy (str, _src -> name), ".flx"));
-      if (!_flx_strm) message (routine, "can't open flux file", ERROR);
+      if (!_flx_strm) Veclib::alert (routine, "can't open flux file", ERROR);
 
       _flx_strm << "# DNS state information file"      << endl;
       if (_src -> hasScalar()) {
@@ -87,7 +67,7 @@ DNSAnalyser::DNSAnalyser (Domain* D   ,
 
       ROOTONLY {
 	_wss_strm.open (strcat (strcpy (str, _src -> name), ".wss"));
-	if (!_wss_strm) message (routine, "can't open WSS file", ERROR);
+	if (!_wss_strm) Veclib::alert (routine, "can't open WSS file", ERROR);
       }
     }
   }
@@ -202,9 +182,9 @@ void DNSAnalyser::analyse (AuxField** work0,
 	    else
 	      Femlib::DFTr (&_work[0], nZ, _npad, INVERSE);
 	} else {
-	  Femlib::exchange (&_work[0], nZP, _npad, FORWARD);
-	  Femlib::DFTr     (&_work[0], nZ,    nPP, INVERSE);
-	  Femlib::exchange (&_work[0], nZP, _npad, INVERSE);
+	  Message::exchange (&_work[0], nZP, _npad, FORWARD);
+	  Femlib::DFTr      (&_work[0], nZ,    nPP, INVERSE);
+	  Message::exchange (&_work[0], nZP, _npad, INVERSE);
 	}
 
 	// -- Write to file.
@@ -243,7 +223,8 @@ void DNSAnalyser::analyse (AuxField** work0,
 	  sprintf (s2, "binary "); Veclib::describeFormat  (s2 + strlen (s2));
 	  sprintf (s1, Hdr_Fmt[9], s2);                       _wss_strm << s1;
 
-	  if (!_wss_strm) message (routine, "failed writing WSS header", ERROR);
+	  if (!_wss_strm) Veclib::alert (routine,
+					 "failed writing WSS header", ERROR);
 	  _wss_strm << flush;
 	}
 
@@ -257,21 +238,23 @@ void DNSAnalyser::analyse (AuxField** work0,
 		_wss_strm.write(reinterpret_cast<char*>(plane),
 				static_cast<int_t>(_nline * sizeof (real_t))); 
 		if (_wss_strm.bad())
-		  message (routine, "unable to write binary output", ERROR);
+		  Veclib::alert (routine,
+				 "unable to write binary output", ERROR);
 	      }
 	      for (k = 1; k < nPR; k++)
 		for (i = 0; i < nZP; i++) {
-		  Femlib::recv (&buffer[0], _nline, k);
+		  Message::recv (&buffer[0], _nline, k);
 		  _wss_strm.write(reinterpret_cast<char*>(&buffer[0]),
 				  static_cast<int_t>(_nline * sizeof(real_t))); 
-		  if (_wss_strm.bad()) 
-		    message (routine, "unable to write binary output", ERROR);
+		  if (_wss_strm.bad())
+		    Veclib::alert (routine,
+				   "unable to write binary output", ERROR);
 		}
 	      _wss_strm << flush;
 	    } else			// -- Not on root process.
 		for (i = 0; i < nZP; i++) {
 		  plane = &_work[i*_npad + j*_nline];
-		  Femlib::send (plane, _nline, 0);
+		  Message::send (plane, _nline, 0);
 		}
 	} else {			// -- Serial.
 	  for (j = 0; j < 3; j++)
@@ -280,7 +263,8 @@ void DNSAnalyser::analyse (AuxField** work0,
 	      _wss_strm.write (reinterpret_cast<char*>(plane),
 			       static_cast<int_t>(_nline * sizeof (real_t))); 
 	      if (_wss_strm.bad())
-		message (routine, "unable to write binary output", ERROR);
+		Veclib::alert (routine,
+			       "unable to write binary output", ERROR);
 	    }
 	  _wss_strm << flush;
 	}

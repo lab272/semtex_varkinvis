@@ -1,7 +1,7 @@
-#ifndef VECLIB_H
-#define VECLIB_H
+#ifndef CVECLIB_H
+#define CVECLIB_H
 /*****************************************************************************
- *                           V E C L I B . H
+ *                         C V E C L I B . H
  *****************************************************************************/
 
 #include <stdarg.h>
@@ -514,47 +514,48 @@ void ssne (int_t n, float   alpha,
  * REDUCTION FUNCTIONS:
  * ------------------------------------------------------------------------- */
 
-double dsum   (int_t n, const double*  x, int_t incx);
-int_t  isum   (int_t n, const int_t* x, int_t incx);
-float  ssum   (int_t n, const float*   x, int_t incx);
-int_t  idmax  (int_t n, const double*  x, int_t incx);
-int_t  iimax  (int_t n, const int_t* x, int_t incx);
-int_t  ismax  (int_t n, const float*   x, int_t incx);
-int_t  idmin  (int_t n, const double*  x, int_t incx);
-int_t  iimin  (int_t n, const int_t* x, int_t incx);
-int_t  ismin  (int_t n, const float*   x, int_t incx);
-int_t  icount (int_t n, const int_t* x, int_t incx);
-int_t  ifirst (int_t n, const int_t* x, int_t incx);
-int_t  lany   (int_t n, const int_t* x, int_t incx);
-int_t  lisame (int_t n, const int_t* x, int_t incx,
-  	                const int_t* y, int_t incy);
-int_t  ldsame (int_t n, const double*  x, int_t incx,
-		        const double*  y, int_t incy);
-int_t lssame (int_t n,  const float*   x, int_t incx,
-		        const float*   y, int_t incy);
+double dsum   (int_t n, const double* x, int_t incx);
+int_t  isum   (int_t n, const int_t*  x, int_t incx);
+float  ssum   (int_t n, const float*  x, int_t incx);
+int_t  idmax  (int_t n, const double* x, int_t incx);
+int_t  iimax  (int_t n, const int_t*  x, int_t incx);
+int_t  ismax  (int_t n, const float*  x, int_t incx);
+int_t  idmin  (int_t n, const double* x, int_t incx);
+int_t  iimin  (int_t n, const int_t*  x, int_t incx);
+int_t  ismin  (int_t n, const float*  x, int_t incx);
+int_t  icount (int_t n, const int_t*  x, int_t incx);
+int_t  imatch (int_t n, const int_t   alpha, const int_t* x, int_t incx);
+int_t  ifirst (int_t n, const int_t*  x, int_t incx);
+int_t  lany   (int_t n, const int_t*  x, int_t incx);
+int_t  lisame (int_t n, const int_t*  x, int_t incx,
+  	                const int_t*  y, int_t incy);
+int_t  ldsame (int_t n, const double* x, int_t incx,
+	                const double* y, int_t incy);
+int_t  lssame (int_t n, const float*  x, int_t incx,
+		        const float*  y, int_t incy);
 
 /* ------------------------------------------------------------------------- *
  * CONVERSION PRIMITIVES:
  * ------------------------------------------------------------------------- */
 
 void vdble  (int_t n, const float*   x, int_t incx,
-	                      double*  y, int_t incy);
+	                    double*  y, int_t incy);
 void vsngl  (int_t n, const double*  x, int_t incx,
-	                      float*   y, int_t incy);
+	                    float*   y, int_t incy);
 
-void dvfloa (int_t n, const int_t* x, int_t incx,
-	                      double*  y, int_t incy);
-void svfloa (int_t n, const int_t* x, int_t incx,
-	                      float*   y, int_t incy);
+void dvfloa (int_t n, const int_t*   x, int_t incx,
+	                    double*  y, int_t incy);
+void svfloa (int_t n, const int_t*   x, int_t incx,
+	                    float*   y, int_t incy);
 
 int_t iformat(void);
 void format (char*);
-void dbrev  (int_t n, const double*  x, int_t incx,
-	                      double*  y, int_t incy);
-void ibrev  (int_t n, const int_t* x, int_t incx,
-	                      int_t* y, int_t incy);
-void sbrev  (int_t n, const float*   x, int_t incx,
-	                      float*   y, int_t incy);
+void dbrev  (int_t n, const double* x, int_t incx,
+	                    double* y, int_t incy);
+void ibrev  (int_t n, const int_t*  x, int_t incx,
+	                    int_t*  y, int_t incy);
+void sbrev  (int_t n, const float*  x, int_t incx,
+	                    float*  y, int_t incy);
 
 
 /* ------------------------------------------------------------------------- *
@@ -569,7 +570,7 @@ void iscatr (int_t n, int_t* x, int_t *y, int_t* z);
 void sscatr (int_t n, float*   x, int_t *y, float*   z);
 
 void dgathr (int_t n, double*  x, int_t *y, double*  z);
-void igathr (int_t n, int_t* x, int_t *y, int_t* z);
+void igathr (int_t n, int_t*  x, int_t *y, int_t* z);
 void sgathr (int_t n, float*   x, int_t *y, float*   z);
 
 void dramp (int_t n, double  alpha, double  beta, double*  x, int_t incx);

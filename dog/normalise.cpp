@@ -1,17 +1,15 @@
 ///////////////////////////////////////////////////////////////////////////////
-// normalize.cpp: normalize/rescale an eigenmode, either on the basis of
+// normalise.cpp: normalise/rescale an eigenmode, either on the basis of
 // kinetic energy or pressure.
-//
-// Copyright (c) 2011 <--> $Date$, Hugh Blackburn
 //
 // Synopsis:
 // --------
-// normalize [-h] [-p] [-s scale] [-z] session [session.fld]
+// normalise [-h] [-p] [-s scale] [-z] session [session.fld]
 //
 // Description: 
 // ----------- 
 // 
-// Given a velocity + pressure field, normalize it so that it has either
+// Given a velocity + pressure field, normalise it so that it has either
 //
 // \sqrt[(\int u . u dA)/A] = 1 (kinetic energy)
 //
@@ -34,15 +32,15 @@
 // If flag -z is specified, also set the integral mean value of each
 // scalar to zero.
 //
-// Take only the first dump in the field file. 
+// Take only the first dump in the field file.
+//
+// Copyright (c) 2011+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
 
 #include <sem.h>
 #include <data2df.h>
 
-static char  prog[]  = "normalize";
+static char  prog[]  = "normalise";
 static int_t verbose = 0;
 static void  getargs  (int, char**, char*&, char*&, bool&, bool&, real_t&);
 static int_t getDump  (istream&, vector<AuxField*>&, Header&, 
@@ -69,12 +67,13 @@ int main (int    argc,
 
   // -- Initialize.
 
-  Femlib::initialize (&argc, &argv);
-  getargs            (argc, argv, session, dump, pressure, demean, scale);
+  Femlib::init ();
+  
+  getargs (argc, argv, session, dump, pressure, demean, scale);
 
   if (dump) {
     fldfile = new ifstream (dump);
-    if (fldfile -> bad()) message (prog, "no field file", ERROR);
+    if (fldfile -> bad()) Veclib::alert (prog, "no field file", ERROR);
   } else fldfile = &cin;
 
   // -- Set up 2D mesh information.
@@ -112,7 +111,6 @@ int main (int    argc,
   cout << hdr;
   for (i = 0; i <= NCMP; i++) cout << *u[i];
 
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -128,11 +126,11 @@ static void getargs (int     argc    ,
 // Deal with command-line arguments.
 // ---------------------------------------------------------------------------
 {
-  char usage[] = "Usage: normalize [options] session [session.fld]\n"
+  char usage[] = "Usage: normalise [options] session [session.fld]\n"
     "options:\n"
     "-h       ... print this message\n"
     "-p       ... mode normalization on pressure rather than velocity\n"
-    "-s scale ... multiplicative scale applied after normalization\n"
+    "-s scale ... multiplicative scale applied after normalisation\n"
     "-z       ... demean each field (mass-weighted)\n";
  
   while (--argc && **++argv == '-')
@@ -162,7 +160,7 @@ static void getargs (int     argc    ,
 
   if      (argc == 1)   session = argv[0];
   else if (argc == 2) { session = argv[0]; dump = argv[1]; }
-  else                  message (prog, usage, ERROR);
+  else                  Veclib::alert (prog, usage, ERROR);
 }
 
 
@@ -186,10 +184,10 @@ static int_t getDump (istream&           file,
   file >> hdr;
 
   if (hdr.nz < 1 || hdr.nz > 2)
-    message (prog, "nz in field file must be 1 or 2", ERROR);
+    Veclib::alert (prog, "nz in field file must be 1 or 2", ERROR);
 
   if (np != hdr.nr || nel != hdr.nel)
-    message (prog, "size of dump mismatch with session file", ERROR);
+    Veclib::alert (prog, "size of dump mismatch with session file", ERROR);
 
   nf = strlen (hdr.flds);
   Femlib::ivalue ("N_Z", hdr.nz);
@@ -198,16 +196,16 @@ static int_t getDump (istream&           file,
   // -- Check we have (only) uvp or uvwp.
 
   if (hdr.flds[0] != 'u')
-    message (prog, "fields must start with u", ERROR);
+    Veclib::alert (prog, "fields must start with u", ERROR);
 
   if (!(strstr ("uvp",  hdr.flds) || strstr ("uvwp", hdr.flds)))
-    message (prog, "fields must start with either uvp or uvwp", ERROR);
+    Veclib::alert (prog, "fields must start with either uvp or uvwp", ERROR);
 
   if (strstr ("uvp", hdr.flds) && nf != 3)
-    message (prog, "2-component field file must have only u v p", ERROR);
+    Veclib::alert (prog, "2-component field file must have only u v p", ERROR);
 
   if (strstr ("uvwp", hdr.flds) && nf != 4)
-    message (prog, "3-component field file must have only u v w p", ERROR);
+    Veclib::alert (prog, "3-component field file must have only u v w p", ERROR);
 
   // -- Arrange for byte-swapping if required.
 
@@ -242,9 +240,9 @@ static bool doSwap (const char* ffmt)
   Veclib::describeFormat (mfmt);   
 
   if (!strstr (ffmt, "binary"))
-    message (prog, "input field file not in binary format", ERROR);
+    Veclib::alert (prog, "input field file not in binary format", ERROR);
   else if (!strstr (ffmt, "endian"))
-    message (prog, "input field file in unknown binary format", WARNING);
+    Veclib::alert (prog, "input field file in unknown binary format", WARNING);
 
   return (strstr (ffmt, "big") && strstr (mfmt, "little")) || 
          (strstr (mfmt, "big") && strstr (ffmt, "little"));

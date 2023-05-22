@@ -3,13 +3,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Sem.h: main header file for semtex spectral element solvers.
 //
-// Copyright (c) 1994+, Hugh M Blackburn
-//
 // Conventions: 
 // 1. Arrays are 0-offset.
 // 2. Internal ident numbers id/ID start at 0.
 // 3. Class private variable names start with _.
 //
+// Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cstdlib>		/* System C(++) headers.  */
@@ -81,7 +80,7 @@ class NumberSys;
 #include <flowrate.h>
 #include <history.h>
 #include <integration.h>
-#include <misc.h>
+#include <message.h>
 #include <numbersys.h>
 #include <particle.h>
 #include <statistics.h>
@@ -105,7 +104,7 @@ template<class T> inline void rollv (T* u, const int_t n)
 
 template<class T> inline void rollm (T** u, const int_t m, const int_t n)
 // ===========================================================================
-// Stack roll template.  u is an matrix of type T, with at least n*m
+// Stack roll template.  u is a matrix of type T, with at least n*m
 // elements.  m = number of rows, n = number of columns. Roll up by one row.
 // ===========================================================================
 {

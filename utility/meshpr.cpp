@@ -15,7 +15,7 @@
  *   -z <num> ... override number of planes to be num
  *   -b <num> ... override wavenumber beta to be <num> (3D)
  *
- * Prism-compatible output.
+ * Semtex/prism-compatible output.
  *
  * Synopsis
  * --------
@@ -66,7 +66,7 @@ int main (int    argc,
   real_t beta    = -1.;
   bool   check = true, surf = false, threed = false;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
   getargs (argc,argv, session, verb, check, surf, np, nz, threed, basis, beta);
 
   // -- Set up to read from file, initialize Femlib parsing.
@@ -153,7 +153,6 @@ int main (int    argc,
     }
   }
 
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 

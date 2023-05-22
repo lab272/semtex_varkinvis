@@ -23,17 +23,17 @@
 #define MAXFIELDS 50
 
 static char usage[] = 
-  "usage: sem2tec [options] session[.fld]\n"
-  "options:\n"
-  "-h       ... print this message\n"
-  "-o file  ... write output to the named file instead of running preplot\n" 
-  "-c       ... if nz > 1, perform Cylindrical to Cartesian mesh transformation\n"
-  "-m file  ... read the mesh from the named file (instead of stdin)\n"
-  "-d <num> ... extract dump <num> from file\n"
-  "-n <num> ... evaluate the solution on an evenly-spaced mesh with N X N\n"
-  "             points.  If N = 0, then no interpolation is done, i.e., the\n"
-  "             output mesh will be on a standard GLL-spectral element mesh\n"
-  "-w       ... extend the data by one additional plane in the z-direction\n";
+"usage: sem2tec [options] session[.fld]\n"
+"options:\n"
+"-h       ... print this message\n"
+"-o file  ... write output to the named file instead of running preplot\n" 
+"-c       ... if nz > 1, perform Cylindrical to Cartesian mesh transformation\n"
+"-m file  ... read the mesh from the named file (instead of stdin)\n"
+"-d <num> ... extract dump <num> from file\n"
+"-n <num> ... evaluate the solution on an evenly-spaced mesh with N X N\n"
+"             points.  If N = 0, then no interpolation is done, i.e., the\n"
+"             output mesh will be on a standard GLL-spectral element mesh\n"
+"-w       ... extend the data by one additional plane in the z-direction\n";
 
 static FILE    *fp_fld = 0,          /* default input files */
                *fp_msh = 0;

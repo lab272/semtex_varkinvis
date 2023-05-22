@@ -25,27 +25,7 @@
  * @file utility/integral.cpp
  * @ingroup group_utility
  *****************************************************************************/
-// Copyright (c) 1999 <--> $Date$, Hugh Blackburn
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
+// Copyright (c) 1999+, Hugh M Blackburn
 
 #include <sem.h>
 
@@ -79,13 +59,15 @@ int main (int    argc,
 
   // -- Initialize.
 
-  Femlib::initialize (&argc, &argv);
-  getargs            (argc, argv, session, dump, cylind);
-  cout.precision     (8);
+  Femlib::init ();
+  
+  getargs (argc, argv, session, dump, cylind);
+  
+  cout.precision (8);
 
   if (dump) {
     fldfile = new ifstream (dump);
-    if (fldfile -> fail()) message (prog, "no field file", ERROR);
+    if (fldfile -> fail()) Veclib::alert (prog, "no field file", ERROR);
   } else fldfile = &cin;
 
   // -- Set up 2D mesh information.
@@ -122,7 +104,6 @@ int main (int    argc,
     }
   }
 
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -162,7 +143,7 @@ static void getargs (int    argc   ,
 
   if      (argc == 1)   session = argv[0];
   else if (argc == 2) { session = argv[0]; dump = argv[1]; }
-  else                  message (prog, usage, ERROR);
+  else                  Veclib::alert (prog, usage, ERROR);
 }
 
 
@@ -184,7 +165,8 @@ static bool getDump (istream&           file,
 
   if (file.getline(buf, StrMax).eof()) return 0;
   
-  if (!strstr (buf, "Session")) message (prog, "not a field file", ERROR);
+  if (!strstr (buf, "Session"))
+    Veclib::alert (prog, "not a field file", ERROR);
   file.getline (buf, StrMax);
 
   // -- Input numerical description of field sizes.
@@ -193,7 +175,7 @@ static bool getDump (istream&           file,
   file.getline (buf, StrMax);
   
   if (np != npnew || nz != nznew || nel != nelnew)
-    message (prog, "size of dump mismatch with session file", ERROR);
+    Veclib::alert (prog, "size of dump mismatch with session file", ERROR);
 
   file.getline (buf, StrMax);
   file.getline (buf, StrMax);
@@ -221,7 +203,8 @@ static bool getDump (istream&           file,
       u[i]  = new AuxField (alloc, nz, Esys, fields[i]);
     }
   } else if (u.size() != nf) 
-    message (prog, "number of fields mismatch with first dump in file", ERROR);
+    Veclib::alert
+      (prog, "number of fields mismatch with first dump in file", ERROR);
 
   // -- Read binary field data.
 
@@ -244,9 +227,9 @@ static bool doSwap (const char* ffmt)
   Veclib::describeFormat (mfmt);   
 
   if (!strstr (ffmt, "binary"))
-    message (prog, "input field file not in binary format", ERROR);
+    Veclib::alert (prog, "input field file not in binary format", ERROR);
   else if (!strstr (ffmt, "endian"))
-    message (prog, "input field file in unknown binary format", WARNING);
+    Veclib::alert (prog, "input field file in unknown binary format", WARNING);
 
   return (strstr (ffmt, "big") && strstr (mfmt, "little")) || 
          (strstr (mfmt, "big") && strstr (ffmt, "little"));

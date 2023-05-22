@@ -30,7 +30,6 @@ C        X(J) = SUM(K=0,...,N-1)(C(K)*EXP(ISIGN*2*I*J*K*PI/N)).
 C
 C     This file contains DOUBLE PRECISION versions of routines.
 C
-C     $Id$
 C     ==================================================================
 C
 C
@@ -151,8 +150,8 @@ C
 C     V     is the 2D array to be transformed, size NP * NZ;
 C     W     is a work array, size NP * NZ;
 C     NP    is the number of transforms (must be even);
-C     NZ    is the number of real data in each transform, 
-C           factorizable by 2, 3, 5:
+C     NZ    is the number of real data in each transform (must be even)
+C           and factorizable by 2, 3, 5:
 C           --------------------------------
 C           NZ = (2**IP) * (3**IQ) * (5**IR);
 C           --------------------------------
@@ -179,6 +178,17 @@ C     Work array W could be reduced in size to 2*NZ if the inner loops
 C     of scrambling/unscrambling were over NZ rather than NPH.
 C     This would reduce vector performance on suitable machines, but
 C     might be preferable on scalar ones.
+C
+C     Note the requirement that the number of transforms be even.  This
+C     comes about because we are using the method of dealing with two
+C     real functions simultaneously, using a complex--complex FFT.  See
+C     e.g. Numerical Recipes for an explanation.  In our code this has
+C     the implicaton that the number of points in a 2D data plane (NP)
+C     has if necessary to be rounded up to an even number; this is
+C     enforced elsewhere.
+C
+C     As far as I know this routine has only been tested with NZ even.
+C     The variable NZODD is not used.
 C     ------------------------------------------------------------------
       IMPLICIT NONE
 C
@@ -187,16 +197,20 @@ C
       DOUBLE PRECISION V    (NP,0:NZ-1)
       DOUBLE PRECISION W    (NP/2,2,0:NZ-1)
       DOUBLE PRECISION TRIG (*)
+#if 0      
+C     We don't appear to use the following variable!      
       LOGICAL          NZODD
-C 
+#endif      
       NPH  = NP / 2
       NZH  = NZ / 2
       NZHM = NZH - 1
+#if 0      
       IF (NZH+NZH .EQ. NZ) THEN
          NZODD = .FALSE.
       ELSE
          NZODD = .TRUE.
       ENDIF
+#endif      
 C         
       IF (ISIGN .EQ. +1) THEN
 C

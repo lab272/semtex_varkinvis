@@ -82,4 +82,11 @@ private:
 
 };
 
+
+// -- Related routins for I/O that don't use any private data.
+
+void readField  (istream&, vector<AuxField*>&);
+void writeField (ostream&, const char*, const int_t, const real_t,
+		 vector<AuxField*>&);
+
 #endif

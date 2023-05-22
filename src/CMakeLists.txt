@@ -18,7 +18,8 @@ set (semtex_src
   integration.cpp
   matrix.cpp
   mesh.cpp
-  misc.cpp
+  message.cpp
+#  misc.cpp
   numbersys.cpp
   particle.cpp
   statistics.cpp
@@ -27,3 +28,4 @@ set (semtex_src
 
 add_library (src STATIC ${semtex_src})
 target_include_directories (src PRIVATE ${CMAKE_SOURCE_DIR}/src)
+

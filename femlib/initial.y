@@ -239,9 +239,9 @@ void yy_initialize (void)
  * This routine should be called at start of run-time.
  * ------------------------------------------------------------------------- */
 {
-  static   int_t   initialized = 0;
-   int_t   i;
-   Symbol* s;
+  static int_t initialized = 0;
+  int_t        i;
+  Symbol*      s;
 
   if (!initialized) {
     for (i = 0; consts[i].name; i++)
@@ -345,11 +345,11 @@ void yy_vec_interp (const int_t ntot, ...)
  * i.e.  vecInterp(ntot, x, y, z, u); the result fn(x,y,z) is placed in u.
  * ------------------------------------------------------------------------- */
 {
-  char           routine[] = "yy_vec_interp";
-   int_t i, n;
-  double*        x[VEC_MAX];
-  double*        fx = NULL;
-  va_list        ap;
+  char    routine[] = "yy_vec_interp";
+  int_t   i, n;
+  double* x[VEC_MAX];
+  double* fx = NULL;
+  va_list ap;
   
   va_start (ap, ntot);
   for (i = 0; i < nvec; i++) {
@@ -395,8 +395,8 @@ void yy_show (void)
  * Print details of installed variables to stderr.
  * ------------------------------------------------------------------------- */
 {
-   int_t   i;
-   Symbol* sp;
+  int_t   i;
+  Symbol* sp;
 
   for (i = 0; i < HASHSIZE; i++)
     for (sp = hashtab[i]; sp; sp = sp -> next)
@@ -412,9 +412,9 @@ int_t yy_dump (char*       str,
  * If string overflows, return 0, else 1.
  * ------------------------------------------------------------------------- */
 {
-   int_t   i, n = 0;
-   Symbol* sp;
-  char             buf[FILENAME_MAX];
+  int_t   i, n = 0;
+  Symbol* sp;
+  char    buf[FILENAME_MAX];
 
   for (i = 0; i < HASHSIZE; i++)
     for (sp = hashtab[i]; sp; sp = sp -> next)
@@ -436,7 +436,7 @@ static int yylex (void)
  * yy_interpret.
  * ------------------------------------------------------------------------- */
 {
-   int_t c;
+  int_t c;
 
   while ((c = *cur_string++) == ' ' || c == '\t');
 
@@ -449,7 +449,7 @@ static int yylex (void)
 
   if (isalpha (c)) {
      Symbol* s;
-    char             sbuf[STR_MAX];
+     char    sbuf[STR_MAX];
      char*   p = sbuf;
     do {
       *p++ = c;
@@ -479,7 +479,7 @@ static unsigned hash (const char* s)
  * Generate hash table index.
  * ------------------------------------------------------------------------- */
 {
-   unsigned hashval;
+  unsigned hashval;
 
   for (hashval = 0; *s != '\0'; s++) hashval = *s + HASHSEED * hashval;
   
@@ -492,7 +492,7 @@ static Symbol* lookup (const char* s)
  * Find s in symbol hashtable.
  * ------------------------------------------------------------------------- */
 {
-   Symbol* sp;
+  Symbol* sp;
   
   for (sp = hashtab[hash (s)]; sp; sp = sp->next)
     if (strcmp (s, sp->name) == 0) return sp;
@@ -501,15 +501,15 @@ static Symbol* lookup (const char* s)
 }
 
 
-static Symbol* install (const char*   s,
-			const int_t t,
-			const double  d)
+static Symbol* install (const char*  s,
+			const int_t  t,
+			const double d)
 /* ------------------------------------------------------------------------- *
  * Install s in symbol hashtable.
  * ------------------------------------------------------------------------- */
 {
-   Symbol*  sp;
-   unsigned hashval;
+  Symbol*  sp;
+  unsigned hashval;
 
   if (!(sp = lookup (s))) {	/* -- Not found, install in hashtab. */
     sp = (Symbol *) emalloc (sizeof (Symbol));
@@ -554,10 +554,10 @@ static double Jacobi (double z, double n, double alpha, double beta)
  *   P^(alpha,beta)_n(z) alpha > -1, beta > -1 at z.
  * ------------------------------------------------------------------------- */
 {
-  const double     apb = alpha + beta;
-   int_t i,k;
-  double           a1,a2,a3,a4;
-  double           poly, polyn1, polyn2;
+  const double apb = alpha + beta;
+  int_t        i,k;
+  double       a1,a2,a3,a4;
+  double       poly, polyn1, polyn2;
   
   polyn2 = 1.0;
   polyn1 = 0.5*(alpha - beta + (alpha + beta + 2.0)*z);
@@ -595,8 +595,8 @@ void F77NAME(zbesj) (const double*, const double*, const double*,
 void Zbesj (const double *x, const double *y, const double ord, 
 	    const int_t Kode, const int_t n, double *ReJ, 
 	    double *ImJ, int_t* nz, int_t* ierr) {
-  int_t N = n;
-  int_t K = Kode;
+  int_t   N = n;
+  int_t   K = Kode;
   double  order = ord;
 
   F77NAME(zbesj) (x, y, &order, &K, &N, ReJ, ImJ, nz, ierr);
@@ -605,8 +605,8 @@ void Zbesj (const double *x, const double *y, const double ord,
 
 static double ReJn (double n, double x,  double y)
 {
-  int_t nz, ierr;
-  double  rej, imj;
+  int_t  nz, ierr;
+  double rej, imj;
   
   Zbesj (&x,&y,n,1,1,&rej,&imj,&nz,&ierr);
   return rej;
@@ -614,8 +614,8 @@ static double ReJn (double n, double x,  double y)
 
 static double ImJn (double n, double x, double y)
 {
-  int_t nz, ierr;
-  double  rej, imj;
+  int_t  nz, ierr;
+  double rej, imj;
   
   Zbesj (&x,&y,n,1,1,&rej,&imj,&nz,&ierr);
   return imj;

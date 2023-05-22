@@ -19,31 +19,10 @@
  * @file utility/phase.cpp
  * @ingroup group_utility
  *****************************************************************************/
-// Copyright (c) 2002 <--> $Date$, Hugh Blackburn
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
+// Copyright (c) 2002+, Hugh M Blackburn
 
 #include <sem.h>
 #include <data2df.h>
-
 
 static char  prog[] = "phase";
 static void  getargs  (int,char**,bool&,bool&,bool&,bool&,real_t&,istream*&);
@@ -64,7 +43,8 @@ int main (int    argc,
   istream*         input;
   vector<Data2DF*> u;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
+  
   getargs (argc, argv, conj, cmplx, zero, symm, alpha, input);
   
   while (getDump (*input, cout, u))
@@ -81,7 +61,6 @@ int main (int    argc,
       cout << *u[i];
     }
   
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
@@ -136,11 +115,11 @@ static void getargs (int       argc ,
     }
 
   if (fabs(shift) < EPSDP && !(conj | cmplx | symm))
-    message (prog, "no action signalled", ERROR);
+    Veclib::alert (prog, "no action signalled", ERROR);
 
   if (argc == 1) {
     input = new ifstream (*argv);
-    if (input -> fail()) message (prog, "unable to open input file", ERROR);
+    if (input -> fail()) Veclib::alert (prog, "unable to open input file", ERROR);
   } else input = &cin;
 }
 
@@ -168,9 +147,9 @@ static int_t doSwap (const char* ffmt)
   Veclib::describeFormat (mfmt);   
 
   if (!strstr (ffmt, "binary"))
-    message (prog, "input field file not in binary format", ERROR);
+    Veclib::alert (prog, "input field file not in binary format", ERROR);
   else if (!strstr (ffmt, "endian"))
-    message (prog, "input field file in unknown binary format", WARNING);
+    Veclib::alert (prog, "input field file in unknown binary format", WARNING);
 
   return (strstr (ffmt, "big") && strstr (mfmt, "little")) || 
          (strstr (mfmt, "big") && strstr (ffmt, "little"));
@@ -201,7 +180,7 @@ static int_t getDump (istream&           ifile,
 
   if (ifile.getline(buf, StrMax).eof()) return 0;
   
-  if (!strstr (buf, "Session")) message (prog, "not a field file", ERROR);
+  if (!strstr (buf, "Session")) Veclib::alert (prog, "not a field file", ERROR);
   ofile << buf << endl;
   ifile.getline (buf, StrMax);
   ofile << buf << endl;

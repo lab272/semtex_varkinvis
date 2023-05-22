@@ -2,8 +2,6 @@
 // field.cpp: derived from AuxField, Field adds boundary conditions,
 // global numbering, and the ability to solve Helmholtz problems.
 //
-// Copyright (c) 1994+, Hugh M Blackburn
-//
 // HELMHOLTZ PROBLEMS
 // ------------------
 // Solve routines provide solution to the discrete form of the Helmholtz eqn
@@ -101,6 +99,8 @@
 // w:  Third velocity component.            (Cylindrical: azimuthal velocity.)
 // p:  Pressure divided by density.
 // c:  Scalar for transport or elliptic problems.
+//
+// Copyright (c) 1994+, Hugh M Blackburn
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sem.h>
@@ -374,7 +374,7 @@ Field& Field::solve (AuxField*        f,
 	r2   = Blas::dot (npts, r, 1, r, 1);
       }
   
-      if (i == StepMax) message (routine, "step limit exceeded", WARNING);
+      if (i == StepMax) Veclib::alert (routine, "step limit exceeded", WARNING);
     
       // -- Unpack converged vector x, impose current essential BCs.
 
@@ -386,13 +386,14 @@ Field& Field::solve (AuxField*        f,
       if (Femlib::ivalue ("VERBOSE") > 1) {
 	char s[StrMax];
 	sprintf (s, ":%3d iterations, field '%c'", i, _name);
-	message (routine, s, REMARK);
+	Veclib::alert (routine, s, REMARK);
       }
     }
     break;
   
     default:
-      message (routine, "called with a method that isn't implemented", ERROR);
+      Veclib::alert
+	(routine, "called with a method that isn't implemented", ERROR);
       break;
     }
   }
@@ -760,7 +761,7 @@ void Field::coupleBCs (Field*      v  ,
     }
 
   } else
-    message (routine, "unknown direction given", ERROR);
+    Veclib::alert (routine, "unknown direction given", ERROR);
 }
 
 
@@ -790,7 +791,7 @@ real_t Field::modeConstant (const char   name,
 
   if      (name == 'v') return beta * mode + 1.0;
   else if (name == 'w') return beta * mode - 1.0;
-  else message (routine, "unrecognized Field name given", ERROR);
+  else Veclib::alert (routine, "unrecognized Field name given", ERROR);
 
   return -1.0;			// -- Never happen.
 }

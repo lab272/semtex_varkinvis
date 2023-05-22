@@ -21,27 +21,7 @@
  * @file utility/repmesh.cpp
  * @ingroup group_utility
  *****************************************************************************/
-// Copyright (c) 2000 <--> $Date$, Hugh Blackburn
-// --
-// This file is part of Semtex.
-// 
-// Semtex is free software; you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation; either version 2 of the License, or (at your
-// option) any later version.
-// 
-// Semtex is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-// for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Semtex (see the file COPYING); if not, write to the Free
-// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-// 02110-1301 USA
-///////////////////////////////////////////////////////////////////////////////
-
-static char RCS[] = "$Id$";
+// Copyright (c) 2000+, Hugh M Blackburn
 
 #include <sem.h>
 
@@ -82,7 +62,7 @@ int main (int    argc,
   vector<Node*>* elements;
   FEML*          F;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
 
   getArgs (argc, argv, mirror, axis, angle, nrep, F);
 
@@ -93,8 +73,6 @@ int main (int    argc,
 	    const_cast<const vector<Node*>*&>(elements),
 	    nvert, nel, nrep, mirror);
 
-  Femlib::finalize();
-  
   return EXIT_SUCCESS;
 }
 
@@ -191,7 +169,8 @@ static int_t getVertices (FEML*          F   ,
   for (i = 0; i < num; i++) {    // -- Input Nodes (assumed unique).
     F -> stream() >> id >> x >> y >> z;
     if (id != i + 1)
-      message (routine, "input list of NODES is out of order: check", ERROR);
+      Veclib::alert
+	(routine, "input list of NODES is out of order: check", ERROR);
     if (fabs(x) < EPSSP) x = 0.0;
     if (fabs(y) < EPSSP) y = 0.0;
     P.x = x; P.y = y; P.z = 0.0;
