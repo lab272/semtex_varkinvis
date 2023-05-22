@@ -139,7 +139,7 @@ Field2DF& Field2DF::operator = (const Field2DF& rhs)
   if (rhs.nel != nel)
     message ("Field2DF::operator =", "fields can't conform", ERROR);
 
-  if (rhs.nr == nr && rhs.ns == ns && rhs.nz == nz) // -- No project, just copy.
+  if (rhs.nr == nr && rhs.ns == ns && rhs.nz == nz) // -- Just copy.
     Veclib::copy (ntot, rhs.data, 1, data, 1);
 
   else {			// -- Perform projection.
@@ -265,7 +265,7 @@ int main (int    argc,
   istream*          input;
   vector<Field2DF*> Uold, Unew;
 
-  Femlib::initialize (&argc, &argv);
+  Femlib::init ();
 
   getargs (argc, argv, nRnew, nZnew, keepW, input);
 
@@ -283,7 +283,7 @@ int main (int    argc,
 
     case 0:			// -- Same number of fields out as in.
       for (i = 0; i < Uold.size(); i++) {
-	Unew[i] = new Field2DF (nRnew, nSnew, nZnew, nEl, Uold[i] -> getName());
+	Unew[i] = new Field2DF (nRnew, nSnew, nZnew, nEl,Uold[i] -> getName());
        *Unew[i] = *Uold[i];
       }
       break;
@@ -291,7 +291,7 @@ int main (int    argc,
     case 1:			// -- Add a new blank field called 'w'.
       for (i = 0; i < Uold.size(); i++) {
 	j = _index (fields, Uold[i] -> getName());
-	Unew[j] = new Field2DF (nRnew, nSnew, nZnew, nEl, Uold[i] -> getName());
+	Unew[j] = new Field2DF (nRnew, nSnew, nZnew, nEl,Uold[i] -> getName());
 	*Unew[j] = *Uold[i];
       }
       j = _index (fields, 'w');
@@ -302,7 +302,7 @@ int main (int    argc,
     case -1:			// -- Delete field called 'w'.
       for (j = 0, i = 0; i < Uold.size(); i++) {
 	if (Uold[i] -> getName() == 'w') continue;
-	Unew[j] = new Field2DF (nRnew, nSnew, nZnew, nEl, Uold[i] -> getName());
+	Unew[j] = new Field2DF (nRnew, nSnew, nZnew, nEl,Uold[i] -> getName());
 	*Unew[j] = *Uold[i];
 	j++;
       }
@@ -319,7 +319,6 @@ int main (int    argc,
     }
   }
   
-  Femlib::finalize();
   return EXIT_SUCCESS;
 }
 
