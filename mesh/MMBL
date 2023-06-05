@@ -38,8 +38,8 @@
 </USER>
 
 <FORCE>
-	CSB_BETA_T         = BETA_T
-	CSB_T_REF          = T_REF
+	CFB_BETA_T         = BETA_T
+	CFB_T_REF          = T_REF
 	CORIOLIS_UNSTEADY  = 0
 	CORIOLIS_OMEGA_X   = OMEGA
 	STEADY_Y           = OMEGA*OMEGA*y

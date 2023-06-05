@@ -43,9 +43,9 @@ protected:
   bool			_enabled;
   vector<VirtualForce*> _classes;   // -- Concrete body forcing classes.
 private:
-  real_t _CSB_T_REF, _CSB_BETA_T;
-  int_t  _CSB_no_hydro;
-  bool   _CSB_enabled;
+  real_t _CFB_T_REF, _CFB_BETA_T;
+  int_t  _CFB_no_hydro;
+  bool   _CFB_enabled;
 };
 
 

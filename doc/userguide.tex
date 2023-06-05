@@ -3295,15 +3295,16 @@ deprecated in favour of the more complete approach described in the
 following section.
 
 %----------------------------------------------------------------------------
-\subsection{Canonical steady Boussinesq buoyancy}
+\subsection{`Canonical' steady Boussinesq buoyancy}
 \label{sec.csb}
 
 This is the treatment of Boussinesq buoyancy described in
 \citet{blss21}, whereby density fluctuation is applied to all the
-advective and frame-acceleration terms in the \NavSto\ equations.  In
-fact, here, it is applied to the advective, frame acceleration and any
-other forcing terms.  (It is usual in GFD Boussinesq applications to apply
-density variation only to gravitational body force, on the assumption
+convective and frame-acceleration terms in the \NavSto\ equations.  In
+fact, here, it is applied to the convective, frame-acceleration,  and
+any other forcing terms.  (It is usual in GFD Boussinesq applications
+to apply density variation only to gravitational body
+force\,---\,equivalent to a frame acceleration\,---\,on the assumption
 that this is typically large compared to the fluid acceleration
 terms.)
 
@@ -3337,13 +3338,14 @@ $\rho'/\rho_0=\beta_T(T_\text{ref}-T)\equiv\beta_T(c_\text{ref}-c)$.
 Equation \eqref{eq.denacc1} is the `canonical steady Boussinesq'
 treatment of buoyancy terms.  As explained in \citeauthor{blss21}, it
 is a robust treatment of Boussinesq buoyancy and fulfils the original
-intention in the case of steady flows --- and the omission of effect
+intention in the case of steady flows\,---\,and the omission of effect
 of density variation on the local acceleration term is also a part of
 standard Boussinesq treatments, so in effect it is a more complete
 approach than the standard method.  Note that the flows considered
 need not be steady; it is just the case that, as for standard
 Boussinesq treatments, the approximation is more complete when they
-are.
+are.  We call the method the convective--frame-acceleration Boussinesq
+treatment (that's a mouthful, so we use the acronym CFB below).
 
 As outlined in \citeauthor{blss21}, a gravitational field $\bm{g}$
 would be included as a frame acceleration term $\bm{A}\equiv-\bm{g}$
@@ -3366,12 +3368,12 @@ Any frame-rotation terms would be dealt with as described in
   \label{fig.csb}
 \end{figure}
 
-To use canonical steady Boussinesq (CSB) buoyancy, one needs to define
-\verb|CSB_BETA_T| and \verb|CSB_T_REF| in the \verb|FORCE| section.
-These are equivalent to the regular Boussinesq tokens outlined in the
-previous section. In addition, one may need to apply frame
-acceleration terms as outlined above in \S\S\,\ref{sec.constant},
-\ref{sec.steady} and~\ref{sec.rotating}.
+To use CFB buoyancy, one needs to define \verb|CFB_BETA_T| and
+\verb|CFB_T_REF| in the \verb|FORCE| section.  These are equivalent to
+the regular Boussinesq tokens outlined in the previous section. In
+addition, one may need to apply frame acceleration terms as outlined
+above in \S\S\,\ref{sec.constant}, \ref{sec.steady}
+and~\ref{sec.rotating}.
 
 For example, consider the case dealt with in \citet{blss21} \S\,3.1,
 see the present figure~\ref{fig.csb}(\textit{a}).  This is an
@@ -3391,8 +3393,8 @@ various of the assignments below correspond to user-defined
 
 \begin{verbatim}
 <FORCE>
-    CSB_BETA_T        = BETA_T
-    CSB_T_REF         = T_REF
+    CFB_BETA_T        = BETA_T
+    CFB_T_REF         = T_REF
     CORIOLIS_UNSTEADY = 0
     CORIOLIS_OMEGA_X  = OMEGA
     STEADY_Y          = OMEGA*OMEGA*y
@@ -3411,8 +3413,8 @@ centrifugal force terms.  See also the session file \verb|PCM2| in the
 
 \begin{verbatim}
 <FORCE>
-    CSB_T_REF         = T_REF
-    CSB_BETA_T        = BETA_T
+    CFB_T_REF         = T_REF
+    CFB_BETA_T        = BETA_T
     CORIOLIS_UNSTEADY = 0
     CORIOLIS_OMEGA_Z  = OMEGA
     STEADY_X          = OMEGA*OMEGA*x
@@ -3421,10 +3423,10 @@ centrifugal force terms.  See also the session file \verb|PCM2| in the
 \end{verbatim}
 
 By default, hydrostatic pressure gradients associated with steady body
-forces or accelerations are removed for CSB.  This is convenient in
+forces or accelerations are removed for CFB.  This is convenient in
 the case that there are free boundaries and one does not wish to apply
 associated pressures.  If you wish hydrostatic terms to appear, you
-should also set \verb|CSB_REMOVE_HYDRO=1|.
+should also set \verb|CFB_REMOVE_HYDRO=1|.
  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
