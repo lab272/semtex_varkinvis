@@ -13,7 +13,6 @@
 
 class Curve;
 
-
 class Mesh
 // ===========================================================================
 // Mesh class is used as a storage for inter-element connectivities,
@@ -38,7 +37,6 @@ public:
   class Node;
   class Elmt;
   class Side;
-  enum  IDstatus { UNSET = -1 };
 
   Mesh (FEML*, const bool = true);
 

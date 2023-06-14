@@ -351,6 +351,8 @@ void Domain::makeAssemblyMaps (FEML*       file,
 
   } else {
 
+    cout << "MULTIMODAL BCS" << endl;
+    
     // -- Number systems are different for modes 0, 1, 2+ owing to
     //    presence of axial BCs (Blackburn & Sherwin JCP 197 2004).
 

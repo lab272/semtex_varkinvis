@@ -15,6 +15,8 @@
 typedef struct { real_t x, y, z; } Point;
 typedef Point                      Vector;
 
+#define UNSET      -1
+#define HDR_LEN    351c
 #define STR_MAX    2048
 #define F77NAME(x) x##_
 

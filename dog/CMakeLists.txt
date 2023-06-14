@@ -6,7 +6,7 @@
 option (WITH_FLIP   "Build dog with half-period map"  OFF)
 option (WITH_ARPACK "Build dog with ARPACK"           OFF)
 
-# -- Local overrides for standard semtex/src files:
+# -- Standard semtex/src files, with local over-rides interspersed.
 
 set (override_src
      ${CMAKE_CURRENT_LIST_DIR}/analysis.cpp
@@ -17,6 +17,22 @@ set (override_src
      ${CMAKE_CURRENT_LIST_DIR}/feml.cpp
      ${CMAKE_CURRENT_LIST_DIR}/field.cpp
      ${CMAKE_CURRENT_LIST_DIR}/geometry.cpp
+     ${CMAKE_SOURCE_DIR}/src/assemblymap.cpp
+     ${CMAKE_SOURCE_DIR}/src/boundary.cpp
+     ${CMAKE_SOURCE_DIR}/src/boundarysys.cpp     
+     ${CMAKE_SOURCE_DIR}/src/condition.cpp     
+     ${CMAKE_SOURCE_DIR}/src/data2df.cpp     
+     ${CMAKE_SOURCE_DIR}/src/element.cpp     
+     ${CMAKE_SOURCE_DIR}/src/family.cpp     
+     ${CMAKE_SOURCE_DIR}/src/history.cpp     
+     ${CMAKE_SOURCE_DIR}/src/integration.cpp     
+     ${CMAKE_SOURCE_DIR}/src/matrix.cpp     
+     ${CMAKE_SOURCE_DIR}/src/mesh.cpp     
+     ${CMAKE_SOURCE_DIR}/src/message.cpp     
+     ${CMAKE_SOURCE_DIR}/src/numbersys.cpp     
+#     ${CMAKE_SOURCE_DIR}/src/particle.cpp     
+#     ${CMAKE_SOURCE_DIR}/src/statistics.cpp     
+     ${CMAKE_SOURCE_DIR}/src/svv.cpp     
 )
 add_library (override STATIC ${override_src})
 target_include_directories (override PUBLIC dog src)
@@ -30,7 +46,7 @@ set (dog_src
 )
 add_executable             (dog ${dog_src})
 target_include_directories (dog PUBLIC dog src)
-target_link_libraries      (dog override src fem vec ${import_serial_libs})
+target_link_libraries      (dog override fem vec ${import_serial_libs})
 
 # -- Optional executable dog-AR, uses ARPACK for eigensystem solutions.
 
@@ -46,7 +62,7 @@ if (WITH_ARPACK)
   add_executable             (dog-AR ${dog_src})
   target_compile_definitions (dog-AR PRIVATE ARPACK=ON)
   target_include_directories (dog-AR PUBLIC dog src)
-  target_link_libraries      (dog-AR override src fem vec ${import_serial_libs}
+  target_link_libraries      (dog-AR override fem vec ${import_serial_libs}
   			     ${ARPACK_LIBRARY})	
 
 endif(WITH_ARPACK)
@@ -57,7 +73,7 @@ if (WITH_FLIP)
   add_executable             (dog-H ${dog_src})
   target_compile_definitions (dog-H PRIVATE FLIP=ON)
   target_include_directories (dog-H PUBLIC dog src)
-  target_link_libraries      (dog-H override src fem vec ${import_serial_libs})
+  target_link_libraries      (dog-H override fem vec ${import_serial_libs})
 endif (WITH_FLIP)
 
 # -- lns is analogous to dns: it integrates the linearised Navier-Stokes
@@ -70,7 +86,7 @@ set (lns_src
 )
 add_executable             (lns ${lns_src})
 target_include_directories (lns PUBLIC dog src)
-target_link_libraries      (lns override src fem vec ${import_serial_libs})
+target_link_libraries      (lns override fem vec ${import_serial_libs})
 
 # -- Utilities follow.  See dog user guide or source file headers.
     
@@ -79,21 +95,19 @@ set (norm_src
 )
 add_executable            (normalise ${norm_src})
 target_include_directories(normalise PUBLIC dog src)
-target_link_libraries     (normalise override src fem vec ${import_serial_libs})
+target_link_libraries     (normalise override fem vec ${import_serial_libs})
 
 add_executable (symmetrise
      ${CMAKE_CURRENT_LIST_DIR}/symmetrise.cpp
-     ${CMAKE_CURRENT_LIST_DIR}/../src/data2df.cpp
 )     
 target_include_directories (symmetrise PUBLIC dog src)
-target_link_libraries      (symmetrise fem vec ${import_serial_libs})
+target_link_libraries      (symmetrise override fem vec ${import_serial_libs})
 
 add_executable (reflect
      ${CMAKE_CURRENT_LIST_DIR}/reflect.cpp
-     ${CMAKE_CURRENT_LIST_DIR}/../src/data2df.cpp
 )     
 target_include_directories (reflect PUBLIC dog src)
-target_link_libraries      (reflect fem vec ${import_serial_libs})
+target_link_libraries      (reflect override fem vec ${import_serial_libs})
 
 add_executable (combine ${CMAKE_CURRENT_LIST_DIR}/combine.cpp)     
 target_include_directories (combine PUBLIC dog)

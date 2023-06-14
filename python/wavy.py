@@ -16,8 +16,7 @@
 #   <eps_y>  ... real number that supplies that maximum wave amplitude
 #   session  ... name of session file that will be created
 # 
-# 
-# $Id$
+# NB: the SURFACES, BCS, GROUPS sections will likely need hand editing.
 # ----------------------------------------------------------------------------
 
 import sys

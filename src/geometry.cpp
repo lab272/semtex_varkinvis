@@ -20,14 +20,14 @@
 #include <veclib.h>
 #include <femlib.h>
 
-int_t Geometry::_pid   = 0;	// -- Initialise static private data.
-int_t Geometry::_nproc = 0;
-int_t Geometry::_ndim  = 0;
-int_t Geometry::_np    = 0;
-int_t Geometry::_nz    = 0;
-int_t Geometry::_nzp   = 0;
-int_t Geometry::_nel   = 0;
-int_t Geometry::_psize = 0;
+int_t Geometry::_pid   = UNSET;	// -- Initialise static private data.
+int_t Geometry::_nproc = UNSET;
+int_t Geometry::_ndim  = UNSET;
+int_t Geometry::_np    = UNSET;
+int_t Geometry::_nz    = UNSET;
+int_t Geometry::_nzp   = UNSET;
+int_t Geometry::_nel   = UNSET;
+int_t Geometry::_psize = UNSET;
 Geometry::CoordSys Geometry::_csys = Geometry::Cartesian;
 
 
@@ -68,7 +68,8 @@ void Geometry::set (const int_t    NP,
 {
   static char routine[] = "Geometry::set", err[StrMax];
 
-  if (_np) Veclib::alert (routine, "cannot re-initialise Geometry", ERROR);
+  if (_np != UNSET)
+    Veclib::alert (routine, "cannot re-initialise Geometry", ERROR);
 
   _pid   = Femlib::ivalue ("I_PROC");
   _nproc = Femlib::ivalue ("N_PROC");

@@ -277,15 +277,17 @@ int_t FEML::attribute (const char* tag ,
 
 bool FEML::tokens ()
 // ---------------------------------------------------------------------------
-// Install token table.  Return false if no TOKEN section is found.
+// Install token table.  Return false if no TOKENS section is found.
 // NUMBER attribute ignored if present.  Fix any inconsistent values.
-// Parser must have been initialized before entry.
+// If parser hasn't been initialized before entry, do so.
 // Lines with '#' at the start are ignored.
 // ---------------------------------------------------------------------------
 {
-  const char     routine[] = "FEML::tokens";
-  char           buf[STR_MAX];
-   char* u;
+  const char routine[] = "FEML::tokens";
+  char       buf[STR_MAX];
+  char*      u;
+
+  Femlib::init();
 
   if (seek ("TOKENS")) {
     _feml_file.ignore (STR_MAX, '\n');

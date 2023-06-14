@@ -19,7 +19,6 @@ set (semtex_src
   matrix.cpp
   mesh.cpp
   message.cpp
-#  misc.cpp
   numbersys.cpp
   particle.cpp
   statistics.cpp
