@@ -336,7 +336,7 @@ Can be found in the utility directory, including:
 
 compare  – Generate restart files, compare solutions to a function.  
 convert  – Convert field file formats (IEEE-big/little, ASCII).  
-meshpr   – Generate 2D mesh locations for plotting or checking.
+meshpr   – Generate 2D mesh locations for plotting or checking.  
 meshplot – Create a Postscript file of the 2D mesh for visualisation.  
 addfield – Add vorticity, also divergence, helicity, etc to a field file.  
 sem2tec  – Convert field files to Tecplot format (OK for Paraview/VisIt too).  
