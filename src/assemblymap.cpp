@@ -53,7 +53,6 @@ AssemblyMap::AssemblyMap (const int_t          n_p     , // Element N_P value.
   const int_t next = Geometry::nExtElmt();
   int_t       i, j;
 
-  cout << routine << " " << naiveMap.size() << " " << next << endl; 
 
   if (naiveMap.size() != liftMask.size())
     Veclib::alert (routine, "sizes of input vectors don't match",    ERROR);
