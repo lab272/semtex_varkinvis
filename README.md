@@ -314,7 +314,7 @@ root extension.  It is written in a format patterned on HTML, which we
 have called FEML (for Finite Element Markup Language).  There are a
 number of example session files in the mesh directory.  Other files
 have standard extensions (the following also have the same format,
-including a 10-line ASCII header that can be read using the UNIX
+including a 10-line ASCII header that can be read using the Unix
 "head" command):
 
 session.fld  Solution/field file.  Binary format by default.  
