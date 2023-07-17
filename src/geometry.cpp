@@ -96,7 +96,12 @@ void Geometry::set (const int_t    NP,
 	       _nproc, _nz);
       Veclib::alert (routine, err, ERROR);
     }
+#if 0    
     _psize = roundUp (nPlane(), _nproc, 2);
+#else
+    _psize  = nPlane();
+    _psize += 2 * _nproc - nPlane() % (2 * _nproc);   
+#endif
     
   } else {
     if (_nz > 1)
