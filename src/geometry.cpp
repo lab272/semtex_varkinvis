@@ -53,15 +53,15 @@ void Geometry::set (const int_t    NP,
 // parts).  Hence, NZ is always even if NZ > 1.
 //
 // NB: the value of _psize (a.k.a. planeSize) is the value of nPlane
-// (nel*np*np), but rounded up if necessary to be an even number and
-// also an integer multiple of the number of processors because:
+// (nel*np*np), but rounded up if necessary such that it remains an
+// even number when divided by the number of processes because:
 //
 // 1. The even number restriction is to simplify the handling of
 // Fourier transforms, which is typically based on a real--complex
 // transform (done via the method of transform of two real functions
 // simultaneously, see e.g. Numerical Recipes or Bendat & Piersol).
 //  
-// 2. The restriction to be an integer multiple of the number of
+// 2. The restriction to be an integer multiple of twice the number of
 // processors is to simplify the structure of memory exchanges
 // required for Fourier transforms when computing in parallel.
 // ---------------------------------------------------------------------------
@@ -96,9 +96,11 @@ void Geometry::set (const int_t    NP,
 	       _nproc, _nz);
       Veclib::alert (routine, err, ERROR);
     }
-#if 0    
-    _psize = roundUp (nPlane(), _nproc, 2);
+#if 1
+    // -- _psize when divided by number of processes must be even.
+    _psize = roundUp (nPlane(), 2*_nproc, 2);
 #else
+    // -- Old version which didn't use roundUp().
     _psize  = nPlane();
     _psize += 2 * _nproc - nPlane() % (2 * _nproc);   
 #endif
