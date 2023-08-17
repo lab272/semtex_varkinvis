@@ -47,9 +47,7 @@ overview of the capabilities and methodology of the stability analysis
 package which is included in the distribution.  Implicit large-eddy
 simulation is available within semtex using the Spectral Vanishing
 Viscosity (SVV) approach; the fourth and fifth references provide
-description and applications of this technique.  Reference 6 provides
-an introduction to the stability analysis package.
-
+description and applications of this technique.
 
 1. Blackburn HM, Lee D, Albrecht T & Singh, J (2019) Semtex: a
 spectral element–Fourier solver for the incompressible Navier–Stokes
@@ -73,10 +71,6 @@ configurations.  Journal of Computational Physics V231: 3389–3405.
 pipe flow at Re_tau=1000: a comparison of wall-resolved large-eddy
 simulation, direct numerical simulation and hot-wire experiment.
 Computers and Fluids V122: 26–33.
-
-6. Barkley D, Blackburn HM & Sherwin SJ (2008) Direct optimal growth
-analysis for timesteppers. Int J Num Methods Fluids V57: 1435–1458.
-
 
 Technical details
 -----------------
