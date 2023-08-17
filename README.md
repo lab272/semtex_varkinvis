@@ -20,7 +20,10 @@ accommodated are 2D Cartesian or cylindrical, and/or 3D
 (a.k.a. "2+1/2D", i.e. 2D X Fourier), again Cartesian or cylindrical.
 In fact, the main emphasis is on direct numerical simulation of
 incompressible flows, with the elliptic solver (which is used by the
-DNS solver) available as a stand-alone adjunct.
+DNS solver) available as a stand-alone adjunct.  Having said that, the
+package also contains code and utilities for computing linear
+stability and optimal growth analysis of 2D flows, both steady and
+time-varying.
 
 Flows can have 2 or 3 velocity components, so in terms of number of
 spatial dimensions (D) and velocity components (C), the available
@@ -44,7 +47,8 @@ overview of the capabilities and methodology of the stability analysis
 package which is included in the distribution.  Implicit large-eddy
 simulation is available within semtex using the Spectral Vanishing
 Viscosity (SVV) approach; the fourth and fifth references provide
-description and applications of this technique.
+description and applications of this technique.  Reference 6 provides
+an introduction to the stability analysis package.
 
 
 1. Blackburn HM, Lee D, Albrecht T & Singh, J (2019) Semtex: a
@@ -69,6 +73,9 @@ configurations.  Journal of Computational Physics V231: 3389–3405.
 pipe flow at Re_tau=1000: a comparison of wall-resolved large-eddy
 simulation, direct numerical simulation and hot-wire experiment.
 Computers and Fluids V122: 26–33.
+
+6. Barkley D, Blackburn HM & Sherwin SJ (2008) Direct optimal growth
+analysis for timesteppers. Int J Num Methods Fluids V57: 1435–1458.
 
 
 Technical details
@@ -125,7 +132,9 @@ directories:
 4. dog:        linear stability and optimal growth analysis for incompressible
                flows both steady and time-periodic (with its own user guide). 
 
-A semtex user guide and HTML documentation is provided in the doc directory.
+A semtex user guide and HTML documentation is provided in the
+top-level doc directory, while a user guide for dog is provided in its
+own doc directory.
 
 Required third-party software
 -----------------------------
@@ -231,6 +240,9 @@ instead of "make" above.
 You can also explicitly turn off MPI-based parts of compilation,
 and/or make executable versions for debugging if required, via
 command-line flags to cmake, e.g.: cmake -DWITH_MPI=OFF -DDEBUG=ON ..
+
+Dog and its associated executables are also compiled and placed in the
+build directory.
 
 In-source building with make
 ----------------------------
