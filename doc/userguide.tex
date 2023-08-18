@@ -912,6 +912,112 @@ While mesh nodal locations may be scaled and shifted using tokens
 \verb|HISTORY| section should be given in the resulting mapped space.
 
 %============================================================================
+\section{Structure of a field file}
+\label{sec.fieldfile}
+
+Field files (with extensions \texttt{.fld}, \texttt{.rst},
+\texttt{.chk}, \texttt{.avg}) have a common structure.  They all
+commence with a 10-line (and 351-byte) ASCII header that briefly
+describes the file content, typically followed by sequenced binary
+storage of double-precision floating-point data with ordering that
+matches \texttt{AuxField} structure.  It is possible to convert these
+data to human-readable ASCII format, via the \texttt{convert} utility
+--- and back again, if desired, to binary format --- but
+\Semtex\ codes generally use the binary format for I/O of field files.
+Regardless of format, one should always be able to view the contents
+of the header using the Unix \texttt{head} command, which by default
+reads off the first 10 lines of a file.
+
+For example, consider the structure of a \twod\ field file; here we
+will use a 2D Taylor flow, considered again later in more detail in
+\S\,\ref{sec.taylor2drun}.  An example session file is supplied as
+\verb|mesh/taylor2|; this has four elements, and each element has 11
+collocation points on an edge (\verb|N_P=11|), so a total of 121
+solution data points.  The solution is 2D2C, so the number of
+$z$-planes required is \verb|N_Z=1|, but since this is a default
+value, it isn't specified in the session file.  As in
+\S\,\ref{sec.taylor2drun}, we will just use the \verb|compare| utility
+to generate a restart file, and then look at its header. {\small
+\begin{verbatim}
+$ compare taylor2 > taylor2.rst
+$ head taylor2.rst
+taylor2                   Session
+Fri Aug 18 16:08:42 2023  Created
+11   11   1    4          Nr, Ns, Nz, Elements
+0                         Step
+0                         Time
+0.02                      Time step
+0.01                      Kinvis
+1                         Beta
+uvp                       Fields written
+binary IEEE little-endian Format
+\end{verbatim}
+}
+
+As previously stated, this header is 351 bytes in length, including
+newline characters.  The third line of output tells us that there are
+4 elements, 1 plane of data and each element is of size $N_r\times
+N_s=11\times11=121$.  (In \Semtex, $N_r=N_s=\verb+N_P+$ always.)  The
+ninth line of output tells us that the file contains data for the
+velocity fields $u$, $v$, and pressure $p$.  That means there should
+be $11\times11\times1\times4\times3=1452$ double-precision numbers in
+\verb|taylor2.rst|.  Each double-precision number consumes 8 bytes,
+thus we expect the size of \verb|taylor2.rst| to be
+$1452\times8+351=11967$ bytes. {\small
+\begin{verbatim}
+$ wc -c < taylor2.rst
+   11967
+\end{verbatim}
+}
+
+This example is simple as there is only a single plane of data for
+each field.  Each plane contains the data for its elements, written in
+the order they are defined in the session file. (See \eg
+figure~\ref{tay2msh}, where the elements are labelled 1\ldots4, and
+the locations of the data points are also indicated for our standard
+\GLL\ element mesh structure.)  The ordering of the data in each
+element is row-major, starting from the bottom-left corner and working
+across rows, then up, until the top-right corner is reached; this is
+also the ordering in the file.\footnote{ More generally, where the
+elements are distorted or rotated, from the first corner \texttt{NODE}
+along the edge to the second corner \texttt{NODE}, and on up to the
+fourth and final \texttt{NODE} location which describes each
+\texttt{ELEMENT} in a session file.}  Following the data for the first
+field ($u$), here a single plane of storage, we would find the data
+for the second field, then the third (and so on, if there were more
+fields indicated in the header).  The extension to files with more
+planes of data is simple: the planes are written in order for the
+first field, then the second, etc.
+
+Binary data in \threed\ field files (where $\verb|N_Z|>1$) by default
+have physical-space ordering, even though most \threed\ calculations
+in \Semtex\ are carried out after a Fourier transformation in the $z$
+coordinate.  If you wish to get the data to a Fourier-transformed
+state (say, to extract a particular \twod\ Fourier mode), use the
+\texttt{transform} utility; see \eg \S\S\,\ref{sec.transform}
+and~\ref{sec.xplane}.  The ordering of data planes following
+real--complex transformation matches how they are stored in
+\verb|AuxField|s: the $0$th Fourier mode, which is the $z$-average at
+each $(x,y)$ location and real, is stored as the first plane of data,
+while the $\verb|N_Z|/2$th, `Nyquist', or `oddball' mode, also real,
+is stored as the second plane (typically, this will be set to zero
+since we do not evolve Nyquist modes).  After these two planes of data
+we have the real and imaginary planes of each complex Fourier mode, in
+order, up to $(\verb|N_Z|/2)-1$.
+
+Sometimes, field files will hold more than a single set of data for a
+complete field (\eg a sequence of field dumps).  In this case, each
+set of data commences with a new header (each with a different
+\texttt{Time}).  To find out how many dumps are in a file, you could
+do something like: {\small
+\begin{verbatim}
+$ convert taylor.rst | grep Session | wc -l
+   1
+\end{verbatim}
+}
+
+
+%============================================================================
 \section{Utilities}
 \label{sec.utilities}
 
@@ -1471,6 +1577,7 @@ and second nodes, while side~3 runs between the third and fourth.
 
 %----------------------------------------------------------------------------
 \subsection{Running the codes}
+\label{sec.taylor2drun}
 
 Assume we're in the \texttt{dns} directory of the distribution, that
 the \texttt{compare}, \texttt{meshpr} and
@@ -3922,17 +4029,17 @@ $ compare ../mesh/chan3 | noiz -m 1 -p 1e-3 > chan3.rst
 \label{sec.convert}
 
 The adopted \Semtex\ standard format for field data files is: a
-10-line ASCII header, followed by binary data.  But who wants to read
-binary data?  The \verb|compare| utility exists to convert between
-binary and ASCII data formats.  Also, it can convert
-IEEE-little-endian binary data files to IEEE-big-endian binary data
-files, which can be useful when moving/processing data produced on one
-computer to/on another, though \Semtex\ codes should normally be able
-to detect the difference and do the conversion without giving notice.
-One other useful feature of \verb|convert| is that it can be used to
-extract a specific field dump from within a sequence stored in a
-single field file (use \verb|-n| and \verb|-b| together to get the
-requested dump in binary format).
+10-line ASCII header, followed by binary data (see
+\S\,\ref{sec.fieldfile}).  But who wants to read binary data?  The
+\verb|convert| utility exists to convert between binary and ASCII data
+formats.  Also, it can convert IEEE-little-endian binary data files to
+IEEE-big-endian binary data files, which can be useful when
+moving/processing data produced on one computer to/on another, though
+\Semtex\ codes should normally be able to detect the difference and do
+the conversion without giving notice.  One other useful feature of
+\verb|convert| is that it can be used to extract a specific field dump
+from within a sequence stored in a single field file (use \verb|-n|
+and \verb|-b| together to get the requested dump in binary format).
 {\small
 \begin{verbatim}
 $ convert -h
@@ -4655,6 +4762,25 @@ $ meshpr chan3 | wallmesh chan3 | chop -n 3
 }
 %
 
+%=============================================================================
+\section{\texttt{xplane}}
+\label{sec.xplane}
+
+The \verb|xplane| utility extracts either one, or optionally two
+sequential, planes of data from a field file, and outputs a new field
+file containing just one (or two) planes of data.
+%
+{\small
+\begin{verbatim}
+$ xplane -h
+xplane [-h] [-n plane] [-2] [input[.fld]
+\end{verbatim}
+}
+%
+Why, optionally, two sequential planes?  If the data have previously
+been Fourier transformed using \texttt{transform -F}, that can pull
+out a complex mode, with the real part as the first extracted plane,
+and the imaginary part as the second.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{DNS 101 --- Turbulent channel flow}
