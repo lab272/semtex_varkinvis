@@ -22,8 +22,8 @@ In fact, the main emphasis is on direct numerical simulation of
 incompressible flows, with the elliptic solver (which is used by the
 DNS solver) available as a stand-alone adjunct.  Having said that, the
 package also contains code and utilities for computing linear
-stability and optimal growth analysis of 2D flows, both steady and
-time-varying.
+stability and optimal growth analysis for 2D or 3D disturbances to 2D
+flows which may be either steady or time-varying.
 
 Flows can have 2 or 3 velocity components, so in terms of number of
 spatial dimensions (D) and velocity components (C), the available
