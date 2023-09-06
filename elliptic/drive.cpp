@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 // drive.cpp: compute solution to elliptic problem, optionally compare to
 // exact solution (see getoptions(), below).
 //
@@ -199,8 +199,6 @@ static void preprocess (const char*       session,
     Geometry::Cylindrical : Geometry::Cartesian;
   
   Geometry::set (np, nz, nel, space);
-
-  cout << "DONE GEOMETRY" << endl;
 
   VERBOSE cout << "done" << endl;
 
