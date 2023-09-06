@@ -19,7 +19,7 @@ option (DEBUG    "Build with debugging preprocessor conditionals" OFF)
 
 # -- Vendor-specific switches:
 
-if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
+if (APPLE)
 
 # -- Using Apple's C and C++ compilers may produce faster executables,
 #    but the choices gcc and g++ below generate fewer warnings, and so
@@ -33,10 +33,19 @@ if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
   set (BLA_VENDOR "Generic")
   message (STATUS "Building with Apple Accelerate BLAS and LAPACK.")
 
+  set (CMAKE_SKIP_BUILD_RPATH FALSE )
+  if  (NOT DEFINED CMAKE_MACOSX_RPATH)
+    set (CMAKE_MACOSX_RPATH ON)
+  endif()
+  
+# The following enables gcc12+fortran dylibs to be found for macports:
+  set ( CMAKE_BUILD_RPATH "/opt/local/lib/libgcc" )
+  
 # -- N.B.: we have turned off all warnings via the -w flag.  Use with care!
 
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 \
-    -w ")
+     -w ")
+#    -w -Wl,-rpath=/opt/local/lib/libgcc")
 #    -Wno-parentheses \
 #    -Wno-unused-value \
 #    -Wno-format \
