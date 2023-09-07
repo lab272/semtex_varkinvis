@@ -218,7 +218,7 @@ generally as fast or better than any other option (e.g. OpenBLAS).
 
 At this stage you should be able to build and run semtex.
 
-One final nots on OS X: starting in 2015/OS X 10.11, Apple introduced
+A final note on OS X: starting in 2015/OS X 10.11, Apple introduced
 System Integrity Protection (SIP) which makes it by default impossible
 to directly link dynamic libraries in standard Unix ways; you will
 find that e.g. exporting DYLD_LIBRARY_PATH to the shell has no effect.
