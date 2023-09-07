@@ -14,38 +14,43 @@ project (semtex
 #    the comamnd line (if not enabled here).  E.g. cmake -DDEBUG=ON ..
 
 option (USE_MPI  "Build dns+elliptic solvers with MPI"            ON)
-option (BLD_DOG  "Build dog stability analysis solver and utils"  ON)
+option (BLD_DOG  "Build dog stability analysis solver and utils"  OFF)
 option (DEBUG    "Build with debugging preprocessor conditionals" OFF)
 
 # -- Vendor-specific switches:
 
 if (APPLE)
 
-# -- Using Apple's C and C++ compilers may produce faster executables,
-#    but the choices gcc and g++ below generate fewer warnings, and so
-#    are the default for development on OS X.  Comment out these
-#    compiler definitions for released versions:
-
-#  set (CMAKE_C_COMPILER       "gcc")
-#  set (CMAKE_CXX_COMPILER     "g++")
-#  set (CMAKE_Fortran_COMPILER "gfortran")
-
   set (BLA_VENDOR "Generic")
   message (STATUS "Building with Apple Accelerate BLAS and LAPACK.")
 
-  set (CMAKE_SKIP_BUILD_RPATH FALSE )
-  if  (NOT DEFINED CMAKE_MACOSX_RPATH)
-    set (CMAKE_MACOSX_RPATH ON)
-  endif()
-  
-# The following enables gcc12+fortran dylibs to be found for macports:
-  set ( CMAKE_BUILD_RPATH "/opt/local/lib/libgcc" )
+# -- Apple's C and C++ compilers may produce faster executables, but
+#    the Gnu compilers gcc and g++ generate fewer warnings, link gnu's
+#    gfortran libraries with little effort, and so are the default for
+#    development on OS X.  To instead use XCode compilers, set the
+#    following option to OFF.
+
+  option (USE_GCC  "Build with gnu C & C++ compilers (not Xcode's)" ON)
+
+  if (USE_GCC) 
+    set (CMAKE_C_COMPILER       "gcc")
+    set (CMAKE_CXX_COMPILER     "g++")
+    set (CMAKE_Fortran_COMPILER "gfortran")
+  else ()
+    # We have extra work to set RPATH and correctly link gfortran libraries.
+    set (CMAKE_SKIP_BUILD_RPATH FALSE )
+    if  (NOT DEFINED CMAKE_MACOSX_RPATH)
+      set (CMAKE_MACOSX_RPATH ON)
+    endif()
+    # The following enables gcc12+fortran dylibs to be found on macports,
+    # for now you should hand-edit the path if using homebrew or fink.
+    set ( CMAKE_BUILD_RPATH "/opt/local/lib/libgcc" )
+  endif (USE_GCC)
   
 # -- N.B.: we have turned off all warnings via the -w flag.  Use with care!
 
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 \
      -w ")
-#    -w -Wl,-rpath=/opt/local/lib/libgcc")
 #    -Wno-parentheses \
 #    -Wno-unused-value \
 #    -Wno-format \
@@ -53,7 +58,7 @@ if (APPLE)
 #    -Wno-switch \
 #    -Wno-deprecated-declarations" )
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
-    -w -std=c11 ")
+     -w -std=c11 ")
 #    -Wno-parentheses \
 #    -Wno-implicit-function-declaration \
 #    -Wno-format \
@@ -63,7 +68,7 @@ if (APPLE)
    
 elseif (DEFINED ENV{BLA_VENDOR})
 
-  # -- Typically this will indicate Intel compilers and MKL.
+  # -- Typically this will indicate Intel compilers and MKL on a Linux system.
    
   message (STATUS "Building with vendor BLAS and LAPACK: " "$ENV{BLA_VENDOR}")
 
@@ -73,7 +78,9 @@ elseif (DEFINED ENV{BLA_VENDOR})
     -w ")
   set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -f66" )
 
-endif()	   
+endif()
+
+# -- End of vendor-specific setup.
 
 if (DEBUG)
   set (CMAKE_BUILD_TYPE "Debug")
