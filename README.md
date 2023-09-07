@@ -163,15 +163,71 @@ Preliminary notes for Mac OS X users
 
 The code is designed to compile on Unix machines, including Mac OS X
 (which is based on BSD Unix) and of course, Linux. In fact, since
-2004, Semtex has predominantly been developed on OS X.  For OS X, you
+2004, semtex has predominantly been developed on OS X.  For OS X, you
 will also need to have installed: Xcode (from Apple), and (at least) a
 Fortran 77 (or F90, F95) compiler.  For the latter, it is usual to
-install one of the GNU/Unix gcc compiler suites, available through one
-of the standard open-source software ports for OS X (macports,
-homebrew, or fink).  You might also wish to install an MPI setup, such
-as openmpi.  There is no need to install your own BLAS or LAPACK, as
-these usually come as a standard part of Xcode (in the Accelerate
-framework).
+install one of the Gnu/Unix gcc compiler suites including gfortran,
+available through one of the standard open-source software ports for
+OS X (macports, homebrew, or fink).  I generally now choose macports
+because it still supports X11 applications – homebrew does not – and
+seems to get more support than fink.  All three options place their
+data in a stand-alone directory (in order of mention: /opt/local,
+/usr/local, or /sw); you may need to make suitable alterations to your
+executable PATH, though this step is typically automated as part of
+the installation system.
+
+If you are starting from scratch, you will first need to install Xcode
+and its associated command line tools.  You can either use Apple's App
+Store to install XCode (generally, this will give you the latest
+"stable" version for your system), or sign up as a Developer, which
+gives you access to older (and perhaps, more stable) versions.  In the
+latter case, you will find Xcode versions at:
+
+  https://developer.apple.com/download/all/
+
+Then run these command from a terminal window:
+
+  >% sudo xcode-select -s /Applications/Xcode.app/Contents/Developer  
+  >% sudo xcode-select --install  
+  >% sudo xcodebuild -license
+
+Following which, install the Gnu port of your choice (see below for
+macports):
+
+  https://guide.macports.org
+
+Following that, the minimum requirement for semtex to compile is to
+install gcc and cmake.  You might also (and quite likely) wish to
+install an MPI setup, such as mpich or openmpi.  Here are steps
+suitable for macports (and gcc12):
+
+  >% sudo port install gcc12 +gfortran  
+  >% sudo port select --set gcc mp-gcc12
+  >% sudo port install mpich-gcc12
+  >% sudo port select --set mpi mpich-gcc12 -fortran
+  >% sudo port install cmake
+
+If things really go badly wrong in the above and you want to start
+over, run this to erase all ports thus far installed (careful!):
+
+  >% sudo port -fp uninstall --follow-dependents installed
+
+There is no need to install your own BLAS or LAPACK, as these usually
+come as a standard part of Xcode (in the Accelerate framework) and are
+generally as fast or better than any other option (e.g. OpenBLAS).
+
+At this stage you should be able to build and run semtex.
+
+One final point on OS X: starting in 2015/OS X 10.11, Apple introduced
+System Integrity Protection (SIP) which makes it by default impossible
+to directly link dynamic libraries in standard UNIX ways; you will
+find that e.g. exporting DYLD_LIBRARY_PATH to the shell has no effect.
+One effect of this is that unless you choose to use gcc and g++ as the
+C and C++ compilers, gfortran libraries will not be correctly linked
+at runtime.  If using the Xcode C and C++ compilers, RPATH needs
+setting so the appropriate gfortran-related libraries can be found at
+runtime.  (This choice can now be automated, at least for macports:
+see e.g. inside top-level CMakeLists.txt.)
 
 Building – Introduction
 -----------------------
@@ -236,7 +292,8 @@ and/or make executable versions for debugging if required, via
 command-line flags to cmake, e.g.: cmake -DWITH_MPI=OFF -DDEBUG=ON ..
 
 Dog and its associated executables are also compiled and placed in the
-build directory.
+build directory (this step can be disabled in top-level
+CMakeLists.txt).
 
 In-source building with make
 ----------------------------
