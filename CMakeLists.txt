@@ -14,7 +14,7 @@ project (semtex
 #    the comamnd line (if not enabled here).  E.g. cmake -DDEBUG=ON ..
 
 option (USE_MPI  "Build dns+elliptic solvers with MPI"            ON)
-option (BLD_DOG  "Build dog stability analysis solver and utils"  OFF)
+option (BLD_DOG  "Build dog stability analysis solver and utils"  ON)
 option (DEBUG    "Build with debugging preprocessor conditionals" OFF)
 
 # -- Vendor-specific switches:
