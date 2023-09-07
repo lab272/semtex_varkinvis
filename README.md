@@ -222,12 +222,12 @@ A final note on OS X: starting in 2015/OS X 10.11, Apple introduced
 System Integrity Protection (SIP) which makes it by default impossible
 to directly link dynamic libraries in standard Unix ways; you will
 find that e.g. exporting DYLD_LIBRARY_PATH to the shell has no effect.
-One effect of this is that unless you choose to use gcc and g++ as the
-C and C++ compilers, gfortran libraries will not be correctly linked
-at runtime.  If using the Xcode C and C++ compilers, RPATH needs
-setting so the appropriate gfortran-related libraries can be found at
-runtime.  (This choice can now be automated, at least for macports:
-see e.g. inside top-level CMakeLists.txt.)
+A side-effect of this is that unless you choose to use gcc and g++ as
+the C and C++ compilers, gfortran libraries will not be correctly
+linked at runtime.  If using the Xcode C and C++ compilers, RPATH
+needs setting so the appropriate gfortran-related libraries can be
+found at runtime.  (This choice can now be automated, at least for
+macports: see e.g. inside top-level CMakeLists.txt.)
 
 Building – Introduction
 -----------------------
