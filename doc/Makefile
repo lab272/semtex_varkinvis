@@ -1,6 +1,4 @@
 # Make a PDF of the semtex user guide and optionally Doxygen html.
-#
-# $Id$
 ###############################################################################
 
 # Make a PDF user guide document (userguide.pdf).
