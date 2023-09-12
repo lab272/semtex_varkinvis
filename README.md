@@ -100,10 +100,8 @@ spectral element polynomial orders (4-10).
 The standard real data type in semtex is 64-bit double precision
 (double in C, DOUBLE PRECISION in Fortran) while the standard integer
 type is usually (though not invariably) 32-bit (typically, whatever
-int/INTEGER is on the machine you are running on).  These two types
-are referred to by the semtex-standard typedefs real_t and int_t (see
-femlib/cfemdef.h).  Strings are by default 2048 (STR_MAX) characters
-long.
+int/INTEGER is on the machine you are running on).  Strings are by
+default 2048 (STR_MAX) characters long.
 
 Distribution
 ------------
