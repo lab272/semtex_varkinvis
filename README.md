@@ -202,7 +202,7 @@ suitable for macports (and gcc12):
   >% sudo port install gcc12 +gfortran  
   >% sudo port select --set gcc mp-gcc12  
   >% sudo port install mpich-gcc12  
-  >% sudo port select --set mpi mpich-gcc12 -fortran  
+  >% sudo port select --set mpi mpich-gcc12-fortran  
   >% sudo port install cmake
 
 If things really go badly wrong in the above and you want to start
