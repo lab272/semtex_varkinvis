@@ -144,6 +144,9 @@ Required third-party software
 
 5. bison or yacc.
 
+Most of the above are readily installed, or installed by default, on
+Linux-type systems.  See below for some notes on OS X.
+
 Optional/useful third-party software
 ------------------------------------
 
@@ -162,7 +165,7 @@ Preliminary notes for Mac OS X users
 The code is designed to compile on Unix machines, including Mac OS X
 (which is based on BSD Unix) and of course, Linux. In fact, since
 2004, semtex has predominantly been developed on OS X.  For OS X, you
-will also need to have installed: Xcode (from Apple), and (at least) a
+will also need to have installed: Xcode (from Apple), and, at least, a
 Fortran 77 (or F90, F95) compiler.  For the latter, it is usual to
 install one of the Gnu/Unix gcc compiler suites including gfortran,
 available through one of the standard open-source software ports for
@@ -194,10 +197,10 @@ macports):
 
   https://guide.macports.org
 
-Following that, the minimum requirement for semtex to compile is to
-install gcc and cmake.  You might also (and quite likely) wish to
-install an MPI setup, such as mpich or openmpi.  Here are steps
-suitable for macports (and gcc12):
+After that, the minimum requirement for semtex to compile is to
+install gcc/gfortran and cmake.  You might also (and quite likely)
+wish to install an MPI setup, such as mpich or openmpi.  Here are
+steps suitable for macports (and gcc12):
 
   >% sudo port install gcc12 +gfortran  
   >% sudo port select --set gcc mp-gcc12  
@@ -210,23 +213,25 @@ over, run this to erase all ports thus far installed (careful!):
 
   >% sudo port -fp uninstall --follow-dependents installed
 
-There is no need to install your own BLAS or LAPACK, as these usually
-come as a standard part of Xcode (in the Accelerate framework) and are
+There is no need to install your own BLAS or LAPACK, as these come as
+a standard part of Xcode (within the Accelerate framework) and are
 generally as fast or better than any other option (e.g. OpenBLAS).
 
 At this stage you should be able to build and run semtex.
 
 A final note on OS X: starting in 2015/OS X 10.11, Apple introduced
 System Integrity Protection (SIP) which makes it by default impossible
-to directly link dynamic libraries in standard Unix ways; you will
-find that e.g. exporting DYLD_LIBRARY_PATH to the shell has no effect.
+to directly link dynamic libraries in standard Unix ways; e.g. you
+will find that exporting DYLD_LIBRARY_PATH to the shell has no effect.
 A side-effect of this is that unless you choose to use gcc and g++ as
-the C and C++ compilers, gfortran libraries would by default not be
-correctly linked at runtime.  If using the Xcode C and C++ compilers,
-RPATH needs setting so the appropriate gfortran-related libraries can
-be found at runtime.  (This choice, and appropriate setting of RPATH,
-can now be automated, at least for macports: see e.g. inside top-level
-CMakeLists.txt.)
+the C and C++ compilers, gfortran libraries may not be correctly
+linked at runtime.  Hence, the choice of gcc and g++ is the default
+option under cmake.  If optionally using the Xcode C and C++
+compilers, RPATH needs setting so the appropriate gfortran-related
+libraries can be found at runtime.  (This choice, and appropriate
+setting of RPATH, can now be automated, at least for macports: see
+e.g. inside top-level CMakeLists.txt.  Changes to accommodate other
+build systems should be straight-forward.)
 
 Building – Introduction
 -----------------------
