@@ -178,25 +178,23 @@ def convert():
 
     for i in range(ff.ntot):
         for field in range(ff.nflds):
-            print ("%g" % data[i, field], end=")
+            print ("%g" % data[i, field], end=" ")
         print ()
 
-
+# ----------------------------------------------------------
 def element_wise():
-    """demonstrates element-wise access
-       NB: Fieldfile.read() expects double precision (Float64) data, as is standard for
-           semtex field files. No checks done for single precision or funny byte order.
-    """
+    """demonstrates element-wise access"""
+    #  NB: Fieldfile.read() expects double precision (Float64) data, as is standard for
+    #  semtex field files. No checks done for single precision or funny byte order.
     ff = Fieldfile("example.fld", "r")
     data = ff.read()
-    #elmt_wise = data.reshape((ff.nr, ff.ns, ff.nel, ff.nz, ff.nflds))
     elmt_wise = data.reshape((ff.nflds, ff.nz, ff.nel, ff.ns, ff.nr)) # works!
-    #    print data
+    #    Example, print data:
     #    - of nr * ns nodes
     #    - of 11th element
     #    - of first z-plane
     #    - of second field (in this case, v)
-    print (elmt_wise[1,0,10,:,:])
+    #    print (elmt_wise[1,0,10,:,:])
 
 if __name__ == "__main__":
     element_wise()

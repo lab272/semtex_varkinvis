@@ -30,7 +30,7 @@ if (APPLE)
 #    development on OS X.  To instead use XCode compilers, set the
 #    following option to OFF.
 
-  option (USE_GCC  "Build with gnu C & C++ compilers (not Xcode's)" ON)
+  option (USE_GCC  "Build with gnu C & C++ compilers (not Xcode's)" OFF)
 
   if (USE_GCC) 
     set (CMAKE_C_COMPILER       "gcc")
