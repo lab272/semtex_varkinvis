@@ -466,6 +466,14 @@ typical combination is that the base flow will be 2D2C while the
 linear stability modes are 3D3C.  The combinations \Dog\ can accept
 (base/stability) are: 1D2C/2D2C, 1D2C/2D3C, 2D2C/2D2C, 2D2C/2D3C,
 2D3C/2D3C, but is presently not capable of dealing with 3D3C/3D3C.
+%
+This means that all base flows are represented by a single plane of
+\twod\ data, but may have either two or three velocity components (the
+2D2C and 2D3C cases); 1D2C base flows have to be represented as 2D2C
+fields that are invariant in one spatial direction.  If you present
+\Dog\ with a \threed\ base flow, it will only use the first plane of
+data in the file.
+%
 The coordinate systems available (as for \Semtex) are Cartesian and
 cylindrical.  \citep[One might anticipate that 1D2C/2D3C analyses are
   not very useful owing to Squire's theorem for stability of `parallel
@@ -517,7 +525,7 @@ A feature you may notice when running \verb+dog+ is that with the
 default starting condition (no \verb+.rst+ file), the first iteration
 of time-integration over interval $\tau$ seems to produce no result in
 the upper-level monitor file \verb+session.evl+.  This is because the
-default starting condition is pseudo-random white noise\,---\, which
+default starting condition is pseudo-random white noise\,---\,which
 produces velocity files with non-zero divergence.  If convergence
 occurs before the Krylov sequence is filled, the resulting Ritz
 estimates of eigenvectors may be corrupt.  A simple work-around is to
@@ -3090,8 +3098,8 @@ values achieved in simulating the base flow with \verb+dns+.
 \item
 Do you have enough spatial resolution? It is easy to change
 interpolation order via \verb+N_P+ ($p$-refinement), though often a
-better spectral element mesh ($h$-refinement) can be a better solution
-at lower computation cost.
+better spectral element mesh ($h$-refinement) can provide a better
+solution at lower computation cost.
 \item
 Related: are you able to converge an eigenvalue for this problem/mesh
 but at a lower Reynolds number?
