@@ -200,16 +200,24 @@ macports):
 After that, the minimum requirement for semtex to compile is to
 install gcc/gfortran and cmake.  You might also (and quite likely)
 wish to install an MPI setup, such as mpich or openmpi.  Here are
-steps suitable for macports (and gcc12):
+steps suitable for macports (and gcc13):
 
-  >% sudo port install gcc12 +gfortran  
-  >% sudo port select --set gcc mp-gcc12  
-  >% sudo port install mpich-gcc12  
-  >% sudo port select --set mpi mpich-gcc12-fortran  
+  >% sudo port install gcc13 +gfortran  
+  >% sudo port select --set gcc mp-gcc13  
+  >% sudo port install mpich-gcc13  
+  >% sudo port select --set mpi mpich-gcc13-fortran  
   >% sudo port install cmake
 
-If things really go badly wrong in the above and you want to start
-over, run this to erase all ports thus far installed (careful!):
+Alternatively you may choose openmpi instead of mpich as the MPI
+system, in which case substitute
+
+  >% sudo port install openmpi +gfortran 
+  >% sudo port select --set mpi openmpi-mp-fortran
+
+in place of the mpich-related steps above.
+
+If things really go badly wrong and you want to start over, run this
+to erase all ports thus far installed (careful!):
 
   >% sudo port -fp uninstall --follow-dependents installed
 
