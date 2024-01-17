@@ -211,7 +211,7 @@ steps suitable for macports (and gcc13):
 Alternatively you may choose openmpi instead of mpich as the MPI
 system, in which case substitute
 
-  >% sudo port install openmpi +gfortran 
+  >% sudo port install openmpi +gfortran  
   >% sudo port select --set mpi openmpi-mp-fortran
 
 in place of the mpich-related steps above.
