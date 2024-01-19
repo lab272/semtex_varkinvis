@@ -4,19 +4,6 @@
 # -- Set up is for out-of-source builds, typically run from within the
 #    build subdirectory, e.g.: cd build; cmake ..; make
 
-cmake_minimum_required (VERSION 3.4)
-project (semtex
-	 VERSION     10.5
-	 DESCRIPTION "Spectral element x Fourier DNS code"
-	 LANGUAGES   C CXX Fortran )
-
-# -- Pull in the pre-processor flag optons, which may also be set on
-#    the comamnd line (if not enabled here).  E.g. cmake -DDEBUG=ON ..
-
-option (USE_MPI  "Build dns+elliptic solvers with MPI"            ON)
-option (BLD_DOG  "Build dog stability analysis solver and utils"  ON)
-option (DEBUG    "Build with debugging preprocessor conditionals" OFF)
-
 # -- Vendor-specific switches:
 
 if (APPLE)
@@ -81,6 +68,19 @@ elseif (DEFINED ENV{BLA_VENDOR})
 endif()
 
 # -- End of vendor-specific setup.
+
+cmake_minimum_required (VERSION 3.4)
+project (semtex
+	 VERSION     10.5
+	 DESCRIPTION "Spectral element x Fourier DNS code"
+	 LANGUAGES   C CXX Fortran )
+
+# -- Pull in the pre-processor flag optons, which may also be set on
+#    the comamnd line (if not enabled here).  E.g. cmake -DDEBUG=ON ..
+
+option (USE_MPI  "Build dns+elliptic solvers with MPI"            ON)
+option (BLD_DOG  "Build dog stability analysis solver and utils"  ON)
+option (DEBUG    "Build with debugging preprocessor conditionals" OFF)
 
 if (DEBUG)
   set (CMAKE_BUILD_TYPE "Debug")
