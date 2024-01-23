@@ -204,7 +204,7 @@ steps suitable for macports (and gcc12):
 
   >% sudo port -N install cmake  
   >% sudo port -N install gcc12 +gfortran
-  >% sudo port select gcc mp-gcc12
+  >% sudo port select gcc mp-gcc12  
   >% sudo port -N install mpich-gcc12  
   >% sudo port select --set mpi mpich-gcc12-fortran  
   >% sudo port -N install mpich-default +gcc12  
