@@ -60,21 +60,22 @@ add_test(PMC2    ${CMAKE_SOURCE_DIR}/test/testregression ""
 
 # -- Parallel tests of elliptic and dns for 3D problems:
 
-if(USE_MPI)
-  add_test(laplace3_mp ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -np 2"
+if (USE_MPI)
+
+  add_test(laplace3_mp ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -hosts localhost -np 2"
   		   ${CMAKE_CURRENT_BINARY_DIR} elliptic_mp laplace3)
-  add_test(taylor3_mp ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -np 2"
+  add_test(taylor3_mp ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -hosts localhost -np 2"
   		   ${CMAKE_CURRENT_BINARY_DIR} dns_mp taylor3)
-  add_test(taylor4_mp ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -np 2"
+  add_test(taylor4_mp ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -hosts localhost -np 2"
   		   ${CMAKE_CURRENT_BINARY_DIR} dns_mp taylor4)
-  add_test(taylor5_mp ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -np 2"
+  add_test(taylor5_mp ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -hosts localhost -np 2"
   		   ${CMAKE_CURRENT_BINARY_DIR} dns_mp taylor5)
-  add_test(kovas2_mp  ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -np 2"
+  add_test(kovas2_mp  ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -hosts localhost -np 2"
   		   ${CMAKE_CURRENT_BINARY_DIR} dns_mp kovas2 )
-  add_test(kovas3_mp  ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -np 2"
+  add_test(kovas3_mp  ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -hosts localhost -np 2"
   		   ${CMAKE_CURRENT_BINARY_DIR} dns_mp kovas3 )
-  add_test(kovas4_mp  ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -np 2"
+  add_test(kovas4_mp  ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -hosts localhost -np 2"
   		   ${CMAKE_CURRENT_BINARY_DIR} dns_mp kovas4 )
-  add_test(kovas5_mp  ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -np 2"
+  add_test(kovas5_mp  ${CMAKE_SOURCE_DIR}/test/testregression "mpirun -hosts localhost -np 2"
   		   ${CMAKE_CURRENT_BINARY_DIR} dns_mp kovas5 )
 endif()
