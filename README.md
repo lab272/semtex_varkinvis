@@ -213,7 +213,7 @@ steps suitable for macports (and gcc12):
 If things really go badly wrong and you want to start over, run this
 to erase all ports thus far installed (careful!):
 
-  >% sudo port -fp uninstall --follow-dependents installed
+  >% sudo port -fp uninstall installed
 
 There is no need to install your own BLAS or LAPACK, as these come as
 a standard part of Xcode (within the Accelerate framework) and are
