@@ -108,7 +108,7 @@ int main (int    argc,
       if (selected) fputs (buf, fp_out);
       fgets (buf, BUFSIZ, fp_in);
     }
-
+    
     if (sscanf(buf, "%d%d%d%d", &nr, &ns, &nz, &nel) != 4)
       error ("unable to read the file size");               
     npts = nr * ns * nz * nel;

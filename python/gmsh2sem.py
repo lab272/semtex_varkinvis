@@ -309,8 +309,8 @@ t2 = open (".t2", 'r')
 
 # -- Print up all of t1 and t2
 
-for line in t1.readlines(): print line,
-for line in t2.readlines(): print line,
+for line in t1.readlines(): print(line),
+for line in t2.readlines(): print(line),
 
 t1.close();       t2.close()
 os.remove('.t1'); os.remove('.t2')

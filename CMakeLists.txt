@@ -81,7 +81,9 @@ find_package (BISON  REQUIRED)
 find_package (BLAS   REQUIRED)
 find_package (LAPACK REQUIRED)
 
+
 if (USE_MPI)
+  set (MPIEXEC_EXECUTABLE  "/opt/open-mpi-5.0.3/bin/mpiexec")
   find_package (MPI REQUIRED)
   if (MPI_FOUND)
     message (STATUS "Building codes elliptic_mp and dns_mp with MPI support.")
