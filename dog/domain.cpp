@@ -118,8 +118,19 @@ Domain::Domain (FEML*             file   ,
     Udat[i] = alloc + i * nplane;
     U[i]    = new AuxField (Udat[i], 1, elmt, baseField[i]);
   }
+  
+  VERBOSE cout << "done" << endl;
+  
+  VERBOSE cout << "  Building variable kinvis field ... ";
+  
+  char* varkinvisField;
+  strcpy ((varkinvisField = new char [2]), "k" );
+  alloc = new real_t [static_cast<size_t> (ntot)];
+  varkinvisdat = alloc;
+  VARKINVIS = new AuxField (varkinvisdat, 1, elmt, varkinvisField[0]);
 
   VERBOSE cout << "done" << endl;
+  
 }
 
 
@@ -675,13 +686,15 @@ void Domain::loadBase()
   const int_t nTot   = Geometry::planeSize();
   const int_t nSlice = Geometry::nSlice();
 
-  Header   H;
+  Header   H,Hk;
   int_t    i, j;
   real_t*  addr;
   real_t   t0, dt = 0;
   int_t    len;
   char     filename[StrMax];
+  char     filenamek[StrMax];
   ifstream file (strcat (strcpy (filename, name), ".bse"));
+  ifstream filek (strcat (strcpy (filenamek, name), ".kin"));
 
   // -- Allocate storage.
 
@@ -692,7 +705,7 @@ void Domain::loadBase()
   else
     for (i = 0; i < nBase; i++) baseFlow[i] = Udat[i];
 
-  // -- Read base velocity fields, ignore pressure fields.
+  // -- Read base velocity and kinvis fields, ignore pressure fields.
 
   ROOTONLY cout << "-- Base flow               : " << flush; 
 
@@ -732,6 +745,7 @@ void Domain::loadBase()
 
   file.close();
 
+
   if (i != nSlice)
     Veclib::alert (routine, "mismatch: No. of base slices/declaration", ERROR);
 
@@ -760,6 +774,35 @@ void Domain::loadBase()
     if (H.swab()) cout << " (byte swapping)";
     cout << endl;
   }
+  
+    ROOTONLY cout << "-- Kinvis                  : " << flush;
+
+    for (i = 0; filek >> Hk; i++) {
+
+        if (Hk.nr != nP || Hk.nel != nEl)
+            Veclib::alert
+            (routine, "Kinvis and velocity fields do not conform", ERROR);
+        if (!strcmp (Hk.flds, "k" ))
+            Veclib::alert
+            (routine, "Kinvis field name should be k", ERROR);
+
+
+        addr =  varkinvisdat;
+        len = nPlane * sizeof(real_t);
+        filek.read (reinterpret_cast<char*>(addr), len);
+        if (Hk.swab()) Veclib::brev (nTot, addr, 1, addr, 1);
+        if (filek.bad()) Veclib::alert
+            (routine, "unable to read binary input", ERROR);
+
+    }
+    filek.close();
+
+    ROOTONLY {
+        cout << "read from file " << filenamek;
+        if (Hk.swab()) cout << " (byte swapping)";
+        cout << endl;
+    }
+  
 }
 
 

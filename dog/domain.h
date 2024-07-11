@@ -40,6 +40,11 @@ public:
   vector<real_t*>   baseFlow; // -- Fourier transformed base velocities.
   real_t            period  ; // -- Temporal period of base flow (if relevant).
 
+  // -- Required for the kinvis field.
+  
+  AuxField* VARKINVIS;  // -- Non-scalar kinematic viscosity field.
+  real_t* varkinvisdat; // -- Data storage area for kinematic viscosity auxfield.
+  
   void loadBase  ();
   void updateBase();
 
