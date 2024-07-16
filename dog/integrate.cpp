@@ -432,7 +432,7 @@ static MatrixSys** preSolve (const Domain* D)
 
   vector<real_t> alpha (Integration::OrderMax + 1);
   Integration::StifflyStable (NORD, &alpha[0]);
-  const real_t   lambda2 = alpha[0] / Femlib::value ("D_T * KINVIS");
+  const real_t   lambda2 = alpha[0] / Femlib::value ("D_T");
 
   MatrixSys**        system = new MatrixSys* [static_cast<size_t>(NPERT + 1)];
   MatrixSys*         M;
@@ -450,7 +450,7 @@ static MatrixSys** preSolve (const Domain* D)
   A = D -> n[0] -> getMap (bmode);
   betak2 = sqr (Field::modeConstant (D -> u[0] -> name(), mode, beta));
   cout << "*** Creating MatrixSys" << endl;
-  M = new MatrixSys (lambda2, betak2, bmode,
+  M = new MatrixSys (lambda2, D -> VARKINVIS, betak2, bmode,
 		     D -> elmt, D -> b[0], A, method);
   MSS.insert (MSS.end(), M);
   system[0] = M;
@@ -470,7 +470,7 @@ static MatrixSys** preSolve (const Domain* D)
     system[1] = M;
     cout << "." << flush;
   } else {
-    M = new MatrixSys (lambda2, betak2, bmode,
+    M = new MatrixSys (lambda2, D -> VARKINVIS,  betak2, bmode,
 		       D -> elmt, D -> b[1], A, method);
     MSS.insert (MSS.end(), M);
     system[1] = M;
@@ -490,7 +490,7 @@ static MatrixSys** preSolve (const Domain* D)
       system[2] = M;
       cout << "." << flush;
     } else {
-      M = new MatrixSys (lambda2, betak2, bmode,
+      M = new MatrixSys (lambda2, D -> VARKINVIS, betak2, bmode,
 			 D -> elmt, D -> b[2], A, method);
       MSS.insert (MSS.end(), M);
       system[2] = M;
@@ -504,7 +504,7 @@ static MatrixSys** preSolve (const Domain* D)
 
   betak2 = sqr (Field::modeConstant (D -> u[NPERT] -> name(), mode, beta));
   A      = D -> n[NPERT] -> getMap (bmode);
-  M      = new MatrixSys (0.0, betak2, bmode,
+  M      = new MatrixSys (0.0, D -> VARKINVIS,  betak2, bmode,
 			  D -> elmt, D -> b[NPERT], A, method);
   MSS.insert (MSS.end(), M);
   system[NPERT] = M;
@@ -541,7 +541,7 @@ static void Solve (Domain*     D,
     const AssemblyMap* A = D -> n[i] -> getMap (bmode);
 
     MatrixSys* tmp =
-      new MatrixSys (lambda2, betak2, bmode, D -> elmt, D -> b[i], A, JACPCG);
+      new MatrixSys (lambda2, D -> VARKINVIS,  betak2, bmode, D -> elmt, D -> b[i], A, JACPCG);
 
     D -> u[i] -> solve (F, tmp);
     delete tmp;

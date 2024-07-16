@@ -39,7 +39,7 @@ void Helmholtz (Domain*   D,
   SolverKind   method  = (Femlib::ivalue("ITERATIVE")) ? JACPCG : DIRECT;
 
   ModalMatrixSys* M = new ModalMatrixSys
-    (lambda2, beta, base, nmodes, D -> elmt, D -> b[0], D -> n[0], method);
+    (lambda2,D -> VARKINVIS,  beta, base, nmodes, D -> elmt, D -> b[0], D -> n[0], method);
 
   if (Geometry::cylindrical()) F -> mulY();
 

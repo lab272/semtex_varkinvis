@@ -10,6 +10,7 @@ static vector<MatrixSys*> MS;
 
 
 ModalMatrixSys::ModalMatrixSys (const real_t            lambda2 ,
+                const AuxField*         VARKINVIS,
 				const real_t            beta    ,
 				const int_t             baseMode,
 				const int_t             numModes,
@@ -73,11 +74,11 @@ ModalMatrixSys::ModalMatrixSys (const real_t            lambda2 ,
     } else {
       if (method == MIXED)
 	_Msys[localMode] =
-	  new MatrixSys (lambda2, betak2_svv, modeIndex, Elmt, Bsys, Assy,
+	  new MatrixSys (lambda2, VARKINVIS, betak2_svv, modeIndex, Elmt, Bsys, Assy,
 			 (mode == 0) ? DIRECT : JACPCG);
       else 
 	_Msys[localMode] =
-	  new MatrixSys (lambda2,betak2_svv,modeIndex,Elmt, Bsys, Assy, method);
+	  new MatrixSys (lambda2, VARKINVIS, betak2_svv,modeIndex,Elmt, Bsys, Assy, method);
 
       MS.insert (MS.end(), _Msys[localMode]);
       if (method == DIRECT) { cout << '*'; cout.flush(); }
@@ -119,6 +120,7 @@ ModalMatrixSys::~ModalMatrixSys ()
 
 
 MatrixSys::MatrixSys (const real_t            lambda2,
+              const AuxField*         VARKINVIS,
 		      const real_t            betak2 ,
 		      const int_t             mode   ,
 		      const vector<Element*>& elmt   ,

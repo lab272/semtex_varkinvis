@@ -44,6 +44,9 @@ public:
   int_t         nGlobal       () const { return _nglobal;        }
   const int_t*  assemblyNaive () const { return &_bmapNaive[0];  } 
   const real_t* invMassNaive  () const { return &_imassNaive[0]; }
+  
+  AuxField* VARKINVIS;  // -- Non-scalar kinematic viscosity field.
+  real_t* varkinvisdat; // -- Data storage area for kinematic viscosity auxfield.
 
 private:
   void  checkVBCs        (FEML*, const char*)         const;

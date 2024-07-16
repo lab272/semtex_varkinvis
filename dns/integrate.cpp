@@ -352,7 +352,7 @@ static Msys** preSolve (const Domain* D)
 
   for (i = 0; i < NCOM; i++)
     M[i] = new Msys
-      (lambda2, beta, base, nmodes, E, D -> b[i], D -> n[i],
+      (lambda2, D -> VARKINVIS,  beta, base, nmodes, E, D -> b[i], D -> n[i],
        (itLev) ? JACPCG : DIRECT);
 
   // -- Scalar system.
@@ -360,7 +360,7 @@ static Msys** preSolve (const Domain* D)
   if (NADV != NCOM) {
     lambda2 = alpha[0] / Femlib::value ("D_T * KINVIS / PRANDTL");
     M[NCOM] = new Msys
-      (lambda2, beta, base, nmodes, E, D -> b[NCOM], D -> n[NCOM],
+      (lambda2, D -> VARKINVIS, beta, base, nmodes, E, D -> b[NCOM], D -> n[NCOM],
        (itLev < 1)?DIRECT:JACPCG);
   }
 
@@ -368,10 +368,10 @@ static Msys** preSolve (const Domain* D)
 
   if (itLev > 1)
     M[NADV] = new Msys
-      (0.0, beta, base, nmodes, E, D -> b[NADV], D -> n[NADV], MIXED);
+      (0.0, D -> VARKINVIS,  beta, base, nmodes, E, D -> b[NADV], D -> n[NADV], MIXED);
   else
     M[NADV] = new Msys
-      (0.0, beta, base, nmodes, E, D -> b[NADV], D -> n[NADV], DIRECT);
+      (0.0, D -> VARKINVIS,  beta, base, nmodes, E, D -> b[NADV], D -> n[NADV], DIRECT);
 
   return M;
 }
@@ -402,7 +402,7 @@ static void Solve (Domain*     D,
     const real_t   beta    = Femlib::value ("BETA");
 
     Msys* tmp = new Msys
-      (lambda2, beta, base, nmodes, D -> elmt, D -> b[i], D -> n[i], JACPCG);
+      (lambda2, D -> VARKINVIS,  beta, base, nmodes, D -> elmt, D -> b[i], D -> n[i], JACPCG);
 
     D -> u[i] -> solve (F, tmp);
     delete tmp;

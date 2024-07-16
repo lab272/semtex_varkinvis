@@ -322,7 +322,7 @@ static Msys* preSolve (const Domain* D)
   real_t                     lambda2 = 
                                alpha[0]/Femlib::value ("D_T * KINVIS / PRANDTL");
   return new Msys
-    (lambda2, beta, base, nmodes, E, D -> b[NCOM], D -> n[NCOM],
+    (lambda2, D -> VARKINVIS, beta, base, nmodes, E, D -> b[NCOM], D -> n[NCOM],
      (itLev<1) ? DIRECT:JACPCG);
 }
 
@@ -349,7 +349,7 @@ static void Solve (Domain*   D,
     real_t         lambda2 = alpha[0]/Femlib::value ("D_T * KINVIS / PRANDTL");
 
     Msys* tmp = new Msys
-      (lambda2, beta, base, nmodes, D -> elmt, D -> b[NCOM], D -> n[NCOM],
+      (lambda2, D -> VARKINVIS,  beta, base, nmodes, D -> elmt, D -> b[NCOM], D -> n[NCOM],
        JACPCG);
     D -> u[NCOM] -> solve (F, tmp);
     delete tmp;

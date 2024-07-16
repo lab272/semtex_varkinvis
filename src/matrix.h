@@ -12,8 +12,7 @@ friend class Field;
 //friend ostream& operator << (ostream&, MatrixSys&);
 //friend istream& operator >> (istream&, MatrixSys&);
 public:
-  MatrixSys  (const real_t, const real_t, const int_t, const vector<Element*>&,
-	      const BoundarySys*, const AssemblyMap*, const SolverKind);
+  MatrixSys  (const real_t, const AuxField* VARKINVIS, const real_t, const int_t, const vector<Element*>&, const BoundarySys*, const AssemblyMap*, const SolverKind);
  ~MatrixSys  ();
   bool match (const real_t, const real_t, const AssemblyMap*,
 	      const SolverKind) const;
@@ -57,9 +56,7 @@ class ModalMatrixSys
 // ===========================================================================
 {
 public:
-  ModalMatrixSys (const real_t, const real_t, const int_t, const int_t,
-		  const vector<Element*>&, const BoundarySys*, const NumberSys*,
-		  const SolverKind);
+    ModalMatrixSys(const real_t lambda2, const AuxField* VARKINVIS, const real_t beta, const int_t baseMode, const int_t numModes, const std::vector< Element* >& Elmt, const BoundarySys* Bsys, const NumberSys* Nsys, const SolverKind method);
  ~ModalMatrixSys ();
 
   const MatrixSys* operator [] (const int_t i) const { return _Msys[i]; }
