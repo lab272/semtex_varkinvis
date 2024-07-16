@@ -1,2 +1,5 @@
 build
 ThirdParty
+*kdev4*
+*vscode*
+CMakeLists.txt.user
