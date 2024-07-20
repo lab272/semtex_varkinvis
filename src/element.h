@@ -1,6 +1,7 @@
 #ifndef ELEMENT_H
 #define ELEMENT_H
 
+
 class Element
 //  ==========================================================================
 /// Virtual 2D quadrilateral element class, equal order in each direction.
@@ -32,7 +33,7 @@ public:
 
   // -- Elemental Helmholtz matrix constructor, operator.
 
-  void HelmholtzSC   (const real_t,const real_t,real_t*,real_t*,
+  void HelmholtzSC   (const real_t,real_t*,const real_t,real_t*,real_t*,
 		      real_t*,real_t*,real_t*,int_t*)                    const;
   void HelmholtzDiag (const real_t,const real_t,real_t*,real_t*)         const;
   void HelmholtzKern (const real_t,const real_t,
@@ -111,7 +112,7 @@ public:
   void printMesh  ()              const;
   void printBndry (const real_t*) const;
   void printMatSC (const real_t*,const real_t*,const real_t*)            const;
-  void Helmholtz  (const real_t,const real_t,real_t*,real_t*,real_t*)    const;
+  void Helmholtz  (const real_t,real_t*,const real_t,real_t*,real_t*,real_t*)    const;
 
 protected:
 
@@ -157,7 +158,7 @@ protected:
   // -- Geometric and quadrature-specific internal functions.
 
   void mapping      ();
-  void HelmholtzRow (const real_t,const real_t,const int_t,
+  void HelmholtzRow (const real_t, real_t*, const real_t,const int_t,
 		     const int_t,real_t*,real_t*) const;
 
   // -- BLAS-conforming edge offsets & skips for element-edge traverses.

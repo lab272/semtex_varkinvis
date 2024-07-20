@@ -1268,6 +1268,14 @@ AuxField& AuxField::getPlane (const int_t k  ,
   return *this;
 }
 
+real_t* AuxField::getData() const
+// ---------------------------------------------------------------------------
+// Get pointer to data
+// ---------------------------------------------------------------------------
+{
+  const char routine[] = "AuxField::getData";
+  return _data;
+}
 
 AuxField& AuxField::setPlane (const int_t   k  ,
 			      const real_t* src)

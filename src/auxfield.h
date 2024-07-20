@@ -123,6 +123,8 @@ public:
 
   static void swapData  (AuxField*, AuxField*);
   static void couple    (AuxField*, AuxField*, const int_t);
+  
+  real_t* getData() const;
 
 protected:
 

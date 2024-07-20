@@ -68,6 +68,8 @@ public:
   
   static void swapData  (AuxField*, AuxField*);
   static void couple    (AuxField*, AuxField*, const int_t);
+  
+  real_t* getData() const;
 
 protected:
   char              _name ;	// Identification tag.  '\0' by default.

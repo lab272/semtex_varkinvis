@@ -107,6 +107,7 @@ Element::~Element ()
 
 
 void Element::HelmholtzSC (const real_t lambda2,
+               real_t*      varkinvis ,            
 			   const real_t betak2 ,
 			   real_t*      hbb    ,
 			   real_t*      hbi    ,
@@ -166,7 +167,7 @@ void Element::HelmholtzSC (const real_t lambda2,
   for (i = 0; i < _np; i++)
     for (j = 0; j < _np; j++, ij++) {
 
-      this -> HelmholtzRow (lambda2, betak2, i, j, rmat, rwrk);
+      this -> HelmholtzRow (lambda2, varkinvis, betak2, i, j, rmat, rwrk);
 	
       Veclib::gathr (_npnp, rmat, _emap, rwrk);
 
@@ -264,6 +265,7 @@ void Element::printMatSC (const real_t* hbb,
 
 
 void Element::Helmholtz (const real_t lambda2,
+             real_t*      varkinvis ,
 			 const real_t betak2 ,
 			 real_t*      h      ,
 			 real_t*      rmat   ,
@@ -283,7 +285,7 @@ void Element::Helmholtz (const real_t lambda2,
 
   for (i = 0; i < _np; i++)
     for (j = 0; j < _np; j++, ij++) {
-      this -> HelmholtzRow (lambda2, betak2, i, j, rmat, rwrk);
+      this -> HelmholtzRow (lambda2, varkinvis, betak2, i, j, rmat, rwrk);
       Veclib::copy (_npnp, rmat, 1, h + ij * _np, 1);
     }
 }
@@ -1418,6 +1420,7 @@ void Element::mapping ()
 
 
 void Element::HelmholtzRow (const real_t lambda2,
+                real_t*   varkinvis ,
 			    const real_t betak2 ,
 			    const int_t  i      ,
 			    const int_t  j      ,
@@ -1456,7 +1459,7 @@ void Element::HelmholtzRow (const real_t lambda2,
 //  --------------------------------------------------------------------------
 {
   const real_t r2   = sqr (_ymesh[Veclib::row_major(i,j,_np)]);
-  const real_t hCon = (_cyl && r2>EPSDP)?(betak2/r2+lambda2):betak2+lambda2;
+  const real_t hCon = (_cyl && r2>EPSDP)?(betak2/r2):betak2;
   const real_t *dtr, *dts, *dvr, *dvs;
   int_t        m, n;
 
@@ -1485,6 +1488,10 @@ void Element::HelmholtzRow (const real_t lambda2,
 	hij[Veclib::row_major(m,n,_np)] += _Q3[Veclib::row_major(m,j,_np)] *
 	dvr[Veclib::row_major(j,n,_np)] *  dvs[Veclib::row_major(m,i,_np)] ;
       }
+  
+//    std::cout << i << " " << j << " " << varkinvis[Veclib::row_major(i,j,_np)] << "\n";
+//   hij[Veclib::row_major(i,j,_np)] *= varkinvis[Veclib::row_major(i,j,_np)];
+  
 
   hij[Veclib::row_major(i,j,_np)] += _Q4[Veclib::row_major(i,j,_np)] * hCon;
 }
