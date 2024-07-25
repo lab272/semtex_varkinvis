@@ -1459,15 +1459,17 @@ void Element::HelmholtzRow (const real_t lambda2,
 //  --------------------------------------------------------------------------
 {
   const real_t r2   = sqr (_ymesh[Veclib::row_major(i,j,_np)]);
-  const real_t hCon = (_cyl && r2>EPSDP)?(betak2/r2):betak2;
+  const real_t hCon = (_cyl && r2>EPSDP)?(betak2/r2+lambda2):betak2+lambda2;
   const real_t *dtr, *dts, *dvr, *dvs;
   int_t        m, n;
 
   // -- If we are setting up a viscous matrix, use SVV-stabilised operators.
 
-  if (lambda2 > EPSDP) { dvr = _SDVr; dtr = _SDTr; dvs = _SDVs; dts = _SDTs; }
-  else                 { dvr =  _DVr; dtr =  _DTr; dvs =  _DVs; dts =  _DTs; }
+//   if (lambda2 > EPSDP) { dvr = _SDVr; dtr = _SDTr; dvs = _SDVs; dts = _SDTs; }
+//   else                 { dvr =  _DVr; dtr =  _DTr; dvs =  _DVs; dts =  _DTs; }
 
+  dvr =  _DVr; dtr =  _DTr; dvs =  _DVs; dts =  _DTs;
+  
   Veclib::zero (_npnp, hij, 1);
 
   for (n = 0; n < _np; n++) {

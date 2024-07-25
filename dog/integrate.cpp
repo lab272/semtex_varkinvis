@@ -400,8 +400,8 @@ static void project (const Domain* D ,
 // ---------------------------------------------------------------------------
 {
   int_t        i;
-  const real_t alpha = -1.0 / Femlib::value ("D_T * KINVIS");
-  const real_t beta  =  1.0 / Femlib::value ("KINVIS");
+  const real_t alpha = -1.0 / Femlib::value ("D_T");
+  const real_t beta  =  1.0;
 
   for (i = 0; i < NPERT; i++) {
     Field::swapData (Us[i], Uf[i]);
@@ -537,7 +537,7 @@ static void Solve (Domain*     D,
     vector<real_t>  alpha (Je + 1);
     Integration::StifflyStable (Je, &alpha[0]);
     const real_t betak2  = sqr(Field::modeConstant(D->u[i]->name(),mode,beta));
-    const real_t lambda2 = alpha[0] / Femlib::value ("D_T * KINVIS");
+    const real_t lambda2 = alpha[0] / Femlib::value ("D_T");
     const AssemblyMap* A = D -> n[i] -> getMap (bmode);
 
     MatrixSys* tmp =
