@@ -223,6 +223,7 @@ MatrixSys::MatrixSys (const real_t            lambda2,
     int_t offset = elmt[j]-> ID() * npnp;
 
       elmt[j]->HelmholtzSC (lambda2,VARKINVIS -> getData()+offset,betak2,hbb,_hbi[j],_hii[j],rmat,rwrk,ipiv);
+//           elmt[j]->Helmholtz (lambda2,VARKINVIS -> getData()+offset,betak2,hbb,rmat,rwrk);
 
       for (i = 0; i < next; i++)
 	if ((m = bmap[i]) < _nsolve)
