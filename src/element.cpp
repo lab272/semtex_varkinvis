@@ -1459,46 +1459,65 @@ void Element::HelmholtzRow (const real_t lambda2,
 //  --------------------------------------------------------------------------
 {
   const real_t r2   = sqr (_ymesh[Veclib::row_major(i,j,_np)]);
-  const real_t hCon = (_cyl && r2>EPSDP)?((betak2*varkinvis[Veclib::row_major(i,j,_np)])/r2+lambda2):betak2*varkinvis[Veclib::row_major(i,j,_np)]+lambda2;
+  real_t hCon;
   const real_t *dtr, *dts, *dvr, *dvs;
   int_t        m, n;
 
   // -- If we are setting up a viscous matrix, use SVV-stabilised operators.
 
-//   if (lambda2 > EPSDP) { dvr = _SDVr; dtr = _SDTr; dvs = _SDVs; dts = _SDTs; }
-//   else                 { dvr =  _DVr; dtr =  _DTr; dvs =  _DVs; dts =  _DTs; }
+  if (lambda2 > EPSDP) { dvr = _SDVr; dtr = _SDTr; dvs = _SDVs; dts = _SDTs; }
+  else                 { dvr =  _DVr; dtr =  _DTr; dvs =  _DVs; dts =  _DTs; }
 
-  dvr =  _DVr; dtr =  _DTr; dvs =  _DVs; dts =  _DTs;
-  
   Veclib::zero (_npnp, hij, 1);
 
-  for (n = 0; n < _np; n++) {
-    Veclib::vmul (_np, dtr+j*_np, 1, dtr+n*_np, 1, work, 1);
-    Veclib::vmul (_np, work, 1, varkinvis+i*_np, 1, work, 1);
-    hij[Veclib::row_major(i,n,_np)]  = Blas::dot(_np,_Q1+i*_np,1,work,1);
+  if (lambda2 > EPSDP) {
+    
+        hCon = (_cyl && r2>EPSDP)?((betak2*varkinvis[Veclib::row_major(i,j,_np)])/r2+lambda2):betak2*varkinvis[Veclib::row_major(i,j,_np)]+lambda2;
+  
+        for (n = 0; n < _np; n++) {
+            Veclib::vmul (_np, dtr+j*_np, 1, dtr+n*_np, 1, work, 1);
+            Veclib::vmul (_np, work, 1, varkinvis+i*_np, 1, work, 1);
+            hij[Veclib::row_major(i,n,_np)]  = Blas::dot(_np,_Q1+i*_np,1,work,1);
+        }
+
+        for (m = 0; m < _np; m++) {
+            Veclib::vmul (_np, dts+i*_np, 1, dts+m*_np, 1, work, 1);
+            Veclib::vmul (_np, work, 1, varkinvis+j, _np, work, 1);
+            hij[Veclib::row_major(m,j,_np)] += Blas::dot (_np,_Q2+j,_np,work,1);
+        }
+
+        if (_Q3)
+            for (m = 0; m < _np; m++)
+                for (n = 0; n < _np; n++) {
+                    hij[Veclib::row_major(m,n,_np)] += _Q3[Veclib::row_major(i,n,_np)] *dvr[Veclib::row_major(n,j,_np)] *  dvs[Veclib::row_major(i,m,_np)]*varkinvis[Veclib::row_major(i,j,_np)];
+                    hij[Veclib::row_major(m,n,_np)] += _Q3[Veclib::row_major(m,j,_np)] *dvr[Veclib::row_major(j,n,_np)] *  dvs[Veclib::row_major(m,i,_np)]*varkinvis[Veclib::row_major(i,j,_np)];
+                }
+
+        hij[Veclib::row_major(i,j,_np)] += _Q4[Veclib::row_major(i,j,_np)] * hCon;
   }
+  else{
+    
+        hCon = (_cyl && r2>EPSDP)?(betak2/r2+lambda2):betak2+lambda2;
 
-  for (m = 0; m < _np; m++) {
-    Veclib::vmul (_np, dts+i*_np, 1, dts+m*_np, 1, work, 1);
-    Veclib::vmul (_np, work, 1, varkinvis+j, _np, work, 1);
-    hij[Veclib::row_major(m,j,_np)] += Blas::dot (_np,_Q2+j,_np,work,1);
+        for (n = 0; n < _np; n++) {
+            Veclib::vmul (_np, dtr+j*_np, 1, dtr+n*_np, 1, work, 1);
+            hij[Veclib::row_major(i,n,_np)]  = Blas::dot(_np,_Q1+i*_np,1,work,1);
+        }
+
+        for (m = 0; m < _np; m++) {
+            Veclib::vmul (_np, dts+i*_np, 1, dts+m*_np, 1, work, 1);
+            hij[Veclib::row_major(m,j,_np)] += Blas::dot (_np,_Q2+j,_np,work,1);
+        }
+
+        if (_Q3)
+            for (m = 0; m < _np; m++)
+                for (n = 0; n < _np; n++) {
+                    hij[Veclib::row_major(m,n,_np)] += _Q3[Veclib::row_major(i,n,_np)] *                                                       dvr[Veclib::row_major(n,j,_np)] *  dvs[Veclib::row_major(i,m,_np)];
+                    hij[Veclib::row_major(m,n,_np)] += _Q3[Veclib::row_major(m,j,_np)] *                                                       dvr[Veclib::row_major(j,n,_np)] * dvs[Veclib::row_major(m,i,_np)];
+                }
+        hij[Veclib::row_major(i,j,_np)] += _Q4[Veclib::row_major(i,j,_np)] * hCon;
+    
   }
-
-  if (_Q3)
-    for (m = 0; m < _np; m++)
-      for (n = 0; n < _np; n++) {
-	hij[Veclib::row_major(m,n,_np)] += _Q3[Veclib::row_major(i,n,_np)] *
-	dvr[Veclib::row_major(n,j,_np)] *  dvs[Veclib::row_major(i,m,_np)]*varkinvis[Veclib::row_major(i,m,_np)];
-	hij[Veclib::row_major(m,n,_np)] += _Q3[Veclib::row_major(m,j,_np)] *
-	dvr[Veclib::row_major(j,n,_np)] *  dvs[Veclib::row_major(m,i,_np)]*varkinvis[Veclib::row_major(j,n,_np)];
-      }
-      
-//      for (m = 0; m < _np; m++)
-//       for (n = 0; n < _np; n++) {
-//         hij[Veclib::row_major(m,n,_np)] *= 0.1;
-//       }
-
-  hij[Veclib::row_major(i,j,_np)] += _Q4[Veclib::row_major(i,j,_np)] * hCon;
 }
 
 
@@ -1805,3 +1824,4 @@ void Element::crossXPlus (const int             com,
       Blas::axpy (_npnp, -a[c1[com]], mesh[c0[com]], 1, tgt, 1);
   }
 }
+
