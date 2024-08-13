@@ -28,7 +28,7 @@ public:
   Field& operator = (const char*     z) {AuxField::operator=(z); return *this;}
 
   Field& solve  (AuxField*, const ModalMatrixSys*);
-  Field& solve  (AuxField*, const MatrixSys*);
+  Field& solve  (AuxField*, const MatrixSys*, AuxField*);
 
   void evaluateBoundaries    (const Field*, const int_t, const bool = true);
   void evaluateM0Boundaries  (const Field*, const int_t);
@@ -51,13 +51,13 @@ private:
   void global2local      (const real_t*, real_t*, const AssemblyMap*)   const;
   void local2globalSum   (const real_t*, real_t*, const AssemblyMap*)   const;
 
-  void constrain         (real_t*, const real_t, const real_t,
+  void constrain         (real_t*, const real_t, AuxField*, const real_t,
 			  const real_t*, const AssemblyMap*, real_t*)   const;
   void buildRHS          (real_t*, const real_t*, real_t*, real_t*,
 			  const real_t**, const int_t, const int_t,
 			  const vector<Boundary*>&,
 			  const AssemblyMap*, real_t*)                  const;
-  void HelmholtzOperator (const real_t*, real_t*, const real_t,
+  void HelmholtzOperator (const real_t*, real_t*, const real_t, AuxField*,
 			  const real_t, const int_t, real_t*)           const;
 };
 

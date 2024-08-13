@@ -197,7 +197,7 @@ void Field::evaluateM0Boundaries (const Field* P   ,
 
 
 Field& Field::solve (AuxField*        f,
-		     const MatrixSys* M)
+		     const MatrixSys* M, AuxField*        varkinvis)
 // ---------------------------------------------------------------------------
 // Problem for solution is
 //                                          
@@ -271,7 +271,7 @@ Field& Field::solve (AuxField*        f,
       Veclib::zero (nglobal, RHS, 1);
       
       this -> getEssential (bc, RHS, B, A);
-      this -> constrain    (forcing, lambda2,betak2,RHS,A,tmp);
+      this -> constrain    (forcing, lambda2, varkinvis, betak2,RHS,A,tmp);
       this -> buildRHS     (forcing, bc,RHS,0,hbi,nsolve,nzero,B,A,tmp);
       
       // -- Solve for unknown global-node values (if any).
@@ -314,7 +314,7 @@ Field& Field::solve (AuxField*        f,
       Veclib::zero (nglobal, x, 1);
 
       this -> getEssential (bc, x, B, A);  
-      this -> constrain    (forcing, lambda2,betak2,x,A,wrk);
+      this -> constrain    (forcing, lambda2,varkinvis,betak2,x,A,wrk);
       this -> buildRHS     (forcing, bc,r,r+nglobal,0,nsolve,nzero,B,A,wrk);
 
       epsb2  = Femlib::value ("TOL_REL") * sqrt (Blas::dot (npts, r, 1, r, 1));
@@ -330,7 +330,7 @@ Field& Field::solve (AuxField*        f,
       Veclib::zero (nzero, x + nsolve, 1);   
       Veclib::copy (npts,  x, 1, q, 1);
     
-      this -> HelmholtzOperator (q, p, lambda2, betak2, mode, wrk);
+      this -> HelmholtzOperator (q, p, lambda2, varkinvis, betak2, mode, wrk);
 
       Veclib::zero (nzero, p + nsolve, 1);
       Veclib::zero (nzero, r + nsolve, 1);
@@ -360,7 +360,7 @@ Field& Field::solve (AuxField*        f,
 
 	// -- Matrix-vector product.
 
-	this -> HelmholtzOperator (p, q, lambda2, betak2, mode, wrk);
+	this -> HelmholtzOperator (p, q, lambda2, varkinvis, betak2, mode, wrk);
 	Veclib::zero (nzero, q + nsolve, 1);
 
 	// -- Move in conjugate direction.
@@ -403,6 +403,7 @@ Field& Field::solve (AuxField*        f,
 
 void Field::constrain (real_t*            force  ,
 		       const real_t       lambda2,
+               AuxField* VARKINVIS,
  		       const real_t       betak2 ,
 		       const real_t*      esstlbc,
 		       const AssemblyMap* N      ,
@@ -434,10 +435,11 @@ void Field::constrain (real_t*            force  ,
     if (*emask) {		// -- f <-- M f + H g.
       Veclib::zero      (npnp, u, 1);
       E -> global2local (u, btog, esstlbc, 0);
-      E -> HelmholtzOp  (lambda2, betak2, u, u, tmp);
-      if (lambda2 > EPSDP){
-        Veclib::smul(npnp, (0.01*1.57e-5),u,1,u,1);
-      }
+      int_t offset = E-> ID() * npnp;
+      E -> HelmholtzOp  (lambda2, (VARKINVIS->getData())+offset, betak2, u, u, tmp);
+//       if (lambda2 > EPSDP){
+//         Veclib::smul(npnp, (0.01*1.57e-5),u,1,u,1);
+//       }
       Veclib::vadd      (npnp, force, 1, u, 1, force, 1);
     }
   }
@@ -450,6 +452,7 @@ void Field::constrain (real_t*            force  ,
 void Field::HelmholtzOperator (const real_t* x      ,
 			       real_t*       y      ,
 			       const real_t  lambda2,
+                   AuxField* VARKINVIS,
 			       const real_t  betak2 ,
 			       const int_t   mode   ,
 			       real_t*       work   ) const
@@ -495,7 +498,8 @@ void Field::HelmholtzOperator (const real_t* x      ,
   for (i = 0; i < nel; i++, gid += next, xint += nint, yint += nint) {
     E = _elmt[i];
     E -> global2local    (P, gid, x, xint);
-    E -> HelmholtzOp     (lambda2, betak2, P, P, tmp);
+    int_t offset = E-> ID() * npnp;
+    E -> HelmholtzOp     (lambda2, VARKINVIS -> getData()+offset, betak2, P, P, tmp);
     E -> local2globalSum (P, gid, y, yint);
   }
 }

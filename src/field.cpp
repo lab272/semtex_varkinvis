@@ -151,9 +151,9 @@ Field& Field::solve (AuxField*             f  ,
       // -- Build RHS = - M f - H g + <h, w>.
 
       Veclib::zero (nglobal, RHS, 1);
-      
+      AuxField* temp;
       this -> getEssential (bc, RHS, B, A);
-      this -> constrain    (forcing, lambda2, betak2, RHS, A, tmp);
+      this -> constrain    (forcing, lambda2, temp, betak2, RHS, A, tmp);
       this -> buildRHS     (forcing, bc, RHS, 0, hbi, nsolve, nzero,B,A,tmp);
       
       // -- Solve for unknown global-node values (if any).
@@ -193,9 +193,10 @@ Field& Field::solve (AuxField*             f  ,
       real_t* wrk = z + npts;
 
       Veclib::zero (nglobal, x, 1);
+      AuxField* temp;
 
       this -> getEssential (bc,x,B,A);
-      this -> constrain    (forcing,lambda2,betak2,x,A,wrk);
+      this -> constrain    (forcing,lambda2,temp,betak2,x,A,wrk);
       this -> buildRHS     (forcing,bc,r,r+nglobal,0,nsolve,nzero,B,A,wrk);
 
       epsb2  = Femlib::value ("TOL_REL") * sqrt (Blas::dot (npts, r, 1, r, 1));
@@ -280,6 +281,7 @@ Field& Field::solve (AuxField*             f  ,
 
 void Field::constrain (real_t*            force  ,
 		       const real_t       lambda2,
+               AuxField* VARKINVIS,
  		       const real_t       betak2 ,
 		       const real_t*      esstlbc,
 		       const AssemblyMap* N      ,
@@ -311,7 +313,8 @@ void Field::constrain (real_t*            force  ,
     if (*emask) {		// -- f <-- M f + H g.
       Veclib::zero      (npnp, u, 1);
       E -> global2local (u, btog, esstlbc, 0);
-      E -> HelmholtzOp  (lambda2, betak2, u, u, tmp);
+      int_t offset = E-> ID() * npnp;
+      E -> HelmholtzOp  (lambda2, (VARKINVIS->getData())+offset, betak2, u, u, tmp);
       Veclib::vadd      (npnp, force, 1, u, 1, force, 1);
     }
   }
@@ -403,7 +406,8 @@ void Field::HelmholtzOperator (const real_t* x      ,
   for (i = 0; i < nel; i++, gid += next, xint += nint, yint += nint) {
     E = _elmt[i];
     E -> global2local    (P, gid, x, xint);
-    E -> HelmholtzOp     (lambda2, betak2, P, P, tmp);
+    real_t* temp;
+    E -> HelmholtzOp     (lambda2, temp, betak2, P, P, tmp);
     E -> local2globalSum (P, gid, y, yint);
   }
 

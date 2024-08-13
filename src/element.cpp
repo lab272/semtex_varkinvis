@@ -1576,6 +1576,7 @@ void Element::HelmholtzDiag (const real_t lambda2,
 
 
 void Element::HelmholtzKern (const real_t lambda2,
+                 real_t* varkinvis,
 			     const real_t betak2 ,
 			     real_t*      R      ,
 			     real_t*      S      ,
@@ -1597,7 +1598,7 @@ void Element::HelmholtzKern (const real_t lambda2,
     if (g3) {
       for (ij = 0; ij < loopcnt; ij++) {
 	r2       = r[ij] * r[ij];
-	hCon     = (r2 > EPSDP) ? (betak2 / r2 + lambda2) : 0.0;
+	hCon     = (r2 > EPSDP) ? ((betak2*varkinvis[ij]) / r2 +lambda2) : 0.0;
 	tmp      = R [ij];
 	R  [ij]  = g1[ij] * R  [ij] + g3[ij] * S  [ij];
 	S  [ij]  = g2[ij] * S  [ij] + g3[ij] * tmp;
@@ -1606,7 +1607,7 @@ void Element::HelmholtzKern (const real_t lambda2,
     } else {
       for (ij = 0; ij < loopcnt; ij++) {
 	r2       = r[ij] * r[ij];
-	hCon     = (r2 > EPSDP) ? (betak2 / r2 + lambda2) : 0.0;
+	hCon     = (r2 > EPSDP) ? ((betak2*varkinvis[ij]) +lambda2) : 0.0;
 	R  [ij] *= g1[ij];
 	S  [ij] *= g2[ij];
 	tgt[ij]  = g4[ij] * src[ij] * hCon;
@@ -1633,6 +1634,7 @@ void Element::HelmholtzKern (const real_t lambda2,
 
 
 void Element::HelmholtzOp (const real_t lambda2,
+               real_t*      varkinvis,
 			   const real_t betak2 ,
 			   real_t*      src    ,
 			   real_t*      tgt    ,
@@ -1656,8 +1658,11 @@ void Element::HelmholtzOp (const real_t lambda2,
   
   Blas::mxm (src, _np, dtr, _np, R, _np);
   Blas::mxm (dvs, _np, src, _np, S, _np);
+  
+  Veclib::vmul (_np, R, 1, varkinvis, 1, R, 1);
+  Veclib::vmul (_np, S, 1, varkinvis, 1, S, 1);
 
-  this -> HelmholtzKern (lambda2, betak2, R, S, src, tgt);
+  this -> HelmholtzKern (lambda2, varkinvis, betak2, R, S, src, tgt);
 
   Blas::mxma (dts, _np, S,   _np, tgt, _np);
   Blas::mxma (R,   _np, dvr, _np, tgt, _np);

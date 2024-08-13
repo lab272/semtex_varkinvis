@@ -155,7 +155,7 @@ private:
   void global2local      (const real_t*, real_t*, const AssemblyMap*)   const;
   void local2globalSum   (const real_t*, real_t*, const AssemblyMap*)   const;
 
-  void constrain         (real_t*, const real_t, const real_t,
+  void constrain         (real_t*, const real_t,AuxField*, const real_t,
 			  const real_t*, const AssemblyMap*, real_t*)   const;
   void buildRHS          (real_t*,const real_t*, real_t*, real_t*, 
 			  const real_t**, const int_t, const int_t,

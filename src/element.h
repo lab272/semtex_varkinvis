@@ -36,9 +36,9 @@ public:
   void HelmholtzSC   (const real_t,real_t*,const real_t,real_t*,real_t*,
 		      real_t*,real_t*,real_t*,int_t*)                    const;
   void HelmholtzDiag (const real_t,const real_t,real_t*,real_t*)         const;
-  void HelmholtzKern (const real_t,const real_t,
+  void HelmholtzKern (const real_t, real_t*, const real_t,
 		      real_t*,real_t*,real_t*,real_t*)                   const;
-  void HelmholtzOp   (const real_t,const real_t,real_t*,real_t*,real_t*) const;
+  void HelmholtzOp   (const real_t, real_t*,const real_t,real_t*,real_t*,real_t*) const;
 
   // -- Local/global projectors.
 

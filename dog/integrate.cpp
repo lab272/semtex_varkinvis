@@ -543,8 +543,8 @@ static void Solve (Domain*     D,
     MatrixSys* tmp =
       new MatrixSys (lambda2, D -> VARKINVIS,  betak2, bmode, D -> elmt, D -> b[i], A, JACPCG);
 
-    D -> u[i] -> solve (F, tmp);
+    D -> u[i] -> solve (F, tmp, D -> VARKINVIS);
     delete tmp;
 
-  } else D -> u[i] -> solve (F, M);
+  } else D -> u[i] -> solve (F, M, D -> VARKINVIS);
 }
