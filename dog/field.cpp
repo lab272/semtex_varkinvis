@@ -437,9 +437,6 @@ void Field::constrain (real_t*            force  ,
       E -> global2local (u, btog, esstlbc, 0);
       int_t offset = E-> ID() * npnp;
       E -> HelmholtzOp  (lambda2, (VARKINVIS->getData())+offset, betak2, u, u, tmp);
-//       if (lambda2 > EPSDP){
-//         Veclib::smul(npnp, (0.01*1.57e-5),u,1,u,1);
-//       }
       Veclib::vadd      (npnp, force, 1, u, 1, force, 1);
     }
   }
