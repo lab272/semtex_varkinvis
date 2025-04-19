@@ -1473,7 +1473,7 @@ void Element::HelmholtzRow (const real_t lambda2,
   if (lambda2 > EPSDP) {
     
         hCon = (_cyl && r2>EPSDP)?((betak2*varkinvis[Veclib::row_major(i,j,_np)])/r2+lambda2):betak2*varkinvis[Veclib::row_major(i,j,_np)]+lambda2;
-  
+
         for (n = 0; n < _np; n++) {
             Veclib::vmul (_np, dtr+j*_np, 1, dtr+n*_np, 1, work, 1);
             Veclib::vmul (_np, work, 1, varkinvis+j, _np, work, 1);

@@ -216,11 +216,15 @@ void linAdvect (Domain*    D ,
   int_t             i, j;
   vector<AuxField*> U(NBASE + 1), u(NPERT), N(NPERT);
   Field*            T = D -> u[0];
+  AuxField*         T2;
+  AuxField*         nu;
 
   // -- Set up local aliases.
 
   for (i = 0; i < NBASE + 1; i++)
     U[i] = D -> U[i];
+  
+  nu = D -> VARKINVIS;
 
   for (i = 0; i < NPERT; i++) {
     AuxField::swapData (D -> u[i], Us[i]);
@@ -239,7 +243,32 @@ void linAdvect (Domain*    D ,
      *N[2] += T -> times (*u[1], *U[2]) . divY();
     }
   }
+  
+  // -- Variable kinvis terms for cylindrical coords.
+  if (Geometry::cylindrical()) {
+    if (NPERT == 3){
+      (*T = *u[2]) . gradient (2);
+      N[1] -> timesPlus(*T,*nu).divY().divY();
+      (*T = *u[1]) . gradient (2);
+      N[2] -> timesPlus(*T,*nu).divY().divY();
+    }
+    *T *= -1.0;
+    N[1] -> timesPlus(*u[1],*nu).divY().divY();
+  }
+  
+  // -- Variable kinvis terms.
+  for (i = 0; i < NPERT; i++){
+    for (j = 0; j < NPERT; j++){
+      (*T = *u[j]).gradient (i);
+      (*U[NBASE] = *nu).gradient (j);
+      if (Geometry::cylindrical() && i == 2) T -> divY();
+      if (Geometry::cylindrical() && j == 2) T -> divY();
+      *U[NBASE] *= -1.0;
+      N[i] -> timesPlus (*T, *U[NBASE]);
+    }
+  }
 
+  
   // -- N_i += U_j d(u_i) / dx_j.
 
   for (i = 0; i < NPERT; i++)
