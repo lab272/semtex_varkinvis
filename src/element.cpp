@@ -1410,7 +1410,7 @@ void Element::mapping ()
   } 
 
   // -- Calculations are done.  Do null-mapping optimizations.
-  
+
   if (Blas::nrm2 (_npnp, _drdx, 1) < EPS) { delete [] _drdx; _drdx = 0; }
   if (Blas::nrm2 (_npnp, _drdy, 1) < EPS) { delete [] _drdy; _drdy = 0; }
   if (Blas::nrm2 (_npnp, _dsdx, 1) < EPS) { delete [] _dsdx; _dsdx = 0; }
@@ -1476,16 +1476,20 @@ void Element::HelmholtzRow (const real_t lambda2,
 
         for (n = 0; n < _np; n++) {
             Veclib::vmul (_np, dtr+j*_np, 1, dtr+n*_np, 1, work, 1);
-            Veclib::vmul (_np, work, 1, varkinvis+j, _np, work, 1);
+//             Veclib::vmul (_np, work, 1, varkinvis+j, _np, work, 1);
+            Veclib::vmul (_np, work, 1, varkinvis+i*_np, 1, work, 1);
+//             Veclib::smul (_np, varkinvis[Veclib::row_major(i,j,_np)], work, 1, work, 1);
             hij[Veclib::row_major(i,n,_np)]  = Blas::dot(_np,_Q1+i*_np,1,work,1);
         }
 
         for (m = 0; m < _np; m++) {
             Veclib::vmul (_np, dts+i*_np, 1, dts+m*_np, 1, work, 1);
-            Veclib::vmul (_np, work, 1, varkinvis+i*_np, 1, work, 1);
+//             Veclib::vmul (_np, work, 1, varkinvis+i*_np, 1, work, 1);
+            Veclib::vmul (_np, work, 1, varkinvis+j, _np, work, 1);
+//             Veclib::smul (_np, varkinvis[Veclib::row_major(i,j,_np)], work, 1, work, 1);
             hij[Veclib::row_major(m,j,_np)] += Blas::dot (_np,_Q2+j,_np,work,1);
         }
-
+        
         if (_Q3)
             for (m = 0; m < _np; m++)
                 for (n = 0; n < _np; n++) {
@@ -1605,7 +1609,7 @@ void Element::HelmholtzKern (const real_t lambda2,
     } else {
       for (ij = 0; ij < loopcnt; ij++) {
 	r2       = r[ij] * r[ij];
-	hCon     = (r2 > EPSDP) ? ((betak2*varkinvis[ij]) +lambda2) : 0.0;
+	hCon     = (r2 > EPSDP) ? (betak2*varkinvis[ij] +lambda2) : 0.0;
 	R  [ij] *= g1[ij];
 	S  [ij] *= g2[ij];
 	tgt[ij]  = g4[ij] * src[ij] * hCon;
