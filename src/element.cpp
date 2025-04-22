@@ -1476,17 +1476,13 @@ void Element::HelmholtzRow (const real_t lambda2,
 
         for (n = 0; n < _np; n++) {
             Veclib::vmul (_np, dtr+j*_np, 1, dtr+n*_np, 1, work, 1);
-//             Veclib::vmul (_np, work, 1, varkinvis+j, _np, work, 1);
             Veclib::vmul (_np, work, 1, varkinvis+i*_np, 1, work, 1);
-//             Veclib::smul (_np, varkinvis[Veclib::row_major(i,j,_np)], work, 1, work, 1);
             hij[Veclib::row_major(i,n,_np)]  = Blas::dot(_np,_Q1+i*_np,1,work,1);
         }
 
         for (m = 0; m < _np; m++) {
             Veclib::vmul (_np, dts+i*_np, 1, dts+m*_np, 1, work, 1);
-//             Veclib::vmul (_np, work, 1, varkinvis+i*_np, 1, work, 1);
             Veclib::vmul (_np, work, 1, varkinvis+j, _np, work, 1);
-//             Veclib::smul (_np, varkinvis[Veclib::row_major(i,j,_np)], work, 1, work, 1);
             hij[Veclib::row_major(m,j,_np)] += Blas::dot (_np,_Q2+j,_np,work,1);
         }
         
@@ -1600,7 +1596,7 @@ void Element::HelmholtzKern (const real_t lambda2,
     if (g3) {
       for (ij = 0; ij < loopcnt; ij++) {
 	r2       = r[ij] * r[ij];
-	hCon     = (r2 > EPSDP) ? ((betak2*varkinvis[ij]) / r2 +lambda2) : 0.0;
+	hCon     = (r2 > EPSDP) ? ((betak2) / r2 +lambda2/varkinvis[ij]) : 0.0;
 	tmp      = R [ij];
 	R  [ij]  = g1[ij] * R  [ij] + g3[ij] * S  [ij];
 	S  [ij]  = g2[ij] * S  [ij] + g3[ij] * tmp;
@@ -1609,14 +1605,14 @@ void Element::HelmholtzKern (const real_t lambda2,
     } else {
       for (ij = 0; ij < loopcnt; ij++) {
 	r2       = r[ij] * r[ij];
-	hCon     = (r2 > EPSDP) ? (betak2*varkinvis[ij] +lambda2) : 0.0;
+	hCon     = (r2 > EPSDP) ? (betak2 +lambda2/varkinvis[ij]) : 0.0;
 	R  [ij] *= g1[ij];
 	S  [ij] *= g2[ij];
 	tgt[ij]  = g4[ij] * src[ij] * hCon;
       }
     }
   } else {			// -- Cartesian.
-    hCon = betak2*varkinvis[ij] + lambda2;
+    hCon = betak2 + lambda2/varkinvis[ij];
     if (g3) {
       for (ij = 0; ij < loopcnt; ij++) {
 	tmp      = R [ij];
@@ -1661,8 +1657,8 @@ void Element::HelmholtzOp (const real_t lambda2,
   Blas::mxm (src, _np, dtr, _np, R, _np);
   Blas::mxm (dvs, _np, src, _np, S, _np);
   
-  Veclib::vmul (_np, R, 1, varkinvis, 1, R, 1);
-  Veclib::vmul (_np,S, 1, varkinvis, 1, S, 1);
+//   Veclib::vmul (_np, R, 1, varkinvis, 1, R, 1);
+//   Veclib::vmul (_np,S, 1, varkinvis, 1, S, 1);
 
   this -> HelmholtzKern (lambda2, varkinvis, betak2, R, S, src, tgt);
 
