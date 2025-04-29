@@ -248,13 +248,16 @@ void linAdvect (Domain*    D ,
   if (Geometry::cylindrical()) {
     if (NPERT == 3){
       (*T = *u[2]) . gradient (2);
-      N[1] -> timesPlus(*T,*nu).divY();
+      T -> divY();
+      N[1] -> timesPlus(*T,*nu);
       (*T = *u[1]) . gradient (2);
-      N[2] -> timesPlus(*T,*nu).divY();
+      T->divY().divY();
+      N[2] -> timesPlus(*T,*nu);
     }
     *U[NBASE] = *nu;
     *U[NBASE] *= -1.0;
-    N[1] -> timesPlus(*u[1],*U[NBASE]).divY();
+    U[NBASE] -> divY();
+    N[1] -> timesPlus(*u[1],*U[NBASE]);
   }
   
   // -- Variable kinvis terms.
@@ -264,8 +267,8 @@ void linAdvect (Domain*    D ,
       (*U[NBASE] = *nu).gradient (j);
 //       if (Geometry::cylindrical() && i == 2) T -> divY();
 //       if (Geometry::cylindrical() && j == 2) T -> divY();
-//       if      (Geometry::cylindrical() && i <  2 && j <  2) T -> mulY();
-//       else if (Geometry::cylindrical() && i == 2 && j == 2) T -> divY();
+      if      (Geometry::cylindrical() && i <  2 && j <  2) T -> mulY();
+      else if (Geometry::cylindrical() && i == 2 ) T -> divY();
       if (Geometry::cylindrical() && i == 2 && j == 2) T -> divY();
       *U[NBASE] *= -1.0;
       N[i] -> timesPlus (*T, *U[NBASE]);
