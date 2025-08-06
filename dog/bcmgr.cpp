@@ -700,7 +700,8 @@ void BCmgr::maintainFourier (const int_t      step   ,
 			     const AuxField** Uf     ,
 			     const int_t      ncom   , // Unused in dog.
 			     const int_t      nadv   , // Ditto.
-			     const bool       timedep)
+			     const bool       timedep,
+                 const AuxField*  nuVar)
 // ---------------------------------------------------------------------------
 // Update storage for evaluation of internally computed pressure boundary
 // conditions.  Storage order for each edge represents a CCW traverse
@@ -725,7 +726,7 @@ void BCmgr::maintainFourier (const int_t      step   ,
 // No smoothing is done to high-order spatial derivatives computed here.
 // ---------------------------------------------------------------------------
 {
-  const real_t nu    = Femlib::value ("KINVIS");
+  
   const real_t invDt = 1.0 / Femlib::value ("D_T");
 
   const AuxField* Ux = Us[0];
@@ -776,6 +777,8 @@ void BCmgr::maintainFourier (const int_t      step   ,
 
   for (i = 0; i < _nEdge; i++) {
     B = BC[i];
+    offset = B -> dOff ();
+    skip   = B -> dSkip();
     j = i * _nP;
 
     if (_nZ == 1) {
@@ -790,9 +793,14 @@ void BCmgr::maintainFourier (const int_t      step   ,
 	UzIm = Uz -> _plane[0];
 	B->curlCurl(1,UxRe,0,UyRe,0,0,UzIm,xr,0,yr,0,wrk);
       }
-      Veclib::svvttvp(_nP,-nu,xr,1,B->nx(),1,
+      
+      Veclib::vmul  (_nP, nuVar->getData() + offset, skip, xr, 1, 
+                    xr, 1);
+      Veclib::vmul  (_nP, nuVar->getData() + offset, skip, yr, 1, 
+                    yr, 1);
+      Veclib::svvttvp(_nP,-1.0,xr,1,B->nx(),1,
 		      _hopbc[0][0]+j,1,_hopbc[0][0]+j,1);
-      Veclib::svvttvp(_nP,-nu,yr,1,B->ny(),1,
+      Veclib::svvttvp(_nP,-1.0,yr,1,B->ny(),1,
 		      _hopbc[0][0]+j,1,_hopbc[0][0]+j,1); 
 
     } else {			    // -- Full complex perturbation.
@@ -804,15 +812,24 @@ void BCmgr::maintainFourier (const int_t      step   ,
       UzIm = Uz -> _plane[1];
 
       B->curlCurl(1,UxRe,UxIm,UyRe,UyIm,UzRe,UzIm,xr,xi,yr,yi,wrk);
+      
+      Veclib::vmul  (_nP, nuVar->getData() + offset, skip, xr, 1, 
+                    xr, 1);
+      Veclib::vmul  (_nP, nuVar->getData() + offset, skip, xi, 1, 
+                    xi, 1);
+      Veclib::vmul  (_nP, nuVar->getData() + offset, skip, yr, 1, 
+                    yr, 1);
+      Veclib::vmul  (_nP, nuVar->getData() + offset, skip, yi, 1, 
+                    yi, 1);
 
       Veclib::svvttvp 
-	(_nP, -nu, xr,1, B->nx(),1, _hopbc[0][0]+j,1, _hopbc[0][0]+j,1);
+	(_nP, -1.0, xr,1, B->nx(),1, _hopbc[0][0]+j,1, _hopbc[0][0]+j,1);
       Veclib::svvttvp 
-	(_nP, -nu, xi,1, B->nx(),1, _hopbc[0][1]+j,1, _hopbc[0][1]+j,1);
+	(_nP, -1.0, xi,1, B->nx(),1, _hopbc[0][1]+j,1, _hopbc[0][1]+j,1);
       Veclib::svvttvp 
-	(_nP, -nu, yr,1, B->ny(),1, _hopbc[0][0]+j,1, _hopbc[0][0]+j,1);
+	(_nP, -1.0, yr,1, B->ny(),1, _hopbc[0][0]+j,1, _hopbc[0][0]+j,1);
      Veclib::svvttvp 
-	(_nP, -nu, yi,1, B->ny(),1, _hopbc[0][1]+j,1, _hopbc[0][1]+j,1);
+	(_nP, -1.0, yi,1, B->ny(),1, _hopbc[0][1]+j,1, _hopbc[0][1]+j,1);
     }
   }
 

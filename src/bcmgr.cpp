@@ -901,7 +901,8 @@ void BCmgr::maintainFourier (const int_t      step   ,
 			     const AuxField** Uf     ,
 			     const int_t      nCom   ,
 			     const int_t      nAdv   ,
-			     const bool       timedep)
+			     const bool       timedep,
+                 const AuxField*  nuVar)
 // ---------------------------------------------------------------------------
 // Update storage for evaluation of internally computed boundary
 // conditions, see Refs [1-3,5].  Storage order for each edge represents

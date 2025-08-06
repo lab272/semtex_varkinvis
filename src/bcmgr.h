@@ -48,7 +48,7 @@ public:
 
   void maintainFourier  (const int_t, const Field*, const AuxField**,
 			 const AuxField**, const int_t, const int_t,
-			 const bool = true);  
+			 const bool = true, const AuxField* = NULL);  
   void maintainPhysical (const Field*, const vector<AuxField*>&,
 			 const int_t, const int_t);
   void evaluateCNBCp    (const int_t, const int_t, const int_t, real_t*);
