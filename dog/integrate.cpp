@@ -249,6 +249,7 @@ void linAdvect (Domain*    D ,
     if (NPERT == 3){
       (*T = *u[2]) . gradient (2);
       T -> divY();
+      *T *= -1.0;
       N[1] -> timesPlus(*T,*nu);
       (*T = *u[1]) . gradient (2);
       T->divY().divY();
