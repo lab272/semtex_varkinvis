@@ -244,39 +244,97 @@ void linAdvect (Domain*    D ,
     }
   }
   
-  // -- Variable kinvis terms for cylindrical coords.
-  if (Geometry::cylindrical()) {
-    if (NPERT == 3){
-      (*T = *u[2]) . gradient (2);
-      T -> divY();
-      *T *= -1.0;
-      N[1] -> timesPlus(*T,*nu);
-      (*T = *u[1]) . gradient (2);
-      T->divY().divY();
-      N[2] -> timesPlus(*T,*nu);
-    }
-    *U[NBASE] = *nu;
-    *U[NBASE] *= -1.0;
-    U[NBASE] -> divY();
-    N[1] -> timesPlus(*u[1],*U[NBASE]);
-  }
+//   // -- Variable kinvis terms for cylindrical coords.
+//   if (Geometry::cylindrical()) {
+//     if (NPERT == 3){
+//       (*T = *u[2]) . gradient (2);
+//       T -> divY();
+//       *T *= -1.0;
+//       N[1] -> timesPlus(*T,*nu);
+//       (*T = *u[1]) . gradient (2);
+//       T->divY().divY();
+//       N[2] -> timesPlus(*T,*nu);
+//     }
+//     *U[NBASE] = *nu;
+//     *U[NBASE] *= -1.0;
+//     U[NBASE] -> divY();
+//     N[1] -> timesPlus(*u[1],*U[NBASE]);
+//   }
   
   // -- Variable kinvis terms.
-  for (i = 0; i < NPERT; i++){
-    for (j = 0; j < NPERT; j++){
-      (*T = *u[j]).gradient (i);
-      (*U[NBASE] = *nu).gradient (j);
-//       if (Geometry::cylindrical() && i == 2) T -> divY();
-//       if (Geometry::cylindrical() && j == 2) T -> divY();
-      if      (Geometry::cylindrical() && i <  2 && j <  2) T -> mulY();
-      else if (Geometry::cylindrical() && i == 2 ) T -> divY();
-      if (Geometry::cylindrical() && i == 2 && j == 2) T -> divY();
-      *U[NBASE] *= -1.0;
-      N[i] -> timesPlus (*T, *U[NBASE]);
-    }
-  }
+//   for (i = 0; i < NPERT; i++){
+//     for (j = 0; j < NPERT; j++){
+//       (*T = *u[j]).gradient (i);
+//       (*U[NBASE] = *nu).gradient (j);
+// //       if (Geometry::cylindrical() && i == 2) T -> divY();
+// //       if (Geometry::cylindrical() && j == 2) T -> divY();
+//       if      (Geometry::cylindrical() && i <  2 && j <  2) T -> mulY();
+//       else if (Geometry::cylindrical() && i == 2 ) T -> divY();
+//       if (Geometry::cylindrical() && i == 2 && j == 2) T -> divY();
+//       *U[NBASE] *= -1.0;
+//       N[i] -> timesPlus (*T, *U[NBASE]);
+//     }
+//   }
 
-  
+(*T = *u[0]).gradient (0);
+*T *= 2.0;
+(*U[NBASE] = *nu).gradient (0);
+*U[NBASE] *= -1.0;
+N[0] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[0]).gradient (1);
+(*U[NBASE] = *nu).gradient (1);
+*U[NBASE] *= -1.0;
+N[0] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[1]).gradient (0);
+(*U[NBASE] = *nu).gradient (1);
+*U[NBASE] *= -1.0;
+N[0] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[0]).gradient (1);
+(*U[NBASE] = *nu).gradient (0);
+*U[NBASE] *= -1.0;
+N[1] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[1]).gradient (0);
+(*U[NBASE] = *nu).gradient (0);
+*U[NBASE] *= -1.0;
+N[1] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[1]).gradient (1);
+*T *= 2.0;
+(*U[NBASE] = *nu).gradient (1);
+*U[NBASE] *= -1.0;
+N[1] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[1]).gradient (2);
+T -> divY();
+(*U[NBASE] = *nu).gradient (0);
+*U[NBASE] *= -1.0;
+N[2] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[1]).gradient (2);
+T -> divY();
+(*U[NBASE] = *nu).gradient (1);
+*U[NBASE] *= -1.0;
+N[2] -> timesPlus (*T, *U[NBASE]);
+
+*T = *u[2];
+T -> divY();
+(*U[NBASE] = *nu).gradient (1);
+N[2] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[2]).gradient (0);
+(*U[NBASE] = *nu).gradient (0);
+*U[NBASE] *= -1.0;
+N[2] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[2]).gradient (1);
+(*U[NBASE] = *nu).gradient (1);
+*U[NBASE] *= -1.0;
+N[2] -> timesPlus (*T, *U[NBASE]);
+
   // -- N_i += U_j d(u_i) / dx_j.
 
   for (i = 0; i < NPERT; i++)
@@ -347,38 +405,105 @@ void linAdvectT (Domain*    D ,
     }
   }
   
-  // -- Variable kinvis terms for cylindrical coords.
-  if (Geometry::cylindrical()) {
-    if (NPERT == 3){
-      (*T = *u[2]) . gradient (2);
-      T -> divY();
-      *T *= -1.0;
-      N[1] -> timesPlus(*T,*nu);
-      (*T = *u[1]) . gradient (2);
-      T->divY().divY();
-      N[2] -> timesPlus(*T,*nu);
-    }
-    *U[NBASE] = *nu;
-    *U[NBASE] *= -1.0;
-    U[NBASE] -> divY();
-    N[1] -> timesPlus(*u[1],*U[NBASE]);
-  }
-  
-  // -- Variable kinvis terms.
-  for (i = 0; i < NPERT; i++){
-    for (j = 0; j < NPERT; j++){
-      (*T = *u[j]).gradient (i);
-      (*U[NBASE] = *nu).gradient (j);
-//       if (Geometry::cylindrical() && i == 2) T -> divY();
-//       if (Geometry::cylindrical() && j == 2) T -> divY();
-      if      (Geometry::cylindrical() && i <  2 && j <  2) T -> mulY();
-      else if (Geometry::cylindrical() && i == 2 ) T -> divY();
-      if (Geometry::cylindrical() && i == 2 && j == 2) T -> divY();
-      *U[NBASE] *= -1.0;
-      N[i] -> timesPlus (*T, *U[NBASE]);
-    }
-  }
+//   // -- Variable kinvis terms for cylindrical coords.
+//   if (Geometry::cylindrical()) {
+//     if (NPERT == 3){
+//       (*T = *u[2]) . gradient (2);
+//       T -> divY();
+//       *T *= -1.0;
+//       N[1] -> timesPlus(*T,*nu);
+//       (*T = *u[1]) . gradient (2);
+//       T->divY().divY();
+//       N[2] -> timesPlus(*T,*nu);
+//     }
+//     *U[NBASE] = *nu;
+//     *U[NBASE] *= -1.0;
+//     U[NBASE] -> divY();
+//     N[1] -> timesPlus(*u[1],*U[NBASE]);
+//   }
+//   
+//   // -- Variable kinvis terms.
+//   for (i = 0; i < NPERT; i++){
+//     for (j = 0; j < NPERT; j++){
+//       (*T = *u[j]).gradient (i);
+//       (*U[NBASE] = *nu).gradient (j);
+// //       if (Geometry::cylindrical() && i == 2) T -> divY();
+// //       if (Geometry::cylindrical() && j == 2) T -> divY();
+//       if      (Geometry::cylindrical() && i <  2 && j <  2) T -> mulY();
+//       else if (Geometry::cylindrical() && i == 2 ) T -> divY();
+//       if (Geometry::cylindrical() && i == 2 && j == 2) T -> divY();
+//       *U[NBASE] *= -1.0;
+//       N[i] -> timesPlus (*T, *U[NBASE]);
+//     }
+//   }
 
+(*T = *u[0]).gradient (0);
+*T *= -1.0;
+*T *= 2.0;
+(*U[NBASE] = *nu).gradient (0);
+*U[NBASE] *= -1.0;
+N[0] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[0]).gradient (1);
+*T *= -1.0;
+(*U[NBASE] = *nu).gradient (1);
+*U[NBASE] *= -1.0;
+N[0] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[1]).gradient (0);
+*T *= -1.0;
+(*U[NBASE] = *nu).gradient (1);
+*U[NBASE] *= -1.0;
+N[0] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[0]).gradient (1);
+(*U[NBASE] = *nu).gradient (0);
+*U[NBASE] *= -1.0;
+N[1] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[1]).gradient (0);
+*T *= -1.0;
+(*U[NBASE] = *nu).gradient (0);
+*U[NBASE] *= -1.0;
+N[1] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[1]).gradient (1);
+*T *= -1.0;
+*T *= 2.0;
+(*U[NBASE] = *nu).gradient (1);
+*U[NBASE] *= -1.0;
+N[1] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[1]).gradient (2);
+*T *= -1.0;
+T -> divY();
+(*U[NBASE] = *nu).gradient (0);
+*U[NBASE] *= -1.0;
+N[2] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[1]).gradient (2);
+*T *= -1.0;
+T -> divY();
+(*U[NBASE] = *nu).gradient (1);
+*U[NBASE] *= -1.0;
+N[2] -> timesPlus (*T, *U[NBASE]);
+
+*T = *u[2];
+T -> divY();
+(*U[NBASE] = *nu).gradient (1);
+N[2] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[2]).gradient (0);
+*T *= -1.0;
+(*U[NBASE] = *nu).gradient (0);
+*U[NBASE] *= -1.0;
+N[2] -> timesPlus (*T, *U[NBASE]);
+
+(*T = *u[2]).gradient (1);
+*T *= -1.0;
+(*U[NBASE] = *nu).gradient (1);
+*U[NBASE] *= -1.0;
+N[2] -> timesPlus (*T, *U[NBASE]);
 
   // -- N_i -= U_j d(u_i) / dx_j.
 
